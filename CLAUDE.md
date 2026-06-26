@@ -1,6 +1,6 @@
-# HotelMind
+# Hotel Management System
 
-Hotel management system built as a monorepo.
+A hotel management system built as a monorepo with a microservices architecture.
 
 ## Package Manager
 
@@ -12,9 +12,15 @@ All apps and services live under `packages/`. When creating a new app or service
 
 ```
 packages/
-  api/    # HTTP server / backend API
+  api/    # HTTP server / backend API (gateway or primary service)
   web/    # Front-end web application
 ```
+
+## Architecture
+
+The system is designed around microservices. Each service is an independent package under `packages/` with its own responsibilities and deployment lifecycle. Services communicate over the network rather than sharing in-process code.
+
+When adding a new service, create it as a new package under `packages/` and treat it as an autonomous unit.
 
 ## Tooling
 
