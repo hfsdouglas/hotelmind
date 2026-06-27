@@ -77,6 +77,14 @@ When making technical decisions, always prioritize code that is readable, predic
 ```text
 src/
 ├── pages/
+│   ├── _layouts/   ← route layout wrappers (Outlet-based)
+│   │   ├── app.tsx     ← protected app shell (Sidebar + TopNavbar)
+│   │   └── login.tsx   ← public auth wrapper (centered)
+│   ├── app/        ← protected pages (require auth)
+│   │   └── dashboard.tsx
+│   ├── auth/       ← public pages
+│   │   └── login.tsx
+│   └── error-404.tsx
 ├── components/
 ├── hooks/
 ├── api/
@@ -85,7 +93,7 @@ src/
 ├── config/
 ├── lib/
 ├── routes.tsx
-├── app.tsx
+├── App.tsx
 ├── main.tsx
 └── index.css
 ```
@@ -94,7 +102,12 @@ src/
 
 ### /pages
 
-Responsible for application pages.
+Responsible for application pages and layout wrappers.
+
+- `_layouts/` — layout components registered as route elements; render `<Outlet />` for child pages. Each layout owns its shell (Sidebar, Navbar) and any mount-time side effects (e.g. session verification).
+- `app/` — pages that require authentication; always nested inside `_layouts/app.tsx`.
+- `auth/` — public pages (login, password reset); always nested inside `_layouts/login.tsx`.
+- `error-*.tsx` — error pages at the root of `pages/`.
 
 Pages should:
 

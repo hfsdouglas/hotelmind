@@ -1,13 +1,66 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Hotel {
+  id                 String          @id @default(uuid())
+  created_at         DateTime        @default(now())
+  updated_at         DateTime        @updatedAt
+  nome_hotel         String          @db.VarChar(100)
+  razao_social       String          @db.VarChar(100)
+  nome_fantasia      String          @db.VarChar(100)
+  cnpj               String          @unique @db.VarChar(14)
+  email_comercial    String          @unique @db.VarChar(255)
+  telefone_comercial String          @db.VarChar(11)
+  website            String?
+
+  enderecos          HotelEndereco[]
+  users              User[]
+
+  @@map("hoteis")
+}
+
+model HotelEndereco {
+  id          String   @id @default(uuid())
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  hotel_id    String
+  hotel       Hotel    @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+  rua         String   @db.VarChar(100)
+  numero      String   @db.VarChar(10)
+  bairro      String   @db.VarChar(50)
+  complemento String?
+  cep         String   @db.VarChar(8)
+  cidade      String   @db.VarChar(50)
+  estado      String   @db.VarChar(2)
+
+  @@index([hotel_id])
+  @@map("hoteis_enderecos")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  hotel_id      String
+  hotel         Hotel    @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+  nome_completo String   @db.VarChar(255)
+  email         String   @unique @db.VarChar(255)
+  senha         String   @db.Text
+  nascimento    DateTime @db.Date
+  genero        String   @db.VarChar(20)
+  celular       String   @unique @db.VarChar(20)
+  cpf           String   @unique @db.VarChar(14)
+  rg            String?  @unique
+
+  @@index([hotel_id])
+  @@map("users")
 }

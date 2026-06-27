@@ -295,3 +295,45 @@ When generating or modifying code in this package, follow these rules without ex
 14. Do not create generic utility files (`helpers.ts`, `utils.ts`) without clear, documented justification.
 15. Ask for explicit user approval before creating any git commit.
 16. Follow Conventional Commits format for all commit messages (see root `CLAUDE.md`).
+17. Scope every query, entity, and relation by `hotel_id` — never allow cross-hotel data leakage.
+18. Derive `hotel_id` exclusively from the authenticated JWT payload (`request.user.hotelId`); never accept it from the request body or query params.
+
+---
+
+## Multi-tenant Architecture
+
+This system is multi-tenant. Every piece of business data belongs to exactly one hotel.
+
+### Mandatory Rules
+
+- Every business table MUST include a `hotel_id` column.
+- Every query that fetches, creates, updates, or deletes business data MUST filter or set `hotel_id`.
+- `hotel_id` is NEVER trusted from the client. It is derived from the authenticated user's JWT payload.
+- Repository implementations that accept a `hotel_id` parameter receive it from the use case, which receives it from the route, which reads it from `request.user.hotelId`.
+- Cross-hotel data access is a critical security vulnerability. Treat it as such.
+
+### Pattern
+
+```ts
+// Route handler
+const { hotelId } = request.user
+
+// Use case receives it as a parameter
+await useCase.execute({ hotelId, ...body })
+
+// Repository applies it to every query
+await db.reservation.findMany({ where: { hotel_id: hotelId } })
+```
+
+---
+
+## Database Rules
+
+- **ORM**: Prisma only. No raw SQL unless Prisma cannot express the query.
+- **Field names**: All schema fields MUST be written in Portuguese (pt-BR) with snake_case.
+- **Primary keys**: UUID using `@default(uuid())` on all models.
+- **Timestamps**: Every model must have `created_at DateTime @default(now())` and `updated_at DateTime @updatedAt`.
+- **Indexes**: All foreign key columns and frequently queried columns MUST have `@@index`.
+- **Cascades**: Use `onDelete: Cascade` on foreign key relations where child records should be removed with the parent.
+- **Datasource URL**: Set via `env("DATABASE_URL")` in the schema's `datasource db` block. The runtime adapter (`@prisma/adapter-pg`) overrides this for query execution; the env var is still required for `prisma migrate`.
+- **Table names**: Use `@@map("nome_em_portugues")` to map PascalCase model names to Portuguese table names.

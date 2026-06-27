@@ -9,13 +9,16 @@
     "build": "node build.mjs",
     "dev": "tsx watch --env-file=.env src/server.ts",
     "test": "vitest",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio",
+    "db:generate": "prisma generate --schema src/prisma/schema.prisma",
+    "db:migrate": "prisma migrate dev --schema src/prisma/schema.prisma",
+    "db:studio": "prisma studio --schema src/prisma/schema.prisma",
     "db:seed": "tsx --env-file=.env src/db/seeds/index.ts",
-    "db:reset": "tsx --env-file=.env src/db/seeds/reset-and-seed.ts"
+    "db:reset": "prisma migrate reset --schema src/prisma/schema.prisma"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@hotelmind/contracts": "workspace:*"
+  }
 }

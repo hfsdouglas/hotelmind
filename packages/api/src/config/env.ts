@@ -14,5 +14,4 @@ export const {
   HOST,
   COOKIE_SECRET,
   JWT_SECRET,
-  BROKER_URL,
-} = env.parse(process.env);
+} = env.parse(process.env)
