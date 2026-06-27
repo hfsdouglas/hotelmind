@@ -12,9 +12,19 @@ All apps and services live under `packages/`. When creating a new app or service
 
 ```
 packages/
-  api/    # HTTP server / backend API (gateway or primary service)
-  web/    # Front-end web application
+  .contracts/    # Shared TypeScript interfaces and types
+  api/           # HTTP server / backend API (gateway or primary service)
+  web/           # Front-end web application
 ```
+
+### `packages/.contracts`
+
+Contains shared TypeScript interfaces and types consumed by microservices and front-end applications.
+
+- **Do not place runtime code here** — types only, no implementations
+- **Do not place Zod schemas here** — schemas live inside each service's `schemas/` directory
+- All packages that share a contract must import from here instead of duplicating type definitions
+- When an interface changes, update it here first, then update all consumers
 
 ## Architecture
 
