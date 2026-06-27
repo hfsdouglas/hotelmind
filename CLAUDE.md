@@ -84,6 +84,29 @@ test(auth): add login integration tests
 - `chore`: Maintenance tasks
 - `revert`: Revert a previous commit
 
+### Commit Identity
+
+The agent must always use the Git repository's configured identity when creating commits.
+
+**Rules:**
+
+- Never manually set `user.name` or `user.email`
+- Never override commit author information
+- Never use AI-related identities (e.g. "Claude", "AI assistant", "bot")
+- Never add `Co-Authored-By` trailers with AI identities
+- Never use `--author` flag
+- Never modify environment variables to alter identity
+- Always rely on the Git configuration values
+
+**Source of truth** — use in this order:
+
+1. Local repository config: `git config user.name` / `git config user.email`
+2. Fallback to global config: `git config --global user.name` / `git config --global user.email`
+
+**Validation:** Before committing, ensure both `user.name` and `user.email` are set. If either is missing, stop and ask:
+
+> "Git user.name/user.email is not configured. Would you like to set it up now?"
+
 ### Commit Quality Rules
 
 - Keep commits atomic and focused on a single logical change.
@@ -96,6 +119,7 @@ test(auth): add login integration tests
 
 1. Complete the requested changes.
 2. Summarize what was modified.
-3. Ask for commit approval.
-4. If approved, generate a Conventional Commit message.
-5. Create the commit only after approval.
+3. Verify Git identity configuration.
+4. Ask for commit approval.
+5. If approved, generate a Conventional Commit message.
+6. Create the commit using the repository's configured Git identity only.
