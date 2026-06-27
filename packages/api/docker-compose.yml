@@ -1,0 +1,38 @@
+services:
+  hms:
+    container_name: hoteis-hms
+    image: hoteis-hms:v1
+    profiles: ['prod']
+    build:
+      context: .
+    env_file:
+      - .env
+    ports:
+      - ${PORT}:${PORT}
+    networks:
+      - hoteis_network
+      - hoteis_external
+  db:
+    container_name: hoteis-db
+    image: bitnami/postgresql:latest
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - 5432:5432
+    volumes:
+      - hoteis-db_data:/var/lib/postgresql/data
+    networks:
+      - hoteis_network
+
+volumes:
+  hoteis-db_data:
+
+networks:
+  hoteis_network:
+    name: hoteis_network
+    driver: bridge
+  hoteis_external:
+    name: hoteis_external
+    external: true

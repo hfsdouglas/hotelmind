@@ -1,0 +1,21 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node dist/server.js",
+    "build": "node build.mjs",
+    "dev": "tsx watch --env-file=.env src/server.ts",
+    "test": "vitest",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "tsx --env-file=.env src/db/seeds/index.ts",
+    "db:reset": "tsx --env-file=.env src/db/seeds/reset-and-seed.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
