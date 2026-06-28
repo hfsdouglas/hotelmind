@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
 
 export function AppLayout() {
   const { isAuthenticated } = useAuth()
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
     authService.me().catch(() => {})
@@ -19,13 +19,21 @@ export function AppLayout() {
   return (
     <div className="flex min-h-screen">
       <Sidebar isOpen={sidebarOpen} />
-      <div
-        className={cn(
-          'flex flex-1 flex-col transition-all duration-200',
-          sidebarOpen ? 'ml-60' : 'ml-0'
-        )}
-      >
-        <TopNavbar onMenuToggle={() => setSidebarOpen(p => !p)} />
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-30"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+      <div className="flex flex-1 flex-col">
+        <div
+          className={cn(
+            'transition-[margin] duration-300',
+            sidebarOpen ? 'ml-72' : 'ml-0'
+          )}
+        >
+          <TopNavbar onMenuToggle={() => setSidebarOpen(p => !p)} />
+        </div>
         <main className="flex-1 p-6">
           <Outlet />
         </main>

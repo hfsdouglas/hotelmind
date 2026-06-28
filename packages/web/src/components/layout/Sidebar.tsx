@@ -1,18 +1,19 @@
 import { useState } from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import {
   BedDouble,
   CalendarDays,
   ChevronRight,
   LayoutDashboard,
-  LogOut,
   Moon,
+  Power,
   Sun,
 } from 'lucide-react'
 import type { ElementType } from 'react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { useLogout } from '@/hooks/useLogout'
 import { useAuth } from '@/hooks/useAuth'
 import { useTheme } from '@/hooks/useTheme'
 import { cn } from '@/lib/utils'
@@ -30,7 +31,7 @@ type NavEntry = {
 }
 
 const navigation: NavEntry[] = [
-  { module: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
+  { module: 'Dashboard', icon: LayoutDashboard, href: '/' },
   {
     module: 'Reservas',
     icon: CalendarDays,
@@ -59,54 +60,30 @@ function initials(name: string) {
 }
 
 export function Sidebar({ isOpen }: SidebarProps) {
-  const { session, clearSession } = useAuth()
+  const { session } = useAuth()
   const { theme, toggleTheme } = useTheme()
-  const navigate = useNavigate()
+  const { logout } = useLogout()
   const [openModule, setOpenModule] = useState<string | null>(null)
 
   if (!session) return null
 
-  function handleLogout() {
-    clearSession()
-    navigate('/')
-  }
-
   return (
     <aside
       className={cn(
-        'fixed inset-y-0 left-0 z-20 flex w-60 flex-col border-r bg-card transition-transform duration-200',
+        'fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r bg-card transition-transform duration-300',
         isOpen ? 'translate-x-0' : '-translate-x-full'
       )}
     >
-      <div className="flex flex-col gap-2 p-4">
-        <div className="flex items-center gap-3">
-          <Avatar>
-            <AvatarFallback>{initials(session.user.nome_completo)}</AvatarFallback>
-          </Avatar>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium">{session.user.nome_completo}</p>
-            <p className="truncate text-xs text-muted-foreground">Gerente</p>
-            <p className="truncate text-xs text-muted-foreground">
-              {session.hotel.nome_fantasia}
-            </p>
-          </div>
-        </div>
-        <div className="flex gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleTheme}
-            title={theme === 'dark' ? 'Modo claro' : 'Modo escuro'}
-          >
-            {theme === 'dark' ? (
-              <Sun className="h-4 w-4" />
-            ) : (
-              <Moon className="h-4 w-4" />
-            )}
-          </Button>
-          <Button variant="ghost" size="icon" onClick={handleLogout} title="Sair">
-            <LogOut className="h-4 w-4" />
-          </Button>
+      <div className="flex items-center gap-3 p-4">
+        <Avatar className="h-12 w-12">
+          <AvatarFallback>{initials(session.user.nome_completo)}</AvatarFallback>
+        </Avatar>
+        <div className="min-w-0">
+          <p className="truncate text-sm font-medium">{session.user.nome_completo}</p>
+          <p className="truncate text-xs text-muted-foreground">Gerente</p>
+          <p className="truncate text-xs text-muted-foreground">
+            {session.hotel.nome_fantasia}
+          </p>
         </div>
       </div>
 
@@ -122,6 +99,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
               <NavLink
                 key={entry.module}
                 to={entry.href}
+                end
                 className={({ isActive }) =>
                   cn(
                     'flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent',
@@ -178,6 +156,24 @@ export function Sidebar({ isOpen }: SidebarProps) {
           )
         })}
       </nav>
+
+      <div className="flex gap-1 border-t p-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleTheme}
+          title={theme === 'dark' ? 'Modo claro' : 'Modo escuro'}
+        >
+          {theme === 'dark' ? (
+            <Sun className="h-4 w-4" />
+          ) : (
+            <Moon className="h-4 w-4" />
+          )}
+        </Button>
+        <Button variant="ghost" size="icon" onClick={logout} title="Encerrar sessão">
+          <Power className="h-4 w-4" />
+        </Button>
+      </div>
     </aside>
   )
 }

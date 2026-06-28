@@ -28,7 +28,7 @@ export function NotificationsDropdown() {
         <Bell className="h-4 w-4" />
       </Button>
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-1 w-72 rounded-md border bg-popover p-2 shadow-md">
+        <div className="absolute right-0 top-full z-50 mt-1 w-72 rounded-md border bg-card p-2 shadow-md">
           <p className="px-2 py-1 text-sm font-medium">Notificações</p>
           <Separator className="my-1" />
           <p className="px-2 py-4 text-center text-xs text-muted-foreground">
