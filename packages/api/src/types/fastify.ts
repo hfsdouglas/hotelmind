@@ -1,4 +1,4 @@
-// src/types/fastify.ts
+/// <reference path="./fastify.d.ts" />
 import {
   FastifyInstance,
   FastifyBaseLogger,

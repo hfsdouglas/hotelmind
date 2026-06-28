@@ -1,6 +1,6 @@
 import 'dotenv/config'
 import bcrypt from 'bcryptjs'
-import { db } from '@/lib/prisma'
+import { db } from '@/db/client'
 
 async function seed() {
   const hotel = await db.hotel.upsert({

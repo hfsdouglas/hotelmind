@@ -1,8 +1,8 @@
-import type { DB } from '@/lib/prisma'
+import type { DB } from '@/db/client'
 import { Hotel } from '@/core/entities/hotel'
 import type { IHotelRepository } from '@/core/repositories/hotel_repository'
 
-export class PrismaHotelRepository implements IHotelRepository {
+export class PostgresHotelRepository implements IHotelRepository {
   constructor(private readonly db: DB) {}
 
   async findById(id: string): Promise<Hotel | null> {

@@ -1,8 +1,8 @@
-import type { DB } from '@/lib/prisma'
+import type { DB } from '@/db/client'
 import { User } from '@/core/entities/user'
 import type { IUserRepository } from '@/core/repositories/user_repository'
 
-export class PrismaUserRepository implements IUserRepository {
+export class PostgresUserRepository implements IUserRepository {
   constructor(private readonly db: DB) {}
 
   async findByEmail(email: string): Promise<User | null> {
