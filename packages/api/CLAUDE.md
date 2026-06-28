@@ -69,18 +69,9 @@ src/
 │   ├── migrations/
 │   └── repositories/
 │       ├── index.ts      # Central export — renames implementations to domain names
-│       ├── users/
-│       │   ├── implementation/   # PostgresUserRepository (Prisma)
-│       │   └── in-memory/        # InMemoryUserRepository (tests)
-│       ├── hotels/
-│       │   ├── implementation/
-│       │   └── in-memory/
-│       ├── guests/
-│       │   ├── implementation/
-│       │   └── in-memory/
-│       └── reservations/
-│           ├── implementation/
-│           └── in-memory/
+│       └── users/
+│           ├── implementation/   # PostgresUserRepository (Prisma)
+│           └── in-memory/        # InMemoryUserRepository (tests)
 ├── lib/                  # Third-party integration wrappers (not helpers.ts)
 ├── plugins/              # Fastify plugins (one file per plugin)
 ├── routes/               # Fastify route handlers
@@ -166,6 +157,42 @@ Routes must not contain:
 
 Every route file must export Swagger documentation via the route schema.
 
+#### Exports
+
+Always use named exports — never default exports:
+
+```ts
+// correct
+export function users_routes(app: FastifyTypedInstance) {
+  app.get('/users', ...)
+}
+
+// wrong
+export default function (app: FastifyTypedInstance) { ... }
+```
+
+#### Type
+
+Every route function receives `app: FastifyTypedInstance`. This is the project-local type that wires Fastify with the Zod type provider. Import it from `src/types/`:
+
+```ts
+import type { FastifyTypedInstance } from '@/types'
+```
+
+Never use the raw `FastifyInstance` type in route files.
+
+#### Authentication
+
+Use `app.authenticate` as the `onRequest` hook for protected routes. This decorator is registered by the auth plugin and is the single source of truth for JWT verification:
+
+```ts
+app.get('/me', { onRequest: [app.authenticate] }, async (request, reply) => {
+  ...
+})
+```
+
+Never manually verify tokens inside route handlers.
+
 ## Repository Organization
 
 Repositories are grouped by domain under `db/repositories/`. Each domain folder contains two sub-folders:
@@ -179,15 +206,12 @@ The central `db/repositories/index.ts` re-exports every implementation under its
 
 ```ts
 // db/repositories/index.ts
-export { PostgresUserRepository as UserRepository } from './users/implementation/postgres_user_repository'
-export { PostgresHotelRepository as HotelRepository } from './hotels/implementation/postgres_hotel_repository'
-export { PostgresGuestRepository as GuestRepository } from './guests/implementation/postgres_guest_repository'
-export { PostgresReservationRepository as ReservationRepository } from './reservations/implementation/postgres_reservation_repository'
+import { PostgresHotelRepository } from '@/core/repositories/hotel/implementations/postgres-hotel-repositoty';
+
+export const HotelRepository = PostgresHotelRepository;
 ```
 
 Rules:
-
-- Only `server.ts` and plugin/bootstrap code may import from `db/repositories/index.ts`
 - Use cases receive repository instances via constructor injection — they never instantiate them
 - Tests inject the corresponding `in-memory/` fake; never mock Prisma directly
 
@@ -264,7 +288,7 @@ Do not write manual `if (!value)` validation logic. If Zod cannot express the co
 
 ## Testing
 
-Use Vitest. Tests are mandatory and must pass as part of every build. Do not defer writing tests to the PR stage — tests are written alongside the implementation, not after.
+Use Vitest. Tests are mandatory and must pass as part of every build. 
 
 ### What to test
 
