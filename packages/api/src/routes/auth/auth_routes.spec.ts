@@ -97,7 +97,7 @@ describe('auth_routes', () => {
       const body = response.json()
       expect(body.user.id).toBe(USER_ID)
       expect(body.hotel.id).toBe(HOTEL_ID)
-      expect(body.message).toBe('Bem-vindo!')
+      expect(body.message).toBe('Seja bem-vindo, Admin!')
       expect(response.cookies.some((c) => c.name === 'token')).toBe(true)
     })
 

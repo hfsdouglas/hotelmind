@@ -36,6 +36,10 @@ export class User {
     this.rg = props.rg ?? null
   }
 
+  get first_name(): string {
+    return this.nome_completo.trim().split(' ')[0] ?? ''
+  }
+
   static create(props: UserProps): User {
     return new User(props)
   }

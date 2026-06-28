@@ -88,7 +88,9 @@ export async function auth_routes(app: FastifyTypedInstance) {
             nome_fantasia: hotel.nome_fantasia,
             cnpj: hotel.cnpj,
           },
-          message: 'Bem-vindo!',
+          message: user.first_name
+            ? `Seja bem-vindo, ${user.first_name}!`
+            : 'Bem-vindo!',
         })
       } catch (error) {
         if (
