@@ -123,3 +123,8 @@ The agent must always use the Git repository's configured identity when creating
 4. Ask for commit approval.
 5. If approved, generate a Conventional Commit message.
 6. Create the commit using the repository's configured Git identity only.
+
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
+<!-- SPECKIT END -->
