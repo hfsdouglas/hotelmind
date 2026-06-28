@@ -140,6 +140,12 @@ plugins/
 
 Register all plugins through a centralized bootstrap call in `server.ts`. Plugin order matters — register auth plugins before route plugins.
 
+Plugins are exclusively for framework integration: CORS, JWT, cookies, Swagger, auth
+decorators. They MUST NOT instantiate domain objects — no use cases, no repositories,
+no domain services. `fastify-routes.ts` is the only file that calls `app.register`
+for routes, but it too MUST NOT create domain objects; it only delegates to route
+plugins.
+
 ### Routes
 
 Routes must be thin. A route handler's only job is:
@@ -156,6 +162,44 @@ Routes must not contain:
 - Conditional branching based on business rules
 
 Every route file must export Swagger documentation via the route schema.
+
+#### Dependency Composition
+
+Each route plugin is the **composition root** for its own dependencies. Use cases,
+repositories, and domain services are instantiated at the top of the route function —
+never in `fastify-routes.ts`, `server.ts`, or any plugin file.
+
+```ts
+// CORRECT — route owns its own DI
+export async function auth_routes(app: FastifyTypedInstance) {
+  const login_use_case = new LoginUseCase(
+    new UserRepository(db),
+    new HotelRepository(db),
+    new BcryptPasswordHasher(),
+  )
+
+  app.post('/auth/login', ..., async (request, reply) => {
+    await login_use_case.execute(request.body)
+  })
+}
+
+// WRONG — factory that receives a use case as argument
+export function auth_routes(login_use_case: LoginUseCase) {
+  return async (app: FastifyTypedInstance) => { ... }
+}
+```
+
+`fastify-routes.ts` registers route plugins and nothing else:
+
+```ts
+export function setRoutes(app: FastifyTypedInstance) {
+  app.register(auth_routes)   // no arguments — never pass domain objects here
+}
+```
+
+Rationale: plugin and server files have no knowledge of domain intent. Only the route
+knows which use case it needs and how to wire it. Passing dependencies through an
+intermediary layer creates hidden coupling and makes the dependency graph non-obvious.
 
 #### Exports
 
@@ -330,7 +374,7 @@ When generating or modifying code in this package, follow these rules without ex
 1. Read the root monorepo `CLAUDE.md` before taking any action.
 2. Never install a dependency without verifying where it belongs per the monorepo rules.
 3. Use snake_case for every file name, folder name, variable, function, and identifier.
-4. Keep routes thin — no business logic, no database access, no inline schemas.
+4. Keep routes thin — no business logic, no database access, no inline schemas. Each route instantiates its own use cases internally; never receive them as function parameters.
 5. Keep all Zod schemas inside `schemas/`; never declare them inline in route files.
 6. Write tests alongside every entity, use case, and route you add or modify — do not defer.
 7. Do not create generic utility files (`helpers.ts`, `utils.ts`) without documented justification.
