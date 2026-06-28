@@ -52,21 +52,6 @@ This service follows Clean Architecture with explicit domain boundaries.
 
 If a piece of code cannot be tested without booting Fastify or connecting to a database, it belongs in the wrong layer.
 
-## Naming Conventions
-
-Use **snake_case** for all files, folders, route names, schemas, repositories, use cases, and services.
-
-| Good | Bad |
-|---|---|
-| `create_user_use_case.ts` | `CreateUserUseCase.ts` |
-| `user_repository.ts` | `userRepo.ts` |
-| `auth_service.ts` | `AuthService.ts` |
-| `users_routes.ts` | `usersRoutes.ts` |
-| `create_user_schema.ts` | `createUserSchema.ts` |
-| `jwt_plugin.ts` | `jwtPlugin.ts` |
-
-No exceptions. Consistency enables grep and automation.
-
 ## Project Structure
 
 ```
@@ -79,7 +64,23 @@ src/
 │   └── usecases/         # Business workflows
 │
 ├── config/               # Environment and configuration loading
-├── db/                   # Prisma client, migrations, repository implementations
+├── db/
+│   ├── client.ts         # Prisma client singleton
+│   ├── migrations/
+│   └── repositories/
+│       ├── index.ts      # Central export — renames implementations to domain names
+│       ├── users/
+│       │   ├── implementation/   # PostgresUserRepository (Prisma)
+│       │   └── in-memory/        # InMemoryUserRepository (tests)
+│       ├── hotels/
+│       │   ├── implementation/
+│       │   └── in-memory/
+│       ├── guests/
+│       │   ├── implementation/
+│       │   └── in-memory/
+│       └── reservations/
+│           ├── implementation/
+│           └── in-memory/
 ├── lib/                  # Third-party integration wrappers (not helpers.ts)
 ├── plugins/              # Fastify plugins (one file per plugin)
 ├── routes/               # Fastify route handlers
@@ -111,9 +112,9 @@ Custom error classes for domain and application failures.
 
 Repository contracts — TypeScript interfaces only.
 
-- No implementations live here
-- Implementations belong in `db/`
-- Use cases depend on these interfaces, never on `db/` directly
+- No implementations live here; implementations belong in `db/repositories/<domain>/implementation/`
+- In-memory fakes for tests belong in `db/repositories/<domain>/in-memory/`
+- Use cases depend on these interfaces, never on concrete implementations
 
 ### `core/services`
 
@@ -164,6 +165,31 @@ Routes must not contain:
 - Conditional branching based on business rules
 
 Every route file must export Swagger documentation via the route schema.
+
+## Repository Organization
+
+Repositories are grouped by domain under `db/repositories/`. Each domain folder contains two sub-folders:
+
+| Folder | Contents |
+|---|---|
+| `implementation/` | Prisma-backed concrete class (e.g., `postgres_hotel_repository.ts`) |
+| `in-memory/` | In-memory fake used exclusively in tests (e.g., `in_memory_hotel_repository.ts`) |
+
+The central `db/repositories/index.ts` re-exports every implementation under its domain alias so consumers never reference the concrete class name:
+
+```ts
+// db/repositories/index.ts
+export { PostgresUserRepository as UserRepository } from './users/implementation/postgres_user_repository'
+export { PostgresHotelRepository as HotelRepository } from './hotels/implementation/postgres_hotel_repository'
+export { PostgresGuestRepository as GuestRepository } from './guests/implementation/postgres_guest_repository'
+export { PostgresReservationRepository as ReservationRepository } from './reservations/implementation/postgres_reservation_repository'
+```
+
+Rules:
+
+- Only `server.ts` and plugin/bootstrap code may import from `db/repositories/index.ts`
+- Use cases receive repository instances via constructor injection — they never instantiate them
+- Tests inject the corresponding `in-memory/` fake; never mock Prisma directly
 
 ## Schemas
 
@@ -238,7 +264,7 @@ Do not write manual `if (!value)` validation logic. If Zod cannot express the co
 
 ## Testing
 
-Use Vitest. Tests are mandatory.
+Use Vitest. Tests are mandatory and must pass as part of every build. Do not defer writing tests to the PR stage — tests are written alongside the implementation, not after.
 
 ### What to test
 
@@ -247,8 +273,6 @@ Use Vitest. Tests are mandatory.
 | Entities | Yes |
 | Use cases | Yes |
 | Routes | Yes |
-
-Every new feature must ship with tests. PRs without tests for new behavior will be rejected.
 
 ### File naming
 
@@ -279,24 +303,16 @@ routes/
 
 When generating or modifying code in this package, follow these rules without exception:
 
-1. Read and follow the root monorepo `CLAUDE.md` before taking any action.
-2. Never install a dependency without first verifying the monorepo rules on where it belongs.
-3. Follow Clean Architecture strictly — dependencies point inward only.
-4. Follow SOLID principles in every class and function.
-5. Use snake_case for every file name, folder name, variable, function, and identifier.
-6. Keep routes thin — no business logic, no database access, no inline schemas.
-7. Keep all business logic inside use cases in `core/usecases`.
-8. Keep entities in `core/entities` free of any framework or ORM imports.
-9. Keep all Zod schemas inside the `schemas/` directory; never declare them inline in route files.
-10. Use Zod for all validation — requests, responses, env vars, DTOs.
-11. Create tests for every entity, use case, and route you add or modify.
-12. Prefer explicit code over magic or meta-programming abstractions.
-13. Avoid premature optimization; write clear, correct code first.
-14. Do not create generic utility files (`helpers.ts`, `utils.ts`) without clear, documented justification.
-15. Ask for explicit user approval before creating any git commit.
-16. Follow Conventional Commits format for all commit messages (see root `CLAUDE.md`).
-17. Scope every query, entity, and relation by `hotel_id` — never allow cross-hotel data leakage.
-18. Derive `hotel_id` exclusively from the authenticated JWT payload (`request.user.hotelId`); never accept it from the request body or query params.
+1. Read the root monorepo `CLAUDE.md` before taking any action.
+2. Never install a dependency without verifying where it belongs per the monorepo rules.
+3. Use snake_case for every file name, folder name, variable, function, and identifier.
+4. Keep routes thin — no business logic, no database access, no inline schemas.
+5. Keep all Zod schemas inside `schemas/`; never declare them inline in route files.
+6. Write tests alongside every entity, use case, and route you add or modify — do not defer.
+7. Do not create generic utility files (`helpers.ts`, `utils.ts`) without documented justification.
+8. Ask for explicit user approval before creating any git commit.
+9. Scope every query, entity, and relation by `hotel_id` — never allow cross-hotel data leakage.
+10. Derive `hotel_id` exclusively from the authenticated JWT payload (`request.user.hotelId`); never accept it from the request body or query params.
 
 ---
 
