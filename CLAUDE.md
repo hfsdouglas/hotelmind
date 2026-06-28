@@ -32,6 +32,21 @@ The system is designed around microservices. Each service is an independent pack
 
 When adding a new service, create it as a new package under `packages/` and treat it as an autonomous unit.
 
+## Naming Conventions
+
+Use **snake_case** for all files, folders, route names, schemas, repositories, use cases, and services.
+
+| Good | Bad |
+|---|---|
+| `create_user_use_case.ts` | `CreateUserUseCase.ts` |
+| `user_repository.ts` | `userRepo.ts` |
+| `auth_service.ts` | `AuthService.ts` |
+| `users_routes.ts` | `usersRoutes.ts` |
+| `create_user_schema.ts` | `createUserSchema.ts` |
+| `jwt_plugin.ts` | `jwtPlugin.ts` |
+
+No exceptions. Consistency enables grep and automation.
+
 ## Tooling
 
 - **Biome** — linting and formatting (config: `biome.json`)
@@ -126,5 +141,6 @@ The agent must always use the Git repository's configured identity when creating
 
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
-shell commands, and other important information, read the current plan
+shell commands, and other important information, read the current plan:
+[Implementation Plan](specs/002-route-di-ownership/plan.md)
 <!-- SPECKIT END -->

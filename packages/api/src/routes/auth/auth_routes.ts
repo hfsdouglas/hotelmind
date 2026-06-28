@@ -1,9 +1,8 @@
 import { z } from 'zod'
-import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
-import { db } from '@/lib/prisma'
+import type { FastifyTypedInstance } from '@/types/fastify'
+import { db } from '@/db/client'
+import { HotelRepository, UserRepository } from '@/db/repositories'
 import { BcryptPasswordHasher } from '@/lib/bcrypt_password_hasher'
-import { PrismaUserRepository } from '@/db/repositories/prisma_user_repository'
-import { PrismaHotelRepository } from '@/db/repositories/prisma_hotel_repository'
 import { LoginUseCase } from '@/core/usecases/login_use_case'
 import {
   InvalidCredentialsError,
@@ -15,11 +14,17 @@ import {
   login_response_schema,
 } from '@/schemas/auth/login_schema'
 
-const auth_routes: FastifyPluginAsyncZod = async app => {
+export async function auth_routes(app: FastifyTypedInstance) {
+  const login_use_case = new LoginUseCase(
+    new UserRepository(db),
+    new HotelRepository(db),
+    new BcryptPasswordHasher(),
+  )
+
   app.get(
     '/auth/me',
     {
-      onRequest: [(app as unknown as FastifyInstance).authenticate],
+      onRequest: [app.authenticate],
       schema: {
         tags: ['Auth'],
         summary: 'Verifica sessão ativa',
@@ -29,7 +34,7 @@ const auth_routes: FastifyPluginAsyncZod = async app => {
         },
       },
     },
-    async () => ({ ok: true as const })
+    async () => ({ ok: true as const }),
   )
 
   app.post(
@@ -47,14 +52,8 @@ const auth_routes: FastifyPluginAsyncZod = async app => {
       },
     },
     async (request, reply) => {
-      const use_case = new LoginUseCase(
-        new PrismaUserRepository(db),
-        new PrismaHotelRepository(db),
-        new BcryptPasswordHasher()
-      )
-
       try {
-        const { user, hotel } = await use_case.execute(request.body)
+        const { user, hotel } = await login_use_case.execute(request.body)
 
         const token = app.jwt.sign(
           {
@@ -65,7 +64,7 @@ const auth_routes: FastifyPluginAsyncZod = async app => {
               email: user.email,
             },
           },
-          { expiresIn: '7d' }
+          { expiresIn: '7d' },
         )
 
         reply.setCookie('token', token, {
@@ -101,8 +100,6 @@ const auth_routes: FastifyPluginAsyncZod = async app => {
 
         return reply.status(500).send({ message: 'Erro interno do servidor' })
       }
-    }
+    },
   )
 }
-
-export default auth_routes
