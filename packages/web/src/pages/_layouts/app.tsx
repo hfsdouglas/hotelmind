@@ -14,7 +14,7 @@ export function AppLayout() {
     authService.me().catch(() => {})
   }, [])
 
-  if (!isAuthenticated) return <Navigate to="/" replace />
+  if (!isAuthenticated) return <Navigate to="/login" replace />
 
   return (
     <div className="flex min-h-screen">

@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     function handleExpired() {
       clearSession()
-      window.location.replace('/')
+      window.location.replace('/login')
     }
     window.addEventListener('auth:session-expired', handleExpired)
     return () => window.removeEventListener('auth:session-expired', handleExpired)

@@ -13,6 +13,7 @@ import {
   login_error_schema,
   login_response_schema,
 } from '@/schemas/auth/login_schema'
+import { logout_response_schema } from '@/schemas/auth/logout_schema'
 
 export async function auth_routes(app: FastifyTypedInstance) {
   const login_use_case = new LoginUseCase(
@@ -102,6 +103,25 @@ export async function auth_routes(app: FastifyTypedInstance) {
 
         return reply.status(500).send({ message: 'Erro interno do servidor' })
       }
+    },
+  )
+
+  app.post(
+    '/auth/logout',
+    {
+      onRequest: [app.authenticate],
+      schema: {
+        tags: ['Auth'],
+        summary: 'Encerrar sessão',
+        response: {
+          200: logout_response_schema,
+          401: login_error_schema,
+        },
+      },
+    },
+    async (_request, reply) => {
+      reply.clearCookie('token', { path: '/' })
+      return reply.status(200).send({ message: 'Logout realizado com sucesso.' })
     },
   )
 }

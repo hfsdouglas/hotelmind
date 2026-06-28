@@ -6,4 +6,6 @@ export const authService = {
   login: (data: LoginFormData) =>
     api.post<LoginResponse>('/auth/login', data).then(res => res.data),
   me: () => api.get<{ ok: boolean }>('/auth/me').then(res => res.data),
+  logout: () =>
+    api.post<{ message: string }>('/auth/logout').then(res => res.data),
 }

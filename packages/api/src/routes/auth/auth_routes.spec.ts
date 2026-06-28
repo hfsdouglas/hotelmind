@@ -156,4 +156,40 @@ describe('auth_routes', () => {
       expect(response.statusCode).toBe(401)
     })
   })
+
+  describe('POST /auth/logout', () => {
+    it('returns 200 and clears the cookie when authenticated', async () => {
+      const token = app.jwt.sign(
+        {
+          sub: USER_ID,
+          user: {
+            hotelId: HOTEL_ID,
+            nomecompleto: 'Admin HotelMind',
+            email: 'admin@hotelmind.com.br',
+          },
+        },
+        { expiresIn: '1h' },
+      )
+
+      const response = await app.inject({
+        method: 'POST',
+        url: '/auth/logout',
+        cookies: { token },
+      })
+
+      expect(response.statusCode).toBe(200)
+      expect(response.json().message).toBe('Logout realizado com sucesso.')
+      const cleared = response.cookies.find((c) => c.name === 'token')
+      expect(cleared?.maxAge).toBe(0)
+    })
+
+    it('returns 401 without a cookie', async () => {
+      const response = await app.inject({
+        method: 'POST',
+        url: '/auth/logout',
+      })
+
+      expect(response.statusCode).toBe(401)
+    })
+  })
 })

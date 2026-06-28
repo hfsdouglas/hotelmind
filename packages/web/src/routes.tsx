@@ -8,11 +8,11 @@ import { Error404Page } from '@/pages/error-404'
 export const router = createBrowserRouter([
   {
     element: <LoginLayout />,
-    children: [{ path: '/', element: <LoginPage /> }],
+    children: [{ path: '/login', element: <LoginPage /> }],
   },
   {
     element: <AppLayout />,
-    children: [{ path: '/dashboard', element: <DashboardPage /> }],
+    children: [{ path: '/', element: <DashboardPage /> }],
   },
   { path: '*', element: <Error404Page /> },
 ])
