@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import {
   BedDouble,
   CalendarDays,
@@ -23,6 +23,7 @@ import type { RotaMenu } from '@/types/auth'
 
 interface SidebarProps {
   isOpen: boolean
+  onClose: () => void
 }
 
 type NavResource = { label: string; href: string }
@@ -90,10 +91,11 @@ function initials(name: string) {
     .toUpperCase()
 }
 
-export function Sidebar({ isOpen }: SidebarProps) {
+export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { session } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const { logout } = useLogout()
+  const { pathname } = useLocation()
   const [openModule, setOpenModule] = useState<string | null>(null)
 
   if (!session) return null
@@ -131,6 +133,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
                 key={entry.module}
                 to={entry.href}
                 end
+                onClick={onClose}
                 className={({ isActive }) =>
                   cn(
                     'flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent',
@@ -144,12 +147,17 @@ export function Sidebar({ isOpen }: SidebarProps) {
             )
           }
 
+          const hasActiveChild = (entry.resources ?? []).some(r => r.href === pathname)
+
           return (
             <div key={entry.module}>
               <button
                 type="button"
                 onClick={() => setOpenModule(isExpanded ? null : entry.module)}
-                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent"
+                className={cn(
+                  'flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent',
+                  hasActiveChild && !isExpanded && 'bg-accent font-medium',
+                )}
               >
                 <Icon className="h-4 w-4 shrink-0" />
                 <span className="flex-1 text-left">{entry.module}</span>
@@ -171,6 +179,8 @@ export function Sidebar({ isOpen }: SidebarProps) {
                     <NavLink
                       key={resource.href}
                       to={resource.href}
+                      end
+                      onClick={onClose}
                       className={({ isActive }) =>
                         cn(
                           'flex items-center rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground',
