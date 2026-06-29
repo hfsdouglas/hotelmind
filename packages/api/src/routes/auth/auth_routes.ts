@@ -13,15 +13,20 @@ import {
   login_body_schema,
   login_error_schema,
   login_response_schema,
+  me_response_schema,
 } from '@/schemas/auth/login_schema'
 import { logout_response_schema } from '@/schemas/auth/logout_schema'
 
 export async function auth_routes(app: FastifyTypedInstance) {
+  const userRepo = new UserRepository(db)
+  const hotelRepo = new HotelRepository(db)
+  const rotaRepo = new PostgresRotaRepository(db)
+
   const login_use_case = new LoginUseCase(
-    new UserRepository(db),
-    new HotelRepository(db),
+    userRepo,
+    hotelRepo,
     new BcryptPasswordHasher(),
-    new PostgresRotaRepository(db),
+    rotaRepo,
   )
 
   app.get(
@@ -30,14 +35,52 @@ export async function auth_routes(app: FastifyTypedInstance) {
       onRequest: [app.authenticate],
       schema: {
         tags: ['Auth'],
-        summary: 'Verifica sessão ativa',
+        summary: 'Retorna sessão ativa com rotas do usuário',
         response: {
-          200: z.object({ ok: z.literal(true) }),
+          200: me_response_schema,
           401: login_error_schema,
         },
       },
     },
-    async () => ({ ok: true as const }),
+    async (request, reply) => {
+      const { email, hotelId } = request.user
+
+      const user = await userRepo.findByEmail(email)
+      if (!user) return reply.status(401).send({ message: 'Usuário não encontrado.' })
+
+      const hotel = await hotelRepo.findById(hotelId)
+      if (!hotel) return reply.status(401).send({ message: 'Hotel não encontrado.' })
+
+      const grupoIds = user.grupos_ids
+        ? user.grupos_ids.split(',').map(id => id.trim()).filter(Boolean)
+        : []
+
+      const rotas =
+        grupoIds.length > 0 ? await rotaRepo.findByUsuario(hotelId, grupoIds) : []
+
+      return reply.status(200).send({
+        user: {
+          id: user.id,
+          nome_completo: user.nome_completo,
+          email: user.email,
+          hotel_id: user.hotel_id,
+          grupos_ids: user.grupos_ids,
+        },
+        hotel: {
+          id: hotel.id,
+          nome_hotel: hotel.nome_hotel,
+          nome_fantasia: hotel.nome_fantasia,
+          cnpj: hotel.cnpj,
+        },
+        rotas: rotas.map(r => ({
+          modulo: r.modulo,
+          recurso: r.recurso,
+          rota: r.rota,
+          icone: r.icone,
+          ordem: r.ordem,
+        })),
+      })
+    },
   )
 
   app.post(
@@ -92,9 +135,7 @@ export async function auth_routes(app: FastifyTypedInstance) {
             nome_fantasia: hotel.nome_fantasia,
             cnpj: hotel.cnpj,
           },
-          message: user.first_name
-            ? `Seja bem-vindo, ${user.first_name}!`
-            : 'Bem-vindo!',
+          message: user.first_name ? `Seja bem-vindo, ${user.first_name}!` : 'Bem-vindo!',
           rotas: rotas.map(r => ({
             modulo: r.modulo,
             recurso: r.recurso,

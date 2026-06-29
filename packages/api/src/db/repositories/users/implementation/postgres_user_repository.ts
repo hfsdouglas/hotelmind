@@ -21,6 +21,7 @@ export class PostgresUserRepository implements IUserRepository {
       celular: row.celular,
       cpf: row.cpf,
       rg: row.rg,
+      grupos_ids: row.grupos_ids,
     })
   }
 }

@@ -25,10 +25,18 @@ let hotelRepo: InMemoryHotelRepository
 
 vi.mock('@/db/client', () => ({ db: {} }))
 
-// Regular functions required — arrow functions cannot be used as constructors
 vi.mock('@/db/repositories', () => ({
   UserRepository: vi.fn(function () { return userRepo }),
   HotelRepository: vi.fn(function () { return hotelRepo }),
+}))
+
+vi.mock('@/db/repositories/rotas/implementation/postgres_rota_repository', () => ({
+  PostgresRotaRepository: vi.fn(function () {
+    return {
+      findByHotel: async () => [],
+      findByUsuario: async () => [],
+    }
+  }),
 }))
 
 async function build_app(): Promise<FastifyInstance> {
@@ -86,7 +94,7 @@ describe('auth_routes', () => {
   })
 
   describe('POST /auth/login', () => {
-    it('returns 200 with user and hotel on valid credentials', async () => {
+    it('returns 200 with user, hotel and rotas on valid credentials', async () => {
       const response = await app.inject({
         method: 'POST',
         url: '/auth/login',
@@ -98,6 +106,7 @@ describe('auth_routes', () => {
       expect(body.user.id).toBe(USER_ID)
       expect(body.hotel.id).toBe(HOTEL_ID)
       expect(body.message).toBe('Seja bem-vindo, Admin!')
+      expect(Array.isArray(body.rotas)).toBe(true)
       expect(response.cookies.some((c) => c.name === 'token')).toBe(true)
     })
 
@@ -124,7 +133,7 @@ describe('auth_routes', () => {
   })
 
   describe('GET /auth/me', () => {
-    it('returns 200 with a valid JWT cookie', async () => {
+    it('returns 200 with user, hotel and rotas when authenticated', async () => {
       const token = app.jwt.sign(
         {
           sub: USER_ID,
@@ -144,7 +153,10 @@ describe('auth_routes', () => {
       })
 
       expect(response.statusCode).toBe(200)
-      expect(response.json()).toEqual({ ok: true })
+      const body = response.json()
+      expect(body.user.id).toBe(USER_ID)
+      expect(body.hotel.id).toBe(HOTEL_ID)
+      expect(Array.isArray(body.rotas)).toBe(true)
     })
 
     it('returns 401 without a cookie', async () => {
