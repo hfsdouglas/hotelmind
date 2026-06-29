@@ -59,26 +59,32 @@ src/
 ├── core/
 │   ├── entities/         # Domain entities and business rules
 │   ├── errors/           # Custom domain and application errors
-│   ├── repositories/     # Repository contracts (interfaces only)
-│   ├── services/         # Domain service contracts
-│   └── usecases/         # Business workflows
+│   ├── repositories/     # Repository contracts and implementations
+│   │   ├── index.ts      # Central export — maps infrastructure implementations to domain contracts
+│   │   └── users/
+│   │       ├── user.repository.ts   # Repository interface (contract only)
+│   │       ├── implementation/      # Production implementations (e.g. Prisma/Postgres)
+│   │       └── in-memory/           # Test and development implementations
+│   ├── services/         # Domain service contracts and business services
+│   └── usecases/         # Application use cases and business workflows
 │
-├── config/               # Environment and configuration loading
+├── config/               # Environment variables, application settings, and configuration loaders
 ├── db/
-│   ├── client.ts         # Prisma client singleton
-│   ├── migrations/
-│   └── repositories/
-│       ├── index.ts      # Central export — renames implementations to domain names
-│       └── users/
-│           ├── implementation/   # PostgresUserRepository (Prisma)
-│           └── in-memory/        # InMemoryUserRepository (tests)
-├── lib/                  # Third-party integration wrappers (not helpers.ts)
-├── plugins/              # Fastify plugins (one file per plugin)
-├── routes/               # Fastify route handlers
-├── schemas/              # Zod request/response schemas
-├── types/                # Shared TypeScript types and augmentations
+│   └── seeds/            # Database seed scripts
+├── prisma/
+│   ├── migrations/       # Database migration history
+│   └── schema.prisma     # Prisma schema definition
 │
-└── server.ts             # Entry point: builds and starts the Fastify instance
+├── lib/                  # Wrappers around third-party libraries and external SDKs
+│   └── prisma.ts         # Prisma Client singleton instance
+│
+├── plugins/              # Fastify plugins and framework integrations
+├── routes/               # HTTP route definitions and request handlers
+├── schemas/              # Zod schemas for request, response, and validation contracts
+├── types/                # Shared TypeScript types, interfaces, and module augmentations
+│
+└── server.ts             # Application entry point — creates and starts the Fastify server
+
 ```
 
 ## Layer Responsibilities

@@ -128,3 +128,15 @@ model GrupoRota {
   @@index([grupo_id])
   @@map("grupos_rotas")
 }
+
+model Administrator {
+  id            String   @id @default(uuid())
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  nome_completo String   @db.VarChar(200)
+  email         String   @unique @db.VarChar(150)
+  senha         String   @db.Text
+  status        String   @default("S") @db.Char(1)
+
+  @@map("administrators")
+}

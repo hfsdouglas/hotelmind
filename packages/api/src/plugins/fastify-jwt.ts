@@ -4,6 +4,7 @@ import { FastifyTypedInstance } from "@/types/fastify";
 import { JWT_SECRET } from "@/config/env";
 
 import authPlugin from "@/plugins/auth-plugin";
+import adminAuthPlugin from "@/plugins/admin-auth-plugin";
 
 export function setJWT(app: FastifyTypedInstance) {
   app.register(fastifyJwt, {
@@ -15,4 +16,5 @@ export function setJWT(app: FastifyTypedInstance) {
   });
 
   app.register(authPlugin);
+  app.register(adminAuthPlugin);
 }

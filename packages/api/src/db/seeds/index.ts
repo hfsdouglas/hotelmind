@@ -15,7 +15,6 @@ const BASE_ROUTES = [
 ]
 
 async function clean() {
-  // Delete in correct dependency order (leaf tables first)
   await db.grupoRota.deleteMany()
   await db.rotaHotel.deleteMany()
   await db.grupo.deleteMany()
@@ -23,6 +22,7 @@ async function clean() {
   await db.hotelEndereco.deleteMany()
   await db.rota.deleteMany()
   await db.hotel.deleteMany()
+  await db.administrator.deleteMany()
   console.log('Database cleaned.')
 }
 
@@ -87,11 +87,24 @@ async function seed() {
     },
   })
 
+  const adminSenha = await bcrypt.hash('admin123', 10)
+
+  const admin = await db.administrator.create({
+    data: {
+      nome_completo: 'Super Admin',
+      email: 'admin@hotelmind.com.br',
+      senha: adminSenha,
+      status: 'S',
+    },
+  })
+
   console.log(`Hotel: ${hotel.nome_fantasia} (${hotel.id})`)
   console.log(`Rotas: ${createdRoutes.length}`)
   console.log(`Grupo: ${grupo.grupo} (${grupo.id})`)
   console.log(`Usuário: ${user.email} | grupos_ids: ${user.grupos_ids}`)
-  console.log('Credenciais: douglas@furnaspark.com.br / senha123')
+  console.log(`Admin: ${admin.email}`)
+  console.log('Credenciais hotel: douglas@furnaspark.com.br / senha123')
+  console.log('Credenciais admin: admin@hotelmind.com.br / admin123')
 }
 
 seed()
