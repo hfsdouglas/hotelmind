@@ -65,6 +65,7 @@ src/
 │   │       ├── user.repository.ts   # Repository interface (contract only)
 │   │       ├── implementation/      # Production implementations (e.g. Prisma/Postgres)
 │   │       └── in-memory/           # Test and development implementations
+
 │   ├── services/         # Domain service contracts and business services
 │   └── usecases/         # Application use cases and business workflows
 │
@@ -355,15 +356,26 @@ Use `.spec.ts` suffix, co-located with the source file:
 ```
 core/
   entities/
-    user.ts
+    user.entity.ts
     user.spec.ts
+  repositories/
+    user/
+      user.repository.ts
+  errors/
+    user.errors.ts
+  services/
+    user.services.ts
   usecases/
-    create_user_use_case.ts
-    create_user_use_case.spec.ts
+    user/
+      create_user_use_case.ts
+      create_user_use_case.spec.ts
 
 routes/
-  users_routes.ts
-  users_routes.spec.ts
+  users/
+    create_user.ts
+    list_users.ts
+    update_user.ts
+    delete_user.ts
 ```
 
 ### Testing guidelines
