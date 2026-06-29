@@ -2,6 +2,7 @@ import { z } from 'zod'
 import type { FastifyTypedInstance } from '@/types/fastify'
 import { db } from '@/db/client'
 import { HotelRepository, UserRepository } from '@/db/repositories'
+import { PostgresRotaRepository } from '@/db/repositories/rotas/implementation/postgres_rota_repository'
 import { BcryptPasswordHasher } from '@/lib/bcrypt_password_hasher'
 import { LoginUseCase } from '@/core/usecases/login_use_case'
 import {
@@ -20,6 +21,7 @@ export async function auth_routes(app: FastifyTypedInstance) {
     new UserRepository(db),
     new HotelRepository(db),
     new BcryptPasswordHasher(),
+    new PostgresRotaRepository(db),
   )
 
   app.get(
@@ -54,7 +56,7 @@ export async function auth_routes(app: FastifyTypedInstance) {
     },
     async (request, reply) => {
       try {
-        const { user, hotel } = await login_use_case.execute(request.body)
+        const { user, hotel, rotas } = await login_use_case.execute(request.body)
 
         const token = app.jwt.sign(
           {
@@ -82,6 +84,7 @@ export async function auth_routes(app: FastifyTypedInstance) {
             nome_completo: user.nome_completo,
             email: user.email,
             hotel_id: user.hotel_id,
+            grupos_ids: user.grupos_ids,
           },
           hotel: {
             id: hotel.id,
@@ -92,6 +95,13 @@ export async function auth_routes(app: FastifyTypedInstance) {
           message: user.first_name
             ? `Seja bem-vindo, ${user.first_name}!`
             : 'Bem-vindo!',
+          rotas: rotas.map(r => ({
+            modulo: r.modulo,
+            recurso: r.recurso,
+            rota: r.rota,
+            icone: r.icone,
+            ordem: r.ordem,
+          })),
         })
       } catch (error) {
         if (

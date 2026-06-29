@@ -24,6 +24,8 @@ model Hotel {
 
   enderecos          HotelEndereco[]
   users              User[]
+  grupos             Grupo[]
+  rotas_hoteis       RotaHotel[]
 
   @@map("hoteis")
 }
@@ -60,7 +62,69 @@ model User {
   celular       String   @unique @db.VarChar(20)
   cpf           String   @unique @db.VarChar(14)
   rg            String?  @unique
+  grupos_ids    String?  @db.Text
 
   @@index([hotel_id])
   @@map("users")
+}
+
+model Grupo {
+  id         String      @id @default(uuid())
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
+  hotel_id   String
+  hotel      Hotel       @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+  grupo      String      @db.VarChar(100)
+  descricao  String?     @db.Text
+  status     String      @default("S") @db.Char(1)
+  rotas      GrupoRota[]
+
+  @@unique([hotel_id, grupo])
+  @@index([hotel_id])
+  @@index([grupo])
+  @@map("grupos")
+}
+
+model Rota {
+  id         String      @id @default(uuid())
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
+  modulo     String      @db.VarChar(100)
+  recurso    String      @db.VarChar(100)
+  rota       String      @db.VarChar(255)
+  icone      String?     @db.VarChar(50)
+  ordem      Int         @default(0)
+  ativo      Boolean     @default(true)
+  hoteis     RotaHotel[]
+  grupos     GrupoRota[]
+
+  @@map("rotas")
+}
+
+model RotaHotel {
+  id         String   @id @default(uuid())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  hotel_id   String
+  hotel      Hotel    @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+  rota_id    String
+  rota       Rota     @relation(fields: [rota_id], references: [id], onDelete: Cascade)
+
+  @@unique([hotel_id, rota_id])
+  @@index([hotel_id])
+  @@map("rotas_hoteis")
+}
+
+model GrupoRota {
+  id         String   @id @default(uuid())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  grupo_id   String
+  grupo      Grupo    @relation(fields: [grupo_id], references: [id], onDelete: Cascade)
+  rota_id    String
+  rota       Rota     @relation(fields: [rota_id], references: [id], onDelete: Cascade)
+
+  @@unique([grupo_id, rota_id])
+  @@index([grupo_id])
+  @@map("grupos_rotas")
 }

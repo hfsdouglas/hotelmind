@@ -421,3 +421,49 @@ await db.reservation.findMany({ where: { hotel_id: hotelId } })
 - **Cascades**: Use `onDelete: Cascade` on foreign key relations where child records should be removed with the parent.
 - **Datasource URL**: Set via `env("DATABASE_URL")` in the schema's `datasource db` block. The runtime adapter (`@prisma/adapter-pg`) overrides this for query execution; the env var is still required for `prisma migrate`.
 - **Table names**: Use `@@map("nome_em_portugues")` to map PascalCase model names to Portuguese table names.
+
+---
+
+## Pagination Standard
+
+All list endpoints accept the following query parameters:
+
+| Param | Type | Default | Description |
+|---|---|---|---|
+| `pagina` | number | 1 | Page number (1-indexed) |
+| `limite` | number | 50 | Items per page (max 250) |
+| `busca` | string | — | Optional free-text search |
+| `ordenar_por` | string | — | Field name to sort by |
+| `direcao` | `asc` \| `desc` | `asc` | Sort direction |
+
+All list responses include a `meta` object:
+
+```ts
+{
+  data: T[],
+  meta: {
+    pagina: number
+    limite: number
+    total: number
+    ultima_pagina: number
+  }
+}
+```
+
+---
+
+## Conflict Deletion Policy
+
+When a DELETE request targets a resource that has dependent records, return HTTP **409 Conflict** with a descriptive message. Never delete silently or cascade beyond what the database schema enforces.
+
+Example: deleting a `Grupo` that has users linked via `grupos_ids` must return 409.
+
+---
+
+## grupos_ids Pattern
+
+The `User` model stores group memberships as a comma-separated string in the `grupos_ids` field (`String? @db.Text`). There is no pivot table.
+
+- Format: `"uuid1,uuid2,uuid3"`
+- To check membership: query `WHERE grupos_ids = id OR grupos_ids LIKE '<id>,%' OR grupos_ids LIKE '%,<id>' OR grupos_ids LIKE '%,<id>,%'`
+- When updating groups: replace the full string; do not append/remove individual IDs in the DB layer

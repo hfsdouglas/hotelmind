@@ -11,8 +11,8 @@ export function useLogin() {
 
   return useMutation({
     mutationFn: (data: LoginFormData) => authService.login(data),
-    onSuccess: ({ user, hotel, message }) => {
-      setSession({ user, hotel })
+    onSuccess: ({ user, hotel, message, rotas }) => {
+      setSession({ user, hotel, rotas: rotas ?? [] })
       toast.success(message)
       navigate('/dashboard')
     },

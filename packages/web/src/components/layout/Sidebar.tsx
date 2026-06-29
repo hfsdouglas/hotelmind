@@ -7,7 +7,9 @@ import {
   LayoutDashboard,
   Moon,
   Power,
+  Shield,
   Sun,
+  Users,
 } from 'lucide-react'
 import type { ElementType } from 'react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -17,6 +19,7 @@ import { useLogout } from '@/hooks/useLogout'
 import { useAuth } from '@/hooks/useAuth'
 import { useTheme } from '@/hooks/useTheme'
 import { cn } from '@/lib/utils'
+import type { RotaMenu } from '@/types/auth'
 
 interface SidebarProps {
   isOpen: boolean
@@ -30,25 +33,53 @@ type NavEntry = {
   resources?: NavResource[]
 }
 
-const navigation: NavEntry[] = [
-  { module: 'Dashboard', icon: LayoutDashboard, href: '/' },
-  {
-    module: 'Reservas',
-    icon: CalendarDays,
-    resources: [
-      { label: 'Listar reservas', href: '/reservas' },
-      { label: 'Nova reserva', href: '/reservas/nova' },
-    ],
-  },
-  {
-    module: 'Quartos',
-    icon: BedDouble,
-    resources: [
-      { label: 'Listar quartos', href: '/quartos' },
-      { label: 'Novo quarto', href: '/quartos/novo' },
-    ],
-  },
-]
+const ICON_MAP: Record<string, ElementType> = {
+  LayoutDashboard,
+  CalendarDays,
+  BedDouble,
+  Users,
+  Shield,
+}
+
+function buildNavigation(rotas: RotaMenu[]): NavEntry[] {
+  const sorted = [...rotas].sort((a, b) => a.ordem - b.ordem)
+  const moduleMap = new Map<string, NavEntry>()
+
+  for (const rota of sorted) {
+    const icon = (rota.icone && ICON_MAP[rota.icone]) ?? LayoutDashboard
+
+    if (!moduleMap.has(rota.modulo)) {
+      moduleMap.set(rota.modulo, {
+        module: rota.modulo,
+        icon,
+        resources: [],
+      })
+    }
+
+    const entry = moduleMap.get(rota.modulo)!
+
+    if (!entry.resources || entry.resources.length === 0) {
+      entry.href = rota.rota
+    } else {
+      delete entry.href
+    }
+
+    if (rota.recurso !== rota.modulo) {
+      entry.resources = entry.resources ?? []
+      entry.resources.push({ label: rota.recurso, href: rota.rota })
+    }
+  }
+
+  return Array.from(moduleMap.values()).map(e => {
+    if (e.resources?.length === 1 && e.href) {
+      return { module: e.module, icon: e.icon, href: e.href }
+    }
+    if (e.resources?.length === 0) {
+      return { module: e.module, icon: e.icon, href: e.href }
+    }
+    return e
+  })
+}
 
 function initials(name: string) {
   return name
@@ -67,11 +98,13 @@ export function Sidebar({ isOpen }: SidebarProps) {
 
   if (!session) return null
 
+  const navigation = buildNavigation(session.rotas ?? [])
+
   return (
     <aside
       className={cn(
         'fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r bg-card transition-transform duration-300',
-        isOpen ? 'translate-x-0' : '-translate-x-full'
+        isOpen ? 'translate-x-0' : '-translate-x-full',
       )}
     >
       <div className="flex items-center gap-3 p-4">
@@ -81,9 +114,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
         <div className="min-w-0">
           <p className="truncate text-sm font-medium">{session.user.nome_completo}</p>
           <p className="truncate text-xs text-muted-foreground">Gerente</p>
-          <p className="truncate text-xs text-muted-foreground">
-            {session.hotel.nome_fantasia}
-          </p>
+          <p className="truncate text-xs text-muted-foreground">{session.hotel.nome_fantasia}</p>
         </div>
       </div>
 
@@ -94,7 +125,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
           const Icon = entry.icon
           const isExpanded = openModule === entry.module
 
-          if (entry.href) {
+          if (entry.href && (!entry.resources || entry.resources.length === 0)) {
             return (
               <NavLink
                 key={entry.module}
@@ -103,7 +134,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
                 className={({ isActive }) =>
                   cn(
                     'flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent',
-                    isActive && 'bg-accent font-medium'
+                    isActive && 'bg-accent font-medium',
                   )
                 }
               >
@@ -125,14 +156,14 @@ export function Sidebar({ isOpen }: SidebarProps) {
                 <ChevronRight
                   className={cn(
                     'h-4 w-4 shrink-0 transition-transform duration-200',
-                    isExpanded && 'rotate-90'
+                    isExpanded && 'rotate-90',
                   )}
                 />
               </button>
               <div
                 className={cn(
                   'overflow-hidden transition-all duration-200',
-                  isExpanded ? 'max-h-64' : 'max-h-0'
+                  isExpanded ? 'max-h-64' : 'max-h-0',
                 )}
               >
                 <div className="ml-4 flex flex-col gap-1 py-1">
@@ -143,7 +174,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
                       className={({ isActive }) =>
                         cn(
                           'flex items-center rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground',
-                          isActive && 'bg-accent font-medium text-foreground'
+                          isActive && 'bg-accent font-medium text-foreground',
                         )
                       }
                     >
@@ -164,11 +195,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
           onClick={toggleTheme}
           title={theme === 'dark' ? 'Modo claro' : 'Modo escuro'}
         >
-          {theme === 'dark' ? (
-            <Sun className="h-4 w-4" />
-          ) : (
-            <Moon className="h-4 w-4" />
-          )}
+          {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </Button>
         <Button variant="ghost" size="icon" onClick={logout} title="Encerrar sessão">
           <Power className="h-4 w-4" />

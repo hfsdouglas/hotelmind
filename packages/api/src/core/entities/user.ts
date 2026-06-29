@@ -9,6 +9,9 @@ export interface UserProps {
   celular: string
   cpf: string
   rg?: string | null
+  grupos_ids?: string | null
+  created_at?: Date
+  updated_at?: Date
 }
 
 export class User {
@@ -22,6 +25,9 @@ export class User {
   readonly celular: string
   readonly cpf: string
   readonly rg: string | null
+  readonly grupos_ids: string | null
+  readonly created_at: Date
+  readonly updated_at: Date
 
   constructor(props: UserProps) {
     this.id = props.id
@@ -34,6 +40,9 @@ export class User {
     this.celular = props.celular
     this.cpf = props.cpf
     this.rg = props.rg ?? null
+    this.grupos_ids = props.grupos_ids ?? null
+    this.created_at = props.created_at ?? new Date()
+    this.updated_at = props.updated_at ?? new Date()
   }
 
   get first_name(): string {

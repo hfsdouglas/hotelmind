@@ -1,1 +1,1 @@
-export type { AuthUser, AuthHotel, LoginResponse } from '@hotelmind/contracts'
+export type { AuthUser, AuthHotel, LoginResponse, RotaMenu } from '@hotelmind/contracts'

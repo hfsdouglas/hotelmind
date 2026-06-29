@@ -1,9 +1,10 @@
 import { createContext, useEffect, useState } from 'react'
-import type { AuthHotel, AuthUser } from '@/types/auth'
+import type { AuthHotel, AuthUser, RotaMenu } from '@/types/auth'
 
 interface AuthSession {
   user: AuthUser
   hotel: AuthHotel
+  rotas: RotaMenu[]
 }
 
 interface AuthContextValue {

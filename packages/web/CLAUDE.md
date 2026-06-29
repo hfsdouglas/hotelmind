@@ -719,3 +719,45 @@ Whenever you write code, ask yourself:
 If the answer is no, simplify it.
 
 Simple code almost always beats clever code.
+
+---
+
+## DataTable Components
+
+Reusable data-table components live in `src/components/data-table/`:
+
+| File | Purpose |
+|---|---|
+| `data_table.tsx` | Generic sortable table with configurable columns |
+| `data_table_pagination.tsx` | First/prev/next/last controls + items-per-page selector |
+| `search_bar.tsx` | Search input + submit button |
+| `filter_panel.tsx` | Collapsible filter area (hidden by default) |
+| `result_count.tsx` | Displays total result count |
+
+Use these components on every list page. Never build one-off table UIs.
+
+---
+
+## Pagination Query Params (`usePaginacao`)
+
+The hook `usePaginacao` (in `src/hooks/usePaginacao.ts`) manages URL query params for all list pages:
+
+- `?pagina=` — current page (default 1)
+- `?limite=` — items per page (default 50; options 50/100/250)
+- `?busca=` — search text
+- `?ordenar_por=` — sort field
+- `?direcao=` — sort direction (`asc`/`desc`)
+
+All list pages MUST use `usePaginacao` to read/write these params. Never use local state for pagination.
+
+---
+
+## Dynamic Sidebar
+
+`Sidebar.tsx` renders navigation from `session.rotas` (set at login). It must never use a hardcoded `navigation` array.
+
+- Routes are grouped by `modulo`, sorted by `ordem`
+- Icons are resolved from the `ICON_MAP` in `Sidebar.tsx` using the `icone` field from the route
+- To add a new icon, add it to `ICON_MAP` — do not add hardcoded nav entries
+
+When a user logs in, `useLogin` stores `rotas` in the session via `AuthContext.setSession`. The sidebar derives navigation from `session.rotas ?? []`.

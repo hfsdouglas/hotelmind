@@ -142,5 +142,5 @@ The agent must always use the Git repository's configured identity when creating
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-[Implementation Plan](specs/005-sidebar-ui-polish/plan.md)
+[Implementation Plan](specs/006-permissoes-grupos/plan.md)
 <!-- SPECKIT END -->
