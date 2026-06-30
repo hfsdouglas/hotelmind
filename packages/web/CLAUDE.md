@@ -508,9 +508,25 @@ toast.error("Failed to create user")
 
 # Testing
 
-Prioritize behavior testing.
+This is a TDD (Test-Driven Development) application. **Tests are written before the implementation, without exception.**
 
-Do not test implementation details.
+## Workflow — Red → Green → Refactor
+
+1. **Red** — write a failing test that describes the expected behavior
+2. **Green** — write the minimum implementation to make the test pass
+3. **Refactor** — clean up the code without breaking the test
+
+Never write a component, hook, or service before its test exists.
+
+## Recommended Tools
+
+* Vitest
+* React Testing Library
+* Mock Service Worker (MSW) — for isolating API calls in tests
+
+## Guidelines
+
+Prioritize behavior testing. Do not test implementation details.
 
 Avoid:
 
@@ -521,15 +537,10 @@ expect(component.state.count).toBe(1)
 Prefer:
 
 ```ts
-expect(
-  screen.getByText("User created")
-).toBeInTheDocument()
+expect(screen.getByText("User created")).toBeInTheDocument()
 ```
 
-## Recommended Tools
-
-* Vitest
-* React Testing Library
+Test files must be co-located with the source file and use the `.spec.tsx` (or `.spec.ts`) suffix.
 
 ---
 

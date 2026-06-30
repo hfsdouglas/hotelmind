@@ -108,11 +108,10 @@ Custom error classes for domain and application failures.
 
 ### `core/repositories`
 
-Repository contracts — TypeScript interfaces only.
+Repository contracts and implementations, grouped by domain.
 
-- No implementations live here; implementations belong in `db/repositories/<domain>/implementation/`
-- In-memory fakes for tests belong in `db/repositories/<domain>/in-memory/`
-- Use cases depend on these interfaces, never on concrete implementations
+- Each domain folder contains three things: the interface contract (`<domain>.repository.ts`), the Prisma-backed implementation (`implementation/`), and the in-memory fake for tests (`in-memory/`)
+- Use cases depend on the interface, never on the concrete implementation
 
 ### `core/services`
 
@@ -261,11 +260,10 @@ Current domains:
 | Domain | Scope |
 |---|---|
 | `users/` | Hotel users (multi-tenant CRUD + auth lookup) |
-| `hotels/` | Hotel lookup (read-only, used by auth) |
+| `hotels/` | Hotel management (admin CRUD + auth lookup) |
 | `groups/` | Access groups per hotel |
-| `routes/` | Route catalog lookup (tenant read-only) |
+| `routes/` | Route catalog (admin CRUD + tenant read) |
 | `administrators/` | System administrator entity |
-| `admin/` | Admin panel — hotel and route management |
 
 The central `core/repositories/index.ts` re-exports every implementation under its alias so route composition roots never reference concrete class names directly.
 
@@ -346,7 +344,15 @@ Do not write manual `if (!value)` validation logic. If Zod cannot express the co
 
 ## Testing
 
-Use Vitest. Tests are mandatory and must pass as part of every build. 
+This is a TDD (Test-Driven Development) application. **Tests are written before the implementation, without exception.**
+
+### Workflow — Red → Green → Refactor
+
+1. **Red** — write a failing test that describes the expected behavior
+2. **Green** — write the minimum implementation to make the test pass
+3. **Refactor** — clean up the code without breaking the test
+
+Never write implementation code before its corresponding test exists. A file without a `.spec.ts` is incomplete.
 
 ### What to test
 
@@ -364,33 +370,26 @@ Use `.spec.ts` suffix, co-located with the source file:
 core/
   entities/
     user.entity.ts
-    user.spec.ts
-  repositories/
-    user/
-      user.repository.ts
-  errors/
-    user.errors.ts
-  services/
-    user.services.ts
+    user.spec.ts          ← written first
   usecases/
-    user/
+    users/
+      create_user_use_case.spec.ts   ← written first
       create_user_use_case.ts
-      create_user_use_case.spec.ts
 
 routes/
   users/
-    create_user.ts
-    list_users.ts
-    update_user.ts
-    delete_user.ts
+    users_routes.spec.ts  ← written first
+    users_routes.ts
 ```
 
 ### Testing guidelines
 
+- Write the `.spec.ts` file before the implementation file
 - Test entities without any framework dependency
 - Test use cases by injecting in-memory repository implementations
 - Test routes using Fastify's `inject` method — do not start a real server
-- Do not mock the Prisma client in route tests; use repository interfaces with in-memory fakes instead
+- Never mock the Prisma client in route tests; use in-memory repository fakes instead
+- Every in-memory fake must faithfully implement the repository interface — no shortcuts
 
 ## AI Agent Rules
 
@@ -401,7 +400,7 @@ When generating or modifying code in this package, follow these rules without ex
 3. Use snake_case for every file name, folder name, variable, function, and identifier.
 4. Keep routes thin — no business logic, no database access, no inline schemas. Each route instantiates its own use cases internally; never receive them as function parameters.
 5. Keep all Zod schemas inside `schemas/`; never declare them inline in route files.
-6. Write tests alongside every entity, use case, and route you add or modify — do not defer.
+6. **TDD is mandatory** — write the `.spec.ts` file before writing the implementation. Red → Green → Refactor. No implementation without a prior failing test.
 7. Do not create generic utility files (`helpers.ts`, `utils.ts`) without documented justification.
 8. Ask for explicit user approval before creating any git commit.
 9. Scope every query, entity, and relation by `hotel_id` — never allow cross-hotel data leakage.
