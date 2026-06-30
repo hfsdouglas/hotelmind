@@ -1,0 +1,5 @@
+export { PostgresUserRepository as UserRepository } from './users/implementation/postgres_user_repository'
+export { PostgresHotelRepository as HotelRepository } from './hotels/implementation/postgres_hotel_repository'
+export { PostgresGroupRepository as GroupRepository } from './groups/implementation/postgres_group_repository'
+export { PostgresRouteRepository as RouteRepository } from './routes/implementation/postgres_route_repository'
+export { PostgresAdministratorRepository as AdministratorRepository } from './administrators/implementation/postgres_administrator_repository'

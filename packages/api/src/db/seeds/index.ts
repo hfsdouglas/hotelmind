@@ -1,6 +1,6 @@
 import 'dotenv/config'
 import bcrypt from 'bcryptjs'
-import { db } from '@/db/client'
+import { db } from '@/lib/prisma'
 
 const BASE_ROUTES = [
   { modulo: 'Dashboard', recurso: 'Dashboard', rota: '/', icone: 'LayoutDashboard', ordem: 0 },

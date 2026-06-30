@@ -10,11 +10,11 @@ import {
 import { PORT } from "@/config/env";
 import { HOST } from "@/config/env";
 
-import { setRoutes } from "@/plugins/fastify-routes";
-import { setSwagger } from "@/plugins/fastify-swagger";
-import { setCors } from "@/plugins/fastify-cors";
-import { setCookie } from "@/plugins/fastify-cookie";
-import { setJWT } from "@/plugins/fastify-jwt";
+import { setRoutes } from "@/plugins/fastify_routes";
+import { setSwagger } from "@/plugins/swagger_plugin";
+import { setCors } from "@/plugins/cors_plugin";
+import { setCookie } from "@/plugins/cookie_plugin";
+import { setJWT } from "@/plugins/jwt_plugin";
 
 const app = fastify().withTypeProvider<ZodTypeProvider>();
 

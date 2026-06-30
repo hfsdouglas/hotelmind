@@ -246,21 +246,28 @@ Never manually verify tokens inside route handlers.
 
 ## Repository Organization
 
-Repositories are grouped by domain under `db/repositories/`. Each domain folder contains two sub-folders:
+Repositories are grouped by domain under `core/repositories/`. Each domain folder contains:
 
 | Folder | Contents |
 |---|---|
+| `<domain>.repository.ts` | Repository interface (contract only) |
 | `implementation/` | Prisma-backed concrete class (e.g., `postgres_hotel_repository.ts`) |
 | `in-memory/` | In-memory fake used exclusively in tests (e.g., `in_memory_hotel_repository.ts`) |
 
-The central `db/repositories/index.ts` re-exports every implementation under its domain alias so consumers never reference the concrete class name:
+Shared pagination types (`PaginationInput`, `PaginationMeta`, `PaginatedResult`) live in `core/repositories/pagination.ts`. Import from there — never redefine them per domain.
 
-```ts
-// db/repositories/index.ts
-import { PostgresHotelRepository } from '@/core/repositories/hotel/implementations/postgres-hotel-repositoty';
+Current domains:
 
-export const HotelRepository = PostgresHotelRepository;
-```
+| Domain | Scope |
+|---|---|
+| `users/` | Hotel users (multi-tenant CRUD + auth lookup) |
+| `hotels/` | Hotel lookup (read-only, used by auth) |
+| `groups/` | Access groups per hotel |
+| `routes/` | Route catalog lookup (tenant read-only) |
+| `administrators/` | System administrator entity |
+| `admin/` | Admin panel — hotel and route management |
+
+The central `core/repositories/index.ts` re-exports every implementation under its alias so route composition roots never reference concrete class names directly.
 
 Rules:
 - Use cases receive repository instances via constructor injection — they never instantiate them
