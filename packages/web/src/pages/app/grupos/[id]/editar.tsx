@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { ArrowLeft } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -59,13 +59,19 @@ export function EditarGrupoPage() {
       ),
   })
 
-  const { data: grupoRotas = [], refetch: refetchGrupoRotas } = useQuery({
+  const { data: grupoRotas } = useQuery({
     queryKey: ['grupos', id, 'rotas'],
     queryFn: () => gruposService.listRotas(id!),
     enabled: !!id,
   })
 
-  const selectedIds = new Set(grupoRotas.map(r => r.id))
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+
+  useEffect(() => {
+    if (grupoRotas) {
+      setSelectedIds(new Set(grupoRotas.map(r => r.id)))
+    }
+  }, [grupoRotas])
 
   const { register, handleSubmit, setValue, formState: { errors }, reset } =
     useForm<FormData>({ resolver: zodResolver(schema) })
@@ -80,12 +86,22 @@ export function EditarGrupoPage() {
     }
   }, [grupo, reset])
 
+  const syncRotasMutation = useMutation({
+    mutationFn: (rota_ids: string[]) => gruposService.syncRotas(id!, rota_ids),
+  })
+
   const updateMutation = useMutation({
     mutationFn: (data: FormData) => gruposService.update(id!, data),
     onSuccess: () => {
-      toast.success('Grupo atualizado.')
-      queryClient.invalidateQueries({ queryKey: ['grupos'] })
-      navigate('/grupos')
+      syncRotasMutation.mutate(Array.from(selectedIds), {
+        onSuccess: () => {
+          toast.success('Grupo atualizado.')
+          queryClient.invalidateQueries({ queryKey: ['grupos'] })
+          queryClient.invalidateQueries({ queryKey: ['grupos', id, 'rotas'] })
+          navigate('/grupos')
+        },
+        onError: () => toast.error('Erro ao sincronizar rotas.'),
+      })
     },
     onError: (err: { response?: { status?: number } }) => {
       if (err?.response?.status === 409) {
@@ -96,23 +112,16 @@ export function EditarGrupoPage() {
     },
   })
 
-  const syncRotasMutation = useMutation({
-    mutationFn: (rota_ids: string[]) => gruposService.syncRotas(id!, rota_ids),
-    onSuccess: () => {
-      toast.success('Rotas sincronizadas.')
-      refetchGrupoRotas()
-    },
-    onError: () => toast.error('Erro ao sincronizar rotas.'),
-  })
-
   function toggleRota(rotaId: string) {
-    const next = new Set(selectedIds)
-    if (next.has(rotaId)) {
-      next.delete(rotaId)
-    } else {
-      next.add(rotaId)
-    }
-    syncRotasMutation.mutate(Array.from(next))
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(rotaId)) {
+        next.delete(rotaId)
+      } else {
+        next.add(rotaId)
+      }
+      return next
+    })
   }
 
   const modules = groupByModule(allRotas)
@@ -168,8 +177,13 @@ export function EditarGrupoPage() {
                 </Select>
               </div>
 
-              <Button type="submit" disabled={updateMutation.isPending}>
-                {updateMutation.isPending ? 'Salvando...' : 'Salvar'}
+              <Button
+                type="submit"
+                disabled={updateMutation.isPending || syncRotasMutation.isPending}
+              >
+                {updateMutation.isPending || syncRotasMutation.isPending
+                  ? 'Salvando...'
+                  : 'Salvar'}
               </Button>
             </form>
           </CardContent>
@@ -193,7 +207,7 @@ export function EditarGrupoPage() {
                         <Checkbox
                           checked={selectedIds.has(rota.id)}
                           onCheckedChange={() => toggleRota(rota.id)}
-                          disabled={syncRotasMutation.isPending}
+                          disabled={updateMutation.isPending || syncRotasMutation.isPending}
                         />
                         <span className="text-sm">{rota.recurso}</span>
                       </label>
