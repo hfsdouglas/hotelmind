@@ -36,7 +36,7 @@ export function LoginForm() {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(data => mutate(data))} className="space-y-4">
+          <form noValidate onSubmit={form.handleSubmit(data => mutate(data))} className="space-y-4">
             <FormField
               control={form.control}
               name="email"
