@@ -15,11 +15,16 @@ export interface AuthHotel {
   cnpj: string
 }
 
+export interface SuporteSession {
+  administrador_nome: string
+}
+
 export interface LoginResponse {
   user: AuthUser
   hotel: AuthHotel
   message: string
   rotas: RotaMenu[]
+  suporte?: SuporteSession
 }
 
 export type { RotaMenu }
