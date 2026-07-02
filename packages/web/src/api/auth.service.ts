@@ -1,6 +1,6 @@
 import { api } from '@/lib/axios'
 import type { LoginFormData } from '@/schemas/auth.schema'
-import type { LoginResponse, RotaMenu } from '@/types/auth'
+import type { LoginResponse, RotaMenu, SuporteSession } from '@/types/auth'
 
 export interface MeResponse {
   user: {
@@ -17,6 +17,7 @@ export interface MeResponse {
     cnpj: string
   }
   rotas: RotaMenu[]
+  suporte?: SuporteSession
 }
 
 export const authService = {

@@ -1,10 +1,12 @@
-import { createContext, useEffect, useState } from 'react'
-import type { AuthHotel, AuthUser, RotaMenu } from '@/types/auth'
+import { createContext, useEffect, useRef, useState } from 'react'
+import type { AuthHotel, AuthUser, RotaMenu, SuporteSession } from '@/types/auth'
+import { authService } from '@/api/auth.service'
 
 interface AuthSession {
   user: AuthUser
   hotel: AuthHotel
   rotas: RotaMenu[]
+  suporte?: SuporteSession
 }
 
 interface AuthContextValue {
@@ -45,6 +47,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     window.addEventListener('auth:session-expired', handleExpired)
     return () => window.removeEventListener('auth:session-expired', handleExpired)
+  }, [])
+
+  const bootstrapped = useRef(false)
+
+  useEffect(() => {
+    if (bootstrapped.current || session) return
+    bootstrapped.current = true
+
+    authService
+      .me()
+      .then(({ user, hotel, rotas, suporte }) => {
+        setSession({ user, hotel, rotas, suporte })
+      })
+      .catch(() => {})
   }, [])
 
   return (

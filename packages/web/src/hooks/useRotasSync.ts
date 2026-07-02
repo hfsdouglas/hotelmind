@@ -25,6 +25,7 @@ export function useRotasSync() {
         user: data.user,
         hotel: data.hotel,
         rotas: data.rotas,
+        suporte: data.suporte,
       })
     }
   }, [data, session, setSession])
