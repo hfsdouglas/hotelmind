@@ -6,6 +6,7 @@ export const env = z.object({
   DATABASE_URL: z.url(),
   COOKIE_SECRET: z.string(),
   JWT_SECRET: z.string(),
+  WEB_APP_URL: z.string().default("http://localhost:5173"),
 });
 
 export const {
@@ -14,4 +15,5 @@ export const {
   HOST,
   COOKIE_SECRET,
   JWT_SECRET,
+  WEB_APP_URL,
 } = env.parse(process.env)

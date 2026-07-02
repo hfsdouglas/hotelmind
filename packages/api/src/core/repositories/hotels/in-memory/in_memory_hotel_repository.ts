@@ -1,10 +1,11 @@
 import { Hotel } from '@/core/entities/hotel'
 import type {
   IHotelRepository,
+  HotelPaginationInput,
   CreateHotelData,
   UpdateHotelData,
 } from '@/core/repositories/hotels/hotel.repository'
-import type { PaginationInput, PaginatedResult } from '@/core/repositories/pagination'
+import type { PaginatedResult } from '@/core/repositories/pagination'
 
 export class InMemoryHotelRepository implements IHotelRepository {
   private store = new Map<string, Hotel>()
@@ -13,8 +14,8 @@ export class InMemoryHotelRepository implements IHotelRepository {
     this.store.set(hotel.id, hotel)
   }
 
-  async list(params: PaginationInput): Promise<PaginatedResult<Hotel>> {
-    const { pagina, limite, busca } = params
+  async list(params: HotelPaginationInput): Promise<PaginatedResult<Hotel>> {
+    const { pagina, limite, busca, status } = params
     let rows = Array.from(this.store.values())
     if (busca) {
       const q = busca.toLowerCase()
@@ -23,6 +24,9 @@ export class InMemoryHotelRepository implements IHotelRepository {
           h.nome_hotel.toLowerCase().includes(q) ||
           h.nome_fantasia.toLowerCase().includes(q),
       )
+    }
+    if (status) {
+      rows = rows.filter(h => h.status === status)
     }
     const total = rows.length
     const data = rows.slice((pagina - 1) * limite, pagina * limite)

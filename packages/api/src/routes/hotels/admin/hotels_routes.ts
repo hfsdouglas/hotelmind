@@ -3,11 +3,13 @@ import type { FastifyTypedInstance } from '@/types/fastify'
 import { db } from '@/lib/prisma'
 import { PostgresHotelRepository } from '@/core/repositories/hotels/implementation/postgres_hotel_repository'
 import { PostgresRouteRepository } from '@/core/repositories/routes/implementation/postgres_route_repository'
+import { PostgresUserRepository } from '@/core/repositories/users/implementation/postgres_user_repository'
 import {
   hotel_body_schema,
   hotel_update_schema,
   hotels_list_schema,
   hotel_response_schema,
+  hotel_usuarios_response_schema,
   error_schema,
 } from '@/schemas/hotels/admin/hotels_schema'
 import {
@@ -21,11 +23,13 @@ const pagination_query = z.object({
   busca: z.string().optional(),
   ordenar_por: z.string().optional(),
   direcao: z.enum(['asc', 'desc']).default('asc'),
+  status: z.enum(['S', 'N']).optional(),
 })
 
 export async function admin_hotels_routes(app: FastifyTypedInstance) {
   const hotelRepo = new PostgresHotelRepository(db)
   const routeRepo = new PostgresRouteRepository(db)
+  const userRepo = new PostgresUserRepository(db)
 
   app.get(
     '/admin/hoteis',
@@ -158,6 +162,29 @@ export async function admin_hotels_routes(app: FastifyTypedInstance) {
       if (!hotel) return reply.status(404).send({ message: 'Hotel não encontrado.' })
       await routeRepo.setHotelRoutes(request.params.id, request.body.rota_ids)
       return reply.status(204).send(null)
+    },
+  )
+
+  app.get(
+    '/admin/hoteis/:id/usuarios',
+    {
+      onRequest: [app.authenticateAdmin],
+      schema: {
+        tags: ['Admin - Hotéis'],
+        summary: 'Listar usuários do hotel',
+        params: z.object({ id: z.string() }),
+        response: { 200: hotel_usuarios_response_schema, 404: error_schema },
+      },
+    },
+    async (request, reply) => {
+      const hotel = await hotelRepo.findById(request.params.id)
+      if (!hotel) return reply.status(404).send({ message: 'Hotel não encontrado.' })
+      const { data: usuarios } = await userRepo.list(request.params.id, {
+        pagina: 1,
+        limite: 250,
+        direcao: 'asc',
+      })
+      return reply.status(200).send(usuarios)
     },
   )
 }

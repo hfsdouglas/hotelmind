@@ -2,27 +2,31 @@ import type { DB } from '@/lib/prisma'
 import { Hotel } from '@/core/entities/hotel'
 import type {
   IHotelRepository,
+  HotelPaginationInput,
   CreateHotelData,
   UpdateHotelData,
 } from '@/core/repositories/hotels/hotel.repository'
-import type { PaginationInput, PaginatedResult } from '@/core/repositories/pagination'
+import type { PaginatedResult } from '@/core/repositories/pagination'
 
 export class PostgresHotelRepository implements IHotelRepository {
   constructor(private readonly db: DB) {}
 
-  async list(params: PaginationInput): Promise<PaginatedResult<Hotel>> {
-    const { pagina, limite, busca, ordenar_por, direcao } = params
+  async list(params: HotelPaginationInput): Promise<PaginatedResult<Hotel>> {
+    const { pagina, limite, busca, ordenar_por, direcao, status } = params
     const skip = (pagina - 1) * limite
 
-    const where = busca
-      ? {
-          OR: [
-            { nome_hotel: { contains: busca, mode: 'insensitive' as const } },
-            { nome_fantasia: { contains: busca, mode: 'insensitive' as const } },
-            { cnpj: { contains: busca } },
-          ],
-        }
-      : {}
+    const where = {
+      ...(busca
+        ? {
+            OR: [
+              { nome_hotel: { contains: busca, mode: 'insensitive' as const } },
+              { nome_fantasia: { contains: busca, mode: 'insensitive' as const } },
+              { cnpj: { contains: busca } },
+            ],
+          }
+        : {}),
+      ...(status ? { status } : {}),
+    }
 
     const orderBy = ordenar_por ? { [ordenar_por]: direcao ?? 'asc' } : { nome_hotel: 'asc' as const }
 
@@ -43,7 +47,7 @@ export class PostgresHotelRepository implements IHotelRepository {
   }
 
   async create(data: CreateHotelData): Promise<Hotel> {
-    const row = await this.db.hotel.create({ data })
+    const row = await this.db.hotel.create({ data: { ...data, status: data.status ?? 'S' } })
     return new Hotel(row)
   }
 

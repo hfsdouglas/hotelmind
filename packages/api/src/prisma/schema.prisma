@@ -21,6 +21,7 @@ model Hotel {
   email_comercial    String          @unique @db.VarChar(255)
   telefone_comercial String          @db.VarChar(11)
   website            String?
+  status             String          @default("S") @db.Char(1)
 
   enderecos          HotelEndereco[]
   users              User[]

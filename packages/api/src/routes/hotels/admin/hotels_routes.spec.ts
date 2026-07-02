@@ -11,12 +11,14 @@ import adminAuthPlugin from '@/plugins/admin_auth_plugin'
 import { admin_hotels_routes } from '@/routes/hotels/admin/hotels_routes'
 import { InMemoryHotelRepository } from '@/core/repositories/hotels/in-memory/in_memory_hotel_repository'
 import { InMemoryRouteRepository } from '@/core/repositories/routes/in-memory/in_memory_route_repository'
+import { InMemoryUserRepository } from '@/core/repositories/users/in-memory/in_memory_user_repository'
 
 const ADMIN_ID = 'admin-001'
 const TEST_SECRET = 'test-jwt-secret'
 
 let hotelRepo: InMemoryHotelRepository
 let routeRepo: InMemoryRouteRepository
+let userRepo: InMemoryUserRepository
 
 vi.mock('@/lib/prisma', () => ({ db: {} }))
 
@@ -29,6 +31,12 @@ vi.mock('@/core/repositories/hotels/implementation/postgres_hotel_repository', (
 vi.mock('@/core/repositories/routes/implementation/postgres_route_repository', () => ({
   PostgresRouteRepository: vi.fn(function () {
     return routeRepo
+  }),
+}))
+
+vi.mock('@/core/repositories/users/implementation/postgres_user_repository', () => ({
+  PostgresUserRepository: vi.fn(function () {
+    return userRepo
   }),
 }))
 
@@ -67,6 +75,7 @@ describe('hotels_routes (admin)', () => {
   beforeEach(async () => {
     hotelRepo = new InMemoryHotelRepository()
     routeRepo = new InMemoryRouteRepository()
+    userRepo = new InMemoryUserRepository()
     app = await build_app()
     token = make_token(app)
   })
@@ -82,6 +91,20 @@ describe('hotels_routes (admin)', () => {
       const res = await app.inject({ method: 'GET', url: '/admin/hoteis' })
       expect(res.statusCode).toBe(401)
     })
+
+    it('filters by status=S, excluding inactive hotels', async () => {
+      await hotelRepo.create({ ...BASE_HOTEL, cnpj: '11111111111111', email_comercial: 'ativo@hotelmind.com.br', status: 'S' })
+      await hotelRepo.create({ ...BASE_HOTEL, cnpj: '22222222222222', email_comercial: 'inativo@hotelmind.com.br', status: 'N' })
+
+      const res = await app.inject({
+        method: 'GET',
+        url: '/admin/hoteis?status=S',
+        cookies: { admin_token: token },
+      })
+      expect(res.statusCode).toBe(200)
+      expect(res.json().data).toHaveLength(1)
+      expect(res.json().data[0].status).toBe('S')
+    })
   })
 
   describe('POST /admin/hoteis', () => {
@@ -94,6 +117,16 @@ describe('hotels_routes (admin)', () => {
       })
       expect(res.statusCode).toBe(201)
       expect(res.json().nome_hotel).toBe('HotelMind')
+    })
+
+    it('defaults status to "S" when not provided', async () => {
+      const res = await app.inject({
+        method: 'POST',
+        url: '/admin/hoteis',
+        cookies: { admin_token: token },
+        payload: BASE_HOTEL,
+      })
+      expect(res.json().status).toBe('S')
     })
   })
 
@@ -140,6 +173,18 @@ describe('hotels_routes (admin)', () => {
       })
       expect(res.statusCode).toBe(200)
       expect(res.json().nome_hotel).toBe('HotelMind Atualizado')
+    })
+
+    it('updates the hotel status', async () => {
+      const hotel = await hotelRepo.create(BASE_HOTEL)
+      const res = await app.inject({
+        method: 'PUT',
+        url: `/admin/hoteis/${hotel.id}`,
+        cookies: { admin_token: token },
+        payload: { status: 'N' },
+      })
+      expect(res.statusCode).toBe(200)
+      expect(res.json().status).toBe('N')
     })
   })
 
@@ -207,6 +252,51 @@ describe('hotels_routes (admin)', () => {
         payload: { rota_ids: [rota.id] },
       })
       expect(res.statusCode).toBe(204)
+    })
+  })
+
+  describe('GET /admin/hoteis/:id/usuarios', () => {
+    it('returns 404 when hotel not found', async () => {
+      const res = await app.inject({
+        method: 'GET',
+        url: '/admin/hoteis/non-existent/usuarios',
+        cookies: { admin_token: token },
+      })
+      expect(res.statusCode).toBe(404)
+    })
+
+    it("returns the hotel's users", async () => {
+      const hotel = await hotelRepo.create(BASE_HOTEL)
+      await userRepo.create({
+        hotel_id: hotel.id,
+        nome_completo: 'Douglas Faria',
+        email: 'douglas@hotelmind.com.br',
+        senha: 'hashed',
+        nascimento: new Date('1990-01-01'),
+        genero: 'M',
+        celular: '11988887777',
+        cpf: '11122233344',
+      })
+
+      const res = await app.inject({
+        method: 'GET',
+        url: `/admin/hoteis/${hotel.id}/usuarios`,
+        cookies: { admin_token: token },
+      })
+      expect(res.statusCode).toBe(200)
+      expect(res.json()).toHaveLength(1)
+      expect(res.json()[0].nome_completo).toBe('Douglas Faria')
+    })
+
+    it('returns an empty array for a hotel with no users', async () => {
+      const hotel = await hotelRepo.create(BASE_HOTEL)
+      const res = await app.inject({
+        method: 'GET',
+        url: `/admin/hoteis/${hotel.id}/usuarios`,
+        cookies: { admin_token: token },
+      })
+      expect(res.statusCode).toBe(200)
+      expect(res.json()).toEqual([])
     })
   })
 })

@@ -9,6 +9,12 @@ export const PayloadJWTSchema = z.object({
     nomecompleto: z.string(),
     email: z.email(),
   }),
+  suporte: z
+    .object({
+      administratorId: z.string(),
+      administratorNome: z.string(),
+    })
+    .optional(),
 });
 
 export type PayloadJWTType = z.infer<typeof PayloadJWTSchema>;
@@ -33,6 +39,7 @@ async function authPlugin(app: FastifyInstance) {
           hotelId: decoded.user.hotelId,
           nomecompleto: decoded.user.nomecompleto,
           email: decoded.user.email,
+          suporte: decoded.suporte,
         };
       } catch (error) {
         return reply.status(401).send({

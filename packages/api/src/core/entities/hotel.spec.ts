@@ -33,6 +33,16 @@ describe('Hotel', () => {
     const hotel = new Hotel({ ...BASE_PROPS, website: null })
     expect(hotel.website).toBeNull()
   })
+
+  it('defaults status to "S" when not provided', () => {
+    const hotel = new Hotel(BASE_PROPS)
+    expect(hotel.status).toBe('S')
+  })
+
+  it('stores explicit status', () => {
+    const hotel = new Hotel({ ...BASE_PROPS, status: 'N' })
+    expect(hotel.status).toBe('N')
+  })
 })
 
 describe('Hotel.create', () => {

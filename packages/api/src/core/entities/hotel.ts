@@ -7,6 +7,7 @@ export interface HotelProps {
   email_comercial: string
   telefone_comercial: string
   website?: string | null
+  status?: string
 }
 
 export class Hotel {
@@ -18,6 +19,7 @@ export class Hotel {
   readonly email_comercial: string
   readonly telefone_comercial: string
   readonly website: string | null
+  readonly status: string
 
   constructor(props: HotelProps) {
     this.id = props.id
@@ -28,6 +30,7 @@ export class Hotel {
     this.email_comercial = props.email_comercial
     this.telefone_comercial = props.telefone_comercial
     this.website = props.website ?? null
+    this.status = props.status ?? 'S'
   }
 
   static create(props: HotelProps): Hotel {

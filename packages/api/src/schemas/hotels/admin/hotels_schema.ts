@@ -9,6 +9,7 @@ const hotel_shape = z.object({
   email_comercial: z.string(),
   telefone_comercial: z.string(),
   website: z.string().nullable(),
+  status: z.string(),
 })
 
 export const hotel_body_schema = z.object({
@@ -19,6 +20,7 @@ export const hotel_body_schema = z.object({
   email_comercial: z.string().email(),
   telefone_comercial: z.string().min(10).max(11),
   website: z.string().nullable().optional(),
+  status: z.enum(['S', 'N']).optional().default('S'),
 })
 
 export const hotel_update_schema = hotel_body_schema.partial()
@@ -35,3 +37,11 @@ export const hotels_list_schema = z.object({
 
 export const hotel_response_schema = hotel_shape
 export const error_schema = z.object({ message: z.string() })
+
+export const hotel_usuarios_response_schema = z.array(
+  z.object({
+    id: z.string(),
+    nome_completo: z.string(),
+    email: z.string(),
+  }),
+)

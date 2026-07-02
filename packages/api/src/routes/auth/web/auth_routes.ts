@@ -43,7 +43,7 @@ export async function auth_routes(app: FastifyTypedInstance) {
       },
     },
     async (request, reply) => {
-      const { email, hotelId } = request.user
+      const { email, hotelId, suporte } = request.user
 
       const user = await userRepo.findByEmail(email)
       if (!user) return reply.status(401).send({ message: 'Usuário não encontrado.' })
@@ -79,6 +79,7 @@ export async function auth_routes(app: FastifyTypedInstance) {
           icone: r.icone,
           ordem: r.ordem,
         })),
+        ...(suporte ? { suporte: { administrador_nome: suporte.administratorNome } } : {}),
       })
     },
   )

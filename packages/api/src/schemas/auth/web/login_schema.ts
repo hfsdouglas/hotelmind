@@ -5,6 +5,10 @@ export const login_body_schema = z.object({
   password: z.string().min(8, 'Senha deve ter pelo menos 8 caracteres'),
 })
 
+const suporte_session_schema = z.object({
+  administrador_nome: z.string(),
+})
+
 export const login_response_schema = z.object({
   user: z.object({
     id: z.string(),
@@ -29,6 +33,7 @@ export const login_response_schema = z.object({
       ordem: z.number(),
     }),
   ),
+  suporte: suporte_session_schema.optional(),
 })
 
 export const login_error_schema = z.object({
@@ -58,6 +63,7 @@ export const me_response_schema = z.object({
       ordem: z.number(),
     }),
   ),
+  suporte: suporte_session_schema.optional(),
 })
 
 export type LoginBodyInput = z.infer<typeof login_body_schema>

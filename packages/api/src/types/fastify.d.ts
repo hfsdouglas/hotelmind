@@ -24,6 +24,10 @@ declare module '@fastify/jwt' {
       hotelId: string
       nomecompleto: string
       email: string
+      suporte?: {
+        administratorId: string
+        administratorNome: string
+      }
     }
   }
 }

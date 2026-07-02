@@ -167,6 +167,53 @@ describe('auth_routes', () => {
 
       expect(response.statusCode).toBe(401)
     })
+
+    it('includes suporte when the JWT carries the claim', async () => {
+      const token = app.jwt.sign(
+        {
+          sub: USER_ID,
+          user: {
+            hotelId: HOTEL_ID,
+            nomecompleto: 'Admin HotelMind',
+            email: 'admin@hotelmind.com.br',
+          },
+          suporte: { administratorId: 'admin-001', administratorNome: 'Super Admin' },
+        },
+        { expiresIn: '1h' },
+      )
+
+      const response = await app.inject({
+        method: 'GET',
+        url: '/auth/me',
+        cookies: { token },
+      })
+
+      expect(response.statusCode).toBe(200)
+      expect(response.json().suporte).toEqual({ administrador_nome: 'Super Admin' })
+    })
+
+    it('omits suporte when the JWT does not carry the claim', async () => {
+      const token = app.jwt.sign(
+        {
+          sub: USER_ID,
+          user: {
+            hotelId: HOTEL_ID,
+            nomecompleto: 'Admin HotelMind',
+            email: 'admin@hotelmind.com.br',
+          },
+        },
+        { expiresIn: '1h' },
+      )
+
+      const response = await app.inject({
+        method: 'GET',
+        url: '/auth/me',
+        cookies: { token },
+      })
+
+      expect(response.statusCode).toBe(200)
+      expect(response.json().suporte).toBeUndefined()
+    })
   })
 
   describe('POST /auth/logout', () => {
