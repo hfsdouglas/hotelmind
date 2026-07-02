@@ -10,6 +10,7 @@ export const mock_hoteis = [
     email_comercial: 'contato@grandpalace.com',
     telefone_comercial: '11999999999',
     website: 'https://grandpalace.com',
+    status: 'S',
   },
   {
     id: 'h2',
@@ -20,6 +21,7 @@ export const mock_hoteis = [
     email_comercial: 'contato@marazul.com',
     telefone_comercial: '21999999999',
     website: null,
+    status: 'S',
   },
 ]
 

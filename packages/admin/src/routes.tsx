@@ -13,6 +13,7 @@ import { RotaEditarPage } from '@/pages/app/rotas/editar'
 import { AdministradoresPage } from '@/pages/app/administradores/index'
 import { AdministradorNovoPage } from '@/pages/app/administradores/novo'
 import { AdministradorEditarPage } from '@/pages/app/administradores/editar'
+import { SuportePage } from '@/pages/app/suporte/index'
 
 export const router = createBrowserRouter([
   {
@@ -33,6 +34,7 @@ export const router = createBrowserRouter([
       { path: '/administradores', element: <AdministradoresPage /> },
       { path: '/administradores/novo', element: <AdministradorNovoPage /> },
       { path: '/administradores/:id/editar', element: <AdministradorEditarPage /> },
+      { path: '/suporte', element: <SuportePage /> },
       { path: '/', element: <DashboardPage /> },
     ],
   },

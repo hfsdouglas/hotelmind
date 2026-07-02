@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Building2, LayoutDashboard, Network, Power, ShieldCheck } from 'lucide-react'
+import { Building2, LayoutDashboard, LifeBuoy, Network, Power, ShieldCheck } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -12,6 +12,7 @@ const NAV = [
   { label: 'Hotéis', href: '/hoteis', icon: Building2 },
   { label: 'Rotas', href: '/rotas', icon: Network },
   { label: 'Administradores', href: '/administradores', icon: ShieldCheck },
+  { label: 'Suporte', href: '/suporte', icon: LifeBuoy },
 ]
 
 interface SidebarProps {

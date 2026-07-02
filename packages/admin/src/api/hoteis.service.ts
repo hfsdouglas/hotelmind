@@ -9,6 +9,7 @@ export interface Hotel {
   email_comercial: string
   telefone_comercial: string
   website: string | null
+  status: 'S' | 'N'
 }
 
 export interface HotelFormData {
@@ -19,6 +20,7 @@ export interface HotelFormData {
   email_comercial: string
   telefone_comercial: string
   website?: string | null
+  status?: 'S' | 'N'
 }
 
 export interface PaginatedHoteis {

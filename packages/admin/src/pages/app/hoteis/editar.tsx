@@ -9,6 +9,7 @@ import { hoteisService } from '@/api/hoteis.service'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 const schema = z.object({
   nome_hotel: z.string().min(2),
@@ -18,6 +19,7 @@ const schema = z.object({
   email_comercial: z.string().email(),
   telefone_comercial: z.string().min(10).max(11),
   website: z.string().optional(),
+  status: z.enum(['S', 'N']),
 })
 
 type FormData = z.infer<typeof schema>
@@ -36,7 +38,7 @@ export function HotelEditarPage() {
   const form = useForm<FormData>({ resolver: zodResolver(schema) })
 
   useEffect(() => {
-    if (hotel) form.reset({ ...hotel, website: hotel.website ?? '' })
+    if (hotel) form.reset({ ...hotel, website: hotel.website ?? '', status: hotel.status })
   }, [hotel, form])
 
   const { mutate, isPending } = useMutation({
@@ -68,6 +70,23 @@ export function HotelEditarPage() {
               )}
             />
           ))}
+          <FormField control={form.control} name="status"
+            render={({ field: f }) => (
+              <FormItem>
+                <FormLabel>Status</FormLabel>
+                <Select onValueChange={f.onChange} value={f.value}>
+                  <FormControl>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="S">Ativo</SelectItem>
+                    <SelectItem value="N">Inativo</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <div className="flex gap-2 pt-2">
             <Button type="submit" disabled={isPending}>
               {isPending ? 'Salvando...' : 'Salvar alterações'}
