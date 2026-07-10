@@ -1,12 +1,13 @@
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { ArrowLeft } from 'lucide-react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -16,7 +17,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { CheckboxGrid } from '@/components/forms/CheckboxGrid'
+import { CrudFormLayout } from '@/components/forms/CrudFormLayout'
 import { gruposService } from '@/api/grupos.service'
+import type { RotaItem } from '@/api/grupos.service'
 
 const schema = z.object({
   grupo: z.string().min(1, 'Nome obrigatório').max(100),
@@ -26,6 +30,17 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>
 
+function groupByModule(rotas: RotaItem[]): Record<string, RotaItem[]> {
+  return rotas.reduce(
+    (acc, r) => {
+      if (!acc[r.modulo]) acc[r.modulo] = []
+      acc[r.modulo].push(r)
+      return acc
+    },
+    {} as Record<string, RotaItem[]>,
+  )
+}
+
 export function NovoGrupoPage() {
   const navigate = useNavigate()
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormData>({
@@ -33,11 +48,43 @@ export function NovoGrupoPage() {
     defaultValues: { status: 'S' },
   })
 
+  const { data: allRotas = [] } = useQuery({
+    queryKey: ['rotas'],
+    queryFn: () =>
+      import('@/lib/axios').then(({ api }) =>
+        api.get<RotaItem[]>('/rotas').then(r => r.data),
+      ),
+  })
+
+  const [selectedRouteIds, setSelectedRouteIds] = useState<Set<string>>(new Set())
+
+  function toggleRota(rotaId: string) {
+    setSelectedRouteIds(prev => {
+      const next = new Set(prev)
+      if (next.has(rotaId)) {
+        next.delete(rotaId)
+      } else {
+        next.add(rotaId)
+      }
+      return next
+    })
+  }
+
+  const syncRotasMutation = useMutation({
+    mutationFn: (id: string) =>
+      gruposService.syncRotas(id, Array.from(selectedRouteIds)),
+  })
+
   const mutation = useMutation({
     mutationFn: (data: FormData) => gruposService.create(data),
-    onSuccess: () => {
-      toast.success('Grupo criado com sucesso.')
-      navigate('/grupos')
+    onSuccess: grupo => {
+      syncRotasMutation.mutate(grupo.id, {
+        onSuccess: () => {
+          toast.success('Grupo criado com sucesso.')
+          navigate('/grupos')
+        },
+        onError: () => toast.error('Grupo criado, mas houve um erro ao sincronizar as rotas.'),
+      })
     },
     onError: (err: { response?: { status?: number } }) => {
       if (err?.response?.status === 409) {
@@ -48,51 +95,69 @@ export function NovoGrupoPage() {
     },
   })
 
+  const modules = groupByModule(allRotas)
+  const isPending = mutation.isPending || syncRotasMutation.isPending
+
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link to="/grupos"><ArrowLeft className="h-4 w-4" /></Link>
+    <CrudFormLayout
+      title="Novo grupo"
+      backTo="/grupos"
+      cardTitle="Dados do grupo"
+      sidebar={
+        <Card>
+          <CardHeader>
+            <CardTitle>Rotas de acesso</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col gap-4">
+              {Object.entries(modules).map(([modulo, rotas]) => (
+                <div key={modulo}>
+                  <p className="font-medium mb-2">{modulo}</p>
+                  <CheckboxGrid
+                    items={rotas.map(r => ({ id: r.id, label: r.recurso }))}
+                    selectedIds={selectedRouteIds}
+                    onToggle={toggleRota}
+                    disabled={isPending}
+                  />
+                </div>
+              ))}
+              {allRotas.length === 0 && (
+                <p className="text-sm text-muted-foreground">Nenhuma rota disponível.</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      }
+    >
+      <form onSubmit={handleSubmit(d => mutation.mutate(d))} className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="grupo">Nome *</Label>
+          <Input id="grupo" {...register('grupo')} />
+          {errors.grupo && <p className="text-sm text-destructive">{errors.grupo.message}</p>}
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="descricao">Descrição</Label>
+          <Textarea id="descricao" {...register('descricao')} />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <Label>Status</Label>
+          <Select defaultValue="S" onValueChange={v => setValue('status', v as 'S' | 'N')}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="S">Ativo</SelectItem>
+              <SelectItem value="N">Inativo</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <Button type="submit" disabled={isPending}>
+          {isPending ? 'Salvando...' : 'Criar grupo'}
         </Button>
-        <h1 className="text-2xl font-bold tracking-tight">Novo grupo</h1>
-      </div>
-
-      <Card className="max-w-lg">
-        <CardHeader>
-          <CardTitle>Dados do grupo</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(d => mutation.mutate(d))} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="grupo">Nome *</Label>
-              <Input id="grupo" {...register('grupo')} />
-              {errors.grupo && <p className="text-sm text-destructive">{errors.grupo.message}</p>}
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="descricao">Descrição</Label>
-              <Input id="descricao" {...register('descricao')} />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label>Status</Label>
-              <Select defaultValue="S" onValueChange={v => setValue('status', v as 'S' | 'N')}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="S">Ativo</SelectItem>
-                  <SelectItem value="N">Inativo</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Salvando...' : 'Criar grupo'}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+      </form>
+    </CrudFormLayout>
   )
 }

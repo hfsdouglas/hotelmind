@@ -1,16 +1,15 @@
-import { useNavigate, useParams, Link } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { ArrowLeft } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
 import {
   Select,
   SelectContent,
@@ -18,6 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { CheckboxGrid } from '@/components/forms/CheckboxGrid'
+import { CrudFormLayout } from '@/components/forms/CrudFormLayout'
 import { gruposService } from '@/api/grupos.service'
 import type { RotaItem } from '@/api/grupos.service'
 
@@ -130,66 +131,12 @@ export function EditarGrupoPage() {
   if (!grupo) return <p className="text-destructive">Grupo não encontrado.</p>
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link to="/grupos"><ArrowLeft className="h-4 w-4" /></Link>
-        </Button>
-        <h1 className="text-2xl font-bold tracking-tight">Editar grupo</h1>
-      </div>
-
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-        <Card className="max-w-lg w-full">
-          <CardHeader>
-            <CardTitle>Dados do grupo</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form
-              onSubmit={handleSubmit(d => updateMutation.mutate(d))}
-              className="flex flex-col gap-4"
-            >
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="grupo">Nome *</Label>
-                <Input id="grupo" {...register('grupo')} />
-                {errors.grupo && (
-                  <p className="text-sm text-destructive">{errors.grupo.message}</p>
-                )}
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="descricao">Descrição</Label>
-                <Input id="descricao" {...register('descricao')} />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <Label>Status</Label>
-                <Select
-                  value={grupo.status}
-                  onValueChange={v => setValue('status', v as 'S' | 'N')}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="S">Ativo</SelectItem>
-                    <SelectItem value="N">Inativo</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Button
-                type="submit"
-                disabled={updateMutation.isPending || syncRotasMutation.isPending}
-              >
-                {updateMutation.isPending || syncRotasMutation.isPending
-                  ? 'Salvando...'
-                  : 'Salvar'}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        <Card className="flex-1">
+    <CrudFormLayout
+      title="Editar grupo"
+      backTo="/grupos"
+      cardTitle="Dados do grupo"
+      sidebar={
+        <Card>
           <CardHeader>
             <CardTitle>Rotas de acesso</CardTitle>
           </CardHeader>
@@ -198,21 +145,12 @@ export function EditarGrupoPage() {
               {Object.entries(modules).map(([modulo, rotas]) => (
                 <div key={modulo}>
                   <p className="font-medium mb-2">{modulo}</p>
-                  <div className="flex flex-col gap-2 pl-2">
-                    {rotas.map(rota => (
-                      <label
-                        key={rota.id}
-                        className="flex items-center gap-2 cursor-pointer"
-                      >
-                        <Checkbox
-                          checked={selectedIds.has(rota.id)}
-                          onCheckedChange={() => toggleRota(rota.id)}
-                          disabled={updateMutation.isPending || syncRotasMutation.isPending}
-                        />
-                        <span className="text-sm">{rota.recurso}</span>
-                      </label>
-                    ))}
-                  </div>
+                  <CheckboxGrid
+                    items={rotas.map(r => ({ id: r.id, label: r.recurso }))}
+                    selectedIds={selectedIds}
+                    onToggle={toggleRota}
+                    disabled={updateMutation.isPending || syncRotasMutation.isPending}
+                  />
                 </div>
               ))}
               {allRotas.length === 0 && (
@@ -221,7 +159,50 @@ export function EditarGrupoPage() {
             </div>
           </CardContent>
         </Card>
-      </div>
-    </div>
+      }
+    >
+      <form
+        onSubmit={handleSubmit(d => updateMutation.mutate(d))}
+        className="flex flex-col gap-4"
+      >
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="grupo">Nome *</Label>
+          <Input id="grupo" {...register('grupo')} />
+          {errors.grupo && (
+            <p className="text-sm text-destructive">{errors.grupo.message}</p>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="descricao">Descrição</Label>
+          <Textarea id="descricao" {...register('descricao')} />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <Label>Status</Label>
+          <Select
+            value={grupo.status}
+            onValueChange={v => setValue('status', v as 'S' | 'N')}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="S">Ativo</SelectItem>
+              <SelectItem value="N">Inativo</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <Button
+          type="submit"
+          disabled={updateMutation.isPending || syncRotasMutation.isPending}
+        >
+          {updateMutation.isPending || syncRotasMutation.isPending
+            ? 'Salvando...'
+            : 'Salvar'}
+        </Button>
+      </form>
+    </CrudFormLayout>
   )
 }
