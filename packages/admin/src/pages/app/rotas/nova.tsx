@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Checkbox } from '@/components/ui/checkbox'
+import { CrudFormLayout } from '@/components/forms/CrudFormLayout'
 
 const schema = z.object({
   modulo: z.string().min(1),
@@ -41,8 +42,7 @@ export function RotaNovaPage() {
   })
 
   return (
-    <div className="max-w-lg space-y-6">
-      <h1 className="text-2xl font-bold">Nova Rota</h1>
+    <CrudFormLayout title="Nova Rota" backTo="/rotas">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(d => mutate(d))} className="space-y-4">
           {(['modulo', 'recurso', 'rota', 'icone'] as const).map(field => (
@@ -88,6 +88,6 @@ export function RotaNovaPage() {
           </div>
         </form>
       </Form>
-    </div>
+    </CrudFormLayout>
   )
 }

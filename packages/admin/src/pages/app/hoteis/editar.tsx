@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { CrudFormLayout } from '@/components/forms/CrudFormLayout'
 
 const schema = z.object({
   nome_hotel: z.string().min(2),
@@ -52,8 +53,7 @@ export function HotelEditarPage() {
   })
 
   return (
-    <div className="max-w-xl space-y-6">
-      <h1 className="text-2xl font-bold">Editar Hotel</h1>
+    <CrudFormLayout title="Editar Hotel" backTo="/hoteis">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(d => mutate(d))} className="space-y-4">
           {(['nome_hotel', 'razao_social', 'nome_fantasia', 'cnpj', 'email_comercial', 'telefone_comercial', 'website'] as const).map(field => (
@@ -97,6 +97,6 @@ export function HotelEditarPage() {
           </div>
         </form>
       </Form>
-    </div>
+    </CrudFormLayout>
   )
 }

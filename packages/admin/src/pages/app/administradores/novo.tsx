@@ -8,6 +8,7 @@ import { administradoresService } from '@/api/administradores.service'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { CrudFormLayout } from '@/components/forms/CrudFormLayout'
 
 const schema = z.object({
   nome_completo: z.string().min(2),
@@ -34,8 +35,7 @@ export function AdministradorNovoPage() {
   })
 
   return (
-    <div className="max-w-lg space-y-6">
-      <h1 className="text-2xl font-bold">Novo Administrador</h1>
+    <CrudFormLayout title="Novo Administrador" backTo="/administradores">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(d => mutate(d))} className="space-y-4">
           {(['nome_completo', 'email', 'senha'] as const).map(field => (
@@ -60,6 +60,6 @@ export function AdministradorNovoPage() {
           </div>
         </form>
       </Form>
-    </div>
+    </CrudFormLayout>
   )
 }

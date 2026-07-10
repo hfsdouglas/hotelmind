@@ -8,6 +8,7 @@ import { hoteisService } from '@/api/hoteis.service'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { CrudFormLayout } from '@/components/forms/CrudFormLayout'
 
 const schema = z.object({
   nome_hotel: z.string().min(2),
@@ -38,8 +39,7 @@ export function HotelNovoPage() {
   })
 
   return (
-    <div className="max-w-xl space-y-6">
-      <h1 className="text-2xl font-bold">Novo Hotel</h1>
+    <CrudFormLayout title="Novo Hotel" backTo="/hoteis">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(d => mutate(d))} className="space-y-4">
           {(['nome_hotel', 'razao_social', 'nome_fantasia', 'cnpj', 'email_comercial', 'telefone_comercial', 'website'] as const).map(field => (
@@ -66,6 +66,6 @@ export function HotelNovoPage() {
           </div>
         </form>
       </Form>
-    </div>
+    </CrudFormLayout>
   )
 }

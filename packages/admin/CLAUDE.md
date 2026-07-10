@@ -428,6 +428,18 @@ const createHotelSchema = z.object({
 
 Avoid spreading validation logic throughout components.
 
+## CRUD Form Layout
+
+Every create/edit page MUST use `CrudFormLayout` (`src/components/forms/CrudFormLayout.tsx`) instead of hand-rolled header/container markup. It centers the page in a fixed-width container, keeps the back-arrow + title header contained and left-aligned within that same width, and wraps the form's inputs in one `Card`. Pass a secondary `Card` (e.g. a route-assignment selector) via the `sidebar` prop rather than laying it out manually.
+
+```tsx
+<CrudFormLayout title="Novo Hotel" backTo="/hoteis">
+  <Form {...form}>...</Form>
+</CrudFormLayout>
+```
+
+Whenever a form renders a list of checkboxes (route assignment, etc.), use `CheckboxGrid` (`src/components/forms/CheckboxGrid.tsx`) instead of a manual list. It lays options out in a responsive 3-column grid (collapsing to fewer columns on narrower screens) and takes `items`, `selectedIds`, and `onToggle`. If a checkbox list needs a richer per-item layout than a single label (e.g. a title + subtitle), apply the same `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2` classes directly rather than forcing the item into `CheckboxGrid`'s single-line shape.
+
 ---
 
 # Performance

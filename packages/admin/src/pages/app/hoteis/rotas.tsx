@@ -69,7 +69,7 @@ export function HotelRotasPage() {
         {Object.entries(grouped).map(([modulo, rotas]) => (
           <div key={modulo}>
             <h3 className="mb-2 font-semibold">{modulo}</h3>
-            <div className="space-y-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {rotas.map(rota => (
                 <label
                   key={rota.id}

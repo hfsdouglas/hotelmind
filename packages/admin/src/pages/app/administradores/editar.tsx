@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { CrudFormLayout } from '@/components/forms/CrudFormLayout'
 
 const schema = z.object({
   nome_completo: z.string().min(2),
@@ -51,8 +52,7 @@ export function AdministradorEditarPage() {
   })
 
   return (
-    <div className="max-w-lg space-y-6">
-      <h1 className="text-2xl font-bold">Editar Administrador</h1>
+    <CrudFormLayout title="Editar Administrador" backTo="/administradores">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(d => mutate(d))} className="space-y-4">
           <FormField control={form.control} name="nome_completo"
@@ -97,6 +97,6 @@ export function AdministradorEditarPage() {
           </div>
         </form>
       </Form>
-    </div>
+    </CrudFormLayout>
   )
 }
