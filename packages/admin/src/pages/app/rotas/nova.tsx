@@ -42,9 +42,19 @@ export function RotaNovaPage() {
   })
 
   return (
-    <CrudFormLayout title="Nova Rota" backTo="/rotas">
+    <CrudFormLayout
+      title="Nova Rota"
+      backTo="/rotas"
+      onSubmit={form.handleSubmit(d => mutate(d))}
+      actions={
+        <>
+          <Button type="submit" disabled={isPending}>{isPending ? 'Salvando...' : 'Criar rota'}</Button>
+          <Button type="button" variant="outline" onClick={() => navigate('/rotas')}>Cancelar</Button>
+        </>
+      }
+    >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(d => mutate(d))} className="space-y-4">
+        <div className="space-y-4">
           {(['modulo', 'recurso', 'rota', 'icone'] as const).map(field => (
             <FormField
               key={field}
@@ -82,11 +92,7 @@ export function RotaNovaPage() {
               </FormItem>
             )}
           />
-          <div className="flex gap-2 pt-2">
-            <Button type="submit" disabled={isPending}>{isPending ? 'Salvando...' : 'Criar rota'}</Button>
-            <Button type="button" variant="outline" onClick={() => navigate('/rotas')}>Cancelar</Button>
-          </div>
-        </form>
+        </div>
       </Form>
     </CrudFormLayout>
   )

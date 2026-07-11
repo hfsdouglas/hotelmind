@@ -35,9 +35,19 @@ export function AdministradorNovoPage() {
   })
 
   return (
-    <CrudFormLayout title="Novo Administrador" backTo="/administradores">
+    <CrudFormLayout
+      title="Novo Administrador"
+      backTo="/administradores"
+      onSubmit={form.handleSubmit(d => mutate(d))}
+      actions={
+        <>
+          <Button type="submit" disabled={isPending}>{isPending ? 'Salvando...' : 'Criar'}</Button>
+          <Button type="button" variant="outline" onClick={() => navigate('/administradores')}>Cancelar</Button>
+        </>
+      }
+    >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(d => mutate(d))} className="space-y-4">
+        <div className="space-y-4">
           {(['nome_completo', 'email', 'senha'] as const).map(field => (
             <FormField
               key={field}
@@ -54,11 +64,7 @@ export function AdministradorNovoPage() {
               )}
             />
           ))}
-          <div className="flex gap-2 pt-2">
-            <Button type="submit" disabled={isPending}>{isPending ? 'Salvando...' : 'Criar'}</Button>
-            <Button type="button" variant="outline" onClick={() => navigate('/administradores')}>Cancelar</Button>
-          </div>
-        </form>
+        </div>
       </Form>
     </CrudFormLayout>
   )

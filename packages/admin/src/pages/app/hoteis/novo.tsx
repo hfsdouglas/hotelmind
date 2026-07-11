@@ -39,9 +39,23 @@ export function HotelNovoPage() {
   })
 
   return (
-    <CrudFormLayout title="Novo Hotel" backTo="/hoteis">
+    <CrudFormLayout
+      title="Novo Hotel"
+      backTo="/hoteis"
+      onSubmit={form.handleSubmit(d => mutate(d))}
+      actions={
+        <>
+          <Button type="submit" disabled={isPending}>
+            {isPending ? 'Salvando...' : 'Criar hotel'}
+          </Button>
+          <Button type="button" variant="outline" onClick={() => navigate('/hoteis')}>
+            Cancelar
+          </Button>
+        </>
+      }
+    >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(d => mutate(d))} className="space-y-4">
+        <div className="space-y-4">
           {(['nome_hotel', 'razao_social', 'nome_fantasia', 'cnpj', 'email_comercial', 'telefone_comercial', 'website'] as const).map(field => (
             <FormField
               key={field}
@@ -56,15 +70,7 @@ export function HotelNovoPage() {
               )}
             />
           ))}
-          <div className="flex gap-2 pt-2">
-            <Button type="submit" disabled={isPending}>
-              {isPending ? 'Salvando...' : 'Criar hotel'}
-            </Button>
-            <Button type="button" variant="outline" onClick={() => navigate('/hoteis')}>
-              Cancelar
-            </Button>
-          </div>
-        </form>
+        </div>
       </Form>
     </CrudFormLayout>
   )

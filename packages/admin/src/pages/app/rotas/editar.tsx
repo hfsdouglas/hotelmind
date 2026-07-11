@@ -51,9 +51,19 @@ export function RotaEditarPage() {
   })
 
   return (
-    <CrudFormLayout title="Editar Rota" backTo="/rotas">
+    <CrudFormLayout
+      title="Editar Rota"
+      backTo="/rotas"
+      onSubmit={form.handleSubmit(d => mutate(d))}
+      actions={
+        <>
+          <Button type="submit" disabled={isPending}>{isPending ? 'Salvando...' : 'Salvar'}</Button>
+          <Button type="button" variant="outline" onClick={() => navigate('/rotas')}>Cancelar</Button>
+        </>
+      }
+    >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(d => mutate(d))} className="space-y-4">
+        <div className="space-y-4">
           {(['modulo', 'recurso', 'rota', 'icone'] as const).map(field => (
             <FormField
               key={field}
@@ -85,11 +95,7 @@ export function RotaEditarPage() {
               </FormItem>
             )}
           />
-          <div className="flex gap-2 pt-2">
-            <Button type="submit" disabled={isPending}>{isPending ? 'Salvando...' : 'Salvar'}</Button>
-            <Button type="button" variant="outline" onClick={() => navigate('/rotas')}>Cancelar</Button>
-          </div>
-        </form>
+        </div>
       </Form>
     </CrudFormLayout>
   )

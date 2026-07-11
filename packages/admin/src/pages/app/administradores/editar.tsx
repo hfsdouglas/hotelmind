@@ -52,9 +52,19 @@ export function AdministradorEditarPage() {
   })
 
   return (
-    <CrudFormLayout title="Editar Administrador" backTo="/administradores">
+    <CrudFormLayout
+      title="Editar Administrador"
+      backTo="/administradores"
+      onSubmit={form.handleSubmit(d => mutate(d))}
+      actions={
+        <>
+          <Button type="submit" disabled={isPending}>{isPending ? 'Salvando...' : 'Salvar'}</Button>
+          <Button type="button" variant="outline" onClick={() => navigate('/administradores')}>Cancelar</Button>
+        </>
+      }
+    >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(d => mutate(d))} className="space-y-4">
+        <div className="space-y-4">
           <FormField control={form.control} name="nome_completo"
             render={({ field: f }) => (
               <FormItem><FormLabel>Nome completo</FormLabel><FormControl><Input {...f} /></FormControl><FormMessage /></FormItem>
@@ -91,11 +101,7 @@ export function AdministradorEditarPage() {
               </FormItem>
             )}
           />
-          <div className="flex gap-2 pt-2">
-            <Button type="submit" disabled={isPending}>{isPending ? 'Salvando...' : 'Salvar'}</Button>
-            <Button type="button" variant="outline" onClick={() => navigate('/administradores')}>Cancelar</Button>
-          </div>
-        </form>
+        </div>
       </Form>
     </CrudFormLayout>
   )

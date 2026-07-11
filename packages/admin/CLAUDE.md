@@ -430,13 +430,25 @@ Avoid spreading validation logic throughout components.
 
 ## CRUD Form Layout
 
-Every create/edit page MUST use `CrudFormLayout` (`src/components/forms/CrudFormLayout.tsx`) instead of hand-rolled header/container markup. It centers the page in a fixed-width container, keeps the back-arrow + title header contained and left-aligned within that same width, and wraps the form's inputs in one `Card`. Pass a secondary `Card` (e.g. a route-assignment selector) via the `sidebar` prop rather than laying it out manually.
+Every create/edit page MUST use `CrudFormLayout` (`src/components/forms/CrudFormLayout.tsx`) instead of hand-rolled header/container/form markup. It centers the page in a container whose max-width scales by breakpoint (a Bootstrap-style scale — roughly 540/720/960/1140/1320px at sm/md/lg/xl/2xl), keeps the back-arrow + title header contained and left-aligned within that same width, and owns the page's `<form>` element, rendering exactly **one** `Card` around `children` followed by a right-aligned `actions` row **outside** the card with a consistent, non-stretched button width.
 
 ```tsx
-<CrudFormLayout title="Novo Hotel" backTo="/hoteis">
-  <Form {...form}>...</Form>
+<CrudFormLayout
+  title="Novo Hotel"
+  backTo="/hoteis"
+  onSubmit={form.handleSubmit(d => mutate(d))}
+  actions={
+    <>
+      <Button type="submit">Criar hotel</Button>
+      <Button type="button" variant="outline" onClick={() => navigate('/hoteis')}>Cancelar</Button>
+    </>
+  }
+>
+  <Form {...form}>{/* FormFields */}</Form>
 </CrudFormLayout>
 ```
+
+`<Form {...form}>` (react-hook-form's `FormProvider`) still wraps the field markup passed as `children` — it renders no DOM element of its own, so it doesn't interfere with `CrudFormLayout` owning the actual `<form>` tag. **Never** split a page's content into two side-by-side cards/columns; `CrudFormLayout` has no `sidebar`-style prop, and a page with more than one contextual section renders both as sibling blocks inside `children`, each under its own heading.
 
 Whenever a form renders a list of checkboxes (route assignment, etc.), use `CheckboxGrid` (`src/components/forms/CheckboxGrid.tsx`) instead of a manual list. It lays options out in a responsive 3-column grid (collapsing to fewer columns on narrower screens) and takes `items`, `selectedIds`, and `onToggle`. If a checkbox list needs a richer per-item layout than a single label (e.g. a title + subtitle), apply the same `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2` classes directly rather than forcing the item into `CheckboxGrid`'s single-line shape.
 
