@@ -426,7 +426,9 @@ Every create/edit page MUST use `CrudFormLayout` (`src/components/forms/CrudForm
 
 **Never** split a page's content into two side-by-side cards/columns. A page with more than one contextual section (e.g. primary fields + an access-routes selector) renders both as sibling blocks inside the same `children`, each under its own heading — never as a second `Card` passed through a `sidebar`-style prop. `CrudFormLayout` has no such prop; it structurally enforces one card per page.
 
-Whenever a form renders a list of checkboxes (access routes, group/role assignment, etc.), use `CheckboxGrid` (`src/components/forms/CheckboxGrid.tsx`) instead of a manual `flex flex-col` list. It lays options out in a responsive 3-column grid (collapsing to fewer columns on narrower screens) and takes `items`, `selectedIds`, and `onToggle`.
+Whenever a form renders a flat list of checkboxes (e.g. group/role assignment), use `CheckboxGrid` (`src/components/forms/CheckboxGrid.tsx`) instead of a manual `flex flex-col` list. It lays options out in a responsive grid (up to 4 columns on wide screens, collapsing to fewer columns on narrower screens) and takes `items`, `selectedIds`, and `onToggle`.
+
+Whenever the checkboxes are grouped by context (e.g. access routes grouped by module), use `CheckboxGroupList` (`src/components/forms/CheckboxGroupList.tsx`) instead. It renders each group as its own column (heading + a vertical list of that group's checkboxes below it), with groups arranged in the same responsive up-to-4-column grid — never lay a group's own items out side by side within the group, and never lay groups out as a vertical stack.
 
 Multi-line fields (e.g. a "Descrição") MUST use the `Textarea` primitive (`src/components/ui/textarea.tsx`), not `Input`.
 

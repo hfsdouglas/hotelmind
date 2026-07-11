@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { CheckboxGrid } from '@/components/forms/CheckboxGrid'
+import { CheckboxGroupList } from '@/components/forms/CheckboxGroupList'
 import { CrudFormLayout } from '@/components/forms/CrudFormLayout'
 import { gruposService } from '@/api/grupos.service'
 import type { RotaItem } from '@/api/grupos.service'
@@ -29,15 +29,16 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>
 
-function groupByModule(rotas: RotaItem[]): Record<string, RotaItem[]> {
-  return rotas.reduce(
-    (acc, r) => {
-      if (!acc[r.modulo]) acc[r.modulo] = []
-      acc[r.modulo].push(r)
-      return acc
-    },
-    {} as Record<string, RotaItem[]>,
-  )
+function groupByModule(rotas: RotaItem[]) {
+  const modules = new Map<string, RotaItem[]>()
+  for (const rota of rotas) {
+    if (!modules.has(rota.modulo)) modules.set(rota.modulo, [])
+    modules.get(rota.modulo)!.push(rota)
+  }
+  return Array.from(modules.entries()).map(([modulo, rotas]) => ({
+    label: modulo,
+    items: rotas.map(r => ({ id: r.id, label: r.recurso })),
+  }))
 }
 
 export function EditarGrupoPage() {
@@ -124,7 +125,7 @@ export function EditarGrupoPage() {
     })
   }
 
-  const modules = groupByModule(allRotas)
+  const routeGroups = groupByModule(allRotas)
 
   if (isLoading) return <p className="text-muted-foreground">Carregando...</p>
   if (!grupo) return <p className="text-destructive">Grupo não encontrado.</p>
@@ -179,22 +180,13 @@ export function EditarGrupoPage() {
 
       <div className="mt-8 border-t pt-6">
         <h2 className="text-base font-semibold mb-4">Rotas de acesso</h2>
-        <div className="flex flex-col gap-4">
-          {Object.entries(modules).map(([modulo, rotas]) => (
-            <div key={modulo}>
-              <p className="font-medium mb-2">{modulo}</p>
-              <CheckboxGrid
-                items={rotas.map(r => ({ id: r.id, label: r.recurso }))}
-                selectedIds={selectedIds}
-                onToggle={toggleRota}
-                disabled={updateMutation.isPending || syncRotasMutation.isPending}
-              />
-            </div>
-          ))}
-          {allRotas.length === 0 && (
-            <p className="text-sm text-muted-foreground">Nenhuma rota disponível.</p>
-          )}
-        </div>
+        <CheckboxGroupList
+          groups={routeGroups}
+          selectedIds={selectedIds}
+          onToggle={toggleRota}
+          disabled={updateMutation.isPending || syncRotasMutation.isPending}
+          emptyMessage="Nenhuma rota disponível."
+        />
       </div>
     </CrudFormLayout>
   )
