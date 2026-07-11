@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Select,
   SelectContent,
@@ -103,33 +102,14 @@ export function NovoGrupoPage() {
       title="Novo grupo"
       backTo="/grupos"
       cardTitle="Dados do grupo"
-      sidebar={
-        <Card>
-          <CardHeader>
-            <CardTitle>Rotas de acesso</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col gap-4">
-              {Object.entries(modules).map(([modulo, rotas]) => (
-                <div key={modulo}>
-                  <p className="font-medium mb-2">{modulo}</p>
-                  <CheckboxGrid
-                    items={rotas.map(r => ({ id: r.id, label: r.recurso }))}
-                    selectedIds={selectedRouteIds}
-                    onToggle={toggleRota}
-                    disabled={isPending}
-                  />
-                </div>
-              ))}
-              {allRotas.length === 0 && (
-                <p className="text-sm text-muted-foreground">Nenhuma rota disponível.</p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+      onSubmit={handleSubmit(d => mutation.mutate(d))}
+      actions={
+        <Button type="submit" disabled={isPending}>
+          {isPending ? 'Salvando...' : 'Criar grupo'}
+        </Button>
       }
     >
-      <form onSubmit={handleSubmit(d => mutation.mutate(d))} className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="grupo">Nome *</Label>
           <Input id="grupo" {...register('grupo')} />
@@ -153,11 +133,27 @@ export function NovoGrupoPage() {
             </SelectContent>
           </Select>
         </div>
+      </div>
 
-        <Button type="submit" disabled={isPending}>
-          {isPending ? 'Salvando...' : 'Criar grupo'}
-        </Button>
-      </form>
+      <div className="mt-8 border-t pt-6">
+        <h2 className="text-base font-semibold mb-4">Rotas de acesso</h2>
+        <div className="flex flex-col gap-4">
+          {Object.entries(modules).map(([modulo, rotas]) => (
+            <div key={modulo}>
+              <p className="font-medium mb-2">{modulo}</p>
+              <CheckboxGrid
+                items={rotas.map(r => ({ id: r.id, label: r.recurso }))}
+                selectedIds={selectedRouteIds}
+                onToggle={toggleRota}
+                disabled={isPending}
+              />
+            </div>
+          ))}
+          {allRotas.length === 0 && (
+            <p className="text-sm text-muted-foreground">Nenhuma rota disponível.</p>
+          )}
+        </div>
+      </div>
     </CrudFormLayout>
   )
 }

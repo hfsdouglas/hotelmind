@@ -7,7 +7,6 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CheckboxGrid } from '@/components/forms/CheckboxGrid'
 import { CrudFormLayout } from '@/components/forms/CrudFormLayout'
 import { usuariosService } from '@/api/usuarios.service'
@@ -77,27 +76,14 @@ export function NovoUsuarioPage() {
       title="Novo usuário"
       backTo="/usuarios"
       cardTitle="Dados do usuário"
-      sidebar={
-        grupos.length > 0 ? (
-          <Card>
-            <CardHeader>
-              <CardTitle>Grupos de acesso</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CheckboxGrid
-                items={grupos.map(g => ({ id: g.id, label: g.grupo }))}
-                selectedIds={selectedGrupos}
-                onToggle={toggleGrupo}
-              />
-            </CardContent>
-          </Card>
-        ) : undefined
+      onSubmit={handleSubmit(d => mutation.mutate(d))}
+      actions={
+        <Button type="submit" disabled={mutation.isPending}>
+          {mutation.isPending ? 'Salvando...' : 'Criar usuário'}
+        </Button>
       }
     >
-      <form
-        onSubmit={handleSubmit(d => mutation.mutate(d))}
-        className="flex flex-col gap-4"
-      >
+      <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
           <Label>Nome completo *</Label>
           <Input {...register('nome_completo')} />
@@ -144,10 +130,18 @@ export function NovoUsuarioPage() {
           <Label>RG</Label>
           <Input {...register('rg')} />
         </div>
-        <Button type="submit" disabled={mutation.isPending}>
-          {mutation.isPending ? 'Salvando...' : 'Criar usuário'}
-        </Button>
-      </form>
+      </div>
+
+      {grupos.length > 0 && (
+        <div className="mt-8 border-t pt-6">
+          <h2 className="text-base font-semibold mb-4">Grupos de acesso</h2>
+          <CheckboxGrid
+            items={grupos.map(g => ({ id: g.id, label: g.grupo }))}
+            selectedIds={selectedGrupos}
+            onToggle={toggleGrupo}
+          />
+        </div>
+      )}
     </CrudFormLayout>
   )
 }

@@ -410,13 +410,21 @@ Avoid spreading validation logic throughout components.
 
 ## CRUD Form Layout
 
-Every create/edit page MUST use `CrudFormLayout` (`src/components/forms/CrudFormLayout.tsx`) instead of hand-rolled header/container/card markup. It centers the page in a fixed-width container, keeps the back-arrow + title header contained and left-aligned within that same width, and wraps the form's inputs in one `Card`. Pass a secondary `Card` (e.g. an access-routes or group-assignment selector) via the `sidebar` prop rather than laying it out manually.
+Every create/edit page MUST use `CrudFormLayout` (`src/components/forms/CrudFormLayout.tsx`) instead of hand-rolled header/container/card/form markup. It centers the page in a container whose max-width scales by breakpoint (a Bootstrap-style scale — roughly 540/720/960/1140/1320px at sm/md/lg/xl/2xl), keeps the back-arrow + title header contained and left-aligned within that same width, and owns the page's `<form>` element, rendering exactly **one** `Card` around `children` followed by a right-aligned `actions` row **outside** the card with a consistent, non-stretched button width.
 
 ```tsx
-<CrudFormLayout title="Novo grupo" backTo="/grupos" cardTitle="Dados do grupo">
-  <form>...</form>
+<CrudFormLayout
+  title="Novo grupo"
+  backTo="/grupos"
+  cardTitle="Dados do grupo"
+  onSubmit={handleSubmit(d => mutation.mutate(d))}
+  actions={<Button type="submit">Criar grupo</Button>}
+>
+  {/* fields */}
 </CrudFormLayout>
 ```
+
+**Never** split a page's content into two side-by-side cards/columns. A page with more than one contextual section (e.g. primary fields + an access-routes selector) renders both as sibling blocks inside the same `children`, each under its own heading — never as a second `Card` passed through a `sidebar`-style prop. `CrudFormLayout` has no such prop; it structurally enforces one card per page.
 
 Whenever a form renders a list of checkboxes (access routes, group/role assignment, etc.), use `CheckboxGrid` (`src/components/forms/CheckboxGrid.tsx`) instead of a manual `flex flex-col` list. It lays options out in a responsive 3-column grid (collapsing to fewer columns on narrower screens) and takes `items`, `selectedIds`, and `onToggle`.
 

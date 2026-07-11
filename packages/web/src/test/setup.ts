@@ -20,3 +20,15 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: vi.fn(),
   })),
 })
+
+// jsdom does not implement ResizeObserver — Radix UI (e.g. Checkbox's bubble
+// input) relies on it unconditionally whenever mounted, so provide a no-op stub
+class ResizeObserverStub {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+Object.defineProperty(window, 'ResizeObserver', {
+  writable: true,
+  value: ResizeObserverStub,
+})
