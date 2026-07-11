@@ -12,16 +12,16 @@ export function AppLayout() {
   if (!isAuthenticated) return <Navigate to="/login" replace />
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen overflow-hidden">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       {sidebarOpen && (
         <div className="fixed inset-0 z-30" onClick={() => setSidebarOpen(false)} />
       )}
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col overflow-hidden">
         <div className={cn('transition-[margin] duration-300', sidebarOpen ? 'ml-72' : 'ml-0')}>
           <TopNavbar onMenuToggle={() => setSidebarOpen(p => !p)} />
         </div>
-        <main className="flex-1 p-6">
+        <main className="flex-1 overflow-y-auto p-6">
           <Outlet />
         </main>
       </div>

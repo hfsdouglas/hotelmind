@@ -16,9 +16,9 @@ export function AppLayout() {
   if (!isAuthenticated) return <Navigate to="/login" replace />
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex h-screen flex-col overflow-hidden">
       <SupportBanner />
-      <div className="flex flex-1">
+      <div className="flex flex-1 overflow-hidden">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         {sidebarOpen && (
           <div
@@ -26,7 +26,7 @@ export function AppLayout() {
             onClick={() => setSidebarOpen(false)}
           />
         )}
-        <div className="flex flex-1 flex-col">
+        <div className="flex flex-1 flex-col overflow-hidden">
           <div
             className={cn(
               'transition-[margin] duration-300',
@@ -35,7 +35,7 @@ export function AppLayout() {
           >
             <TopNavbar onMenuToggle={() => setSidebarOpen(p => !p)} />
           </div>
-          <main className="flex-1 p-6">
+          <main className="flex-1 overflow-y-auto p-6">
             <Outlet />
           </main>
         </div>
