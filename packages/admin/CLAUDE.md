@@ -450,7 +450,9 @@ Every create/edit page MUST use `CrudFormLayout` (`src/components/forms/CrudForm
 
 `<Form {...form}>` (react-hook-form's `FormProvider`) still wraps the field markup passed as `children` — it renders no DOM element of its own, so it doesn't interfere with `CrudFormLayout` owning the actual `<form>` tag. **Never** split a page's content into two side-by-side cards/columns; `CrudFormLayout` has no `sidebar`-style prop, and a page with more than one contextual section renders both as sibling blocks inside `children`, each under its own heading.
 
-Whenever a form renders a list of checkboxes (route assignment, etc.), use `CheckboxGrid` (`src/components/forms/CheckboxGrid.tsx`) instead of a manual list. It lays options out in a responsive 3-column grid (collapsing to fewer columns on narrower screens) and takes `items`, `selectedIds`, and `onToggle`. If a checkbox list needs a richer per-item layout than a single label (e.g. a title + subtitle), apply the same `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2` classes directly rather than forcing the item into `CheckboxGrid`'s single-line shape.
+Whenever a form renders a flat list of checkboxes, use `CheckboxGrid` (`src/components/forms/CheckboxGrid.tsx`) instead of a manual list. It lays options out in a responsive grid (up to 4 columns on wide screens, collapsing to fewer columns on narrower screens) and takes `items`, `selectedIds`, and `onToggle`.
+
+Whenever the checkboxes are grouped by context (e.g. routes grouped by module), use `CheckboxGroupList` (`src/components/forms/CheckboxGroupList.tsx`) instead. It renders each group as its own column (heading + a vertical list of that group's checkboxes below it), with groups arranged in the same responsive up-to-4-column grid — never lay a group's own items out side by side within the group. If a checkbox list needs a richer per-item layout than a single label (e.g. a title + subtitle), apply the same `grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-6` (groups) / `gap-2` (flat items) classes directly rather than forcing the item into `CheckboxGrid`'s single-line shape.
 
 ---
 
