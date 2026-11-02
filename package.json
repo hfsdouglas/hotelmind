@@ -1,7 +1,8 @@
 {
 	"private": true,
 	"workspaces": [
-		"packages/*"
+		"packages/*",
+		"packages/.contracts"
 	],
 	"scripts": {
 		"sync:rules": "node scripts/sync_rules.mjs",

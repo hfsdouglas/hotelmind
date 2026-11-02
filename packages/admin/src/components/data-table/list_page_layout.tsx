@@ -1,0 +1,39 @@
+import type { ReactNode } from 'react'
+
+interface ListPageLayoutProps {
+  title: string
+  action?: ReactNode
+  searchBar?: ReactNode
+  filters?: ReactNode
+  children: ReactNode
+  className?: string
+}
+
+export function ListPageLayout({
+  title,
+  action,
+  searchBar,
+  filters,
+  children,
+  className = 'space-y-4',
+}: ListPageLayoutProps) {
+  const hasFilterSection = Boolean(searchBar || filters)
+
+  return (
+    <div className={className}>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">{title}</h1>
+        {action}
+      </div>
+
+      {hasFilterSection && (
+        <div className="space-y-2">
+          {searchBar}
+          {filters}
+        </div>
+      )}
+
+      {children}
+    </div>
+  )
+}

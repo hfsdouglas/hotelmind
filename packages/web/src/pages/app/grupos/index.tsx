@@ -1,5 +1,5 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Link, useSearchParams } from 'react-router-dom'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -15,10 +15,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { DataTable, type Column } from '@/components/data-table/data_table'
-import { DataTablePagination } from '@/components/data-table/data_table_pagination'
+import type { Column } from '@/components/data-table/data_table'
 import { SearchBar } from '@/components/data-table/search_bar'
-import { ResultCount } from '@/components/data-table/result_count'
 import { FilterPanel } from '@/components/data-table/filter_panel'
 import { Label } from '@/components/ui/label'
 import {
@@ -28,17 +26,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { ListPageLayout } from '@/components/data-table/list_page_layout'
+import { PagedDataTable } from '@/components/data-table/paged_data_table'
 import { usePaginacao } from '@/hooks/usePaginacao'
 import { gruposService } from '@/api/grupos.service'
 import type { Grupo } from '@hotelmind/contracts'
-import { SearchResultsSuspense } from '@/components/data-table/search_results_suspense'
 
 export function GruposPage() {
   const queryClient = useQueryClient()
   const { pagina, limite, busca, ordenar_por, direcao, setParam, setPagina, toggleSort, isPending } =
     usePaginacao()
-
-  const status = new URLSearchParams(window.location.search).get('status') ?? ''
+  const [searchParams] = useSearchParams()
+  const status = searchParams.get('status') ?? ''
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => gruposService.delete(id),
@@ -55,114 +54,18 @@ export function GruposPage() {
     },
   })
 
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Grupos</h1>
-        <Button asChild>
-          <Link to="/grupos/novo">
-            <Plus className="h-4 w-4 mr-2" />
-            Novo grupo
-          </Link>
-        </Button>
-      </div>
-
-      <div className="flex flex-col gap-3">
-        <SearchBar
-          value={busca}
-          onSearch={v => setParam('busca', v)}
-          placeholder="Pesquisar grupos..."
-        />
-        <FilterPanel>
-          <div className="flex flex-col gap-1.5">
-            <Label>Status</Label>
-            <Select value={status || 'all'} onValueChange={v => setParam('status', v === 'all' ? '' : v)}>
-              <SelectTrigger className="w-36">
-                <SelectValue placeholder="Todos" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="S">Ativo</SelectItem>
-                <SelectItem value="N">Inativo</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </FilterPanel>
-      </div>
-      <SearchResultsSuspense
-        column_count={4}
-        column_labels={['Grupo', 'Descrição', 'Status', '']}
-        is_pending={isPending}
-        label="Resultados de grupos"
-        reset_key={`${pagina}-${limite}-${busca}-${ordenar_por}-${direcao}-${status}`}
-        row_count={limite}
-      >
-        <GruposResults
-          busca={busca}
-          delete_group={id => deleteMutation.mutate(id)}
-          direcao={direcao}
-          limite={limite}
-          onLimite={v => setParam('limite', v)}
-          onPagina={setPagina}
-          onSort={toggleSort}
-          ordenar_por={ordenar_por}
-          pagina={pagina}
-          status={status}
-        />
-      </SearchResultsSuspense>
-    </div>
-  )
-}
-
-interface GruposResultsProps {
-  busca: string
-  delete_group: (id: string) => void
-  direcao: 'asc' | 'desc'
-  limite: number
-  onLimite: (value: number) => void
-  onPagina: (value: number) => void
-  onSort: (value: string) => void
-  ordenar_por: string
-  pagina: number
-  status: string
-}
-
-function GruposResults({
-  busca,
-  delete_group,
-  direcao,
-  limite,
-  onLimite,
-  onPagina,
-  onSort,
-  ordenar_por,
-  pagina,
-  status,
-}: GruposResultsProps) {
-  const { data } = useSuspenseQuery({
-    queryKey: ['grupos', { pagina, limite, busca, ordenar_por, direcao, status }],
-    queryFn: () =>
-      gruposService.list({
-        pagina,
-        limite,
-        busca: busca || undefined,
-        ordenar_por: ordenar_por || undefined,
-        direcao,
-        status: status || undefined,
-      }),
-  })
   const columns: Column<Grupo>[] = [
     { key: 'grupo', header: 'Grupo', sortable: true },
     {
       key: 'descricao',
       header: 'Descrição',
-      render: row => row.descricao ?? <span className="text-muted-foreground">—</span>,
+      render: row => row.descricao || <span className="text-muted-foreground">—</span>,
     },
     {
       key: 'status',
       header: 'Status',
       render: row => (
-        <Badge variant={row.status === 'S' ? 'success' : 'secondary'}>
+        <Badge variant={row.status === 'S' ? 'default' : 'secondary'}>
           {row.status === 'S' ? 'Ativo' : 'Inativo'}
         </Badge>
       ),
@@ -190,7 +93,7 @@ function GruposResults({
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
                 <AlertDialogAction
                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  onClick={() => delete_group(row.id)}
+                  onClick={() => deleteMutation.mutate(row.id)}
                 >Excluir</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -201,10 +104,65 @@ function GruposResults({
   ]
 
   return (
-    <>
-      <ResultCount total={data.meta.total} />
-      <DataTable columns={columns} data={data.data} ordenar_por={ordenar_por} direcao={direcao} onSort={onSort} emptyMessage="Nenhum grupo encontrado." />
-      <DataTablePagination pagina={pagina} limite={limite} ultima_pagina={data.meta.ultima_pagina} onPageChange={onPagina} onLimitChange={onLimite} />
-    </>
+    <ListPageLayout
+      title="Grupos"
+      action={
+        <Button asChild>
+          <Link to="/grupos/novo">
+            <Plus className="h-4 w-4 mr-2" />
+            Novo grupo
+          </Link>
+        </Button>
+      }
+      searchBar={
+        <SearchBar
+          value={busca}
+          onSearch={v => setParam('busca', v)}
+          placeholder="Pesquisar grupos..."
+        />
+      }
+      filters={
+        <FilterPanel>
+          <div className="flex flex-col gap-1.5">
+            <Label>Status</Label>
+            <Select value={status || 'all'} onValueChange={v => setParam('status', v === 'all' ? '' : v)}>
+              <SelectTrigger className="w-36">
+                <SelectValue placeholder="Todos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="S">Ativo</SelectItem>
+                <SelectItem value="N">Inativo</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </FilterPanel>
+      }
+    >
+      <PagedDataTable
+        columns={columns}
+        queryKey={['grupos', { pagina, limite, busca, ordenar_por, direcao, status }]}
+        queryFn={() =>
+          gruposService.list({
+            pagina,
+            limite,
+            busca: busca || undefined,
+            status: status || undefined,
+            ordenar_por: ordenar_por || undefined,
+            direcao,
+          })
+        }
+        label="Resultados de grupos"
+        emptyMessage="Nenhum grupo encontrado."
+        isPending={isPending}
+        pagina={pagina}
+        limite={limite}
+        onPageChange={setPagina}
+        onLimitChange={v => setParam('limite', v)}
+        ordenar_por={ordenar_por}
+        direcao={direcao}
+        onSort={toggleSort}
+      />
+    </ListPageLayout>
   )
 }

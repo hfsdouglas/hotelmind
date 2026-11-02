@@ -133,7 +133,7 @@ export function SearchResultsSuspense({
       >
         {announcement}
       </div>
-      <div aria-busy={is_pending || undefined} aria-label={label} className="relative" role="region">
+      <div aria-busy={is_pending || undefined} aria-label={label} className="relative flex flex-col gap-4" role="region">
         <SearchResultsErrorBoundary error_message={error_message} reset_key={reset_key}>
           <Suspense
             fallback={
