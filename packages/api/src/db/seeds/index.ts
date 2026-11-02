@@ -6,8 +6,8 @@ const BASE_ROUTES = [
   { modulo: 'Dashboard', recurso: 'Dashboard', rota: '/', icone: 'LayoutDashboard', ordem: 0 },
   { modulo: 'Reservas', recurso: 'Listar reservas', rota: '/reservas', icone: 'CalendarDays', ordem: 10 },
   { modulo: 'Reservas', recurso: 'Nova reserva', rota: '/reservas/nova', icone: 'CalendarDays', ordem: 11 },
-  { modulo: 'Quartos', recurso: 'Listar quartos', rota: '/quartos', icone: 'BedDouble', ordem: 20 },
-  { modulo: 'Quartos', recurso: 'Novo quarto', rota: '/quartos/novo', icone: 'BedDouble', ordem: 21 },
+  { modulo: 'Quartos', recurso: 'Categorias', rota: '/categorias_quartos', icone: 'BedDouble', ordem: 20 },
+  { modulo: 'Quartos', recurso: 'Quartos', rota: '/quartos', icone: 'BedDouble', ordem: 21 },
   { modulo: 'Usuários', recurso: 'Listar usuários', rota: '/usuarios', icone: 'Users', ordem: 30 },
   { modulo: 'Usuários', recurso: 'Novo usuário', rota: '/usuarios/novo', icone: 'Users', ordem: 31 },
   { modulo: 'Grupos', recurso: 'Listar grupos', rota: '/grupos', icone: 'Shield', ordem: 40 },
@@ -15,6 +15,9 @@ const BASE_ROUTES = [
 ]
 
 async function clean() {
+  await db.configuracaoCama.deleteMany()
+  await db.quarto.deleteMany()
+  await db.categoriaQuarto.deleteMany()
   await db.grupoRota.deleteMany()
   await db.rotaHotel.deleteMany()
   await db.grupo.deleteMany()
@@ -70,6 +73,27 @@ async function seed() {
   await db.grupoRota.createMany({
     data: createdRoutes.map(r => ({ grupo_id: grupo.id, rota_id: r.id })),
   })
+
+  const categorias = await Promise.all([
+    db.categoriaQuarto.create({ data: { hotel_id: hotel.id, nome: 'Suítes Luxo', status: 'S' } }),
+    db.categoriaQuarto.create({ data: { hotel_id: hotel.id, nome: 'Suítes Super Luxo', status: 'S' } }),
+    db.categoriaQuarto.create({ data: { hotel_id: hotel.id, nome: 'Suítes Master', status: 'S' } }),
+    db.categoriaQuarto.create({ data: { hotel_id: hotel.id, nome: 'Suíte Presidencial', status: 'S' } }),
+  ])
+
+  const configurations = [
+    { category: categorias[0], numbers: Array.from({ length: 16 }, (_, index) => 101 + index), beds: [{ tipo: 'casal', quantidade: 1 }], capacity: 2 },
+    { category: categorias[1], numbers: Array.from({ length: 16 }, (_, index) => 201 + index), beds: [{ tipo: 'queen', quantidade: 1 }, { tipo: 'solteiro', quantidade: 1 }], capacity: 3 },
+    { category: categorias[2], numbers: Array.from({ length: 5 }, (_, index) => 302 + index), beds: [{ tipo: 'king', quantidade: 1 }, { tipo: 'solteiro', quantidade: 1 }], capacity: 3 },
+    { category: categorias[3], numbers: [301], beds: [{ tipo: 'king', quantidade: 1 }, { tipo: 'solteiro', quantidade: 2 }], capacity: 4 },
+  ]
+  for (const configuration of configurations) {
+    for (const number of configuration.numbers) {
+      await db.quarto.create({ data: { hotel_id: hotel.id, categoria_id: configuration.category.id, identificacao: String(number), descricao: `Quarto ${number} - ${configuration.category.nome}`, limite_hospedes: configuration.capacity, status: 'S', camas: { create: configuration.beds } } })
+    }
+  }
+  const seeded_room_counts = await Promise.all(categorias.map(category => db.quarto.count({ where: { categoria_id: category.id, hotel_id: hotel.id } })))
+  console.log(`Quartos por categoria: ${categorias.map((category, index) => `${category.nome}=${seeded_room_counts[index]}`).join(', ')}`)
 
   const senha = await bcrypt.hash('senha123', 10)
 

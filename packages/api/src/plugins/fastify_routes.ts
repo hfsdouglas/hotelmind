@@ -8,6 +8,8 @@ import { admin_hotels_routes } from '@/routes/hotels/admin/hotels_routes'
 import { admin_routes_routes } from '@/routes/routes/admin/routes_routes'
 import { admin_administrators_routes } from '@/routes/admin/admin_administrators_routes'
 import { admin_suporte_routes } from '@/routes/suporte/admin/suporte_routes'
+import { categorias_quartos_routes } from '@/routes/categorias_quartos/categorias_quartos_routes'
+import { quartos_routes } from '@/routes/quartos/quartos_routes'
 
 export function setRoutes(app: FastifyTypedInstance) {
   app.register(auth_routes)
@@ -19,4 +21,6 @@ export function setRoutes(app: FastifyTypedInstance) {
   app.register(admin_routes_routes)
   app.register(admin_administrators_routes)
   app.register(admin_suporte_routes)
+  app.register(categorias_quartos_routes)
+  app.register(quartos_routes)
 }

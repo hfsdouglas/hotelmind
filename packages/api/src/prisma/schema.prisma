@@ -27,6 +27,8 @@ model Hotel {
   users              User[]
   grupos             Grupo[]
   rotas_hoteis       RotaHotel[]
+  categorias_quarto  CategoriaQuarto[]
+  quartos            Quarto[]
 
   @@map("hoteis")
 }
@@ -140,4 +142,51 @@ model Administrator {
   status        String   @default("S") @db.Char(1)
 
   @@map("administrators")
+}
+
+model CategoriaQuarto {
+  id         String   @id @default(uuid())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  hotel_id   String
+  hotel      Hotel    @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+  nome       String   @db.VarChar(100)
+  status     String   @default("S") @db.Char(1)
+  quartos    Quarto[]
+
+  @@unique([hotel_id, nome])
+  @@index([hotel_id])
+  @@map("categorias_quartos")
+}
+
+model Quarto {
+  id               String             @id @default(uuid())
+  created_at       DateTime           @default(now())
+  updated_at       DateTime           @updatedAt
+  hotel_id         String
+  hotel            Hotel              @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+  categoria_id     String
+  categoria        CategoriaQuarto    @relation(fields: [categoria_id], references: [id], onDelete: Restrict)
+  identificacao    String             @db.VarChar(30)
+  descricao        String?            @db.Text
+  limite_hospedes  Int
+  status           String             @default("S") @db.Char(1)
+  camas            ConfiguracaoCama[]
+
+  @@unique([hotel_id, identificacao])
+  @@index([hotel_id])
+  @@index([categoria_id])
+  @@map("quartos")
+}
+
+model ConfiguracaoCama {
+  id          String   @id @default(uuid())
+  quarto_id   String
+  quarto      Quarto   @relation(fields: [quarto_id], references: [id], onDelete: Cascade)
+  tipo        String   @db.VarChar(30)
+  quantidade  Int
+
+  @@unique([quarto_id, tipo])
+  @@index([quarto_id])
+  @@map("quartos_camas")
 }

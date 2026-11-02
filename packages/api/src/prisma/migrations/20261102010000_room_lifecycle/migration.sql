@@ -1,0 +1,2 @@
+ALTER TABLE "quartos" ADD COLUMN "descricao" TEXT;
+ALTER TABLE "quartos" ADD COLUMN "status" CHAR(1) NOT NULL DEFAULT 'S';

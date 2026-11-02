@@ -58,25 +58,13 @@ function buildNavigation(rotas: RotaMenu[]): NavEntry[] {
     }
 
     const entry = moduleMap.get(rota.modulo)!
-
-    if (!entry.resources || entry.resources.length === 0) {
-      entry.href = rota.rota
-    } else {
-      delete entry.href
-    }
-
-    if (rota.recurso !== rota.modulo) {
-      entry.resources = entry.resources ?? []
-      entry.resources.push({ label: rota.recurso, href: rota.rota })
-    }
+    entry.resources = entry.resources ?? []
+    entry.resources.push({ label: rota.recurso, href: rota.rota })
   }
 
   return Array.from(moduleMap.values()).map(e => {
-    if (e.resources?.length === 1 && e.href) {
-      return { module: e.module, icon: e.icon, href: e.href }
-    }
-    if (e.resources?.length === 0) {
-      return { module: e.module, icon: e.icon, href: e.href }
+    if (e.resources?.length === 1 && e.resources[0].label === e.module) {
+      return { module: e.module, icon: e.icon, href: e.resources[0].href }
     }
     return e
   })

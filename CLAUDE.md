@@ -142,5 +142,5 @@ The agent must always use the Git repository's configured identity when creating
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan
-at /home/doug/www/hotelmind/specs/010-crud-form-layout-refinement/plan.md
+at specs/012-room-lifecycle/plan.md
 <!-- SPECKIT END -->
