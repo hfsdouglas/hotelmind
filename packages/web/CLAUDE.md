@@ -121,6 +121,17 @@ Responsible for reusable UI components.
 
 Components must have a single responsibility.
 
+## Searchable List Suspense Standard
+
+Every page that searches or filters a result list must keep its title and controls outside a local `SearchResultsSuspense` boundary in `src/components/data-table/search_results_suspense.tsx`.
+
+- Query-backed result children use the suspense-compatible TanStack Query API.
+- Search, filter, sort, and pagination URL changes run in a React transition so the previous result remains visible while the latest result resolves.
+- The boundary uses the same table structure as the loaded result: its header stays stable, every skeleton row has one cell per column, `table-fixed` keeps all rows aligned, and the row count matches the page's default/current `limite`.
+- The boundary uses `aria-busy` and a polite `role="status"` announcement without moving focus or disabling controls.
+- Existing success, empty, and handled-error states must clear the loading indication.
+- New searchable pages must add focused tests for initial loading, refresh, empty/error results, latest-query precedence, and accessible status.
+
 ### /hooks
 
 Responsible for reusable logic.

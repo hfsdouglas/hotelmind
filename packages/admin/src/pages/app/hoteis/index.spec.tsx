@@ -52,7 +52,7 @@ describe('HoteisPage', () => {
       }),
     )
     setup()
-    expect(screen.getByText('Carregando...')).toBeInTheDocument()
+    expect(screen.getByLabelText('Carregando resultados')).toBeInTheDocument()
   })
 
   it('shows empty message when API returns no hotels', async () => {

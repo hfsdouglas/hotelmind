@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { Pencil, Trash2, Plus, Network } from 'lucide-react'
 import { toast } from 'sonner'
@@ -9,17 +9,13 @@ import { DataTablePagination } from '@/components/data-table/data_table_paginati
 import { SearchBar } from '@/components/data-table/search_bar'
 import { ResultCount } from '@/components/data-table/result_count'
 import { Button } from '@/components/ui/button'
+import { SearchResultsSuspense } from '@/components/data-table/search_results_suspense'
 import type { Hotel } from '@/api/hoteis.service'
 
 export function HoteisPage() {
   const qc = useQueryClient()
-  const { pagina, limite, busca, ordenar_por, direcao, setParam, setPagina, toggleSort } =
+  const { pagina, limite, busca, ordenar_por, direcao, setParam, setPagina, toggleSort, isPending } =
     usePaginacao()
-
-  const { data, isLoading } = useQuery({
-    queryKey: ['admin:hoteis', pagina, limite, busca, ordenar_por, direcao],
-    queryFn: () => hoteisService.list({ pagina, limite, busca, ordenar_por, direcao }),
-  })
 
   const { mutate: deleteHotel } = useMutation({
     mutationFn: hoteisService.delete,
@@ -29,13 +25,6 @@ export function HoteisPage() {
     },
     onError: () => toast.error('Erro ao remover hotel.'),
   })
-
-  const columns = [
-    { key: 'nome_fantasia' as const, label: 'Nome Fantasia', sortable: true },
-    { key: 'cnpj' as const, label: 'CNPJ', sortable: false },
-    { key: 'email_comercial' as const, label: 'E-mail', sortable: false },
-    { key: 'telefone_comercial' as const, label: 'Telefone', sortable: false },
-  ]
 
   return (
     <div className="space-y-4">
@@ -51,15 +40,73 @@ export function HoteisPage() {
         onSearch={v => setParam('busca', v)}
       />
 
-      {data && <ResultCount total={data.meta.total} />}
+      <SearchResultsSuspense
+        column_count={5}
+        column_labels={['Nome Fantasia', 'CNPJ', 'E-mail', 'Telefone', 'Ações']}
+        is_pending={isPending}
+        label="Resultados de hotéis"
+        reset_key={`${pagina}-${limite}-${busca}-${ordenar_por}-${direcao}`}
+        row_count={limite}
+      >
+        <HoteisResults
+          busca={busca}
+          direcao={direcao}
+          limite={limite}
+          onDelete={deleteHotel}
+          onLimite={v => setParam('limite', String(v))}
+          onPagina={setPagina}
+          onSort={toggleSort}
+          ordenar_por={ordenar_por}
+          pagina={pagina}
+        />
+      </SearchResultsSuspense>
+    </div>
+  )
+}
 
+interface HoteisResultsProps {
+  busca: string
+  direcao: 'asc' | 'desc'
+  limite: number
+  onDelete: (id: string) => void
+  onLimite: (value: number) => void
+  onPagina: (value: number) => void
+  onSort: (value: string) => void
+  ordenar_por: string
+  pagina: number
+}
+
+function HoteisResults({
+  busca,
+  direcao,
+  limite,
+  onDelete,
+  onLimite,
+  onPagina,
+  onSort,
+  ordenar_por,
+  pagina,
+}: HoteisResultsProps) {
+  const { data } = useSuspenseQuery({
+    queryKey: ['admin:hoteis', pagina, limite, busca, ordenar_por, direcao],
+    queryFn: () => hoteisService.list({ pagina, limite, busca, ordenar_por, direcao }),
+  })
+  const columns = [
+    { key: 'nome_fantasia' as const, label: 'Nome Fantasia', sortable: true },
+    { key: 'cnpj' as const, label: 'CNPJ', sortable: false },
+    { key: 'email_comercial' as const, label: 'E-mail', sortable: false },
+    { key: 'telefone_comercial' as const, label: 'Telefone', sortable: false },
+  ]
+
+  return (
+    <>
+      <ResultCount total={data.meta.total} />
       <DataTable<Hotel>
         columns={columns}
-        rows={data?.data ?? []}
-        isLoading={isLoading}
+        rows={data.data}
         ordenar_por={ordenar_por}
         direcao={direcao}
-        onSort={toggleSort}
+        onSort={onSort}
         renderActions={row => (
           <div className="flex gap-2">
             <Button variant="ghost" size="icon" asChild title="Gerenciar rotas">
@@ -73,7 +120,7 @@ export function HoteisPage() {
               size="icon"
               title="Remover"
               onClick={() => {
-                if (confirm('Remover este hotel?')) deleteHotel(row.id)
+                if (confirm('Remover este hotel?')) onDelete(row.id)
               }}
             >
               <Trash2 className="h-4 w-4 text-destructive" />
@@ -81,16 +128,13 @@ export function HoteisPage() {
           </div>
         )}
       />
-
-      {data && (
-        <DataTablePagination
-          pagina={data.meta.pagina}
-          ultima_pagina={data.meta.ultima_pagina}
-          limite={limite}
-          onPagina={setPagina}
-          onLimite={v => setParam('limite', String(v))}
-        />
-      )}
-    </div>
+      <DataTablePagination
+        pagina={data.meta.pagina}
+        ultima_pagina={data.meta.ultima_pagina}
+        limite={limite}
+        onPagina={onPagina}
+        onLimite={onLimite}
+      />
+    </>
   )
 }

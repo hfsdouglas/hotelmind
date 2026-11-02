@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { Pencil, Trash2, Plus } from 'lucide-react'
 import { toast } from 'sonner'
@@ -9,17 +9,13 @@ import { DataTablePagination } from '@/components/data-table/data_table_paginati
 import { SearchBar } from '@/components/data-table/search_bar'
 import { ResultCount } from '@/components/data-table/result_count'
 import { Button } from '@/components/ui/button'
+import { SearchResultsSuspense } from '@/components/data-table/search_results_suspense'
 import type { Rota } from '@/api/rotas.service'
 
 export function RotasPage() {
   const qc = useQueryClient()
-  const { pagina, limite, busca, ordenar_por, direcao, setParam, setPagina, toggleSort } =
+  const { pagina, limite, busca, ordenar_por, direcao, setParam, setPagina, toggleSort, isPending } =
     usePaginacao()
-
-  const { data, isLoading } = useQuery({
-    queryKey: ['admin:rotas', pagina, limite, busca, ordenar_por, direcao],
-    queryFn: () => rotasService.list({ pagina, limite, busca, ordenar_por, direcao }),
-  })
 
   const { mutate: deleteRota } = useMutation({
     mutationFn: rotasService.delete,
@@ -29,14 +25,6 @@ export function RotasPage() {
     },
     onError: () => toast.error('Rota vinculada a hotéis ou grupos. Remova os vínculos antes.'),
   })
-
-  const columns = [
-    { key: 'modulo' as const, label: 'Módulo', sortable: true },
-    { key: 'recurso' as const, label: 'Recurso', sortable: true },
-    { key: 'rota' as const, label: 'Rota', sortable: false },
-    { key: 'icone' as const, label: 'Ícone', sortable: false },
-    { key: 'ordem' as const, label: 'Ordem', sortable: true },
-  ]
 
   return (
     <div className="space-y-4">
@@ -48,15 +36,74 @@ export function RotasPage() {
       </div>
 
       <SearchBar defaultValue={busca} onSearch={v => setParam('busca', v)} />
-      {data && <ResultCount total={data.meta.total} />}
+      <SearchResultsSuspense
+        column_count={6}
+        column_labels={['Módulo', 'Recurso', 'Rota', 'Ícone', 'Ordem', 'Ações']}
+        is_pending={isPending}
+        label="Resultados de rotas"
+        reset_key={`${pagina}-${limite}-${busca}-${ordenar_por}-${direcao}`}
+        row_count={limite}
+      >
+        <RotasResults
+          busca={busca}
+          direcao={direcao}
+          limite={limite}
+          onDelete={deleteRota}
+          onLimite={v => setParam('limite', String(v))}
+          onPagina={setPagina}
+          onSort={toggleSort}
+          ordenar_por={ordenar_por}
+          pagina={pagina}
+        />
+      </SearchResultsSuspense>
+    </div>
+  )
+}
 
+interface RotasResultsProps {
+  busca: string
+  direcao: 'asc' | 'desc'
+  limite: number
+  onDelete: (id: string) => void
+  onLimite: (value: number) => void
+  onPagina: (value: number) => void
+  onSort: (value: string) => void
+  ordenar_por: string
+  pagina: number
+}
+
+function RotasResults({
+  busca,
+  direcao,
+  limite,
+  onDelete,
+  onLimite,
+  onPagina,
+  onSort,
+  ordenar_por,
+  pagina,
+}: RotasResultsProps) {
+  const { data } = useSuspenseQuery({
+    queryKey: ['admin:rotas', pagina, limite, busca, ordenar_por, direcao],
+    queryFn: () => rotasService.list({ pagina, limite, busca, ordenar_por, direcao }),
+  })
+  const columns = [
+    { key: 'modulo' as const, label: 'Módulo', sortable: true },
+    { key: 'recurso' as const, label: 'Recurso', sortable: true },
+    { key: 'rota' as const, label: 'Rota', sortable: false },
+    { key: 'icone' as const, label: 'Ícone', sortable: false },
+    { key: 'ordem' as const, label: 'Ordem', sortable: true },
+  ]
+
+  return (
+    <>
+      <ResultCount total={data.meta.total} />
       <DataTable<Rota>
         columns={columns}
-        rows={data?.data ?? []}
-        isLoading={isLoading}
+        rows={data.data}
         ordenar_por={ordenar_por}
         direcao={direcao}
-        onSort={toggleSort}
+        onSort={onSort}
         renderActions={row => (
           <div className="flex gap-2">
             <Button variant="ghost" size="icon" asChild>
@@ -65,23 +112,20 @@ export function RotasPage() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => { if (confirm('Remover esta rota?')) deleteRota(row.id) }}
+              onClick={() => { if (confirm('Remover esta rota?')) onDelete(row.id) }}
             >
               <Trash2 className="h-4 w-4 text-destructive" />
             </Button>
           </div>
         )}
       />
-
-      {data && (
-        <DataTablePagination
-          pagina={data.meta.pagina}
-          ultima_pagina={data.meta.ultima_pagina}
-          limite={limite}
-          onPagina={setPagina}
-          onLimite={v => setParam('limite', String(v))}
-        />
-      )}
-    </div>
+      <DataTablePagination
+        pagina={data.meta.pagina}
+        ultima_pagina={data.meta.ultima_pagina}
+        limite={limite}
+        onPagina={onPagina}
+        onLimite={onLimite}
+      />
+    </>
   )
 }
