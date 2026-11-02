@@ -4,6 +4,7 @@ allowBuilds:
   esbuild: false
   msw: false
   prisma: false
+  workerd: true
 
 packages:
   - "packages/*"
