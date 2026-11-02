@@ -3,6 +3,10 @@
 	"workspaces": [
 		"packages/*"
 	],
+	"scripts": {
+		"sync:rules": "node scripts/sync_rules.mjs",
+		"prepare": "node scripts/sync_rules.mjs"
+	},
 	"devDependencies": {
 		"@types/bcryptjs": "^2.4.6",
 		"@types/pg": "^8.11.10",
