@@ -1,0 +1,42 @@
+import type { Tarifario } from '@/core/entities/tarifario'
+import {
+  TarifarioNotFoundError,
+  TarifarioPeriodConflictError,
+} from '@/core/errors/tarifario_errors'
+import type { ITarifarioRepository } from '@/core/repositories/tarifarios/tarifario.repository'
+
+export class AtivarTarifarioUseCase {
+  constructor(private readonly tarifarios: ITarifarioRepository) {}
+
+  async execute(id: string, hotel_id: string): Promise<Tarifario> {
+    const current = await this.tarifarios.find_by_id(id, hotel_id)
+    if (!current) {
+      throw new TarifarioNotFoundError()
+    }
+    if (current.ativo) {
+      return current
+    }
+
+    const conflict = await this.tarifarios.find_overlapping_active({
+      hotel_id,
+      categoria_quarto_id: current.categoria_quarto_id,
+      data_inicio: current.data_inicio,
+      data_fim: current.data_fim,
+      exclude_id: current.id,
+    })
+    if (conflict) {
+      throw new TarifarioPeriodConflictError()
+    }
+
+    return this.tarifarios.update({
+      id: current.id,
+      hotel_id,
+      categoria_quarto_id: current.categoria_quarto_id,
+      nome: current.nome,
+      data_inicio: current.data_inicio,
+      data_fim: current.data_fim,
+      valor_diaria: current.valor_diaria,
+      ativo: true,
+    })
+  }
+}

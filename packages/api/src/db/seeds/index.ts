@@ -8,6 +8,8 @@ const BASE_ROUTES = [
   { modulo: 'Reservas', recurso: 'Nova reserva', rota: '/reservas/nova', icone: 'CalendarDays', ordem: 11 },
   { modulo: 'Quartos', recurso: 'Categorias', rota: '/categorias_quartos', icone: 'BedDouble', ordem: 20 },
   { modulo: 'Quartos', recurso: 'Quartos', rota: '/quartos', icone: 'BedDouble', ordem: 21 },
+  { modulo: 'Tarifários', recurso: 'Listar tarifários', rota: '/tarifarios', icone: 'CalendarRange', ordem: 25 },
+  { modulo: 'Tarifários', recurso: 'Novo tarifário', rota: '/tarifarios/novo', icone: 'CalendarRange', ordem: 26 },
   { modulo: 'Usuários', recurso: 'Listar usuários', rota: '/usuarios', icone: 'Users', ordem: 30 },
   { modulo: 'Usuários', recurso: 'Novo usuário', rota: '/usuarios/novo', icone: 'Users', ordem: 31 },
   { modulo: 'Grupos', recurso: 'Listar grupos', rota: '/grupos', icone: 'Shield', ordem: 40 },
@@ -15,6 +17,7 @@ const BASE_ROUTES = [
 ]
 
 async function clean() {
+  await db.tarifario.deleteMany()
   await db.configuracaoCama.deleteMany()
   await db.quarto.deleteMany()
   await db.categoriaQuarto.deleteMany()

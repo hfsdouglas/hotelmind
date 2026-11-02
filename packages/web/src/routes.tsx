@@ -16,6 +16,9 @@ import { EditarCategoriaQuartoPage } from '@/pages/app/categorias_quartos/[id]/e
 import { QuartosPage } from '@/pages/app/quartos'
 import { NovoQuartoPage } from '@/pages/app/quartos/novo'
 import { EditarQuartoPage } from '@/pages/app/quartos/[id]/editar'
+import { TarifariosPage } from '@/pages/app/tarifarios'
+import { NovoTarifarioPage } from '@/pages/app/tarifarios/novo'
+import { EditarTarifarioPage } from '@/pages/app/tarifarios/[id]/editar'
 
 export const router = createBrowserRouter([
   {
@@ -38,6 +41,9 @@ export const router = createBrowserRouter([
       { path: '/quartos', element: <QuartosPage /> },
       { path: '/quartos/novo', element: <NovoQuartoPage /> },
       { path: '/quartos/:id/editar', element: <EditarQuartoPage /> },
+      { path: '/tarifarios', element: <TarifariosPage /> },
+      { path: '/tarifarios/novo', element: <NovoTarifarioPage /> },
+      { path: '/tarifarios/:id/editar', element: <EditarTarifarioPage /> },
     ],
   },
   { path: '*', element: <Error404Page /> },

@@ -29,6 +29,7 @@ model Hotel {
   rotas_hoteis       RotaHotel[]
   categorias_quarto  CategoriaQuarto[]
   quartos            Quarto[]
+  tarifarios         Tarifario[]
 
   @@map("hoteis")
 }
@@ -151,8 +152,9 @@ model CategoriaQuarto {
   hotel_id   String
   hotel      Hotel    @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
   nome       String   @db.VarChar(100)
-  status     String   @default("S") @db.Char(1)
+  status     String      @default("S") @db.Char(1)
   quartos    Quarto[]
+  tarifarios Tarifario[]
 
   @@unique([hotel_id, nome])
   @@index([hotel_id])
@@ -189,4 +191,25 @@ model ConfiguracaoCama {
   @@unique([quarto_id, tipo])
   @@index([quarto_id])
   @@map("quartos_camas")
+}
+
+model Tarifario {
+  id                  String          @id @default(uuid())
+  hotel_id            String
+  hotel               Hotel           @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+  categoria_quarto_id String
+  categoria_quarto    CategoriaQuarto @relation(fields: [categoria_quarto_id], references: [id], onDelete: Restrict)
+  nome                String          @db.VarChar(100)
+  data_inicio         DateTime        @db.Date
+  data_fim            DateTime        @db.Date
+  valor_diaria        Decimal         @db.Decimal(12, 2)
+  ativo               Boolean         @default(true)
+  criado_em           DateTime        @default(now())
+  atualizado_em       DateTime        @updatedAt
+
+  @@index([hotel_id])
+  @@index([categoria_quarto_id])
+  @@index([hotel_id, categoria_quarto_id, ativo])
+  @@index([hotel_id, categoria_quarto_id, data_inicio, data_fim])
+  @@map("tarifarios")
 }
