@@ -4,6 +4,14 @@ import type { DB } from '@/lib/prisma'
 
 describe('routes_seed', () => {
   it('defines the required base routes in correct order and structure', () => {
+    // Reservas
+    const reservas = BASE_ROUTES.filter(r => r.modulo === 'Reservas')
+    expect(reservas).toEqual([
+      { modulo: 'Reservas', recurso: 'Calendário', rota: '/reservas/calendario', icone: 'CalendarDays', ordem: 5 },
+      { modulo: 'Reservas', recurso: 'Reservar', rota: '/reservas/novo', icone: 'CalendarDays', ordem: 6 },
+      { modulo: 'Reservas', recurso: 'Consultar', rota: '/reservas', icone: 'CalendarDays', ordem: 7 },
+    ])
+
     // 1. Quartos
     const quartos = BASE_ROUTES.filter(r => r.modulo === 'Quartos')
     expect(quartos).toEqual([

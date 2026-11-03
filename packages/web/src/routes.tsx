@@ -19,6 +19,7 @@ import { EditarQuartoPage } from '@/pages/app/quartos/[id]/editar'
 import { TarifariosPage } from '@/pages/app/tarifarios'
 import { NovoTarifarioPage } from '@/pages/app/tarifarios/novo'
 import { EditarTarifarioPage } from '@/pages/app/tarifarios/[id]/editar'
+import { Calendario } from '@/pages/app/reservas/calendario'
 
 export const router = createBrowserRouter([
   {
@@ -44,6 +45,9 @@ export const router = createBrowserRouter([
       { path: '/tarifarios', element: <TarifariosPage /> },
       { path: '/tarifarios/novo', element: <NovoTarifarioPage /> },
       { path: '/tarifarios/:id/editar', element: <EditarTarifarioPage /> },
+      { path: '/reservas', element: <Calendario /> },
+      { path: '/reservas/calendario', element: <Calendario /> },
+      { path: '/reservas/novo', element: <Calendario /> },
     ],
   },
   { path: '*', element: <Error404Page /> },

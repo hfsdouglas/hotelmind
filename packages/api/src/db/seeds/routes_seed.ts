@@ -12,6 +12,9 @@ export interface RouteSeedItem {
 
 export const BASE_ROUTES: RouteSeedItem[] = [
   { modulo: 'Dashboard', recurso: 'Dashboard', rota: '/', icone: 'LayoutDashboard', ordem: 0 },
+  { modulo: 'Reservas', recurso: 'Calendário', rota: '/reservas/calendario', icone: 'CalendarDays', ordem: 5 },
+  { modulo: 'Reservas', recurso: 'Reservar', rota: '/reservas/novo', icone: 'CalendarDays', ordem: 6 },
+  { modulo: 'Reservas', recurso: 'Consultar', rota: '/reservas', icone: 'CalendarDays', ordem: 7 },
   { modulo: 'Quartos', recurso: 'Cadastrar', rota: '/quartos/novo', icone: 'BedDouble', ordem: 10 },
   { modulo: 'Quartos', recurso: 'Consultar', rota: '/quartos', icone: 'BedDouble', ordem: 11 },
   { modulo: 'Quartos', recurso: 'Categorias', rota: '/categorias_quartos', icone: 'BedDouble', ordem: 12 },
