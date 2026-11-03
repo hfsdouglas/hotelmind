@@ -2,6 +2,7 @@ import { type ReactNode } from 'react'
 import { render, type RenderOptions } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { MemoryRouter, type MemoryRouterProps } from 'react-router-dom'
+import { ThemeProvider } from '@/contexts/ThemeContext'
 import { AuthProvider } from '@/contexts/AuthContext'
 import type { AdminSession } from '@/types/auth'
 
@@ -27,11 +28,13 @@ export function render_with_providers(
 
   function Wrapper({ children }: { children: ReactNode }) {
     return (
-      <QueryClientProvider client={query_client}>
-        <MemoryRouter {...router_props}>
-          <AuthProvider>{children}</AuthProvider>
-        </MemoryRouter>
-      </QueryClientProvider>
+      <ThemeProvider>
+        <QueryClientProvider client={query_client}>
+          <MemoryRouter {...router_props}>
+            <AuthProvider>{children}</AuthProvider>
+          </MemoryRouter>
+        </QueryClientProvider>
+      </ThemeProvider>
     )
   }
 

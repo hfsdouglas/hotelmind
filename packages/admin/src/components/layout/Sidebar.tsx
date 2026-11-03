@@ -1,10 +1,20 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Building2, LayoutDashboard, LifeBuoy, Network, Power, ShieldCheck } from 'lucide-react'
+import {
+  Building2,
+  LayoutDashboard,
+  LifeBuoy,
+  Moon,
+  Network,
+  Power,
+  ShieldCheck,
+  Sun,
+} from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useAuth } from '@/hooks/useAuth'
 import { useLogout } from '@/hooks/useLogout'
+import { useTheme } from '@/hooks/useTheme'
 import { cn } from '@/lib/utils'
 
 const NAV = [
@@ -31,6 +41,7 @@ function initials(name: string) {
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { session } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const { logout } = useLogout()
   const { pathname } = useLocation()
 
@@ -39,7 +50,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   return (
     <aside
       className={cn(
-        'fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r bg-card transition-transform duration-300',
+        'absolute inset-y-0 left-0 z-40 flex w-72 flex-col border-r bg-card transition-transform duration-300',
         isOpen ? 'translate-x-0' : '-translate-x-full',
       )}
     >
@@ -76,8 +87,16 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         })}
       </nav>
 
-      <div className="border-t p-4">
-        <Button variant="ghost" size="icon" onClick={logout} title="Encerrar sessão">
+      <div className="flex gap-1 border-t p-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleTheme}
+          title={theme === 'dark' ? 'Modo claro' : 'Modo escuro'}
+        >
+          {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        </Button>
+        <Button variant="ghost" size="icon" onClick={() => logout()} title="Encerrar sessão">
           <Power className="h-4 w-4" />
         </Button>
       </div>
