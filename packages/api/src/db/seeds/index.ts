@@ -1,21 +1,34 @@
 import 'dotenv/config'
 import bcrypt from 'bcryptjs'
 import { db } from '@/lib/prisma'
+import { BASE_ROUTES, seedRoutes } from './routes_seed'
 
-const BASE_ROUTES = [
-  { modulo: 'Dashboard', recurso: 'Dashboard', rota: '/', icone: 'LayoutDashboard', ordem: 0 },
-  { modulo: 'Reservas', recurso: 'Listar reservas', rota: '/reservas', icone: 'CalendarDays', ordem: 10 },
-  { modulo: 'Reservas', recurso: 'Nova reserva', rota: '/reservas/nova', icone: 'CalendarDays', ordem: 11 },
-  { modulo: 'Quartos', recurso: 'Categorias', rota: '/categorias_quartos', icone: 'BedDouble', ordem: 20 },
-  { modulo: 'Quartos', recurso: 'Quartos', rota: '/quartos', icone: 'BedDouble', ordem: 21 },
-  { modulo: 'Tarifários', recurso: 'Tarifários', rota: '/tarifarios', icone: 'CalendarRange', ordem: 25 },
-  { modulo: 'Usuários', recurso: 'Listar usuários', rota: '/usuarios', icone: 'Users', ordem: 30 },
-  { modulo: 'Usuários', recurso: 'Novo usuário', rota: '/usuarios/novo', icone: 'Users', ordem: 31 },
-  { modulo: 'Grupos', recurso: 'Listar grupos', rota: '/grupos', icone: 'Shield', ordem: 40 },
-  { modulo: 'Grupos', recurso: 'Novo grupo', rota: '/grupos/novo', icone: 'Shield', ordem: 41 },
-]
+function build_year_dates_by_schedule(year: number): {
+  weekday_dates: Date[]
+  weekend_dates: Date[]
+} {
+  const weekday_dates: Date[] = []
+  const weekend_dates: Date[] = []
+
+  const cursor = new Date(Date.UTC(year, 0, 1))
+  while (cursor.getUTCFullYear() === year) {
+    const date = new Date(cursor.getTime())
+    const day_of_week = date.getUTCDay()
+    // Na hotelaria: Fim de semana = Sexta (5) e Sábado (6)
+    // Dias de semana = Domingo (0) à Quinta-feira (4)
+    if (day_of_week === 5 || day_of_week === 6) {
+      weekend_dates.push(date)
+    } else {
+      weekday_dates.push(date)
+    }
+    cursor.setUTCDate(cursor.getUTCDate() + 1)
+  }
+
+  return { weekday_dates, weekend_dates }
+}
 
 async function clean() {
+  await db.tarifarioData.deleteMany()
   await db.tarifario.deleteMany()
   await db.configuracaoCama.deleteMany()
   await db.quarto.deleteMany()
@@ -55,14 +68,6 @@ async function seed() {
     },
   })
 
-  const createdRoutes = await db.rota.createManyAndReturn({
-    data: BASE_ROUTES,
-  })
-
-  await db.rotaHotel.createMany({
-    data: createdRoutes.map(r => ({ hotel_id: hotel.id, rota_id: r.id })),
-  })
-
   const grupo = await db.grupo.create({
     data: {
       hotel_id: hotel.id,
@@ -72,9 +77,7 @@ async function seed() {
     },
   })
 
-  await db.grupoRota.createMany({
-    data: createdRoutes.map(r => ({ grupo_id: grupo.id, rota_id: r.id })),
-  })
+  const createdRoutes = await seedRoutes(db)
 
   const categorias = await Promise.all([
     db.categoriaQuarto.create({ data: { hotel_id: hotel.id, nome: 'Suítes Luxo', status: 'S' } }),
@@ -96,6 +99,72 @@ async function seed() {
   }
   const seeded_room_counts = await Promise.all(categorias.map(category => db.quarto.count({ where: { categoria_id: category.id, hotel_id: hotel.id } })))
   console.log(`Quartos por categoria: ${categorias.map((category, index) => `${category.nome}=${seeded_room_counts[index]}`).join(', ')}`)
+
+  const current_year = new Date().getUTCFullYear()
+  const { weekday_dates, weekend_dates } =
+    build_year_dates_by_schedule(current_year)
+
+  const rate_plans_by_category = [
+    {
+      category: categorias[0],
+      weekday_rate: '450.00',
+      weekend_rate: '650.00',
+    },
+    {
+      category: categorias[1],
+      weekday_rate: '600.00',
+      weekend_rate: '850.00',
+    },
+    {
+      category: categorias[2],
+      weekday_rate: '850.00',
+      weekend_rate: '1200.00',
+    },
+    {
+      category: categorias[3],
+      weekday_rate: '1500.00',
+      weekend_rate: '2100.00',
+    },
+  ]
+
+  for (const plan of rate_plans_by_category) {
+    await db.tarifario.create({
+      data: {
+        hotel_id: hotel.id,
+        categoria_quarto_id: plan.category.id,
+        nome: 'Baixa temporada (dias de semana)',
+        valor_diaria: plan.weekday_rate,
+        ativo: true,
+        datas: {
+          createMany: {
+            data: weekday_dates.map(data => ({ data })),
+          },
+        },
+      },
+    })
+
+    await db.tarifario.create({
+      data: {
+        hotel_id: hotel.id,
+        categoria_quarto_id: plan.category.id,
+        nome: 'Baixa temporada (fins de semana)',
+        valor_diaria: plan.weekend_rate,
+        ativo: true,
+        datas: {
+          createMany: {
+            data: weekend_dates.map(data => ({ data })),
+          },
+        },
+      },
+    })
+  }
+
+  const seeded_tarifarios_count = await db.tarifario.count({
+    where: { hotel_id: hotel.id },
+  })
+  console.log(
+    `Tarifários criados (${current_year}): ${seeded_tarifarios_count} (${weekday_dates.length} dias de semana / ${weekend_dates.length} dias de fim de semana por categoria)`,
+  )
 
   const senha = await bcrypt.hash('senha123', 10)
 

@@ -7,7 +7,7 @@ export class CriarCategoriaQuartoUseCase {
 
   async execute(data: CreateCategoriaQuartoData): Promise<CategoriaQuarto> {
     const normalized = data.nome.trim().toLocaleLowerCase()
-    const existing = await this.repository.list(data.hotel_id, { pagina: 1, limite: 250, busca: data.nome })
+    const existing = await this.repository.list(data.hotel_id, { pagina: 1, limite: 250, busca: data.nome.trim() })
     if (existing.data.some(category => category.nome.trim().toLocaleLowerCase() === normalized)) {
       throw new CategoriaQuartoConflictError()
     }

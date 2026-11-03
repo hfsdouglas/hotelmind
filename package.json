@@ -6,7 +6,8 @@
 	],
 	"scripts": {
 		"sync:rules": "node scripts/sync_rules.mjs",
-		"prepare": "node scripts/sync_rules.mjs"
+		"prepare": "node scripts/sync_rules.mjs",
+		"db:seed:routes": "pnpm --filter api db:seed:routes"
 	},
 	"devDependencies": {
 		"@types/bcryptjs": "^2.4.6",
