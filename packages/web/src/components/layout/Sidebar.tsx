@@ -3,6 +3,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 import {
   BedDouble,
   CalendarDays,
+  CalendarRange,
   ChevronRight,
   LayoutDashboard,
   Moon,
@@ -37,6 +38,7 @@ type NavEntry = {
 const ICON_MAP: Record<string, ElementType> = {
   LayoutDashboard,
   CalendarDays,
+  CalendarRange,
   BedDouble,
   Users,
   Shield,
@@ -63,7 +65,7 @@ function buildNavigation(rotas: RotaMenu[]): NavEntry[] {
   }
 
   return Array.from(moduleMap.values()).map(e => {
-    if (e.resources?.length === 1 && e.resources[0].label === e.module) {
+    if (e.resources?.length === 1 && e.resources[0].href === '/') {
       return { module: e.module, icon: e.icon, href: e.resources[0].href }
     }
     return e
