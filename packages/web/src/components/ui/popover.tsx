@@ -56,10 +56,16 @@ const PopoverTrigger = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttri
 })
 PopoverTrigger.displayName = 'PopoverTrigger'
 
-const PopoverContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => {
+export interface PopoverContentProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'align'> {
+  align?: 'start' | 'center' | 'end' | 'left' | 'right'
+}
+
+const PopoverContent = React.forwardRef<HTMLDivElement, PopoverContentProps>(({ className, align, ...props }, ref) => {
   const context = React.useContext(PopoverContext)
   if (!context?.open) return null
-  return <div ref={ref} role="dialog" className={cn('absolute right-0 top-full z-50 mt-2 min-w-[240px] rounded-md border bg-card p-4 text-card-foreground shadow-md outline-none', className)} {...props} />
+  const alignClass = align === 'start' ? 'left-0' : align === 'center' ? 'left-1/2 -translate-x-1/2' : 'right-0'
+  return <div ref={ref} role="dialog" className={cn('absolute top-full z-50 mt-2 min-w-[240px] rounded-md border bg-card p-4 text-card-foreground shadow-md outline-none', alignClass, className)} {...props} />
 })
 PopoverContent.displayName = 'PopoverContent'
 
