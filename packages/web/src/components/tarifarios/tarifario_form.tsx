@@ -279,30 +279,6 @@ export function TarifarioForm({
                 onChange={e => setDataFimEfetiva(e.target.value)}
               />
             </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="valor_diaria">Valor da diária (R$) *</Label>
-              <Input
-                id="valor_diaria"
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="0.00"
-                value={valor_diaria}
-                onChange={e => setValorDiaria(e.target.value)}
-              />
-            </div>
-
-            <div className="flex items-center gap-2 pt-6">
-              <Checkbox
-                id="ativo"
-                checked={ativo}
-                onCheckedChange={checked => setAtivo(Boolean(checked))}
-              />
-              <Label htmlFor="ativo" className="cursor-pointer">
-                Tarifário ativo
-              </Label>
-            </div>
           </div>
 
           <TarifarioPeriodSummary
@@ -332,6 +308,32 @@ export function TarifarioForm({
               initialMonth={initialCalendarMonth}
               onSelectRange={handle_calendar_range}
             />
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="valor_diaria">Valor da diária (R$) *</Label>
+              <Input
+                id="valor_diaria"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="0.00"
+                value={valor_diaria}
+                onChange={e => setValorDiaria(e.target.value)}
+              />
+            </div>
+
+            <div className="flex items-center gap-2 pt-6">
+              <Checkbox
+                id="ativo"
+                checked={ativo}
+                onCheckedChange={checked => setAtivo(Boolean(checked))}
+              />
+              <Label htmlFor="ativo" className="cursor-pointer">
+                Tarifário ativo
+              </Label>
+            </div>
           </div>
         </div>
       </CrudFormLayout>
