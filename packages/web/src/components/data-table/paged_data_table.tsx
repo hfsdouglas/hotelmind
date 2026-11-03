@@ -105,7 +105,7 @@ export function PagedDataTable<T extends { id?: string }>({
       is_pending={isPending}
       label={label}
       reset_key={computed_reset_key}
-      row_count={row_count ?? limite ?? 25}
+      row_count={row_count}
     >
       <PagedDataTableContent
         columns={columns}

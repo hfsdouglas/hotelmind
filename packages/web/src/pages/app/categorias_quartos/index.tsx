@@ -96,7 +96,6 @@ export function CategoriasQuartosPage() {
         isPending={isPending}
         showPagination={false}
         showResultCount={false}
-        row_count={5}
       />
     </ListPageLayout>
   )

@@ -39,7 +39,7 @@ interface SearchResultsErrorBoundaryState {
 export function SearchResultsSkeleton({
   column_labels = [],
   column_count,
-  row_count = 5,
+  row_count = 8,
 }: SearchResultsSkeletonProps) {
   return (
     <div
@@ -104,7 +104,7 @@ export function SearchResultsSuspense({
   is_pending = false,
   label,
   reset_key,
-  row_count = 5,
+  row_count = 8,
 }: SearchResultsSuspenseProps) {
   const resolved_column_labels = Array.from(
     { length: column_count },
