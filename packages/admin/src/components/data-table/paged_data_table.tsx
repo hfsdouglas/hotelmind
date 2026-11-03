@@ -54,7 +54,7 @@ function PagedDataTableContent<T extends { id?: string }>({
   const meta = data.meta
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-1 flex-col min-h-0 gap-4">
       {showResultCount && meta && <ResultCount total={meta.total} />}
       <DataTable
         columns={columns}
@@ -72,6 +72,7 @@ function PagedDataTableContent<T extends { id?: string }>({
           ultima_pagina={meta.ultima_pagina ?? 1}
           onPagina={onPagina}
           onLimite={onLimite}
+          className="mt-auto"
         />
       )}
     </div>

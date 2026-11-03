@@ -1,4 +1,5 @@
 import { ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import {
   Table,
   TableBody,
@@ -23,6 +24,7 @@ interface DataTableProps<T> {
   onSort?: (campo: string) => void
   isLoading?: boolean
   emptyMessage?: string
+  className?: string
 }
 
 export function DataTable<T extends { id?: string }>({
@@ -33,6 +35,7 @@ export function DataTable<T extends { id?: string }>({
   onSort,
   isLoading,
   emptyMessage = 'Nenhum resultado encontrado.',
+  className,
 }: DataTableProps<T>) {
   function SortIcon({ campo }: { campo: string }) {
     if (!onSort) return null
@@ -45,8 +48,8 @@ export function DataTable<T extends { id?: string }>({
   }
 
   return (
-    <div className="rounded-md border">
-      <Table>
+    <div className={cn('flex flex-1 min-h-0 flex-col rounded-md border overflow-hidden', className)}>
+      <Table containerClassName="h-full">
         <TableHeader>
           <TableRow>
             {columns.map(col => (

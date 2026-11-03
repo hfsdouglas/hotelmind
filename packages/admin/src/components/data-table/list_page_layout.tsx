@@ -15,19 +15,19 @@ export function ListPageLayout({
   searchBar,
   filters,
   children,
-  className = 'space-y-4',
+  className = 'flex flex-1 flex-col gap-6 min-h-0',
 }: ListPageLayoutProps) {
   const hasFilterSection = Boolean(searchBar || filters)
 
   return (
     <div className={className}>
-      <div className="flex items-center justify-between">
+      <div className="flex shrink-0 items-center justify-between">
         <h1 className="text-2xl font-bold">{title}</h1>
         {action}
       </div>
 
       {hasFilterSection && (
-        <div className="space-y-2">
+        <div className="flex shrink-0 flex-col gap-3">
           {searchBar}
           {filters}
         </div>

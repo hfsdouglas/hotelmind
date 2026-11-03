@@ -1,4 +1,5 @@
 import { ChevronFirst, ChevronLast, ChevronLeft, ChevronRight } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -14,6 +15,7 @@ interface DataTablePaginationProps {
   ultima_pagina: number
   onPagina: (page: number) => void
   onLimite: (limit: number) => void
+  className?: string
 }
 
 export function DataTablePagination({
@@ -22,9 +24,10 @@ export function DataTablePagination({
   ultima_pagina,
   onPagina,
   onLimite,
+  className,
 }: DataTablePaginationProps) {
   return (
-    <div className="flex items-center justify-between">
+    <div className={cn('flex shrink-0 items-center justify-between', className)}>
       <div className="flex items-center gap-2">
         <span className="text-sm text-muted-foreground">Itens por página</span>
         <Select value={String(limite)} onValueChange={v => onLimite(Number(v))}>

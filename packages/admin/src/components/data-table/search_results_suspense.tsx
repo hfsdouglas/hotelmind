@@ -45,9 +45,9 @@ export function SearchResultsSkeleton({
     <div
       aria-busy="true"
       aria-label="Carregando resultados"
-      className="rounded-md border"
+      className="flex flex-1 min-h-0 flex-col rounded-md border overflow-hidden"
     >
-      <Table className="table-fixed">
+      <Table containerClassName="h-full" className="table-fixed">
         <TableHeader>
           <TableRow>
             {column_labels.map((label, column_index) => (
@@ -133,7 +133,12 @@ export function SearchResultsSuspense({
       >
         {announcement}
       </div>
-      <div aria-busy={is_pending || undefined} aria-label={label} className="relative flex flex-col gap-4" role="region">
+      <div
+        aria-busy={is_pending || undefined}
+        aria-label={label}
+        className="relative flex flex-1 flex-col min-h-0 gap-4"
+        role="region"
+      >
         <SearchResultsErrorBoundary error_message={error_message} reset_key={reset_key}>
           <Suspense
             fallback={

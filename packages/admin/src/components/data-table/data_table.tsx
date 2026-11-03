@@ -1,4 +1,5 @@
 import { ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import {
   Table,
   TableBody,
@@ -24,6 +25,7 @@ interface DataTableProps<T> {
   isLoading?: boolean
   emptyMessage?: string
   renderActions?: (row: T) => React.ReactNode
+  className?: string
 }
 
 export function DataTable<T extends { id?: string }>({
@@ -35,6 +37,7 @@ export function DataTable<T extends { id?: string }>({
   isLoading,
   emptyMessage = 'Nenhum resultado encontrado.',
   renderActions,
+  className,
 }: DataTableProps<T>) {
   const totalCols = columns.length + (renderActions ? 1 : 0)
 
@@ -49,8 +52,8 @@ export function DataTable<T extends { id?: string }>({
   }
 
   return (
-    <div className="rounded-md border">
-      <Table>
+    <div className={cn('flex flex-1 min-h-0 flex-col rounded-md border overflow-hidden', className)}>
+      <Table containerClassName="h-full">
         <TableHeader>
           <TableRow>
             {columns.map(col => (
