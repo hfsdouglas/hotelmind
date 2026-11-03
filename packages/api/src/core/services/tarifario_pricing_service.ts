@@ -58,8 +58,7 @@ export class TarifarioPricingService {
           t.ativo &&
           t.hotel_id === input.hotel_id &&
           t.categoria_quarto_id === input.categoria_quarto_id &&
-          t.data_inicio <= night &&
-          night < t.data_fim,
+          t.datas.includes(night),
       )
 
       if (elegiveis.length === 0) {

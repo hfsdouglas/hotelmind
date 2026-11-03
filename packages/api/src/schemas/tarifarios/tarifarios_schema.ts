@@ -1,10 +1,19 @@
 import { z } from 'zod'
-import { is_valid_iso_date, normalize_valor_diaria } from '@/core/entities/tarifario'
+import {
+  is_valid_iso_date,
+  normalize_datas,
+  normalize_valor_diaria,
+} from '@/core/entities/tarifario'
 
 const iso_date_schema = z
   .string()
   .trim()
   .refine(is_valid_iso_date, 'Data inválida. Utilize o formato YYYY-MM-DD.')
+
+const datas_array_schema = z
+  .array(iso_date_schema)
+  .min(1, 'Selecione ao menos uma data no calendário.')
+  .transform(datas => normalize_datas(datas))
 
 const valor_diaria_schema = z
   .union([z.string(), z.number()])
@@ -32,8 +41,7 @@ export const tarifario_response_schema = z.object({
   hotel_id: z.string(),
   categoria_quarto_id: z.string(),
   nome: z.string(),
-  data_inicio: z.string(),
-  data_fim: z.string(),
+  datas: z.array(z.string()),
   valor_diaria: z.string(),
   ativo: z.boolean(),
   categoria_quarto: categoria_resumo_schema,
@@ -62,57 +70,37 @@ export const list_tarifarios_query_schema = z.object({
     .optional(),
 })
 
-export const create_tarifario_body_schema = z
-  .object({
-    categoria_quarto_id: z
-      .string()
-      .trim()
-      .min(1, 'A categoria de quarto é obrigatória.'),
-    nome: z
-      .string()
-      .trim()
-      .min(1, 'O nome do tarifário é obrigatório.')
-      .max(100, 'O nome do tarifário deve ter no máximo 100 caracteres.'),
-    data_inicio: iso_date_schema,
-    data_fim: iso_date_schema,
-    valor_diaria: valor_diaria_schema,
-    ativo: z.boolean().optional().default(true),
-  })
-  .refine(data => data.data_inicio < data.data_fim, {
-    message: 'A data de início deve ser anterior à data de término.',
-    path: ['data_fim'],
-  })
+export const create_tarifario_body_schema = z.object({
+  categoria_quarto_id: z
+    .string()
+    .trim()
+    .min(1, 'A categoria de quarto é obrigatória.'),
+  nome: z
+    .string()
+    .trim()
+    .min(1, 'O nome do tarifário é obrigatório.')
+    .max(100, 'O nome do tarifário deve ter no máximo 100 caracteres.'),
+  datas: datas_array_schema,
+  valor_diaria: valor_diaria_schema,
+  ativo: z.boolean().optional().default(true),
+})
 
-export const update_tarifario_body_schema = z
-  .object({
-    categoria_quarto_id: z
-      .string()
-      .trim()
-      .min(1, 'A categoria de quarto é obrigatória.')
-      .optional(),
-    nome: z
-      .string()
-      .trim()
-      .min(1, 'O nome do tarifário é obrigatório.')
-      .max(100, 'O nome do tarifário deve ter no máximo 100 caracteres.')
-      .optional(),
-    data_inicio: iso_date_schema.optional(),
-    data_fim: iso_date_schema.optional(),
-    valor_diaria: valor_diaria_schema.optional(),
-    ativo: z.boolean().optional(),
-  })
-  .refine(
-    data => {
-      if (data.data_inicio && data.data_fim) {
-        return data.data_inicio < data.data_fim
-      }
-      return true
-    },
-    {
-      message: 'A data de início deve ser anterior à data de término.',
-      path: ['data_fim'],
-    },
-  )
+export const update_tarifario_body_schema = z.object({
+  categoria_quarto_id: z
+    .string()
+    .trim()
+    .min(1, 'A categoria de quarto é obrigatória.')
+    .optional(),
+  nome: z
+    .string()
+    .trim()
+    .min(1, 'O nome do tarifário é obrigatório.')
+    .max(100, 'O nome do tarifário deve ter no máximo 100 caracteres.')
+    .optional(),
+  datas: datas_array_schema.optional(),
+  valor_diaria: valor_diaria_schema.optional(),
+  ativo: z.boolean().optional(),
+})
 
 export const calendario_tarifarios_query_schema = z
   .object({
@@ -126,12 +114,12 @@ export const calendario_tarifarios_query_schema = z
   .refine(
     data => {
       if (data.data_inicio && data.data_fim) {
-        return data.data_inicio < data.data_fim
+        return data.data_inicio <= data.data_fim
       }
       return true
     },
     {
-      message: 'A data de início deve ser anterior à data de término.',
+      message: 'A data de início deve ser anterior ou igual à data de término.',
       path: ['data_fim'],
     },
   )
@@ -150,8 +138,7 @@ export const periodo_calendario_schema = z.object({
   id: z.string(),
   categoria_quarto_id: z.string(),
   nome: z.string(),
-  data_inicio: z.string(),
-  data_fim: z.string(),
+  datas: z.array(z.string()),
   valor_diaria: z.string(),
   ativo: z.boolean(),
 })

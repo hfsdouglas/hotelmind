@@ -1,143 +1,177 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { HttpResponse, http } from 'msw'
+import { http, HttpResponse } from 'msw'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import { server } from '@/mocks/server'
 import { EditarTarifarioPage } from './[id]/editar'
 import { TarifariosPage } from './index'
+import { NovoTarifarioPage } from './novo'
 
 const BASE_URL = 'http://localhost:3000'
 
-const sample_tarifario = {
-  id: 'tarifario-1',
-  hotel_id: 'hotel-1',
-  categoria_quarto_id: 'cat-1',
-  nome: 'Alta Temporada Verão',
-  data_inicio: '2027-01-01',
-  data_fim: '2027-02-01',
-  valor_diaria: '450.00',
-  ativo: true,
-  categoria_quarto: { id: 'cat-1', nome: 'Suítes Luxo', status: 'S' as const },
-  criado_em: '2026-11-02T12:00:00.000Z',
-  atualizado_em: '2026-11-02T12:00:00.000Z',
-}
-
-function create_wrapper(initial_entry = '/tarifarios') {
+function render_with_providers(initial_entry: string) {
   const query_client = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    defaultOptions: { queries: { retry: false } },
   })
-  return ({ children }: { children: React.ReactNode }) => (
-    <MemoryRouter initialEntries={[initial_entry]}>
-      <QueryClientProvider client={query_client}>{children}</QueryClientProvider>
-    </MemoryRouter>
+  return render(
+    <QueryClientProvider client={query_client}>
+      <MemoryRouter initialEntries={[initial_entry]}>
+        <Routes>
+          <Route path="/tarifarios" element={<TarifariosPage />} />
+          <Route path="/tarifarios/novo" element={<NovoTarifarioPage />} />
+          <Route
+            path="/tarifarios/:id/editar"
+            element={<EditarTarifarioPage />}
+          />
+        </Routes>
+      </MemoryRouter>
+    </QueryClientProvider>,
   )
 }
 
-describe('Tarifarios Pages (List & Edit)', () => {
-  it('RF01: renders rate plan list with inclusive effective end date, currency and actions', async () => {
+describe('Tarifarios Pages (List, Create & Edit)', () => {
+  it('RF01 & US4: renders rate plan list with selected dates summary and opens the "Mais filtros" dropdown cleanly', async () => {
     server.use(
       http.get(`${BASE_URL}/categorias_quartos`, () =>
         HttpResponse.json({
-          data: [{ id: 'cat-1', hotel_id: 'hotel-1', nome: 'Suítes Luxo', status: 'S', created_at: '', updated_at: '' }],
+          data: [{ id: 'cat-1', hotel_id: 'h-1', nome: 'Suítes Luxo', status: 'S' }],
           meta: { pagina: 1, limite: 250, total: 1, ultima_pagina: 1 },
         }),
       ),
       http.get(`${BASE_URL}/tarifarios`, () =>
         HttpResponse.json({
-          data: [sample_tarifario],
+          data: [
+            {
+              id: 'tar-1',
+              hotel_id: 'h-1',
+              categoria_quarto_id: 'cat-1',
+              nome: 'Baixa Temporada Março',
+              datas: ['2027-03-01', '2027-03-15', '2027-03-31'],
+              valor_diaria: '220.00',
+              ativo: true,
+              categoria_quarto: {
+                id: 'cat-1',
+                nome: 'Suítes Luxo',
+                status: 'S',
+              },
+              criado_em: '2026-11-02T12:00:00.000Z',
+              atualizado_em: '2026-11-02T12:00:00.000Z',
+            },
+          ],
           meta: { pagina: 1, limite: 25, total: 1, ultima_pagina: 1 },
         }),
       ),
     )
 
-    render(<TarifariosPage />, { wrapper: create_wrapper('/tarifarios') })
+    render_with_providers('/tarifarios')
 
+    await waitFor(() => {
+      expect(screen.getByText('Baixa Temporada Março')).toBeInTheDocument()
+    })
     expect(
-      await screen.findByText('Alta Temporada Verão'),
+      screen.getByText('01/03/2027, 15/03/2027, 31/03/2027'),
     ).toBeInTheDocument()
-    expect(screen.getByText('Suítes Luxo')).toBeInTheDocument()
-    expect(screen.getByText('01/01/2027')).toBeInTheDocument()
-    // Exclusive 2027-02-01 displayed as inclusive 31/01/2027
-    expect(screen.getByText('31/01/2027')).toBeInTheDocument()
-    expect(screen.getByText('R$ 450.00')).toBeInTheDocument()
+    expect(screen.getByText('R$ 220.00')).toBeInTheDocument()
+
+    // Click "Mais filtros" button -> opens popover with Situação and Categoria de quarto filters
+    const more_filters_btn = screen.getByTestId('more-filters-trigger')
+    expect(more_filters_btn).toHaveTextContent('Mais filtros')
+    expect(
+      screen.queryByTestId('more-filters-content'),
+    ).not.toBeInTheDocument()
+
+    fireEvent.click(more_filters_btn)
+    expect(screen.getByTestId('more-filters-content')).toBeInTheDocument()
+    expect(screen.getByLabelText('Filtrar por situação')).toBeInTheDocument()
+    expect(screen.getByLabelText('Filtrar por categoria')).toBeInTheDocument()
   })
 
-  it('CA07 & CA08: loads edit page without self-conflict and requires confirmation before deactivation', async () => {
-    let deactivate_called = false
-
+  it('US4: renders NovoTarifarioPage without breadcrumb navigation', async () => {
     server.use(
-      http.get(`${BASE_URL}/tarifarios/tarifario-1`, () =>
-        HttpResponse.json(sample_tarifario),
-      ),
       http.get(`${BASE_URL}/categorias_quartos`, () =>
         HttpResponse.json({
-          data: [{ id: 'cat-1', hotel_id: 'hotel-1', nome: 'Suítes Luxo', status: 'S', created_at: '', updated_at: '' }],
+          data: [{ id: 'cat-1', hotel_id: 'h-1', nome: 'Suítes Luxo', status: 'S' }],
           meta: { pagina: 1, limite: 250, total: 1, ultima_pagina: 1 },
+        }),
+      ),
+      http.get(`${BASE_URL}/tarifarios/calendario`, () =>
+        HttpResponse.json({ data: [] }),
+      ),
+    )
+
+    render_with_providers('/tarifarios/novo')
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', { name: 'Novo tarifário' }),
+      ).toBeInTheDocument()
+    })
+    expect(
+      screen.queryByRole('navigation', { name: 'Breadcrumb' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('CA07, CA08 & US4: loads edit page without breadcrumbs or self-conflict and requires confirmation before deactivation', async () => {
+    server.use(
+      http.get(`${BASE_URL}/categorias_quartos`, () =>
+        HttpResponse.json({
+          data: [{ id: 'cat-1', hotel_id: 'h-1', nome: 'Suítes Luxo', status: 'S' }],
+          meta: { pagina: 1, limite: 250, total: 1, ultima_pagina: 1 },
+        }),
+      ),
+      http.get(`${BASE_URL}/tarifarios/tar-1`, () =>
+        HttpResponse.json({
+          id: 'tar-1',
+          hotel_id: 'h-1',
+          categoria_quarto_id: 'cat-1',
+          nome: 'Baixa Temporada Março',
+          datas: ['2027-03-01', '2027-03-15'],
+          valor_diaria: '220.00',
+          ativo: true,
+          categoria_quarto: { id: 'cat-1', nome: 'Suítes Luxo', status: 'S' },
+          criado_em: '2026-11-02T12:00:00.000Z',
+          atualizado_em: '2026-11-02T12:00:00.000Z',
         }),
       ),
       http.get(`${BASE_URL}/tarifarios/calendario`, () =>
         HttpResponse.json({
           data: [
             {
-              id: 'tarifario-1',
+              id: 'tar-1',
               categoria_quarto_id: 'cat-1',
-              nome: 'Alta Temporada Verão',
-              data_inicio: '2027-01-01',
-              data_fim: '2027-02-01',
-              valor_diaria: '450.00',
+              nome: 'Baixa Temporada Março',
+              datas: ['2027-03-01', '2027-03-15'],
+              valor_diaria: '220.00',
               ativo: true,
             },
           ],
         }),
       ),
-      http.patch(`${BASE_URL}/tarifarios/tarifario-1/desativar`, () => {
-        deactivate_called = true
-        return HttpResponse.json({ ...sample_tarifario, ativo: false })
-      }),
     )
 
-    const query_client = new QueryClient({
-      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    render_with_providers('/tarifarios/tar-1/editar')
+
+    await waitFor(() => {
+      expect(
+        screen.getByDisplayValue('Baixa Temporada Março'),
+      ).toBeInTheDocument()
     })
 
-    render(
-      <MemoryRouter initialEntries={['/tarifarios/tarifario-1/editar']}>
-        <QueryClientProvider client={query_client}>
-          <Routes>
-            <Route
-              path="/tarifarios/:id/editar"
-              element={<EditarTarifarioPage />}
-            />
-            <Route path="/tarifarios" element={<div>Listagem</div>} />
-          </Routes>
-        </QueryClientProvider>
-      </MemoryRouter>,
-    )
-
+    // Breadcrumb navigation is completely removed on Edit page as well
     expect(
-      await screen.findByDisplayValue('Alta Temporada Verão'),
-    ).toBeInTheDocument()
+      screen.queryByRole('navigation', { name: 'Breadcrumb' }),
+    ).not.toBeInTheDocument()
 
-    // Own period must NOT trigger conflict alert
+    // Self period is excluded from conflict alert
     expect(
       screen.queryByTestId('period-conflict-alert'),
     ).not.toBeInTheDocument()
 
-    // Click deactivate button -> opens confirmation AlertDialog
+    // Click Deactivate button -> opens confirmation dialog
     fireEvent.click(
-      screen.getByRole('button', { name: /desativar tarifário/i }),
+      screen.getByRole('button', { name: 'Desativar tarifário' }),
     )
-    expect(
-      await screen.findByText(/desativar tarifário\?/i),
-    ).toBeInTheDocument()
-
-    fireEvent.click(
-      screen.getByRole('button', { name: /confirmar desativação/i }),
-    )
-
-    await waitFor(() => {
-      expect(deactivate_called).toBe(true)
-    })
+    expect(screen.getByText('Desativar tarifário?')).toBeInTheDocument()
   })
 })

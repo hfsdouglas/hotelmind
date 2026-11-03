@@ -60,28 +60,27 @@ describe('Tarifarios Use Cases', () => {
     tarifarios_repo.register_category(cat_master.id, cat_master.nome, 'S')
   })
 
-  it('CA01 & CA04: creates valid rate plans and allows consecutive half-open periods', async () => {
-    const marco = await criar_use_case.execute({
+  it('CA01 & CA04: creates valid rate plans with non-contiguous dates and allows non-overlapping dates', async () => {
+    const dias_uteis = await criar_use_case.execute({
       hotel_id: 'hotel-1',
       categoria_quarto_id: cat_luxo_id,
-      nome: '  Baixa Temporada Março  ',
-      data_inicio: '2027-03-01',
-      data_fim: '2027-04-01',
+      nome: '  Dias Úteis Março  ',
+      datas: ['2027-03-01', '2027-03-03', '2027-03-05'],
       valor_diaria: '200',
     })
-    expect(marco.nome).toBe('Baixa Temporada Março')
-    expect(marco.valor_diaria).toBe('200.00')
-    expect(marco.ativo).toBe(true)
+    expect(dias_uteis.nome).toBe('Dias Úteis Março')
+    expect(dias_uteis.valor_diaria).toBe('200.00')
+    expect(dias_uteis.datas).toEqual(['2027-03-01', '2027-03-03', '2027-03-05'])
+    expect(dias_uteis.ativo).toBe(true)
 
-    const abril = await criar_use_case.execute({
+    const dias_alternados = await criar_use_case.execute({
       hotel_id: 'hotel-1',
       categoria_quarto_id: cat_luxo_id,
-      nome: 'Média Temporada Abril',
-      data_inicio: '2027-04-01',
-      data_fim: '2027-05-01',
+      nome: 'Terça e Quinta Março',
+      datas: ['2027-03-02', '2027-03-04'],
       valor_diaria: '250.00',
     })
-    expect(abril.data_inicio).toBe('2027-04-01')
+    expect(dias_alternados.datas).toEqual(['2027-03-02', '2027-03-04'])
 
     const { data: periods } = await calendario_use_case.execute({
       hotel_id: 'hotel-1',
@@ -90,13 +89,12 @@ describe('Tarifarios Use Cases', () => {
     expect(periods).toHaveLength(2)
   })
 
-  it('CA05 & RN04: blocks overlapping active periods in the same hotel + category, while allowing same period in another category or hotel', async () => {
+  it('CA05 & RN04: blocks overlapping active dates in the same hotel + category, while allowing same dates in another category or hotel', async () => {
     await criar_use_case.execute({
       hotel_id: 'hotel-1',
       categoria_quarto_id: cat_luxo_id,
       nome: 'Março Luxo',
-      data_inicio: '2027-03-01',
-      data_fim: '2027-04-01',
+      datas: ['2027-03-10', '2027-03-15'],
       valor_diaria: '200.00',
     })
 
@@ -104,41 +102,37 @@ describe('Tarifarios Use Cases', () => {
       criar_use_case.execute({
         hotel_id: 'hotel-1',
         categoria_quarto_id: cat_luxo_id,
-        nome: 'Conflito Março/Abril',
-        data_inicio: '2027-03-15',
-        data_fim: '2027-04-15',
+        nome: 'Conflito 15 de Março',
+        datas: ['2027-03-15', '2027-03-20'],
         valor_diaria: '220.00',
       }),
     ).rejects.toThrow(TarifarioPeriodConflictError)
 
-    // Same period in a different category is allowed
+    // Same dates in a different category are allowed
     const master_marco = await criar_use_case.execute({
       hotel_id: 'hotel-1',
       categoria_quarto_id: cat_master_id,
       nome: 'Março Master',
-      data_inicio: '2027-03-01',
-      data_fim: '2027-04-01',
+      datas: ['2027-03-10', '2027-03-15'],
       valor_diaria: '350.00',
     })
     expect(master_marco.id).toBeTruthy()
   })
 
-  it('CA11: handles race conditions where two simultaneous requests try to persist overlapping active periods', async () => {
+  it('CA11: handles race conditions where two simultaneous requests try to persist overlapping active dates', async () => {
     const results = await Promise.allSettled([
       criar_use_case.execute({
         hotel_id: 'hotel-1',
         categoria_quarto_id: cat_luxo_id,
         nome: 'Concorrente A',
-        data_inicio: '2027-06-01',
-        data_fim: '2027-07-01',
+        datas: ['2027-06-01', '2027-06-10'],
         valor_diaria: '200.00',
       }),
       criar_use_case.execute({
         hotel_id: 'hotel-1',
         categoria_quarto_id: cat_luxo_id,
         nome: 'Concorrente B',
-        data_inicio: '2027-06-10',
-        data_fim: '2027-07-10',
+        datas: ['2027-06-10', '2027-06-15'],
         valor_diaria: '210.00',
       }),
     ])
@@ -154,8 +148,7 @@ describe('Tarifarios Use Cases', () => {
       hotel_id: 'hotel-1',
       categoria_quarto_id: cat_luxo_id,
       nome: 'Temporada Inverno',
-      data_inicio: '2027-07-01',
-      data_fim: '2027-08-01',
+      datas: ['2027-07-01', '2027-07-05'],
       valor_diaria: '300.00',
     })
 
@@ -163,42 +156,37 @@ describe('Tarifarios Use Cases', () => {
       id: created.id,
       hotel_id: 'hotel-1',
       nome: 'Temporada Inverno Atualizada',
-      data_inicio: '2027-07-01',
-      data_fim: '2027-08-01',
+      datas: ['2027-07-01', '2027-07-05', '2027-07-10'],
       valor_diaria: '320.00',
     })
     expect(updated.nome).toBe('Temporada Inverno Atualizada')
     expect(updated.valor_diaria).toBe('320.00')
+    expect(updated.datas).toEqual(['2027-07-01', '2027-07-05', '2027-07-10'])
   })
 
-  it('CA08 & RN05: deactivates preserving history, allows new active period over deactivated range, and re-validates conflict on reactivation', async () => {
+  it('CA08 & RN05: deactivates preserving history, allows new active rate plan over deactivated dates, and re-validates conflict on reactivation', async () => {
     const first = await criar_use_case.execute({
       hotel_id: 'hotel-1',
       categoria_quarto_id: cat_luxo_id,
       nome: 'Tarifa Original',
-      data_inicio: '2027-09-01',
-      data_fim: '2027-10-01',
+      datas: ['2027-09-10', '2027-09-15'],
       valor_diaria: '200.00',
     })
 
     const deactivated = await desativar_use_case.execute(first.id, 'hotel-1')
     expect(deactivated.ativo).toBe(false)
 
-    // Historical record still retrievable
     const fetched = await buscar_use_case.execute(first.id, 'hotel-1')
     expect(fetched.ativo).toBe(false)
 
-    // New active rate plan can now occupy September
     await criar_use_case.execute({
       hotel_id: 'hotel-1',
       categoria_quarto_id: cat_luxo_id,
       nome: 'Nova Tarifa Setembro',
-      data_inicio: '2027-09-10',
-      data_fim: '2027-09-25',
+      datas: ['2027-09-15', '2027-09-20'],
       valor_diaria: '240.00',
     })
 
-    // Reactivating the first rate plan must fail due to period conflict
     await expect(
       ativar_use_case.execute(first.id, 'hotel-1'),
     ).rejects.toThrow(TarifarioPeriodConflictError)
@@ -209,8 +197,7 @@ describe('Tarifarios Use Cases', () => {
       hotel_id: 'hotel-1',
       categoria_quarto_id: cat_luxo_id,
       nome: 'Tarifa Hotel 1',
-      data_inicio: '2027-11-01',
-      data_fim: '2027-12-01',
+      datas: ['2027-11-01'],
       valor_diaria: '200.00',
     })
 
@@ -241,8 +228,7 @@ describe('Tarifarios Use Cases', () => {
         hotel_id: 'hotel-2',
         categoria_quarto_id: cat_luxo_id,
         nome: 'Categoria de outro hotel',
-        data_inicio: '2027-11-01',
-        data_fim: '2027-12-01',
+        datas: ['2027-11-01'],
         valor_diaria: '200.00',
       }),
     ).rejects.toThrow(CategoriaQuartoInativaError)

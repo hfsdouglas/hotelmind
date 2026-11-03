@@ -19,8 +19,7 @@ export class DesativarTarifarioUseCase {
       hotel_id,
       categoria_quarto_id: current.categoria_quarto_id,
       nome: current.nome,
-      data_inicio: current.data_inicio,
-      data_fim: current.data_fim,
+      datas: current.datas,
       valor_diaria: current.valor_diaria,
       ativo: false,
     })

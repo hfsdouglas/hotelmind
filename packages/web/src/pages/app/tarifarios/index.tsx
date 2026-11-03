@@ -1,6 +1,6 @@
 import type { Tarifario } from '@hotelmind/contracts'
 import { useQuery } from '@tanstack/react-query'
-import { Ban, CheckCircle2, Eye, Pencil, Plus } from 'lucide-react'
+import { Ban, CheckCircle2, Eye, Filter, Pencil, Plus, X } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -22,6 +22,12 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import {
   Select,
   SelectContent,
@@ -35,8 +41,8 @@ import {
 } from '@/hooks/use_tarifarios'
 import { usePaginacao } from '@/hooks/usePaginacao'
 import {
+  format_dates_summary,
   format_iso_to_br,
-  to_inclusive_end_date,
 } from '@/schemas/tarifario.schema'
 
 export function TarifariosPage() {
@@ -73,7 +79,7 @@ export function TarifariosPage() {
         if (error.response?.status === 409) {
           toast.error(
             error.response.data?.message ??
-              'Não é possível reativar: conflito de período com outro tarifário ativo.',
+              'Não é possível reativar: conflito de data com outro tarifário ativo.',
           )
         } else {
           toast.error('Erro ao ativar tarifário.')
@@ -104,14 +110,13 @@ export function TarifariosPage() {
       render: row => row.categoria_quarto.nome,
     },
     {
-      key: 'data_inicio',
-      header: 'Data de início',
-      render: row => format_iso_to_br(row.data_inicio),
-    },
-    {
-      key: 'data_fim',
-      header: 'Data de término',
-      render: row => format_iso_to_br(to_inclusive_end_date(row.data_fim)),
+      key: 'datas',
+      header: 'Datas selecionadas',
+      render: row => (
+        <span title={row.datas.map(format_iso_to_br).join(', ')}>
+          {format_dates_summary(row.datas, 3)}
+        </span>
+      ),
     },
     {
       key: 'valor_diaria',
@@ -197,48 +202,92 @@ export function TarifariosPage() {
           />
         }
         filters={
-          <div className="flex flex-wrap items-center gap-2">
-            <Select
-              value={categoria_quarto_id || 'all'}
-              onValueChange={value =>
-                setParam('categoria_quarto_id', value === 'all' ? '' : value)
-              }
-            >
-              <SelectTrigger
-                className="w-[200px]"
-                aria-label="Filtrar por categoria"
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                data-testid="more-filters-trigger"
+                className="shrink-0"
               >
-                <SelectValue placeholder="Todas as categorias" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas as categorias</SelectItem>
-                {categories?.data.map(cat => (
-                  <SelectItem key={cat.id} value={cat.id}>
-                    {cat.nome}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                <Filter className="mr-2 h-4 w-4" />
+                Mais filtros
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              data-testid="more-filters-content"
+              className="min-w-[280px] sm:min-w-[320px]"
+            >
+              <div className="flex max-h-[min(28rem,70vh)] flex-col gap-4 overflow-y-auto">
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="filtro-situacao">Situação</Label>
+                  <Select
+                    value={ativo_param ?? 'all'}
+                    onValueChange={value =>
+                      setParam('ativo', value === 'all' ? '' : value)
+                    }
+                  >
+                    <SelectTrigger
+                      id="filtro-situacao"
+                      aria-label="Filtrar por situação"
+                    >
+                      <SelectValue placeholder="Todas as situações" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todas as situações</SelectItem>
+                      <SelectItem value="true">Ativos</SelectItem>
+                      <SelectItem value="false">Inativos</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-            <Select
-              value={ativo_param ?? 'all'}
-              onValueChange={value =>
-                setParam('ativo', value === 'all' ? '' : value)
-              }
-            >
-              <SelectTrigger
-                className="w-[160px]"
-                aria-label="Filtrar por situação"
-              >
-                <SelectValue placeholder="Todas as situações" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas as situações</SelectItem>
-                <SelectItem value="true">Ativos</SelectItem>
-                <SelectItem value="false">Inativos</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="filtro-categoria">Categoria de quarto</Label>
+                  <Select
+                    value={categoria_quarto_id || 'all'}
+                    onValueChange={value =>
+                      setParam(
+                        'categoria_quarto_id',
+                        value === 'all' ? '' : value,
+                      )
+                    }
+                  >
+                    <SelectTrigger
+                      id="filtro-categoria"
+                      aria-label="Filtrar por categoria"
+                    >
+                      <SelectValue placeholder="Todas as categorias" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todas as categorias</SelectItem>
+                      {categories?.data.map(cat => (
+                        <SelectItem key={cat.id} value={cat.id}>
+                          {cat.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {(categoria_quarto_id || ativo_param) && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    data-testid="clear-more-filters"
+                    className="h-7 self-start px-2 text-xs text-muted-foreground hover:text-foreground"
+                    onClick={() => {
+                      setParam('categoria_quarto_id', '')
+                      setParam('ativo', '')
+                    }}
+                  >
+                    Limpar filtros
+                    <X className="ml-1.5 h-3.5 w-3.5" />
+                  </Button>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
         }
       >
         <PagedDataTable
@@ -289,10 +338,10 @@ export function TarifariosPage() {
                   <span>{viewing_tarifario?.categoria_quarto.nome}</span>
                 </div>
                 <div>
-                  <span className="font-semibold">Vigência efetiva: </span>
+                  <span className="font-semibold">Datas selecionadas: </span>
                   <span>
                     {viewing_tarifario
-                      ? `${format_iso_to_br(viewing_tarifario.data_inicio)} até ${format_iso_to_br(to_inclusive_end_date(viewing_tarifario.data_fim))}`
+                      ? viewing_tarifario.datas.map(format_iso_to_br).join(', ')
                       : ''}
                   </span>
                 </div>

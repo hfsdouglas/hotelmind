@@ -6,8 +6,7 @@ export interface Tarifario {
   hotel_id: string
   categoria_quarto_id: string
   nome: string
-  data_inicio: string
-  data_fim: string
+  datas: string[]
   valor_diaria: string
   ativo: boolean
   categoria_quarto: CategoriaQuartoResumo
@@ -31,8 +30,7 @@ export interface TarifarioListParams {
 export interface CreateTarifarioPayload {
   categoria_quarto_id: string
   nome: string
-  data_inicio: string
-  data_fim: string
+  datas: string[]
   valor_diaria: string
   ativo?: boolean
 }
@@ -40,8 +38,7 @@ export interface CreateTarifarioPayload {
 export interface UpdateTarifarioPayload {
   categoria_quarto_id?: string
   nome?: string
-  data_inicio?: string
-  data_fim?: string
+  datas?: string[]
   valor_diaria?: string
   ativo?: boolean
 }
@@ -50,8 +47,7 @@ export interface PeriodoTarifarioCalendario {
   id: string
   categoria_quarto_id: string
   nome: string
-  data_inicio: string
-  data_fim: string
+  datas: string[]
   valor_diaria: string
   ativo: boolean
 }

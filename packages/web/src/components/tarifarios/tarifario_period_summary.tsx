@@ -1,28 +1,22 @@
 import type { PeriodoTarifarioCalendario } from '@hotelmind/contracts'
 import { AlertTriangle, CalendarCheck2, Info } from 'lucide-react'
-import {
-  count_effective_nights,
-  format_iso_to_br,
-  to_inclusive_end_date,
-} from '@/schemas/tarifario.schema'
+import { format_dates_summary } from '@/schemas/tarifario.schema'
 
 interface TarifarioPeriodSummaryProps {
-  startDate: string
-  endDate: string
+  selectedDates: string[]
   valorDiaria?: string
   conflictingPeriods: PeriodoTarifarioCalendario[]
 }
 
 export function TarifarioPeriodSummary({
-  startDate,
-  endDate,
+  selectedDates,
   valorDiaria,
   conflictingPeriods,
 }: TarifarioPeriodSummaryProps) {
-  const nights = count_effective_nights(startDate, endDate)
+  const count = selectedDates.length
   const has_conflict = conflictingPeriods.length > 0
 
-  if (!startDate && !endDate) {
+  if (count === 0) {
     return (
       <div
         data-testid="period-summary-empty"
@@ -30,8 +24,8 @@ export function TarifarioPeriodSummary({
       >
         <Info className="h-4 w-4 shrink-0" aria-hidden="true" />
         <span>
-          Selecione a data inicial e a data final no calendário ou nos campos do
-          formulário para definir o período de vigência.
+          Marque no calendário uma ou mais datas em que este valor de diária
+          será aplicado.
         </span>
       </div>
     )
@@ -43,23 +37,22 @@ export function TarifarioPeriodSummary({
         data-testid="period-summary-selected"
         className="flex flex-wrap items-center justify-between gap-2 rounded-md border bg-muted/40 p-3 text-sm"
       >
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 flex-1 items-start gap-2 sm:items-center">
           <CalendarCheck2
-            className="h-4 w-4 shrink-0 text-primary"
+            className="mt-0.5 h-4 w-4 shrink-0 text-primary sm:mt-0"
             aria-hidden="true"
           />
-          <div>
-            <span className="font-medium">Período selecionado: </span>
-            <span>
-              {format_iso_to_br(startDate)}
-              {endDate
-                ? ` até ${format_iso_to_br(endDate)} (${nights} ${nights === 1 ? 'diária' : 'diárias'})`
-                : ' (selecione a data de término no calendário)'}
+          <div className="min-w-0 flex-1 break-words leading-relaxed">
+            <span className="font-medium">
+              {count} {count === 1 ? 'data marcada' : 'datas marcadas'}:{' '}
+            </span>
+            <span className="text-muted-foreground">
+              {format_dates_summary(selectedDates, 5)}
             </span>
           </div>
         </div>
         {valorDiaria && Number(valorDiaria.replace(',', '.')) >= 0 && (
-          <span className="font-semibold text-foreground">
+          <span className="shrink-0 whitespace-nowrap font-semibold text-foreground">
             Diária: R$ {Number(valorDiaria.replace(',', '.')).toFixed(2)}
           </span>
         )}
@@ -76,18 +69,11 @@ export function TarifarioPeriodSummary({
             aria-hidden="true"
           />
           <div className="flex flex-col gap-1">
-            <span className="font-semibold">
-              Conflito de período identificado
-            </span>
+            <span className="font-semibold">Conflito de data identificado</span>
             <span>
-              O intervalo selecionado sobrepõe{' '}
-              {conflictingPeriods
-                .map(
-                  p =>
-                    `"${p.nome}" (${format_iso_to_br(p.data_inicio)} até ${format_iso_to_br(to_inclusive_end_date(p.data_fim))})`,
-                )
-                .join(', ')}
-              . Ajuste as datas antes de salvar.
+              Uma ou mais datas selecionadas já pertencem a{' '}
+              {conflictingPeriods.map(p => `"${p.nome}"`).join(', ')}. Desmarque
+              as datas em conflito antes de salvar.
             </span>
           </div>
         </div>

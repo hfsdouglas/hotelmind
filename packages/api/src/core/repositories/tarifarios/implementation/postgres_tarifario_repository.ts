@@ -1,4 +1,8 @@
-import { Tarifario, normalize_valor_diaria } from '@/core/entities/tarifario'
+import {
+  Tarifario,
+  normalize_datas,
+  normalize_valor_diaria,
+} from '@/core/entities/tarifario'
 import { TarifarioPeriodConflictError } from '@/core/errors/tarifario_errors'
 import type {
   CreateTarifarioData,
@@ -15,10 +19,9 @@ interface TarifarioRow {
   hotel_id: string
   categoria_quarto_id: string
   nome: string
-  data_inicio: Date
-  data_fim: Date
   valor_diaria: { toFixed(digits: number): string } | number | string
   ativo: boolean
+  datas: Array<{ data: Date }>
   categoria_quarto: { id: string; nome: string; status: string }
   criado_em: Date
   atualizado_em: Date
@@ -47,8 +50,7 @@ function map_row(row: TarifarioRow): Tarifario {
     hotel_id: row.hotel_id,
     categoria_quarto_id: row.categoria_quarto_id,
     nome: row.nome,
-    data_inicio: to_date_only_string(row.data_inicio),
-    data_fim: to_date_only_string(row.data_fim),
+    datas: row.datas.map(d => to_date_only_string(d.data)),
     valor_diaria: format_decimal(row.valor_diaria),
     ativo: row.ativo,
     categoria_quarto: {
@@ -59,17 +61,6 @@ function map_row(row: TarifarioRow): Tarifario {
     criado_em: row.criado_em.toISOString(),
     atualizado_em: row.atualizado_em.toISOString(),
   })
-}
-
-function is_exclusion_conflict_error(error: unknown): boolean {
-  if (!error || typeof error !== 'object') return false
-  const message = 'message' in error ? String(error.message) : ''
-  const code = 'code' in error ? String(error.code) : ''
-  return (
-    code === '23P01' ||
-    message.includes('23P01') ||
-    message.includes('tarifarios_sem_sobreposicao_ativa_excl')
-  )
 }
 
 export class PostgresTarifarioRepository implements ITarifarioRepository {
@@ -100,8 +91,11 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
     const [rows, total] = await Promise.all([
       this.db.tarifario.findMany({
         where,
-        include: { categoria_quarto: true },
-        orderBy: [{ data_inicio: 'asc' }, { nome: 'asc' }],
+        include: {
+          categoria_quarto: true,
+          datas: { orderBy: { data: 'asc' } },
+        },
+        orderBy: [{ nome: 'asc' }, { criado_em: 'desc' }],
         skip: (pagina - 1) * limite,
         take: limite,
       }),
@@ -122,7 +116,10 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
   async find_by_id(id: string, hotel_id: string) {
     const row = await this.db.tarifario.findFirst({
       where: { id, hotel_id },
-      include: { categoria_quarto: true },
+      include: {
+        categoria_quarto: true,
+        datas: { orderBy: { data: 'asc' } },
+      },
     })
     return row ? map_row(row) : null
   }
@@ -133,39 +130,54 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
       categoria_quarto_id: input.categoria_quarto_id,
       ...(input.data_inicio && input.data_fim
         ? {
-            data_inicio: { lt: to_utc_date(input.data_fim) },
-            data_fim: { gt: to_utc_date(input.data_inicio) },
+            datas: {
+              some: {
+                data: {
+                  gte: to_utc_date(input.data_inicio),
+                  lte: to_utc_date(input.data_fim),
+                },
+              },
+            },
           }
         : {}),
     }
 
     const rows = await this.db.tarifario.findMany({
       where,
-      orderBy: [{ data_inicio: 'asc' }, { criado_em: 'asc' }],
+      include: { datas: { orderBy: { data: 'asc' } } },
+      orderBy: [{ nome: 'asc' }, { criado_em: 'asc' }],
     })
 
     return rows.map(row => ({
       id: row.id,
       categoria_quarto_id: row.categoria_quarto_id,
       nome: row.nome,
-      data_inicio: to_date_only_string(row.data_inicio),
-      data_fim: to_date_only_string(row.data_fim),
+      datas: row.datas.map(d => to_date_only_string(d.data)),
       valor_diaria: format_decimal(row.valor_diaria),
       ativo: row.ativo,
     }))
   }
 
   async find_overlapping_active(input: FindOverlappingActiveInput) {
+    const normalized_datas = normalize_datas(input.datas)
     const row = await this.db.tarifario.findFirst({
       where: {
         hotel_id: input.hotel_id,
         categoria_quarto_id: input.categoria_quarto_id,
         ativo: true,
         ...(input.exclude_id ? { id: { not: input.exclude_id } } : {}),
-        data_inicio: { lt: to_utc_date(input.data_fim) },
-        data_fim: { gt: to_utc_date(input.data_inicio) },
+        datas: {
+          some: {
+            data: {
+              in: normalized_datas.map(to_utc_date),
+            },
+          },
+        },
       },
-      include: { categoria_quarto: true },
+      include: {
+        categoria_quarto: true,
+        datas: { orderBy: { data: 'asc' } },
+      },
     })
     return row ? map_row(row) : null
   }
@@ -181,58 +193,87 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
         hotel_id: input.hotel_id,
         categoria_quarto_id: input.categoria_quarto_id,
         ativo: true,
-        data_inicio: { lt: to_utc_date(input.data_fim) },
-        data_fim: { gt: to_utc_date(input.data_inicio) },
+        datas: {
+          some: {
+            data: {
+              gte: to_utc_date(input.data_inicio),
+              lt: to_utc_date(input.data_fim),
+            },
+          },
+        },
       },
-      include: { categoria_quarto: true },
-      orderBy: [{ valor_diaria: 'asc' }, { data_inicio: 'asc' }],
+      include: {
+        categoria_quarto: true,
+        datas: { orderBy: { data: 'asc' } },
+      },
+      orderBy: [{ valor_diaria: 'asc' }, { nome: 'asc' }],
     })
     return rows.map(map_row)
   }
 
   async create(data: CreateTarifarioData) {
-    try {
-      const row = await this.db.tarifario.create({
-        data: {
-          hotel_id: data.hotel_id,
-          categoria_quarto_id: data.categoria_quarto_id,
-          nome: data.nome.trim(),
-          data_inicio: to_utc_date(data.data_inicio),
-          data_fim: to_utc_date(data.data_fim),
-          valor_diaria: normalize_valor_diaria(data.valor_diaria),
-          ativo: data.ativo,
-        },
-        include: { categoria_quarto: true },
+    const normalized_datas = normalize_datas(data.datas)
+    if (data.ativo) {
+      const conflict = await this.find_overlapping_active({
+        hotel_id: data.hotel_id,
+        categoria_quarto_id: data.categoria_quarto_id,
+        datas: normalized_datas,
       })
-      return map_row(row)
-    } catch (error) {
-      if (is_exclusion_conflict_error(error)) {
+      if (conflict) {
         throw new TarifarioPeriodConflictError()
       }
-      throw error
     }
+
+    const row = await this.db.tarifario.create({
+      data: {
+        hotel_id: data.hotel_id,
+        categoria_quarto_id: data.categoria_quarto_id,
+        nome: data.nome.trim(),
+        valor_diaria: normalize_valor_diaria(data.valor_diaria),
+        ativo: data.ativo,
+        datas: {
+          create: normalized_datas.map(iso => ({ data: to_utc_date(iso) })),
+        },
+      },
+      include: {
+        categoria_quarto: true,
+        datas: { orderBy: { data: 'asc' } },
+      },
+    })
+    return map_row(row)
   }
 
   async update(data: UpdateTarifarioData) {
-    try {
-      const row = await this.db.tarifario.update({
-        where: { id: data.id },
-        data: {
-          categoria_quarto_id: data.categoria_quarto_id,
-          nome: data.nome.trim(),
-          data_inicio: to_utc_date(data.data_inicio),
-          data_fim: to_utc_date(data.data_fim),
-          valor_diaria: normalize_valor_diaria(data.valor_diaria),
-          ativo: data.ativo,
-        },
-        include: { categoria_quarto: true },
+    const normalized_datas = normalize_datas(data.datas)
+    if (data.ativo) {
+      const conflict = await this.find_overlapping_active({
+        hotel_id: data.hotel_id,
+        categoria_quarto_id: data.categoria_quarto_id,
+        datas: normalized_datas,
+        exclude_id: data.id,
       })
-      return map_row(row)
-    } catch (error) {
-      if (is_exclusion_conflict_error(error)) {
+      if (conflict) {
         throw new TarifarioPeriodConflictError()
       }
-      throw error
     }
+
+    const row = await this.db.tarifario.update({
+      where: { id: data.id },
+      data: {
+        categoria_quarto_id: data.categoria_quarto_id,
+        nome: data.nome.trim(),
+        valor_diaria: normalize_valor_diaria(data.valor_diaria),
+        ativo: data.ativo,
+        datas: {
+          deleteMany: {},
+          create: normalized_datas.map(iso => ({ data: to_utc_date(iso) })),
+        },
+      },
+      include: {
+        categoria_quarto: true,
+        datas: { orderBy: { data: 'asc' } },
+      },
+    })
+    return map_row(row)
   }
 }

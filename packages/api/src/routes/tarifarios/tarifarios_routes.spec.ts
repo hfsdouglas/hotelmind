@@ -98,7 +98,6 @@ describe('tarifarios_routes', () => {
   })
 
   it('creates, lists, queries calendar, edits, deactivates, and reactivates rate plans with 409 conflict enforcement', async () => {
-    // 1. Create March rate plan
     const create_res = await app.inject({
       method: 'POST',
       url: '/tarifarios',
@@ -106,8 +105,7 @@ describe('tarifarios_routes', () => {
       payload: {
         categoria_quarto_id: cat_a_id,
         nome: 'Baixa temporada',
-        data_inicio: '2027-03-01',
-        data_fim: '2027-04-01',
+        datas: ['2027-03-01', '2027-03-05'],
         valor_diaria: '200.00',
         ativo: true,
       },
@@ -116,8 +114,9 @@ describe('tarifarios_routes', () => {
     const created = create_res.json()
     expect(created.hotel_id).toBe(HOTEL_A)
     expect(created.valor_diaria).toBe('200.00')
+    expect(created.datas).toEqual(['2027-03-01', '2027-03-05'])
 
-    // 2. Overlapping creation returns 409
+    // 2. Overlapping date creation returns 409
     const conflict_res = await app.inject({
       method: 'POST',
       url: '/tarifarios',
@@ -125,29 +124,27 @@ describe('tarifarios_routes', () => {
       payload: {
         categoria_quarto_id: cat_a_id,
         nome: 'Sobreposição',
-        data_inicio: '2027-03-15',
-        data_fim: '2027-04-15',
+        datas: ['2027-03-05', '2027-03-10'],
         valor_diaria: '220.00',
       },
     })
     expect(conflict_res.statusCode).toBe(409)
 
-    // 3. Consecutive creation returns 201
-    const consecutive_res = await app.inject({
+    // 3. Non-overlapping dates creation returns 201
+    const non_overlapping_res = await app.inject({
       method: 'POST',
       url: '/tarifarios',
       cookies: { token: token_hotel_a },
       payload: {
         categoria_quarto_id: cat_a_id,
-        nome: 'Abril Consecutivo',
-        data_inicio: '2027-04-01',
-        data_fim: '2027-05-01',
+        nome: 'Outros dias de Março',
+        datas: ['2027-03-02', '2027-03-06'],
         valor_diaria: '250.00',
       },
     })
-    expect(consecutive_res.statusCode).toBe(201)
+    expect(non_overlapping_res.statusCode).toBe(201)
 
-    // 4. Calendar query returns both periods
+    // 4. Calendar query returns both rate plans
     const cal_res = await app.inject({
       method: 'GET',
       url: `/tarifarios/calendario?categoria_quarto_id=${cat_a_id}`,
@@ -156,7 +153,7 @@ describe('tarifarios_routes', () => {
     expect(cal_res.statusCode).toBe(200)
     expect(cal_res.json().data).toHaveLength(2)
 
-    // 5. Edit March rate plan without self-conflict
+    // 5. Edit rate plan without self-conflict
     const patch_res = await app.inject({
       method: 'PATCH',
       url: `/tarifarios/${created.id}`,
@@ -195,8 +192,7 @@ describe('tarifarios_routes', () => {
       payload: {
         categoria_quarto_id: cat_a_id,
         nome: 'Tarifa Hotel A',
-        data_inicio: '2027-03-01',
-        data_fim: '2027-04-01',
+        datas: ['2027-03-01'],
         valor_diaria: '200.00',
       },
     })
@@ -231,8 +227,7 @@ describe('tarifarios_routes', () => {
       payload: {
         categoria_quarto_id: cat_a_id,
         nome: 'Categoria de outro hotel',
-        data_inicio: '2027-03-01',
-        data_fim: '2027-04-01',
+        datas: ['2027-03-01'],
         valor_diaria: '200.00',
       },
     })

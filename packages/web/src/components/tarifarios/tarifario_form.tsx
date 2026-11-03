@@ -3,7 +3,6 @@ import type {
   PeriodoTarifarioCalendario,
 } from '@hotelmind/contracts'
 import { type FormEvent, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { CrudFormLayout } from '@/components/forms/CrudFormLayout'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -21,7 +20,7 @@ import {
   find_conflicting_periods,
   normalize_currency_string,
   tarifario_form_schema,
-  to_exclusive_end_date,
+  toggle_date_selection,
 } from '@/schemas/tarifario.schema'
 import { TarifarioCalendar } from './tarifario_calendar'
 import { TarifarioPeriodSummary } from './tarifario_period_summary'
@@ -29,8 +28,7 @@ import { TarifarioPeriodSummary } from './tarifario_period_summary'
 export interface TarifarioSubmitPayload {
   categoria_quarto_id: string
   nome: string
-  data_inicio: string
-  data_fim: string
+  datas: string[]
   valor_diaria: string
   ativo: boolean
 }
@@ -74,12 +72,7 @@ export function TarifarioForm({
   const [categoria_quarto_id, setCategoriaQuartoId] = useState(
     initialValues?.categoria_quarto_id ?? '',
   )
-  const [data_inicio, setDataInicio] = useState(
-    initialValues?.data_inicio ?? '',
-  )
-  const [data_fim_efetiva, setDataFimEfetiva] = useState(
-    initialValues?.data_fim_efetiva ?? '',
-  )
+  const [datas, setDatas] = useState<string[]>(initialValues?.datas ?? [])
   const [valor_diaria, setValorDiaria] = useState(
     initialValues?.valor_diaria ?? '',
   )
@@ -92,11 +85,8 @@ export function TarifarioForm({
     if (initialValues.categoria_quarto_id !== undefined) {
       setCategoriaQuartoId(initialValues.categoria_quarto_id)
     }
-    if (initialValues.data_inicio !== undefined) {
-      setDataInicio(initialValues.data_inicio)
-    }
-    if (initialValues.data_fim_efetiva !== undefined) {
-      setDataFimEfetiva(initialValues.data_fim_efetiva)
+    if (initialValues.datas !== undefined) {
+      setDatas(initialValues.datas)
     }
     if (initialValues.valor_diaria !== undefined) {
       setValorDiaria(initialValues.valor_diaria)
@@ -107,13 +97,8 @@ export function TarifarioForm({
   }, [initialValues])
 
   const conflicting_periods =
-    ativo && data_inicio && data_fim_efetiva
-      ? find_conflicting_periods(
-          data_inicio,
-          data_fim_efetiva,
-          occupiedPeriods,
-          excludeTarifarioId,
-        )
+    ativo && datas.length > 0
+      ? find_conflicting_periods(datas, occupiedPeriods, excludeTarifarioId)
       : []
 
   function handle_category_change(next_category_id: string) {
@@ -121,9 +106,18 @@ export function TarifarioForm({
     onCategoryChange?.(next_category_id)
   }
 
-  function handle_calendar_range(start_iso: string, end_iso: string) {
-    setDataInicio(start_iso)
-    setDataFimEfetiva(end_iso)
+  function handle_toggle_date(iso_date: string) {
+    setDatas(prev => toggle_date_selection(prev, iso_date))
+    if (errors.length > 0) setErrors([])
+  }
+
+  function handle_replace_dates(next_dates: string[]) {
+    setDatas(next_dates)
+    if (errors.length > 0) setErrors([])
+  }
+
+  function handle_clear_dates() {
+    setDatas([])
     if (errors.length > 0) setErrors([])
   }
 
@@ -134,8 +128,7 @@ export function TarifarioForm({
     const parsed = tarifario_form_schema.safeParse({
       nome,
       categoria_quarto_id,
-      data_inicio,
-      data_fim_efetiva,
+      datas,
       valor_diaria,
       ativo,
     })
@@ -150,7 +143,7 @@ export function TarifarioForm({
 
     if (ativo && conflicting_periods.length > 0) {
       validation_errors.push(
-        'O período selecionado possui conflito com outro tarifário ativo para esta categoria.',
+        'Uma ou mais datas selecionadas possuem conflito com outro tarifário ativo para esta categoria.',
       )
     }
 
@@ -160,32 +153,19 @@ export function TarifarioForm({
     onSubmitPayload({
       categoria_quarto_id: parsed.data.categoria_quarto_id,
       nome: parsed.data.nome,
-      data_inicio: parsed.data.data_inicio,
-      data_fim: to_exclusive_end_date(parsed.data.data_fim_efetiva),
+      datas: parsed.data.datas,
       valor_diaria: normalize_currency_string(parsed.data.valor_diaria),
       ativo: parsed.data.ativo,
     })
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <nav
-        aria-label="Breadcrumb"
-        className="mx-auto flex w-full items-center gap-2 text-xs text-muted-foreground sm:max-w-[540px] md:max-w-[720px] lg:max-w-[960px] xl:max-w-[1140px] 2xl:max-w-[1320px]"
-      >
-        <Link to="/tarifarios" className="hover:underline">
-          Tarifários
-        </Link>
-        <span>/</span>
-        <span className="font-medium text-foreground">{title}</span>
-      </nav>
-
-      <CrudFormLayout
-        title={title}
-        backTo={backTo}
-        cardTitle="Dados do tarifário e período de vigência"
-        onSubmit={handle_submit}
-        actions={
+    <CrudFormLayout
+      title={title}
+      backTo={backTo}
+      cardTitle="Dados do tarifário e seleção de datas"
+      onSubmit={handle_submit}
+      actions={
           <>
             {mode === 'edit' && onDeactivateClick && ativo && (
               <Button
@@ -259,31 +239,10 @@ export function TarifarioForm({
                 </SelectContent>
               </Select>
             </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="data_inicio">Data de início *</Label>
-              <Input
-                id="data_inicio"
-                type="date"
-                value={data_inicio}
-                onChange={e => setDataInicio(e.target.value)}
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="data_fim_efetiva">Data de término *</Label>
-              <Input
-                id="data_fim_efetiva"
-                type="date"
-                value={data_fim_efetiva}
-                onChange={e => setDataFimEfetiva(e.target.value)}
-              />
-            </div>
           </div>
 
           <TarifarioPeriodSummary
-            startDate={data_inicio}
-            endDate={data_fim_efetiva}
+            selectedDates={datas}
             valorDiaria={valor_diaria}
             conflictingPeriods={conflicting_periods}
           />
@@ -291,22 +250,23 @@ export function TarifarioForm({
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <Label className="text-base font-semibold">
-                Calendário de períodos
+                Calendário de datas *
               </Label>
               {isLoadingPeriods && (
                 <span className="text-xs text-muted-foreground">
-                  Carregando períodos existentes...
+                  Carregando datas ocupadas...
                 </span>
               )}
             </div>
 
             <TarifarioCalendar
-              startDate={data_inicio}
-              endDate={data_fim_efetiva}
+              selectedDates={datas}
               occupiedPeriods={occupiedPeriods}
               excludeTarifarioId={excludeTarifarioId}
               initialMonth={initialCalendarMonth}
-              onSelectRange={handle_calendar_range}
+              onToggleDate={handle_toggle_date}
+              onReplaceSelection={handle_replace_dates}
+              onClearSelection={handle_clear_dates}
             />
           </div>
 
@@ -337,6 +297,5 @@ export function TarifarioForm({
           </div>
         </div>
       </CrudFormLayout>
-    </div>
   )
 }

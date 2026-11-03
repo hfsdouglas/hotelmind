@@ -23,7 +23,6 @@ import {
   useTarifariosCalendario,
   useUpdateTarifarioMutation,
 } from '@/hooks/use_tarifarios'
-import { to_inclusive_end_date } from '@/schemas/tarifario.schema'
 
 export function EditarTarifarioPage() {
   const { id = '' } = useParams()
@@ -75,7 +74,7 @@ export function EditarTarifarioPage() {
         if (status === 409) {
           toast.error(
             api_msg ??
-              'Conflito de período: já existe um tarifário ativo neste intervalo.',
+              'Conflito de data: uma ou mais datas já pertencem a outro tarifário ativo.',
           )
         } else if (status === 404) {
           toast.error(api_msg ?? 'Tarifário não encontrado.')
@@ -148,8 +147,7 @@ export function EditarTarifarioPage() {
         initialValues={{
           nome: tarifario.nome,
           categoria_quarto_id: tarifario.categoria_quarto_id,
-          data_inicio: tarifario.data_inicio,
-          data_fim_efetiva: to_inclusive_end_date(tarifario.data_fim),
+          datas: tarifario.datas,
           valor_diaria: tarifario.valor_diaria,
           ativo: tarifario.ativo,
         }}

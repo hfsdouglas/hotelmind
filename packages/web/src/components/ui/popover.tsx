@@ -23,8 +23,15 @@ const Popover = ({ open: controlled_open, onOpenChange, children }: { open?: boo
 
     const handle_pointer_down = (event: PointerEvent) => {
       const target = event.target as Element | null
-      const is_radix_portal = target?.closest('[data-radix-popper-content-wrapper], [data-radix-select-content]')
-      if (!container_ref.current?.contains(event.target as Node) && !is_radix_portal) setOpen(false)
+      const is_radix_portal = target?.closest(
+        '[data-radix-popper-content-wrapper], [data-radix-select-content], [role="listbox"], [role="option"]',
+      )
+      if (
+        !container_ref.current?.contains(event.target as Node) &&
+        !is_radix_portal
+      ) {
+        setOpen(false)
+      }
     }
     const handle_key_down = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setOpen(false)

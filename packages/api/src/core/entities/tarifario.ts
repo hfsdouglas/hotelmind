@@ -17,6 +17,23 @@ export function is_valid_iso_date(value: string): boolean {
   )
 }
 
+export function normalize_datas(datas: string[]): string[] {
+  if (!Array.isArray(datas) || datas.length === 0) {
+    throw new TarifarioValidationError(
+      'Selecione ao menos uma data no calendário.',
+    )
+  }
+  const unique_dates = new Set<string>()
+  for (const raw_date of datas) {
+    const trimmed = raw_date.trim()
+    if (!is_valid_iso_date(trimmed)) {
+      throw new TarifarioValidationError(`A data "${raw_date}" é inválida.`)
+    }
+    unique_dates.add(trimmed)
+  }
+  return Array.from(unique_dates).sort()
+}
+
 export function normalize_valor_diaria(value: string | number): string {
   const raw = typeof value === 'number' ? value.toFixed(2) : value.trim()
   if (!DECIMAL_VALUE_REGEX.test(raw)) {
@@ -48,8 +65,7 @@ export interface TarifarioProps {
   hotel_id: string
   categoria_quarto_id: string
   nome: string
-  data_inicio: string
-  data_fim: string
+  datas: string[]
   valor_diaria: string
   ativo: boolean
   categoria_quarto: { id: string; nome: string; status: 'S' | 'N' }
@@ -62,8 +78,7 @@ export class Tarifario {
   readonly hotel_id: string
   readonly categoria_quarto_id: string
   readonly nome: string
-  readonly data_inicio: string
-  readonly data_fim: string
+  readonly datas: string[]
   readonly valor_diaria: string
   readonly ativo: boolean
   readonly categoria_quarto: TarifarioProps['categoria_quarto']
@@ -80,25 +95,14 @@ export class Tarifario {
         'O nome do tarifário deve ter no máximo 100 caracteres.',
       )
     }
-    if (!is_valid_iso_date(props.data_inicio)) {
-      throw new TarifarioValidationError('A data de início é inválida.')
-    }
-    if (!is_valid_iso_date(props.data_fim)) {
-      throw new TarifarioValidationError('A data de término é inválida.')
-    }
-    if (props.data_inicio >= props.data_fim) {
-      throw new TarifarioValidationError(
-        'A data de início deve ser anterior à data de término.',
-      )
-    }
+    const normalized_datas = normalize_datas(props.datas)
     const normalized_valor = normalize_valor_diaria(props.valor_diaria)
 
     this.id = props.id
     this.hotel_id = props.hotel_id
     this.categoria_quarto_id = props.categoria_quarto_id
     this.nome = trimmed_nome
-    this.data_inicio = props.data_inicio
-    this.data_fim = props.data_fim
+    this.datas = normalized_datas
     this.valor_diaria = normalized_valor
     this.ativo = props.ativo
     this.categoria_quarto = props.categoria_quarto

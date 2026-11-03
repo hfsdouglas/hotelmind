@@ -200,16 +200,26 @@ model Tarifario {
   categoria_quarto_id String
   categoria_quarto    CategoriaQuarto @relation(fields: [categoria_quarto_id], references: [id], onDelete: Restrict)
   nome                String          @db.VarChar(100)
-  data_inicio         DateTime        @db.Date
-  data_fim            DateTime        @db.Date
   valor_diaria        Decimal         @db.Decimal(12, 2)
   ativo               Boolean         @default(true)
+  datas               TarifarioData[]
   criado_em           DateTime        @default(now())
   atualizado_em       DateTime        @updatedAt
 
   @@index([hotel_id])
   @@index([categoria_quarto_id])
   @@index([hotel_id, categoria_quarto_id, ativo])
-  @@index([hotel_id, categoria_quarto_id, data_inicio, data_fim])
   @@map("tarifarios")
+}
+
+model TarifarioData {
+  id           String    @id @default(uuid())
+  tarifario_id String
+  tarifario    Tarifario @relation(fields: [tarifario_id], references: [id], onDelete: Cascade)
+  data         DateTime  @db.Date
+
+  @@unique([tarifario_id, data])
+  @@index([tarifario_id])
+  @@index([data])
+  @@map("tarifarios_datas")
 }

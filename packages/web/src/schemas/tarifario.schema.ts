@@ -4,6 +4,21 @@ import { z } from 'zod'
 const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/
 const DECIMAL_VALUE_REGEX = /^\d+(?:\.\d{1,2})?$/
 
+export type CalendarMonthsViewCount = 1 | 3 | 6 | 12
+export type CalendarBulkSelectMode = 'all' | 'weekdays' | 'weekends'
+
+export interface CalendarMonthCell {
+  iso_date: string
+  day_number: number
+  is_current_month: boolean
+}
+
+export interface VisibleCalendarMonth {
+  year: number
+  month_zero_based: number
+  cells: CalendarMonthCell[]
+}
+
 export function is_valid_date_string(value: string): boolean {
   if (!ISO_DATE_REGEX.test(value)) return false
   const [y, m, d] = value.split('-').map(Number)
@@ -13,30 +28,6 @@ export function is_valid_date_string(value: string): boolean {
     date.getUTCMonth() === m - 1 &&
     date.getUTCDate() === d
   )
-}
-
-export function add_days_iso(iso_date: string, days: number): string {
-  const [y, m, d] = iso_date.split('-').map(Number)
-  const date = new Date(Date.UTC(y, m - 1, d + days))
-  return date.toISOString().slice(0, 10)
-}
-
-/**
- * Converts UI inclusive effective end date (e.g. 2027-03-31)
- * to API/DB exclusive end date (e.g. 2027-04-01) for [data_inicio, data_fim).
- */
-export function to_exclusive_end_date(inclusive_end_date: string): string {
-  if (!is_valid_date_string(inclusive_end_date)) return inclusive_end_date
-  return add_days_iso(inclusive_end_date, 1)
-}
-
-/**
- * Converts API/DB exclusive end date (e.g. 2027-04-01)
- * to UI inclusive effective end date (e.g. 2027-03-31).
- */
-export function to_inclusive_end_date(exclusive_end_date: string): string {
-  if (!is_valid_date_string(exclusive_end_date)) return exclusive_end_date
-  return add_days_iso(exclusive_end_date, -1)
 }
 
 export function normalize_currency_string(value: string): string {
@@ -52,66 +43,52 @@ export function format_iso_to_br(iso_date: string): string {
   return `${d}/${m}/${y}`
 }
 
-export function count_effective_nights(
-  start_inclusive: string,
-  end_inclusive: string,
-): number {
-  if (
-    !is_valid_date_string(start_inclusive) ||
-    !is_valid_date_string(end_inclusive) ||
-    end_inclusive < start_inclusive
-  ) {
-    return 0
+export function get_local_today_iso(now: Date = new Date()): string {
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+export function format_dates_summary(
+  datas: string[],
+  max_visible = 3,
+): string {
+  if (!datas || datas.length === 0) return 'Nenhuma data'
+  const sorted = [...datas].sort()
+  const visible = sorted.slice(0, max_visible).map(format_iso_to_br).join(', ')
+  const remaining = sorted.length - max_visible
+  if (remaining > 0) {
+    return `${visible} (+${remaining})`
   }
-  const [sy, sm, sd] = start_inclusive.split('-').map(Number)
-  const [ey, em, ed] = end_inclusive.split('-').map(Number)
-  const start_ms = Date.UTC(sy, sm - 1, sd)
-  const end_ms = Date.UTC(ey, em - 1, ed)
-  return Math.round((end_ms - start_ms) / 86_400_000) + 1
+  return visible
 }
 
-export function is_day_in_inclusive_range(
-  day_iso: string,
-  start_inclusive: string,
-  end_inclusive: string,
-): boolean {
-  if (!start_inclusive || !end_inclusive) return false
-  return day_iso >= start_inclusive && day_iso <= end_inclusive
-}
-
-export function is_day_in_half_open_period(
-  day_iso: string,
-  data_inicio: string,
-  data_fim_exclusiva: string,
-): boolean {
-  return day_iso >= data_inicio && day_iso < data_fim_exclusiva
+export function toggle_date_selection(
+  selected_dates: string[],
+  iso_date: string,
+): string[] {
+  const set = new Set(selected_dates)
+  if (set.has(iso_date)) {
+    set.delete(iso_date)
+  } else {
+    set.add(iso_date)
+  }
+  return Array.from(set).sort()
 }
 
 export function find_conflicting_periods(
-  start_inclusive: string,
-  end_inclusive: string,
+  selected_dates: string[],
   periods: PeriodoTarifarioCalendario[],
   exclude_id?: string,
 ): PeriodoTarifarioCalendario[] {
-  if (
-    !is_valid_date_string(start_inclusive) ||
-    !is_valid_date_string(end_inclusive) ||
-    end_inclusive < start_inclusive
-  ) {
-    return []
-  }
-  const exclusive_end = to_exclusive_end_date(end_inclusive)
+  if (!selected_dates.length) return []
+  const selected_set = new Set(selected_dates)
   return periods.filter(period => {
     if (!period.ativo) return false
     if (exclude_id && period.id === exclude_id) return false
-    return start_inclusive < period.data_fim && exclusive_end > period.data_inicio
+    return period.datas.some(d => selected_set.has(d))
   })
-}
-
-export interface CalendarMonthCell {
-  iso_date: string
-  day_number: number
-  is_current_month: boolean
 }
 
 export function get_calendar_month_grid(
@@ -159,38 +136,97 @@ export function get_calendar_month_grid(
   return cells
 }
 
-export const tarifario_form_schema = z
-  .object({
-    nome: z
-      .string()
-      .trim()
-      .min(1, 'Informe o nome do tarifário.')
-      .max(100, 'O nome deve ter no máximo 100 caracteres.'),
-    categoria_quarto_id: z
-      .string()
-      .trim()
-      .min(1, 'Selecione uma categoria de quarto.'),
-    data_inicio: z
-      .string()
-      .trim()
-      .refine(is_valid_date_string, 'Informe uma data de início válida.'),
-    data_fim_efetiva: z
-      .string()
-      .trim()
-      .refine(is_valid_date_string, 'Informe uma data de término válida.'),
-    valor_diaria: z
-      .string()
-      .trim()
-      .transform(val => val.replace(',', '.'))
-      .refine(
-        val => DECIMAL_VALUE_REGEX.test(val) && Number(val) >= 0,
-        'Informe um valor de diária válido maior ou igual a zero com até duas casas decimais.',
-      ),
-    ativo: z.boolean(),
-  })
-  .refine(data => data.data_inicio <= data.data_fim_efetiva, {
-    message: 'A data de início não pode ser posterior à data de término.',
-    path: ['data_fim_efetiva'],
-  })
+export function get_visible_calendar_months(
+  start_year: number,
+  start_month_zero_based: number,
+  count: CalendarMonthsViewCount,
+): VisibleCalendarMonth[] {
+  const months: VisibleCalendarMonth[] = []
+  for (let offset = 0; offset < count; offset++) {
+    const normalized = new Date(
+      Date.UTC(start_year, start_month_zero_based + offset, 1),
+    )
+    const year = normalized.getUTCFullYear()
+    const month_zero_based = normalized.getUTCMonth()
+    months.push({
+      year,
+      month_zero_based,
+      cells: get_calendar_month_grid(year, month_zero_based),
+    })
+  }
+  return months
+}
+
+export function compute_bulk_selection_dates(input: {
+  visible_months: Array<{ year: number; month_zero_based: number }>
+  mode: CalendarBulkSelectMode
+  occupied_periods: PeriodoTarifarioCalendario[]
+  exclude_tarifario_id?: string
+}): string[] {
+  const active_occupied_dates = new Set<string>()
+  for (const period of input.occupied_periods) {
+    if (!period.ativo) continue
+    if (input.exclude_tarifario_id && period.id === input.exclude_tarifario_id) {
+      continue
+    }
+    for (const iso_date of period.datas) {
+      active_occupied_dates.add(iso_date)
+    }
+  }
+
+  const selected = new Set<string>()
+  for (const { year, month_zero_based } of input.visible_months) {
+    const days_in_month = new Date(
+      Date.UTC(year, month_zero_based + 1, 0),
+    ).getUTCDate()
+
+    for (let day = 1; day <= days_in_month; day++) {
+      const date = new Date(Date.UTC(year, month_zero_based, day))
+      const iso_date = date.toISOString().slice(0, 10)
+      if (active_occupied_dates.has(iso_date)) continue
+
+      const weekday = date.getUTCDay() // 0 = Sun, 1..4 = Mon..Thu, 5 = Fri, 6 = Sat
+      const is_hotel_weekend = weekday === 5 || weekday === 6
+      if (input.mode === 'weekdays' && is_hotel_weekend) {
+        continue
+      }
+      if (input.mode === 'weekends' && !is_hotel_weekend) {
+        continue
+      }
+      selected.add(iso_date)
+    }
+  }
+
+  return Array.from(selected).sort()
+}
+
+export const tarifario_form_schema = z.object({
+  nome: z
+    .string()
+    .trim()
+    .min(1, 'Informe o nome do tarifário.')
+    .max(100, 'O nome deve ter no máximo 100 caracteres.'),
+  categoria_quarto_id: z
+    .string()
+    .trim()
+    .min(1, 'Selecione uma categoria de quarto.'),
+  datas: z
+    .array(
+      z
+        .string()
+        .trim()
+        .refine(is_valid_date_string, 'Data inválida.'),
+    )
+    .min(1, 'Selecione ao menos uma data no calendário.'),
+  valor_diaria: z
+    .string()
+    .trim()
+    .transform(val => val.replace(',', '.'))
+    .refine(
+      val => DECIMAL_VALUE_REGEX.test(val) && Number(val) >= 0,
+      'Informe um valor de diária válido maior ou igual a zero com até duas casas decimais.',
+    ),
+  ativo: z.boolean(),
+})
 
 export type TarifarioFormValues = z.infer<typeof tarifario_form_schema>

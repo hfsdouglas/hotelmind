@@ -7,31 +7,28 @@ import {
 } from './tarifarios_schema'
 
 describe('tarifarios_schema', () => {
-  it('validates create_tarifario_body_schema with trimmed name, valid dates and decimal normalization', () => {
+  it('validates create_tarifario_body_schema with trimmed name, deduplicated sorted dates and decimal normalization', () => {
     const parsed = create_tarifario_body_schema.parse({
       categoria_quarto_id: 'cat-1',
       nome: '  Baixa temporada  ',
-      data_inicio: '2027-03-01',
-      data_fim: '2027-04-01',
+      datas: ['2027-03-05', '2027-03-01', '2027-03-05'],
       valor_diaria: '200.5',
     })
     expect(parsed).toEqual({
       categoria_quarto_id: 'cat-1',
       nome: 'Baixa temporada',
-      data_inicio: '2027-03-01',
-      data_fim: '2027-04-01',
+      datas: ['2027-03-01', '2027-03-05'],
       valor_diaria: '200.50',
       ativo: true,
     })
   })
 
-  it('rejects empty name, invalid date range, and negative or 3-decimal rate values', () => {
+  it('rejects empty name, empty datas array, and negative or 3-decimal rate values', () => {
     expect(
       create_tarifario_body_schema.safeParse({
         categoria_quarto_id: 'cat-1',
         nome: '   ',
-        data_inicio: '2027-03-01',
-        data_fim: '2027-04-01',
+        datas: ['2027-03-01'],
         valor_diaria: '200.00',
       }).success,
     ).toBe(false)
@@ -40,8 +37,7 @@ describe('tarifarios_schema', () => {
       create_tarifario_body_schema.safeParse({
         categoria_quarto_id: 'cat-1',
         nome: 'Tarifa',
-        data_inicio: '2027-04-01',
-        data_fim: '2027-04-01',
+        datas: [],
         valor_diaria: '200.00',
       }).success,
     ).toBe(false)
@@ -50,8 +46,7 @@ describe('tarifarios_schema', () => {
       create_tarifario_body_schema.safeParse({
         categoria_quarto_id: 'cat-1',
         nome: 'Tarifa',
-        data_inicio: '2027-03-01',
-        data_fim: '2027-04-01',
+        datas: ['2027-03-01'],
         valor_diaria: '-5.00',
       }).success,
     ).toBe(false)
@@ -60,8 +55,7 @@ describe('tarifarios_schema', () => {
       create_tarifario_body_schema.safeParse({
         categoria_quarto_id: 'cat-1',
         nome: 'Tarifa',
-        data_inicio: '2027-03-01',
-        data_fim: '2027-04-01',
+        datas: ['2027-03-01'],
         valor_diaria: '200.999',
       }).success,
     ).toBe(false)
@@ -91,8 +85,7 @@ describe('tarifarios_schema', () => {
 
     expect(
       update_tarifario_body_schema.safeParse({
-        data_inicio: '2027-05-01',
-        data_fim: '2027-04-01',
+        datas: [],
       }).success,
     ).toBe(false)
   })

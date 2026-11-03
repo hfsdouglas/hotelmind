@@ -14,8 +14,7 @@ export interface CreateTarifarioData {
   hotel_id: string
   categoria_quarto_id: string
   nome: string
-  data_inicio: string
-  data_fim: string
+  datas: string[]
   valor_diaria: string
   ativo: boolean
 }
@@ -25,8 +24,7 @@ export interface UpdateTarifarioData {
   hotel_id: string
   categoria_quarto_id: string
   nome: string
-  data_inicio: string
-  data_fim: string
+  datas: string[]
   valor_diaria: string
   ativo: boolean
 }
@@ -41,8 +39,7 @@ export interface FindCalendarioPeriodsInput {
 export interface FindOverlappingActiveInput {
   hotel_id: string
   categoria_quarto_id: string
-  data_inicio: string
-  data_fim: string
+  datas: string[]
   exclude_id?: string
 }
 

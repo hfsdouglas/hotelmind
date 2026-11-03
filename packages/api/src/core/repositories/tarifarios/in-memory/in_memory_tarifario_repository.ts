@@ -1,5 +1,5 @@
 import type { PeriodoTarifarioCalendario } from '@hotelmind/contracts'
-import { Tarifario } from '@/core/entities/tarifario'
+import { Tarifario, normalize_datas } from '@/core/entities/tarifario'
 import { TarifarioPeriodConflictError } from '@/core/errors/tarifario_errors'
 import type { PaginatedResult } from '@/core/repositories/pagination'
 import type {
@@ -45,7 +45,7 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
         }
         return true
       })
-      .sort((a, b) => a.data_inicio.localeCompare(b.data_inicio))
+      .sort((a, b) => (a.datas[0] ?? '').localeCompare(b.datas[0] ?? ''))
 
     const start = (input.pagina - 1) * input.limite
     return {
@@ -74,20 +74,18 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
         if (item.hotel_id !== input.hotel_id) return false
         if (item.categoria_quarto_id !== input.categoria_quarto_id) return false
         if (input.data_inicio && input.data_fim) {
-          return (
-            item.data_inicio < input.data_fim &&
-            item.data_fim > input.data_inicio
-          )
+          const start = input.data_inicio
+          const end = input.data_fim
+          return item.datas.some(d => d >= start && d <= end)
         }
         return true
       })
-      .sort((a, b) => a.data_inicio.localeCompare(b.data_inicio))
+      .sort((a, b) => (a.datas[0] ?? '').localeCompare(b.datas[0] ?? ''))
       .map(item => ({
         id: item.id,
         categoria_quarto_id: item.categoria_quarto_id,
         nome: item.nome,
-        data_inicio: item.data_inicio,
-        data_fim: item.data_fim,
+        datas: item.datas,
         valor_diaria: item.valor_diaria,
         ativo: item.ativo,
       }))
@@ -96,6 +94,7 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
   private find_overlapping_active_sync(
     input: FindOverlappingActiveInput,
   ): Tarifario | null {
+    const requested = new Set(normalize_datas(input.datas))
     return (
       this.items.find(
         item =>
@@ -103,8 +102,7 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
           item.categoria_quarto_id === input.categoria_quarto_id &&
           item.ativo &&
           (!input.exclude_id || item.id !== input.exclude_id) &&
-          item.data_inicio < input.data_fim &&
-          item.data_fim > input.data_inicio,
+          item.datas.some(d => requested.has(d)),
       ) ?? null
     )
   }
@@ -126,8 +124,7 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
         item.hotel_id === input.hotel_id &&
         item.categoria_quarto_id === input.categoria_quarto_id &&
         item.ativo &&
-        item.data_inicio < input.data_fim &&
-        item.data_fim > input.data_inicio,
+        item.datas.some(d => d >= input.data_inicio && d < input.data_fim),
     )
   }
 
@@ -136,8 +133,7 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
       const conflict = this.find_overlapping_active_sync({
         hotel_id: data.hotel_id,
         categoria_quarto_id: data.categoria_quarto_id,
-        data_inicio: data.data_inicio,
-        data_fim: data.data_fim,
+        datas: data.datas,
       })
       if (conflict) {
         throw new TarifarioPeriodConflictError()
@@ -154,8 +150,7 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
       hotel_id: data.hotel_id,
       categoria_quarto_id: data.categoria_quarto_id,
       nome: data.nome,
-      data_inicio: data.data_inicio,
-      data_fim: data.data_fim,
+      datas: data.datas,
       valor_diaria: data.valor_diaria,
       ativo: data.ativo,
       categoria_quarto: {
@@ -182,8 +177,7 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
       const conflict = this.find_overlapping_active_sync({
         hotel_id: data.hotel_id,
         categoria_quarto_id: data.categoria_quarto_id,
-        data_inicio: data.data_inicio,
-        data_fim: data.data_fim,
+        datas: data.datas,
         exclude_id: data.id,
       })
       if (conflict) {
@@ -201,8 +195,7 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
       hotel_id: current.hotel_id,
       categoria_quarto_id: data.categoria_quarto_id,
       nome: data.nome,
-      data_inicio: data.data_inicio,
-      data_fim: data.data_fim,
+      datas: data.datas,
       valor_diaria: data.valor_diaria,
       ativo: data.ativo,
       categoria_quarto: {

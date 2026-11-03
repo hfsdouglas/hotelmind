@@ -11,8 +11,7 @@ function make_tarifario(overrides: Partial<{
   hotel_id: string
   categoria_quarto_id: string
   nome: string
-  data_inicio: string
-  data_fim: string
+  datas: string[]
   valor_diaria: string
   ativo: boolean
 }>) {
@@ -21,8 +20,7 @@ function make_tarifario(overrides: Partial<{
     hotel_id: overrides.hotel_id ?? 'hotel-1',
     categoria_quarto_id: overrides.categoria_quarto_id ?? 'cat-1',
     nome: overrides.nome ?? 'Tarifa Padrão',
-    data_inicio: overrides.data_inicio ?? '2027-03-01',
-    data_fim: overrides.data_fim ?? '2027-04-01',
+    datas: overrides.datas ?? ['2027-03-01'],
     valor_diaria: overrides.valor_diaria ?? '200.00',
     ativo: overrides.ativo ?? true,
     categoria_quarto: { id: 'cat-1', nome: 'Suítes Luxo', status: 'S' },
@@ -38,22 +36,19 @@ describe('TarifarioPricingService & CalcularTarifaReservaUseCase (CA10 & RN06)',
     const t_base = make_tarifario({
       id: 't-base',
       nome: 'Tarifa Base',
-      data_inicio: '2027-03-01',
-      data_fim: '2027-04-01',
+      datas: ['2027-03-09', '2027-03-10', '2027-03-11', '2027-03-12'],
       valor_diaria: '250.00',
     })
     const t_promo = make_tarifario({
       id: 't-promo',
       nome: 'Promoção Fim de Semana',
-      data_inicio: '2027-03-10',
-      data_fim: '2027-03-12',
+      datas: ['2027-03-10', '2027-03-11'],
       valor_diaria: '180.50',
     })
     const t_inativo = make_tarifario({
       id: 't-inativo',
       nome: 'Inativo Mais Barato',
-      data_inicio: '2027-03-01',
-      data_fim: '2027-04-01',
+      datas: ['2027-03-09', '2027-03-10', '2027-03-11', '2027-03-12'],
       valor_diaria: '99.00',
       ativo: false,
     })
@@ -95,7 +90,7 @@ describe('TarifarioPricingService & CalcularTarifaReservaUseCase (CA10 & RN06)',
     expect(result.valor_total).toBe('861.00')
   })
 
-  it('calculates across consecutive rate plans via CalcularTarifaReservaUseCase and throws when a night has no active coverage', async () => {
+  it('calculates across multiple rate plans via CalcularTarifaReservaUseCase and throws when a night has no active coverage', async () => {
     const tarifarios_repo = new InMemoryTarifarioRepository()
     const categorias_repo = new InMemoryCategoriaQuartoRepository()
     const cat = await categorias_repo.create({
@@ -108,8 +103,7 @@ describe('TarifarioPricingService & CalcularTarifaReservaUseCase (CA10 & RN06)',
       hotel_id: 'hotel-1',
       categoria_quarto_id: cat.id,
       nome: 'Março',
-      data_inicio: '2027-03-01',
-      data_fim: '2027-04-01',
+      datas: ['2027-03-31'],
       valor_diaria: '200.00',
       ativo: true,
     })
@@ -117,8 +111,7 @@ describe('TarifarioPricingService & CalcularTarifaReservaUseCase (CA10 & RN06)',
       hotel_id: 'hotel-1',
       categoria_quarto_id: cat.id,
       nome: 'Abril',
-      data_inicio: '2027-04-01',
-      data_fim: '2027-05-01',
+      datas: ['2027-04-01'],
       valor_diaria: '300.00',
       ativo: true,
     })

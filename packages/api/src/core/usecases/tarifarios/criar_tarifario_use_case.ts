@@ -1,6 +1,6 @@
 import type { Tarifario } from '@/core/entities/tarifario'
 import {
-  is_valid_iso_date,
+  normalize_datas,
   normalize_valor_diaria,
 } from '@/core/entities/tarifario'
 import { CategoriaQuartoInativaError } from '@/core/errors/quarto_errors'
@@ -15,8 +15,7 @@ export interface CriarTarifarioInput {
   hotel_id: string
   categoria_quarto_id: string
   nome: string
-  data_inicio: string
-  data_fim: string
+  datas: string[]
   valor_diaria: string
   ativo?: boolean
 }
@@ -37,17 +36,7 @@ export class CriarTarifarioUseCase {
         'O nome do tarifário deve ter no máximo 100 caracteres.',
       )
     }
-    if (
-      !is_valid_iso_date(input.data_inicio) ||
-      !is_valid_iso_date(input.data_fim)
-    ) {
-      throw new TarifarioValidationError('As datas informadas são inválidas.')
-    }
-    if (input.data_inicio >= input.data_fim) {
-      throw new TarifarioValidationError(
-        'A data de início deve ser anterior à data de término.',
-      )
-    }
+    const datas = normalize_datas(input.datas)
     const valor_diaria = normalize_valor_diaria(input.valor_diaria)
     const ativo = input.ativo ?? true
 
@@ -63,8 +52,7 @@ export class CriarTarifarioUseCase {
       const conflict = await this.tarifarios.find_overlapping_active({
         hotel_id: input.hotel_id,
         categoria_quarto_id: input.categoria_quarto_id,
-        data_inicio: input.data_inicio,
-        data_fim: input.data_fim,
+        datas,
       })
       if (conflict) {
         throw new TarifarioPeriodConflictError()
@@ -75,8 +63,7 @@ export class CriarTarifarioUseCase {
       hotel_id: input.hotel_id,
       categoria_quarto_id: input.categoria_quarto_id,
       nome: trimmed_nome,
-      data_inicio: input.data_inicio,
-      data_fim: input.data_fim,
+      datas,
       valor_diaria,
       ativo,
     })
