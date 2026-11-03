@@ -69,9 +69,7 @@ describe('Tarifarios Pages (List, Create & Edit)', () => {
     await waitFor(() => {
       expect(screen.getByText('Baixa Temporada Março')).toBeInTheDocument()
     })
-    expect(
-      screen.getByText('01/03/2027, 15/03/2027, 31/03/2027'),
-    ).toBeInTheDocument()
+    expect(screen.getByText('3 dias tarifados')).toBeInTheDocument()
     expect(screen.getByText('R$ 220.00')).toBeInTheDocument()
 
     // Click "Mais filtros" button -> opens popover with Situação and Categoria de quarto filters
@@ -85,6 +83,37 @@ describe('Tarifarios Pages (List, Create & Edit)', () => {
     expect(screen.getByTestId('more-filters-content')).toBeInTheDocument()
     expect(screen.getByLabelText('Filtrar por situação')).toBeInTheDocument()
     expect(screen.getByLabelText('Filtrar por categoria')).toBeInTheDocument()
+  })
+
+  it('clears both categoria_quarto_id and ativo when clicking "Limpar filtros"', async () => {
+    server.use(
+      http.get(`${BASE_URL}/categorias_quartos`, () =>
+        HttpResponse.json({
+          data: [{ id: 'cat-1', hotel_id: 'h-1', nome: 'Suítes Luxo', status: 'S' }],
+          meta: { pagina: 1, limite: 250, total: 1, ultima_pagina: 1 },
+        }),
+      ),
+      http.get(`${BASE_URL}/tarifarios`, () =>
+        HttpResponse.json({
+          data: [],
+          meta: { pagina: 1, limite: 25, total: 0, ultima_pagina: 1 },
+        }),
+      ),
+    )
+
+    render_with_providers(
+      '/tarifarios?categoria_quarto_id=cat-1&ativo=true',
+    )
+
+    fireEvent.click(screen.getByTestId('more-filters-trigger'))
+    const clear_btn = screen.getByTestId('clear-more-filters')
+    expect(clear_btn).toBeInTheDocument()
+
+    fireEvent.click(clear_btn)
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('clear-more-filters')).not.toBeInTheDocument()
+    })
   })
 
   it('US4: renders NovoTarifarioPage without breadcrumb navigation', async () => {
@@ -168,10 +197,31 @@ describe('Tarifarios Pages (List, Create & Edit)', () => {
       screen.queryByTestId('period-conflict-alert'),
     ).not.toBeInTheDocument()
 
-    // Click Deactivate button -> opens confirmation dialog
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Desativar tarifário' }),
+    // Period summary shows only count without individual dates list
+    expect(screen.getByTestId('period-summary-selected')).toHaveTextContent(
+      '2 datas marcadas',
     )
+    expect(screen.getByTestId('period-summary-selected')).not.toHaveTextContent(
+      '01/03/2027',
+    )
+
+    // Old button "Desativar tarifário" and checkbox "Tarifário ativo" are removed
+    expect(
+      screen.queryByRole('button', { name: 'Desativar tarifário' }),
+    ).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Tarifário ativo')).not.toBeInTheDocument()
+
+    // Status field with Ativado/Desativado radio buttons is present
+    const radio_ativado = screen.getByRole('radio', { name: 'Ativado' })
+    const radio_desativado = screen.getByRole('radio', { name: 'Desativado' })
+    expect(radio_ativado).toBeChecked()
+    expect(radio_desativado).not.toBeChecked()
+
+    // Selecting "Desativado" and saving opens the confirmation dialog
+    fireEvent.click(radio_desativado)
+    expect(radio_desativado).toBeChecked()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
     expect(screen.getByText('Desativar tarifário?')).toBeInTheDocument()
   })
 })
