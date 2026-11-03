@@ -218,7 +218,7 @@ export function TarifariosPage() {
               data-testid="more-filters-content"
               className="min-w-[280px] sm:min-w-[320px]"
             >
-              <div className="flex max-h-[min(28rem,70vh)] flex-col gap-4 overflow-y-auto">
+              <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="filtro-situacao">Situação</Label>
                   <Select

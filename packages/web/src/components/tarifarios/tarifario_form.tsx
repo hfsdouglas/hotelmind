@@ -218,7 +218,7 @@ export function TarifarioForm({
               />
             </div>
 
-            <div className="flex flex-col gap-1.5">
+            <div className="relative flex flex-col gap-1.5">
               <Label htmlFor="categoria_quarto_id">Categoria de quarto *</Label>
               <Select
                 value={categoria_quarto_id || undefined}
@@ -284,7 +284,7 @@ export function TarifarioForm({
               />
             </div>
 
-            <div className="flex items-center gap-2 pt-6">
+            <div className="relative flex items-center gap-2 pt-6">
               <Checkbox
                 id="ativo"
                 checked={ativo}

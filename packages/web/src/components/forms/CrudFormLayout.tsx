@@ -32,7 +32,7 @@ export function CrudFormLayout({
         <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
       </div>
 
-      <form onSubmit={onSubmit} className="flex flex-col gap-6">
+      <form onSubmit={onSubmit} className="relative flex flex-col gap-6">
         <Card data-testid="crud-form-card">
           {cardTitle && (
             <CardHeader>
