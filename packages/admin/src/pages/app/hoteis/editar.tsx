@@ -4,26 +4,28 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
-import { z } from 'zod'
 import { hoteisService } from '@/api/hoteis.service'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
+import {
+  type HotelUpdateFormData,
+  hotelUpdateSchema,
+} from '@/schemas/hoteis/hotel_schema'
 
-const schema = z.object({
-  nome_hotel: z.string().min(2),
-  razao_social: z.string().min(2),
-  nome_fantasia: z.string().min(2),
-  cnpj: z.string().length(14),
-  email_comercial: z.string().email(),
-  telefone_comercial: z.string().min(10).max(11),
-  website: z.string().optional(),
-  status: z.enum(['S', 'N']),
-})
+const fieldLabels: Record<string, string> = {
+  nome_hotel: 'Nome do Hotel',
+  razao_social: 'Razão Social',
+  nome_fantasia: 'Nome Fantasia',
+  cnpj: 'CNPJ',
+  email_comercial: 'E-mail Comercial',
+  telefone_comercial: 'Telefone Comercial',
+  website: 'Website',
+}
 
-type FormData = z.infer<typeof schema>
+type FormData = HotelUpdateFormData
 
 export function HotelEditarPage() {
   const { id } = useParams<{ id: string }>()
@@ -36,7 +38,19 @@ export function HotelEditarPage() {
     enabled: !!id,
   })
 
-  const form = useForm<FormData>({ resolver: zodResolver(schema) })
+  const form = useForm<FormData>({
+    resolver: zodResolver(hotelUpdateSchema),
+    defaultValues: {
+      nome_hotel: '',
+      razao_social: '',
+      nome_fantasia: '',
+      cnpj: '',
+      email_comercial: '',
+      telefone_comercial: '',
+      website: '',
+      status: 'S',
+    },
+  })
 
   useEffect(() => {
     if (hotel) form.reset({ ...hotel, website: hotel.website ?? '', status: hotel.status })
@@ -75,7 +89,7 @@ export function HotelEditarPage() {
               name={field}
               render={({ field: f }) => (
                 <FormItem>
-                  <FormLabel>{field.replace(/_/g, ' ')}</FormLabel>
+                  <FormLabel>{fieldLabels[field] ?? field}</FormLabel>
                   <FormControl><Input {...f} value={f.value ?? ''} /></FormControl>
                   <FormMessage />
                 </FormItem>

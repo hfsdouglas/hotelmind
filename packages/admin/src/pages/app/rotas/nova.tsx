@@ -3,36 +3,44 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import { z } from 'zod'
 import { rotasService } from '@/api/rotas.service'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Checkbox } from '@/components/ui/checkbox'
 import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
+import {
+  type RotaCreateFormData,
+  rotaCreateSchema,
+} from '@/schemas/rotas/rota_schema'
 
-const schema = z.object({
-  modulo: z.string().min(1),
-  recurso: z.string().min(1),
-  rota: z.string().min(1),
-  icone: z.string().optional(),
-  ordem: z.coerce.number().int().default(0),
-  ativo: z.boolean().default(true),
-})
+type FormData = RotaCreateFormData
 
-type FormData = z.infer<typeof schema>
+const fieldLabels: Record<'modulo' | 'recurso' | 'rota' | 'icone', string> = {
+  modulo: 'Módulo',
+  recurso: 'Recurso',
+  rota: 'Rota',
+  icone: 'Ícone',
+}
 
 export function RotaNovaPage() {
   const navigate = useNavigate()
   const qc = useQueryClient()
 
   const form = useForm<FormData>({
-    resolver: zodResolver(schema),
-    defaultValues: { ordem: 0, ativo: true },
+    resolver: zodResolver(rotaCreateSchema),
+    defaultValues: {
+      modulo: '',
+      recurso: '',
+      rota: '',
+      icone: '',
+      ordem: 0,
+      ativo: true,
+    },
   })
 
   const { mutate, isPending } = useMutation({
-    mutationFn: rotasService.create,
+    mutationFn: (data: FormData) => rotasService.create(data),
     onSuccess: () => {
       toast.success('Rota criada.')
       qc.invalidateQueries({ queryKey: ['admin:rotas'] })
@@ -62,7 +70,7 @@ export function RotaNovaPage() {
               name={field}
               render={({ field: f }) => (
                 <FormItem>
-                  <FormLabel>{field.charAt(0).toUpperCase() + field.slice(1)}</FormLabel>
+                  <FormLabel>{fieldLabels[field]}</FormLabel>
                   <FormControl><Input {...f} value={f.value ?? ''} /></FormControl>
                   <FormMessage />
                 </FormItem>

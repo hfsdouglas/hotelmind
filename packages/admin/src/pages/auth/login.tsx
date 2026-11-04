@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { useLogin } from '@/hooks/useLogin'
-import { login_schema, type LoginFormData } from '@/schemas/auth.schema'
+import { login_schema, type LoginFormData } from '@/schemas/auth/auth_schema'
 
 export function LoginPage() {
   const { login, isPending } = useLogin()

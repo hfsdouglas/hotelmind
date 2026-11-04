@@ -3,33 +3,47 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import { z } from 'zod'
 import { hoteisService } from '@/api/hoteis.service'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
+import {
+  type HotelCreateFormData,
+  hotelCreateSchema,
+} from '@/schemas/hoteis/hotel_schema'
 
-const schema = z.object({
-  nome_hotel: z.string().min(2),
-  razao_social: z.string().min(2),
-  nome_fantasia: z.string().min(2),
-  cnpj: z.string().length(14, 'CNPJ deve ter 14 dígitos'),
-  email_comercial: z.string().email(),
-  telefone_comercial: z.string().min(10).max(11),
-  website: z.string().optional(),
-})
+const fieldLabels: Record<string, string> = {
+  nome_hotel: 'Nome do Hotel',
+  razao_social: 'Razão Social',
+  nome_fantasia: 'Nome Fantasia',
+  cnpj: 'CNPJ',
+  email_comercial: 'E-mail Comercial',
+  telefone_comercial: 'Telefone Comercial',
+  website: 'Website',
+}
 
-type FormData = z.infer<typeof schema>
+type FormData = HotelCreateFormData
 
 export function HotelNovoPage() {
   const navigate = useNavigate()
   const qc = useQueryClient()
 
-  const form = useForm<FormData>({ resolver: zodResolver(schema) })
+  const form = useForm<FormData>({
+    resolver: zodResolver(hotelCreateSchema),
+    defaultValues: {
+      nome_hotel: '',
+      razao_social: '',
+      nome_fantasia: '',
+      cnpj: '',
+      email_comercial: '',
+      telefone_comercial: '',
+      website: '',
+    },
+  })
 
   const { mutate, isPending } = useMutation({
-    mutationFn: hoteisService.create,
+    mutationFn: (data: FormData) => hoteisService.create(data),
     onSuccess: () => {
       toast.success('Hotel criado com sucesso.')
       qc.invalidateQueries({ queryKey: ['admin:hoteis'] })
@@ -61,7 +75,7 @@ export function HotelNovoPage() {
               name={field}
               render={({ field: f }) => (
                 <FormItem>
-                  <FormLabel>{field.replace(/_/g, ' ')}</FormLabel>
+                  <FormLabel>{fieldLabels[field] ?? field}</FormLabel>
                   <FormControl><Input {...f} value={f.value ?? ''} /></FormControl>
                   <FormMessage />
                 </FormItem>

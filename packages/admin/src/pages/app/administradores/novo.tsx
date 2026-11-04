@@ -3,26 +3,30 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import { z } from 'zod'
 import { administradoresService } from '@/api/administradores.service'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
+import {
+  type AdministradorCreateFormData,
+  administradorCreateSchema,
+} from '@/schemas/administradores/administrador_schema'
 
-const schema = z.object({
-  nome_completo: z.string().min(2),
-  email: z.string().email(),
-  senha: z.string().min(8),
-})
-
-type FormData = z.infer<typeof schema>
+type FormData = AdministradorCreateFormData
 
 export function AdministradorNovoPage() {
   const navigate = useNavigate()
   const qc = useQueryClient()
 
-  const form = useForm<FormData>({ resolver: zodResolver(schema) })
+  const form = useForm<FormData>({
+    resolver: zodResolver(administradorCreateSchema),
+    defaultValues: {
+      nome_completo: '',
+      email: '',
+      senha: '',
+    },
+  })
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: FormData) => administradoresService.create({ ...data, status: 'S' }),
@@ -55,7 +59,7 @@ export function AdministradorNovoPage() {
               name={field}
               render={({ field: f }) => (
                 <FormItem>
-                  <FormLabel>{field === 'nome_completo' ? 'Nome completo' : field.charAt(0).toUpperCase() + field.slice(1)}</FormLabel>
+                  <FormLabel>{field === 'nome_completo' ? 'Nome completo' : field === 'email' ? 'E-mail' : 'Senha'}</FormLabel>
                   <FormControl>
                     <Input type={field === 'senha' ? 'password' : field === 'email' ? 'email' : 'text'} {...f} />
                   </FormControl>

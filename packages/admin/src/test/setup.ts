@@ -37,6 +37,11 @@ Object.defineProperty(window, 'ResizeObserver', {
   value: ResizeObserverStub,
 })
 
+window.HTMLElement.prototype.scrollIntoView = vi.fn()
+window.HTMLElement.prototype.hasPointerCapture = vi.fn()
+window.HTMLElement.prototype.setPointerCapture = vi.fn()
+window.HTMLElement.prototype.releasePointerCapture = vi.fn()
+
 if (typeof window !== 'undefined') {
   const createStorageMock = () => {
     let store: Record<string, string> = {}

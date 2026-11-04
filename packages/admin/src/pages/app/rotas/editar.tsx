@@ -4,24 +4,25 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
-import { z } from 'zod'
 import { rotasService } from '@/api/rotas.service'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Checkbox } from '@/components/ui/checkbox'
 import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
+import {
+  type RotaUpdateFormData,
+  rotaUpdateSchema,
+} from '@/schemas/rotas/rota_schema'
 
-const schema = z.object({
-  modulo: z.string().min(1),
-  recurso: z.string().min(1),
-  rota: z.string().min(1),
-  icone: z.string().optional(),
-  ordem: z.coerce.number().int(),
-  ativo: z.boolean(),
-})
+type FormData = RotaUpdateFormData
 
-type FormData = z.infer<typeof schema>
+const fieldLabels: Record<'modulo' | 'recurso' | 'rota' | 'icone', string> = {
+  modulo: 'Módulo',
+  recurso: 'Recurso',
+  rota: 'Rota',
+  icone: 'Ícone',
+}
 
 export function RotaEditarPage() {
   const { id } = useParams<{ id: string }>()
@@ -34,7 +35,17 @@ export function RotaEditarPage() {
     enabled: !!id,
   })
 
-  const form = useForm<FormData>({ resolver: zodResolver(schema) })
+  const form = useForm<FormData>({
+    resolver: zodResolver(rotaUpdateSchema),
+    defaultValues: {
+      modulo: '',
+      recurso: '',
+      rota: '',
+      icone: '',
+      ordem: 0,
+      ativo: true,
+    },
+  })
 
   useEffect(() => {
     if (rota) form.reset({ ...rota, icone: rota.icone ?? '' })
@@ -71,7 +82,7 @@ export function RotaEditarPage() {
               name={field}
               render={({ field: f }) => (
                 <FormItem>
-                  <FormLabel>{field.charAt(0).toUpperCase() + field.slice(1)}</FormLabel>
+                  <FormLabel>{fieldLabels[field]}</FormLabel>
                   <FormControl><Input {...f} value={f.value ?? ''} /></FormControl>
                   <FormMessage />
                 </FormItem>

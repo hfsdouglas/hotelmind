@@ -561,6 +561,8 @@ Never write a component, hook, or service before its test exists.
 
 Prioritize behavior testing. Do not test implementation details.
 
+Apenas páginas (`pages/`), contextos (`contexts/`) e componentes (`components/`) precisam de ser testados. Schemas do Zod, hooks, lib e services não precisam de testes unitários isolados, sendo exercitados via testes de páginas e componentes.
+
 Test files must be co-located with the source file and use the `.spec.tsx` (or `.spec.ts`) suffix.
 
 ---

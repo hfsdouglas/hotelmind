@@ -4,22 +4,18 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
-import { z } from 'zod'
 import { administradoresService } from '@/api/administradores.service'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
+import {
+  type AdministradorUpdateFormData,
+  administradorUpdateSchema,
+} from '@/schemas/administradores/administrador_schema'
 
-const schema = z.object({
-  nome_completo: z.string().min(2),
-  email: z.string().email(),
-  senha: z.string().min(8).optional().or(z.literal('')),
-  status: z.enum(['S', 'N']),
-})
-
-type FormData = z.infer<typeof schema>
+type FormData = AdministradorUpdateFormData
 
 export function AdministradorEditarPage() {
   const { id } = useParams<{ id: string }>()
@@ -32,7 +28,15 @@ export function AdministradorEditarPage() {
     enabled: !!id,
   })
 
-  const form = useForm<FormData>({ resolver: zodResolver(schema) })
+  const form = useForm<FormData>({
+    resolver: zodResolver(administradorUpdateSchema),
+    defaultValues: {
+      nome_completo: '',
+      email: '',
+      senha: '',
+      status: 'S',
+    },
+  })
 
   useEffect(() => {
     if (admin) form.reset({ ...admin, senha: '', status: admin.status as 'S' | 'N' })
