@@ -31,6 +31,8 @@ model Hotel {
   quartos            Quarto[]
   tarifarios         Tarifario[]
   regimes_alimentacao RegimeAlimentacao[]
+  leads              Lead[]
+  orcamentos         Orcamento[]
 
   @@map("hoteis")
 }
@@ -156,6 +158,7 @@ model CategoriaQuarto {
   status     String      @default("S") @db.Char(1)
   quartos    Quarto[]
   tarifarios Tarifario[]
+  orcamentos Orcamento[]
 
   @@unique([hotel_id, nome])
   @@index([hotel_id])
@@ -237,6 +240,7 @@ model RegimeAlimentacao {
   cor_pulseira String   @db.VarChar(20)
   ativo        Boolean  @default(true)
   tarifarios   Tarifario[]
+  orcamentos   Orcamento[]
   criado_em    DateTime @default(now())
   atualizado_em DateTime @updatedAt
 
@@ -244,4 +248,54 @@ model RegimeAlimentacao {
   @@index([hotel_id])
   @@index([hotel_id, ativo])
   @@map("regimes_alimentacao")
+}
+
+model Lead {
+  id         String      @id @default(uuid())
+  hotel_id   String
+  nome       String      @db.VarChar(150)
+  telefone   String      @db.VarChar(30)
+  email      String      @db.VarChar(150)
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
+
+  hotel      Hotel       @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+  orcamentos Orcamento[]
+
+  @@index([hotel_id])
+  @@index([hotel_id, email])
+  @@index([hotel_id, telefone])
+  @@map("leads")
+}
+
+model Orcamento {
+  id                    String            @id @default(uuid())
+  hotel_id              String
+  lead_id               String
+  regime_alimentacao_id String
+  categoria_quarto_id   String
+  check_in              String            @db.VarChar(10)
+  check_out             String            @db.VarChar(10)
+  quantidade_adultos    Int               @default(1)
+  quantidade_criancas   Int               @default(0)
+  quantidade_pets       Int               @default(0)
+  valor_total           String            @db.VarChar(20)
+  detalhamento_noites   Json
+  token_publico         String            @unique @db.VarChar(64)
+  status                String            @default("pendente") @db.VarChar(20)
+  observacoes           String?           @db.Text
+  cupom_desconto        String?           @db.VarChar(50)
+  created_at            DateTime          @default(now())
+  updated_at            DateTime          @updatedAt
+
+  hotel                 Hotel             @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+  lead                  Lead              @relation(fields: [lead_id], references: [id], onDelete: Restrict)
+  regime_alimentacao    RegimeAlimentacao @relation(fields: [regime_alimentacao_id], references: [id], onDelete: Restrict)
+  categoria_quarto      CategoriaQuarto   @relation(fields: [categoria_quarto_id], references: [id], onDelete: Restrict)
+
+  @@index([hotel_id])
+  @@index([hotel_id, status])
+  @@index([lead_id])
+  @@index([token_publico])
+  @@map("orcamentos")
 }

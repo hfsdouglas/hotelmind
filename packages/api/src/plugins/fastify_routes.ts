@@ -4,6 +4,8 @@ import { auth_routes } from '@/routes/auth/web/auth_routes'
 import { categorias_quartos_routes } from '@/routes/categorias_quartos/categorias_quartos_routes'
 import { groups_routes } from '@/routes/groups/groups_routes'
 import { admin_hotels_routes } from '@/routes/hotels/admin/hotels_routes'
+import { leads_routes } from '@/routes/leads/leads_routes'
+import { orcamentos_routes } from '@/routes/orcamentos/orcamentos_routes'
 import { quartos_routes } from '@/routes/quartos/quartos_routes'
 import { regimes_alimentacao_routes } from '@/routes/regimes_alimentacao/regimes_alimentacao_routes'
 import { admin_routes_routes } from '@/routes/routes/admin/routes_routes'
@@ -27,4 +29,6 @@ export function setRoutes(app: FastifyTypedInstance) {
   app.register(quartos_routes)
   app.register(tarifarios_routes)
   app.register(regimes_alimentacao_routes)
+  app.register(leads_routes)
+  app.register(orcamentos_routes)
 }

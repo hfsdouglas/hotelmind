@@ -9,6 +9,7 @@ import type { Column } from '@/components/data-table/data_table'
 import { ListPageLayout } from '@/components/data-table/list_page_layout'
 import { PagedDataTable } from '@/components/data-table/paged_data_table'
 import { SearchBar } from '@/components/data-table/search_bar'
+import { OrcamentoAcoesCompartilhamento } from '@/components/orcamentos/orcamento_acoes_compartilhamento'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,12 +22,14 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { mask_phone } from '@/hooks/use_phone_mask'
 import { usePaginacao } from '@/hooks/usePaginacao'
-import { OrcamentoAcoesCompartilhamento } from './components/orcamento_acoes_compartilhamento'
 
 function formatarDataBR(dataIso: string) {
   if (!dataIso) return ''
-  const [ano, mes, dia] = dataIso.split('-')
+  const dateOnly = dataIso.split('T')[0]
+  const [ano, mes, dia] = dateOnly.split('-')
+  if (!ano || !mes || !dia) return dataIso
   return `${dia}/${mes}/${ano}`
 }
 
@@ -66,7 +69,8 @@ export function OrcamentosPage() {
         <div>
           <span className="font-semibold">{row.lead?.nome ?? 'Sem nome'}</span>
           <div className="text-xs text-muted-foreground">
-            {row.lead?.telefone} {row.lead?.email ? `• ${row.lead.email}` : ''}
+            {mask_phone(row.lead?.telefone ?? '')}{' '}
+            {row.lead?.email ? `• ${row.lead.email}` : ''}
           </div>
         </div>
       ),
@@ -125,9 +129,16 @@ export function OrcamentosPage() {
       key: 'valor_total',
       header: 'Total',
       render: row => (
-        <span className="font-bold text-primary">
-          {formatarMoeda(row.valor_total)}
-        </span>
+        <div>
+          <span className="font-bold text-primary">
+            {formatarMoeda(row.valor_total)}
+          </span>
+          {row.cupom_desconto && (
+            <div className="text-[10px] text-muted-foreground uppercase font-medium">
+              Cupom: {row.cupom_desconto}
+            </div>
+          )}
+        </div>
       ),
     },
     {
@@ -204,27 +215,35 @@ export function OrcamentosPage() {
           </Link>
         </Button>
       }
-    >
-      <div className="space-y-4">
+      searchBar={
         <SearchBar
           value={busca}
-          onChange={val => {
+          onSearch={val => {
             setParam('busca', val)
             setPagina(1)
           }}
           placeholder="Buscar por nome do lead, telefone ou observações..."
         />
-
-        <PagedDataTable
-          queryKey={['orcamentos', { pagina, limite, busca }]}
-          queryFn={() => orcamentosService.list({ pagina, limite, busca })}
-          columns={columns}
-          page={pagina}
-          pageSize={limite}
-          onPageChange={setPagina}
-          isPending={isPending}
-        />
-      </div>
+      }
+    >
+      <PagedDataTable
+        columns={columns}
+        queryKey={['orcamentos', { pagina, limite, busca }]}
+        queryFn={() =>
+          orcamentosService.list({
+            pagina,
+            limite,
+            busca: busca || undefined,
+          })
+        }
+        label="Resultados de orçamentos"
+        emptyMessage="Nenhum orçamento encontrado."
+        isPending={isPending}
+        pagina={pagina}
+        limite={limite}
+        onPageChange={setPagina}
+        onLimitChange={v => setParam('limite', v)}
+      />
 
       <AlertDialog
         open={Boolean(orcamentoToDelete)}

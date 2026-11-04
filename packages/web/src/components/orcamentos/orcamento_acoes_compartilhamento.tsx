@@ -25,7 +25,11 @@ export function OrcamentoAcoesCompartilhamento({
   const publicUrl = `${window.location.origin}/orcamento/${token_publico}`
 
   function handleCopiarLink() {
-    navigator.clipboard.writeText(publicUrl)
+    try {
+      navigator.clipboard?.writeText?.(publicUrl)
+    } catch {
+      // fallback
+    }
     toast.success('Link de visualização copiado para a área de transferência!')
   }
 

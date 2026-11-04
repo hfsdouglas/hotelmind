@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Calendar, Loader2, Utensils } from 'lucide-react'
-import { useEffect } from 'react'
+import { Calendar, Loader2, PawPrint, Tag, Users, Utensils } from 'lucide-react'
 import { Controller, useForm } from 'react-hook-form'
 import { useParams } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -9,8 +8,10 @@ import { z } from 'zod'
 import { categoriasQuartosService } from '@/api/categorias_quartos.service'
 import { orcamentosService } from '@/api/orcamentos.service'
 import { regimesAlimentacaoService } from '@/api/regimes_alimentacao.service'
-import { CrudFormLayout } from '@/components/forms/CrudFormLayout'
+import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
+import { OrcamentoAcoesCompartilhamento } from '@/components/orcamentos/orcamento_acoes_compartilhamento'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { DatePicker } from '@/components/ui/date_picker'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -21,7 +22,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { OrcamentoAcoesCompartilhamento } from '../components/orcamento_acoes_compartilhamento'
+import { mask_phone } from '@/hooks/use_phone_mask'
 
 const editOrcamentoSchema = z.object({
   check_in: z.string().min(10, 'A data de check-in é obrigatória.'),
@@ -29,6 +30,7 @@ const editOrcamentoSchema = z.object({
   quantidade_adultos: z.coerce.number().int().min(1, 'Mínimo de 1 adulto.'),
   quantidade_criancas: z.coerce.number().int().min(0).default(0),
   quantidade_pets: z.coerce.number().int().min(0).default(0),
+  cupom_desconto: z.string().trim().max(50).optional(),
   regime_alimentacao_id: z
     .string()
     .min(1, 'Selecione o regime de alimentação.'),
@@ -66,13 +68,13 @@ export function EditarOrcamentoPage() {
     enabled: Boolean(orcamentoId),
   })
 
-  const { data: regimes_res } = useQuery({
+  const { data: regimes_res, isLoading: isLoadingRegimes } = useQuery({
     queryKey: ['regimes_alimentacao'],
     queryFn: () => regimesAlimentacaoService.list({ limite: 250 }),
   })
   const regimes = regimes_res?.data ?? []
 
-  const { data: categorias_res } = useQuery({
+  const { data: categorias_res, isLoading: isLoadingCategorias } = useQuery({
     queryKey: ['categorias_quartos'],
     queryFn: () => categoriasQuartosService.list({ limite: 250 }),
   })
@@ -82,38 +84,24 @@ export function EditarOrcamentoPage() {
     register,
     handleSubmit,
     control,
-    reset,
     formState: { errors },
   } = useForm<EditOrcamentoFormData>({
     resolver: zodResolver(editOrcamentoSchema as never),
-    defaultValues: {
-      check_in: '',
-      check_out: '',
-      quantidade_adultos: 1,
-      quantidade_criancas: 0,
-      quantidade_pets: 0,
-      regime_alimentacao_id: '',
-      categoria_quarto_id: '',
-      status: 'pendente',
-      observacoes: '',
-    },
+    values: orcamento
+      ? {
+          check_in: orcamento.check_in,
+          check_out: orcamento.check_out,
+          quantidade_adultos: orcamento.quantidade_adultos,
+          quantidade_criancas: orcamento.quantidade_criancas,
+          quantidade_pets: orcamento.quantidade_pets,
+          regime_alimentacao_id: orcamento.regime_alimentacao_id,
+          categoria_quarto_id: orcamento.categoria_quarto_id,
+          cupom_desconto: orcamento.cupom_desconto || '',
+          status: orcamento.status,
+          observacoes: orcamento.observacoes || '',
+        }
+      : undefined,
   })
-
-  useEffect(() => {
-    if (orcamento) {
-      reset({
-        check_in: orcamento.check_in,
-        check_out: orcamento.check_out,
-        quantidade_adultos: orcamento.quantidade_adultos,
-        quantidade_criancas: orcamento.quantidade_criancas,
-        quantidade_pets: orcamento.quantidade_pets,
-        regime_alimentacao_id: orcamento.regime_alimentacao_id,
-        categoria_quarto_id: orcamento.categoria_quarto_id,
-        status: orcamento.status,
-        observacoes: orcamento.observacoes || '',
-      })
-    }
-  }, [orcamento, reset])
 
   const mutation = useMutation({
     mutationFn: (data: EditOrcamentoFormData) =>
@@ -123,6 +111,7 @@ export function EditarOrcamentoPage() {
         quantidade_adultos: data.quantidade_adultos,
         quantidade_criancas: data.quantidade_criancas,
         quantidade_pets: data.quantidade_pets,
+        cupom_desconto: data.cupom_desconto?.trim() || null,
         regime_alimentacao_id: data.regime_alimentacao_id,
         categoria_quarto_id: data.categoria_quarto_id,
         status: data.status,
@@ -144,7 +133,12 @@ export function EditarOrcamentoPage() {
     mutation.mutate(data)
   })
 
-  if (isLoadingOrcamento || !orcamento) {
+  if (
+    isLoadingOrcamento ||
+    isLoadingRegimes ||
+    isLoadingCategorias ||
+    !orcamento
+  ) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -158,16 +152,19 @@ export function EditarOrcamentoPage() {
       backTo="/reservas/orcamentos"
       onSubmit={onSubmit}
       isSubmitting={mutation.isPending}
-      submitLabel="Salvar Alterações"
+      submitLabel="Salvar"
       actions={
-        <OrcamentoAcoesCompartilhamento
-          token_publico={orcamento.token_publico}
-          lead_nome={orcamento.lead?.nome}
-          lead_email={orcamento.lead?.email}
-          lead_telefone={orcamento.lead?.telefone}
-          valor_total={orcamento.valor_total}
-          size="sm"
-        />
+        <div className="flex w-full flex-wrap items-center justify-between gap-3">
+          <OrcamentoAcoesCompartilhamento
+            token_publico={orcamento.token_publico}
+            lead_nome={orcamento.lead?.nome}
+            lead_email={orcamento.lead?.email}
+            lead_telefone={orcamento.lead?.telefone}
+            valor_total={orcamento.valor_total}
+            size="sm"
+          />
+          <SaveButton isPending={mutation.isPending} label="Salvar" />
+        </div>
       }
     >
       <div className="grid gap-6">
@@ -182,7 +179,8 @@ export function EditarOrcamentoPage() {
                 {orcamento.lead?.nome}
               </p>
               <p className="text-xs text-muted-foreground">
-                {orcamento.lead?.telefone} • {orcamento.lead?.email}
+                {mask_phone(orcamento.lead?.telefone ?? '')} •{' '}
+                {orcamento.lead?.email}
               </p>
             </div>
 
@@ -204,7 +202,10 @@ export function EditarOrcamentoPage() {
                 control={control}
                 name="status"
                 render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
+                  <Select
+                    value={field.value || 'pendente'}
+                    onValueChange={field.onChange}
+                  >
                     <SelectTrigger className="mt-1 bg-white">
                       <SelectValue placeholder="Selecione o status" />
                     </SelectTrigger>
@@ -229,68 +230,86 @@ export function EditarOrcamentoPage() {
               Período e Hóspedes
             </CardTitle>
           </CardHeader>
-          <CardContent className="grid gap-4 sm:grid-cols-2 md:grid-cols-5">
-            <div>
+          <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="space-y-1.5">
               <Label htmlFor="check_in">Check-in</Label>
-              <Input
-                id="check_in"
-                type="date"
-                className="mt-1"
-                {...register('check_in')}
+              <Controller
+                control={control}
+                name="check_in"
+                render={({ field }) => (
+                  <DatePicker
+                    id="check_in"
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="dd/mm/aaaa"
+                  />
+                )}
               />
               {errors.check_in && (
-                <span className="text-xs text-destructive">
+                <span className="block text-xs text-destructive">
                   {errors.check_in.message}
                 </span>
               )}
             </div>
 
-            <div>
+            <div className="space-y-1.5">
               <Label htmlFor="check_out">Check-out</Label>
-              <Input
-                id="check_out"
-                type="date"
-                className="mt-1"
-                {...register('check_out')}
+              <Controller
+                control={control}
+                name="check_out"
+                render={({ field }) => (
+                  <DatePicker
+                    id="check_out"
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="dd/mm/aaaa"
+                  />
+                )}
               />
               {errors.check_out && (
-                <span className="text-xs text-destructive">
+                <span className="block text-xs text-destructive">
                   {errors.check_out.message}
                 </span>
               )}
             </div>
 
-            <div>
+            <div className="space-y-1.5">
               <Label htmlFor="quantidade_adultos">Adultos</Label>
-              <Input
-                id="quantidade_adultos"
-                type="number"
-                min={1}
-                className="mt-1"
-                {...register('quantidade_adultos')}
-              />
+              <div className="relative">
+                <Users className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="quantidade_adultos"
+                  type="number"
+                  min={1}
+                  className="pl-9 h-9"
+                  {...register('quantidade_adultos')}
+                />
+              </div>
             </div>
 
-            <div>
+            <div className="space-y-1.5">
               <Label htmlFor="quantidade_criancas">Crianças</Label>
               <Input
                 id="quantidade_criancas"
                 type="number"
                 min={0}
-                className="mt-1"
+                className="h-9"
                 {...register('quantidade_criancas')}
               />
             </div>
 
-            <div>
+            <div className="space-y-1.5">
               <Label htmlFor="quantidade_pets">Pets</Label>
-              <Input
-                id="quantidade_pets"
-                type="number"
-                min={0}
-                className="mt-1"
-                {...register('quantidade_pets')}
-              />
+              <div className="relative">
+                <PawPrint className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="quantidade_pets"
+                  type="number"
+                  min={0}
+                  className="pl-9 h-9"
+                  {...register('quantidade_pets')}
+                />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -300,7 +319,7 @@ export function EditarOrcamentoPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <Utensils className="h-4 w-4 text-primary" />
-              Regime de Refeições & Acomodação
+              Regime de Alimentação
             </CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-2">
@@ -312,7 +331,10 @@ export function EditarOrcamentoPage() {
                 control={control}
                 name="regime_alimentacao_id"
                 render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
+                  <Select
+                    value={field.value || ''}
+                    onValueChange={field.onChange}
+                  >
                     <SelectTrigger className="mt-1">
                       <SelectValue placeholder="Selecione o regime" />
                     </SelectTrigger>
@@ -340,7 +362,10 @@ export function EditarOrcamentoPage() {
                 control={control}
                 name="categoria_quarto_id"
                 render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
+                  <Select
+                    value={field.value || ''}
+                    onValueChange={field.onChange}
+                  >
                     <SelectTrigger className="mt-1">
                       <SelectValue placeholder="Selecione a categoria" />
                     </SelectTrigger>
@@ -363,6 +388,30 @@ export function EditarOrcamentoPage() {
                 className="mt-1"
                 {...register('observacoes')}
               />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* CUPOM DE DESCONTO */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Tag className="h-4 w-4 text-primary" />
+              Cupom de Desconto
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="max-w-sm space-y-1.5">
+              <Label htmlFor="cupom_desconto">Código do cupom (opcional)</Label>
+              <div className="relative">
+                <Tag className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="cupom_desconto"
+                  placeholder="Ex.: PROMO10"
+                  className="h-9 pl-9 uppercase"
+                  {...register('cupom_desconto')}
+                />
+              </div>
             </div>
           </CardContent>
         </Card>

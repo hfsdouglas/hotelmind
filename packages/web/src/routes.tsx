@@ -15,8 +15,8 @@ import { RegimesAlimentacaoPage } from '@/pages/app/regimes_alimentacao'
 import { EditarRegimeAlimentacaoPage } from '@/pages/app/regimes_alimentacao/[id]/editar'
 import { NovoRegimeAlimentacaoPage } from '@/pages/app/regimes_alimentacao/novo'
 import { Calendario } from '@/pages/app/reservas/calendario'
-import { OrcamentosPage } from '@/pages/app/reservas/orcamentos/index'
 import { EditarOrcamentoPage } from '@/pages/app/reservas/orcamentos/[id]/editar'
+import { OrcamentosPage } from '@/pages/app/reservas/orcamentos/index'
 import { NovoOrcamentoPage } from '@/pages/app/reservas/orcamentos/novo'
 import { TarifariosPage } from '@/pages/app/tarifarios'
 import { EditarTarifarioPage } from '@/pages/app/tarifarios/[id]/editar'
@@ -90,6 +90,12 @@ export const router = createBrowserRouter([
       { path: '/reservas/orcamentos/novo', element: <NovoOrcamentoPage /> },
       {
         path: '/reservas/orcamentos/:id/editar',
+        element: <EditarOrcamentoPage />,
+      },
+      { path: '/orcamentos', element: <OrcamentosPage /> },
+      { path: '/orcamentos/novo', element: <NovoOrcamentoPage /> },
+      {
+        path: '/orcamentos/:id/editar',
         element: <EditarOrcamentoPage />,
       },
     ],

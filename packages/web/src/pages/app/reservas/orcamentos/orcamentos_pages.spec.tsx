@@ -166,7 +166,7 @@ describe('Orcamentos Admin Pages', () => {
     await waitFor(() => {
       expect(screen.getByText('Novo Orçamento')).toBeInTheDocument()
       expect(
-        screen.getByText('Passo 1: Período e Ocupantes')
+        screen.getByText('Passo 1: Período e Hóspedes')
       ).toBeInTheDocument()
       expect(
         screen.getByText('Passo 2: Regime de Alimentação')
@@ -179,6 +179,10 @@ describe('Orcamentos Admin Pages', () => {
       expect(
         screen.getByText('Passo 4: Dados do Primeiro Contato (Lead)')
       ).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Salvar' })).toBeInTheDocument()
+      expect(screen.getByText('Data de Check-in *')).toBeInTheDocument()
+      expect(screen.getByText('Data de Check-out *')).toBeInTheDocument()
+      expect(screen.getByText('Cupom de Desconto')).toBeInTheDocument()
     })
   })
 
@@ -255,6 +259,7 @@ describe('Orcamentos Admin Pages', () => {
       expect(screen.getByText('Copiar Link')).toBeInTheDocument()
       expect(screen.getByText('Enviar E-mail')).toBeInTheDocument()
       expect(screen.getByText('Enviar WhatsApp')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Salvar' })).toBeInTheDocument()
     })
   })
 })

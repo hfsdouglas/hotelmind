@@ -26,6 +26,7 @@ export interface Orcamento {
   token_publico: string
   status: OrcamentoStatus
   observacoes?: string | null
+  cupom_desconto?: string | null
   lead?: {
     id: string
     nome: string
@@ -67,6 +68,7 @@ export interface OrcamentoPublicoVisualizacao {
   detalhamento_noites: NoiteCalculadaOrcamento[]
   valor_total: string
   status: OrcamentoStatus
+  cupom_desconto?: string | null
   criado_em: string
 }
 
@@ -79,6 +81,7 @@ export interface CreateOrcamentoPayload {
   quantidade_criancas?: number
   quantidade_pets?: number
   observacoes?: string
+  cupom_desconto?: string | null
   lead_id?: string
   lead?: CreateLeadPayload
 }
@@ -92,6 +95,7 @@ export interface UpdateOrcamentoPayload {
   quantidade_criancas?: number
   quantidade_pets?: number
   observacoes?: string
+  cupom_desconto?: string | null
   status?: OrcamentoStatus
 }
 

@@ -1,5 +1,6 @@
 import {
   BedDouble,
+  Calculator,
   CalendarDays,
   CalendarRange,
   ChevronRight,
@@ -41,6 +42,7 @@ const ICON_MAP: Record<string, ElementType> = {
   BedDouble,
   Users,
   Shield,
+  Calculator,
 }
 
 function buildNavigation(rotas: RotaMenu[]): NavEntry[] {

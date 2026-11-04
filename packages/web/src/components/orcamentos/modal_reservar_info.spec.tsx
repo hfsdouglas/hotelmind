@@ -13,13 +13,20 @@ describe('ModalReservarInfo Component', () => {
         onOpenChange={onOpenChange}
         hotelNome="Hotel Paraíso"
         hotelTelefone="11988887777"
-      />,
+      />
     )
 
-    expect(screen.getByRole('heading', { name: 'Reserva Direta em Breve!' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: 'Reserva Direta em Breve!' })
+    ).toBeInTheDocument()
     expect(screen.getByText('Hotel Paraíso')).toBeInTheDocument()
-    const whatsappLink = screen.getByRole('link', { name: /falar no whatsapp/i })
-    expect(whatsappLink).toHaveAttribute('href', expect.stringContaining('11988887777'))
+    const whatsappLink = screen.getByRole('link', {
+      name: /falar no whatsapp/i,
+    })
+    expect(whatsappLink).toHaveAttribute(
+      'href',
+      expect.stringContaining('11988887777')
+    )
   })
 
   it('calls onOpenChange when close button is clicked', async () => {
@@ -31,7 +38,7 @@ describe('ModalReservarInfo Component', () => {
         open={true}
         onOpenChange={onOpenChange}
         hotelNome="Hotel Paraíso"
-      />,
+      />
     )
 
     const closeBtn = screen.getByRole('button', { name: 'Fechar' })

@@ -15,6 +15,7 @@ export const orcamentoFormSchema = z.object({
   lead_nome: z.string().trim().min(1, 'O nome do lead é obrigatório.'),
   lead_telefone: z.string().trim().min(8, 'Telefone/WhatsApp inválido.'),
   lead_email: z.string().trim().email('E-mail inválido.'),
+  cupom_desconto: z.string().trim().max(50).optional(),
   observacoes: z.string().optional(),
 })
 

@@ -28,6 +28,20 @@ describe('routes_seed', () => {
         icone: 'CalendarDays',
         ordem: 7,
       },
+      {
+        modulo: 'Reservas',
+        recurso: 'Novo Orçamento',
+        rota: '/reservas/orcamentos/novo',
+        icone: 'Calculator',
+        ordem: 8,
+      },
+      {
+        modulo: 'Reservas',
+        recurso: 'Orçamentos',
+        rota: '/reservas/orcamentos',
+        icone: 'Calculator',
+        ordem: 9,
+      },
     ])
 
     // 1. Quartos

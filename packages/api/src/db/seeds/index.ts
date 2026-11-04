@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import bcrypt from 'bcryptjs'
 import { db } from '@/lib/prisma'
-import { BASE_ROUTES, seedRoutes } from './routes_seed'
+import { seedRoutes } from './routes_seed'
 
 function build_year_dates_by_schedule(year: number): {
   weekday_dates: Date[]
@@ -28,6 +28,8 @@ function build_year_dates_by_schedule(year: number): {
 }
 
 async function clean() {
+  await db.orcamento.deleteMany()
+  await db.lead.deleteMany()
   await db.tarifarioData.deleteMany()
   await db.tarifario.deleteMany()
   await db.configuracaoCama.deleteMany()
@@ -80,25 +82,80 @@ async function seed() {
   const createdRoutes = await seedRoutes(db)
 
   const categorias = await Promise.all([
-    db.categoriaQuarto.create({ data: { hotel_id: hotel.id, nome: 'Suítes Luxo', status: 'S' } }),
-    db.categoriaQuarto.create({ data: { hotel_id: hotel.id, nome: 'Suítes Super Luxo', status: 'S' } }),
-    db.categoriaQuarto.create({ data: { hotel_id: hotel.id, nome: 'Suítes Master', status: 'S' } }),
-    db.categoriaQuarto.create({ data: { hotel_id: hotel.id, nome: 'Suíte Presidencial', status: 'S' } }),
+    db.categoriaQuarto.create({
+      data: { hotel_id: hotel.id, nome: 'Suítes Luxo', status: 'S' },
+    }),
+    db.categoriaQuarto.create({
+      data: { hotel_id: hotel.id, nome: 'Suítes Super Luxo', status: 'S' },
+    }),
+    db.categoriaQuarto.create({
+      data: { hotel_id: hotel.id, nome: 'Suítes Master', status: 'S' },
+    }),
+    db.categoriaQuarto.create({
+      data: { hotel_id: hotel.id, nome: 'Suíte Presidencial', status: 'S' },
+    }),
   ])
 
   const configurations = [
-    { category: categorias[0], numbers: Array.from({ length: 16 }, (_, index) => 101 + index), beds: [{ tipo: 'casal', quantidade: 1 }], capacity: 2 },
-    { category: categorias[1], numbers: Array.from({ length: 16 }, (_, index) => 201 + index), beds: [{ tipo: 'queen', quantidade: 1 }, { tipo: 'solteiro', quantidade: 1 }], capacity: 3 },
-    { category: categorias[2], numbers: Array.from({ length: 5 }, (_, index) => 302 + index), beds: [{ tipo: 'king', quantidade: 1 }, { tipo: 'solteiro', quantidade: 1 }], capacity: 3 },
-    { category: categorias[3], numbers: [301], beds: [{ tipo: 'king', quantidade: 1 }, { tipo: 'solteiro', quantidade: 2 }], capacity: 4 },
+    {
+      category: categorias[0],
+      numbers: Array.from({ length: 16 }, (_, index) => 101 + index),
+      beds: [{ tipo: 'casal', quantidade: 1 }],
+      capacity: 2,
+    },
+    {
+      category: categorias[1],
+      numbers: Array.from({ length: 16 }, (_, index) => 201 + index),
+      beds: [
+        { tipo: 'queen', quantidade: 1 },
+        { tipo: 'solteiro', quantidade: 1 },
+      ],
+      capacity: 3,
+    },
+    {
+      category: categorias[2],
+      numbers: Array.from({ length: 5 }, (_, index) => 302 + index),
+      beds: [
+        { tipo: 'king', quantidade: 1 },
+        { tipo: 'solteiro', quantidade: 1 },
+      ],
+      capacity: 3,
+    },
+    {
+      category: categorias[3],
+      numbers: [301],
+      beds: [
+        { tipo: 'king', quantidade: 1 },
+        { tipo: 'solteiro', quantidade: 2 },
+      ],
+      capacity: 4,
+    },
   ]
   for (const configuration of configurations) {
     for (const number of configuration.numbers) {
-      await db.quarto.create({ data: { hotel_id: hotel.id, categoria_id: configuration.category.id, identificacao: String(number), descricao: `Quarto ${number} - ${configuration.category.nome}`, limite_hospedes: configuration.capacity, status: 'S', camas: { create: configuration.beds } } })
+      await db.quarto.create({
+        data: {
+          hotel_id: hotel.id,
+          categoria_id: configuration.category.id,
+          identificacao: String(number),
+          descricao: `Quarto ${number} - ${configuration.category.nome}`,
+          limite_hospedes: configuration.capacity,
+          status: 'S',
+          camas: { create: configuration.beds },
+        },
+      })
     }
   }
-  const seeded_room_counts = await Promise.all(categorias.map(category => db.quarto.count({ where: { categoria_id: category.id, hotel_id: hotel.id } })))
-  console.log(`Quartos por categoria: ${categorias.map((category, index) => `${category.nome}=${seeded_room_counts[index]}`).join(', ')}`)
+  const seeded_room_counts = await Promise.all(
+    categorias.map(category =>
+      db.quarto.count({
+        where: { categoria_id: category.id, hotel_id: hotel.id },
+      })
+    )
+  )
+  console.log(
+    `Quartos por categoria: ${categorias.map((category, index) => `${category.nome}=${seeded_room_counts[index]}`).join(', ')}`
+  )
 
   const current_year = new Date().getUTCFullYear()
   const { weekday_dates, weekend_dates } =
@@ -163,7 +220,7 @@ async function seed() {
     where: { hotel_id: hotel.id },
   })
   console.log(
-    `Tarifários criados (${current_year}): ${seeded_tarifarios_count} (${weekday_dates.length} dias de semana / ${weekend_dates.length} dias de fim de semana por categoria)`,
+    `Tarifários criados (${current_year}): ${seeded_tarifarios_count} (${weekday_dates.length} dias de semana / ${weekend_dates.length} dias de fim de semana por categoria)`
   )
 
   const senha = await bcrypt.hash('senha123', 10)

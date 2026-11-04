@@ -7,17 +7,18 @@ import {
   Hotel,
   Loader2,
   PawPrint,
+  Tag,
   Users,
   Utensils,
 } from 'lucide-react'
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { orcamentosService } from '@/api/orcamentos.service'
+import { ModalReservarInfo } from '@/components/orcamentos/modal_reservar_info'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { ModalReservarInfo } from './components/modal_reservar_info'
 
 function formatarDataBR(dataIso: string) {
   if (!dataIso) return ''
@@ -208,7 +209,7 @@ export function VisualizarOrcamentoPublicoPage() {
           <CardHeader className="bg-slate-100/60 pb-3 pt-3">
             <CardTitle className="flex items-center gap-2 text-sm font-bold">
               <Utensils className="h-4 w-4 text-primary" />
-              Regime de Refeições Incluso
+              Regime de Alimentação Incluso
             </CardTitle>
           </CardHeader>
           <CardContent className="p-4">
@@ -247,9 +248,17 @@ export function VisualizarOrcamentoPublicoPage() {
         {/* Card do Valor Total e Diárias */}
         <Card className="mb-6 overflow-hidden border-primary/30 bg-primary/5 shadow-sm">
           <CardContent className="p-5">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Investimento Total
-            </span>
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Investimento Total
+              </span>
+              {orcamento.cupom_desconto && (
+                <span className="inline-flex items-center gap-1 rounded bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                  <Tag className="h-3 w-3" />
+                  Cupom: {orcamento.cupom_desconto}
+                </span>
+              )}
+            </div>
             <div className="mt-1 flex items-baseline justify-between">
               <span className="text-3xl font-extrabold text-primary">
                 {formatarMoeda(orcamento.valor_total)}

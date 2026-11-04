@@ -40,6 +40,20 @@ export const BASE_ROUTES: RouteSeedItem[] = [
     ordem: 7,
   },
   {
+    modulo: 'Reservas',
+    recurso: 'Novo Orçamento',
+    rota: '/reservas/orcamentos/novo',
+    icone: 'Calculator',
+    ordem: 8,
+  },
+  {
+    modulo: 'Reservas',
+    recurso: 'Orçamentos',
+    rota: '/reservas/orcamentos',
+    icone: 'Calculator',
+    ordem: 9,
+  },
+  {
     modulo: 'Quartos',
     recurso: 'Cadastrar',
     rota: '/quartos/novo',
