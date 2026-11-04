@@ -314,7 +314,7 @@ function CalendarioContent() {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full isolate">
       {/* Header */}
       <PageHeader
         title="Calendário de Reservas"
@@ -406,9 +406,9 @@ function CalendarioContent() {
           className="w-full border-collapse table-fixed"
           style={{ overflow: 'visible' }}
         >
-          <thead className="sticky top-0 z-50">
+          <thead className="sticky top-0 z-20">
             <tr className="bg-muted">
-              <th className="p-2 text-left font-semibold sticky left-0 bg-muted z-20 w-[120px] border-r border-border"></th>
+              <th className="p-2 text-left font-semibold sticky left-0 bg-muted z-30 w-[120px] border-r border-border"></th>
               {days.map((day, index) => (
                 <th
                   key={index}
@@ -442,7 +442,7 @@ function CalendarioContent() {
                       : 'bg-muted/20 even:bg-muted/10',
                   )}
                 >
-                  <td className="p-2 sticky left-0 bg-background z-10 w-[120px] border-r border-border">
+                  <td className="p-2 sticky left-0 bg-background z-20 w-[120px] border-r border-border">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>

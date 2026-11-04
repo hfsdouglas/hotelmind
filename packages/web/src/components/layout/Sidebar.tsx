@@ -95,7 +95,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   return (
     <aside
       className={cn(
-        'absolute inset-y-0 left-0 z-40 flex w-72 flex-col border-r bg-card transition-transform duration-300',
+        'absolute inset-y-0 left-0 z-50 flex w-72 flex-col border-r bg-card transition-transform duration-300',
         isOpen ? 'translate-x-0' : '-translate-x-full',
       )}
     >

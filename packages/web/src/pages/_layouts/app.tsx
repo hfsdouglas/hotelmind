@@ -22,7 +22,7 @@ export function AppLayout() {
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         {sidebarOpen && (
           <div
-            className="absolute inset-0 z-30"
+            className="absolute inset-0 z-40 bg-black/20"
             onClick={() => setSidebarOpen(false)}
           />
         )}
