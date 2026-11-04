@@ -15,6 +15,9 @@ import { RegimesAlimentacaoPage } from '@/pages/app/regimes_alimentacao'
 import { EditarRegimeAlimentacaoPage } from '@/pages/app/regimes_alimentacao/[id]/editar'
 import { NovoRegimeAlimentacaoPage } from '@/pages/app/regimes_alimentacao/novo'
 import { Calendario } from '@/pages/app/reservas/calendario'
+import { OrcamentosPage } from '@/pages/app/reservas/orcamentos/index'
+import { EditarOrcamentoPage } from '@/pages/app/reservas/orcamentos/[id]/editar'
+import { NovoOrcamentoPage } from '@/pages/app/reservas/orcamentos/novo'
 import { TarifariosPage } from '@/pages/app/tarifarios'
 import { EditarTarifarioPage } from '@/pages/app/tarifarios/[id]/editar'
 import { NovoTarifarioPage } from '@/pages/app/tarifarios/novo'
@@ -23,11 +26,16 @@ import { UsuariosPage } from '@/pages/app/usuarios/index'
 import { NovoUsuarioPage } from '@/pages/app/usuarios/novo'
 import { LoginPage } from '@/pages/auth/login'
 import { Error404Page } from '@/pages/error-404'
+import { VisualizarOrcamentoPublicoPage } from '@/pages/public/orcamento'
 
 export const router = createBrowserRouter([
   {
     element: <LoginLayout />,
     children: [{ path: '/login', element: <LoginPage /> }],
+  },
+  {
+    path: '/orcamento/:token',
+    element: <VisualizarOrcamentoPublicoPage />,
   },
   {
     element: <AppLayout />,
@@ -78,6 +86,12 @@ export const router = createBrowserRouter([
       { path: '/reservas', element: <Calendario /> },
       { path: '/reservas/calendario', element: <Calendario /> },
       { path: '/reservas/novo', element: <Calendario /> },
+      { path: '/reservas/orcamentos', element: <OrcamentosPage /> },
+      { path: '/reservas/orcamentos/novo', element: <NovoOrcamentoPage /> },
+      {
+        path: '/reservas/orcamentos/:id/editar',
+        element: <EditarOrcamentoPage />,
+      },
     ],
   },
   { path: '*', element: <Error404Page /> },

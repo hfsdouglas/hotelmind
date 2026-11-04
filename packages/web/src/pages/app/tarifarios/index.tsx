@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { usePaginacao } from '@/hooks/usePaginacao'
-import { format_iso_to_br } from '@/schemas/tarifario.schema'
+import { format_iso_to_br } from '@/schemas/tarifarios/tarifario_schema'
 
 export function TarifariosPage() {
   const { pagina, limite, busca, setParam, setParams, setPagina, isPending } =

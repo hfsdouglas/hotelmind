@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { useState } from 'react'
@@ -20,14 +19,9 @@ import { CheckboxGroupList } from '@/components/forms/CheckboxGroupList'
 import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
 import { gruposService } from '@/api/grupos.service'
 import type { RotaItem } from '@/api/grupos.service'
+import { type GrupoFormData, grupoSchema } from '@/schemas/grupos/grupo_schema'
 
-const schema = z.object({
-  grupo: z.string().min(1, 'Nome obrigatório').max(100),
-  descricao: z.string().optional(),
-  status: z.enum(['S', 'N']).default('S'),
-})
-
-type FormData = z.infer<typeof schema>
+type FormData = GrupoFormData
 
 function groupByModule(rotas: RotaItem[]) {
   const modules = new Map<string, RotaItem[]>()
@@ -44,7 +38,7 @@ function groupByModule(rotas: RotaItem[]) {
 export function NovoGrupoPage() {
   const navigate = useNavigate()
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(grupoSchema as never),
     defaultValues: { status: 'S' },
   })
 

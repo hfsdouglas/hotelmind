@@ -22,7 +22,7 @@ import {
   type TarifarioFormValues,
   tarifario_form_schema,
   toggle_date_selection,
-} from '@/schemas/tarifario.schema'
+} from '@/schemas/tarifarios/tarifario_schema'
 import { TarifarioCalendar } from './tarifario_calendar'
 import { TarifarioPeriodSummary } from './tarifario_period_summary'
 

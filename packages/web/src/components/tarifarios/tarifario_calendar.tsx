@@ -34,7 +34,7 @@ import {
   get_local_today_iso,
   get_visible_calendar_months,
   is_valid_date_string,
-} from '@/schemas/tarifario.schema'
+} from '@/schemas/tarifarios/tarifario_schema'
 import { TarifarioCalendarDay } from './tarifario_calendar_day'
 import { TarifarioStatusBadge } from './tarifario_status_badge'
 

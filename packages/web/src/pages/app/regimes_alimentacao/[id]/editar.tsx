@@ -14,7 +14,7 @@ import { Textarea } from '@/components/ui/textarea'
 import {
   type RegimeAlimentacaoFormData,
   regimeAlimentacaoSchema,
-} from '@/schemas/regime_alimentacao.schema'
+} from '@/schemas/regimes_alimentacao/regime_alimentacao_schema'
 
 export function EditarRegimeAlimentacaoPage() {
   const { id } = useParams<{ id: string }>()

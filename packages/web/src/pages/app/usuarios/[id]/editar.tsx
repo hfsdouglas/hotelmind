@@ -1,7 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { useEffect } from 'react'
@@ -12,20 +11,12 @@ import { CheckboxGrid } from '@/components/forms/CheckboxGrid'
 import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
 import { usuariosService } from '@/api/usuarios.service'
 import { gruposService } from '@/api/grupos.service'
+import {
+  type UsuarioUpdateFormData,
+  usuarioUpdateSchema,
+} from '@/schemas/usuarios/usuario_schema'
 
-const schema = z.object({
-  nome_completo: z.string().min(1).optional(),
-  email: z.string().email().optional(),
-  senha: z.string().min(8).optional().or(z.literal('')),
-  nascimento: z.string().optional(),
-  genero: z.string().optional(),
-  celular: z.string().min(10).max(11).optional(),
-  cpf: z.string().length(11).optional(),
-  rg: z.string().optional(),
-  grupos_ids: z.string().optional(),
-})
-
-type FormData = z.infer<typeof schema>
+type FormData = UsuarioUpdateFormData
 
 export function EditarUsuarioPage() {
   const { id } = useParams<{ id: string }>()
@@ -46,7 +37,7 @@ export function EditarUsuarioPage() {
   const grupos = gruposData?.data ?? []
 
   const { register, handleSubmit, setValue, watch, formState: { errors }, reset } =
-    useForm<FormData>({ resolver: zodResolver(schema) })
+    useForm<FormData>({ resolver: zodResolver(usuarioUpdateSchema as never) })
 
   useEffect(() => {
     if (usuario) {
@@ -108,41 +99,41 @@ export function EditarUsuarioPage() {
     >
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <Label>Nome completo</Label>
-          <Input {...register('nome_completo')} />
+          <Label htmlFor="nome_completo">Nome completo</Label>
+          <Input id="nome_completo" {...register('nome_completo')} />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label>E-mail</Label>
-          <Input type="email" {...register('email')} />
+          <Label htmlFor="email">E-mail</Label>
+          <Input id="email" type="email" {...register('email')} />
           {errors.email && (
             <p className="text-sm text-destructive">{errors.email.message}</p>
           )}
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label>Nova senha</Label>
-          <Input type="password" {...register('senha')} placeholder="Deixe em branco para não alterar" />
+          <Label htmlFor="senha">Nova senha</Label>
+          <Input id="senha" type="password" {...register('senha')} placeholder="Deixe em branco para não alterar" />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label>Data de nascimento</Label>
-          <Input type="date" {...register('nascimento')} />
+          <Label htmlFor="nascimento">Data de nascimento</Label>
+          <Input id="nascimento" type="date" {...register('nascimento')} />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label>Gênero</Label>
-          <Input {...register('genero')} />
+          <Label htmlFor="genero">Gênero</Label>
+          <Input id="genero" {...register('genero')} />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
-            <Label>Celular</Label>
-            <Input {...register('celular')} maxLength={11} />
+            <Label htmlFor="celular">Celular</Label>
+            <Input id="celular" {...register('celular')} maxLength={11} />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label>CPF</Label>
-            <Input {...register('cpf')} maxLength={11} />
+            <Label htmlFor="cpf">CPF</Label>
+            <Input id="cpf" {...register('cpf')} maxLength={11} />
           </div>
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label>RG</Label>
-          <Input {...register('rg')} />
+          <Label htmlFor="rg">RG</Label>
+          <Input id="rg" {...register('rg')} />
         </div>
       </div>
 

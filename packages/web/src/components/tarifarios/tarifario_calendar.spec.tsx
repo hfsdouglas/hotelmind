@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { useState } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
-import { toggle_date_selection } from '@/schemas/tarifario.schema'
+import { toggle_date_selection } from '@/schemas/tarifarios/tarifario_schema'
 import { TarifarioCalendar } from './tarifario_calendar'
 import { TarifarioForm } from './tarifario_form'
 
