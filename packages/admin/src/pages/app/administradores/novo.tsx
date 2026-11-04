@@ -8,7 +8,7 @@ import { administradoresService } from '@/api/administradores.service'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { CrudFormLayout } from '@/components/forms/CrudFormLayout'
+import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
 
 const schema = z.object({
   nome_completo: z.string().min(2),
@@ -41,7 +41,7 @@ export function AdministradorNovoPage() {
       onSubmit={form.handleSubmit(d => mutate(d))}
       actions={
         <>
-          <Button type="submit" disabled={isPending}>{isPending ? 'Salvando...' : 'Criar'}</Button>
+          <SaveButton isPending={isPending} />
           <Button type="button" variant="outline" onClick={() => navigate('/administradores')}>Cancelar</Button>
         </>
       }

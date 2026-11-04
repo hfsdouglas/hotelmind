@@ -1,44 +1,123 @@
 import { describe, expect, it, vi } from 'vitest'
-import { BASE_ROUTES, seedRoutes } from './routes_seed'
 import type { DB } from '@/lib/prisma'
+import { BASE_ROUTES, seedRoutes } from './routes_seed'
 
 describe('routes_seed', () => {
   it('defines the required base routes in correct order and structure', () => {
     // Reservas
     const reservas = BASE_ROUTES.filter(r => r.modulo === 'Reservas')
     expect(reservas).toEqual([
-      { modulo: 'Reservas', recurso: 'Calendário', rota: '/reservas/calendario', icone: 'CalendarDays', ordem: 5 },
-      { modulo: 'Reservas', recurso: 'Reservar', rota: '/reservas/novo', icone: 'CalendarDays', ordem: 6 },
-      { modulo: 'Reservas', recurso: 'Consultar', rota: '/reservas', icone: 'CalendarDays', ordem: 7 },
+      {
+        modulo: 'Reservas',
+        recurso: 'Calendário',
+        rota: '/reservas/calendario',
+        icone: 'CalendarDays',
+        ordem: 5,
+      },
+      {
+        modulo: 'Reservas',
+        recurso: 'Reservar',
+        rota: '/reservas/novo',
+        icone: 'CalendarDays',
+        ordem: 6,
+      },
+      {
+        modulo: 'Reservas',
+        recurso: 'Consultar',
+        rota: '/reservas',
+        icone: 'CalendarDays',
+        ordem: 7,
+      },
     ])
 
     // 1. Quartos
     const quartos = BASE_ROUTES.filter(r => r.modulo === 'Quartos')
     expect(quartos).toEqual([
-      { modulo: 'Quartos', recurso: 'Cadastrar', rota: '/quartos/novo', icone: 'BedDouble', ordem: 10 },
-      { modulo: 'Quartos', recurso: 'Consultar', rota: '/quartos', icone: 'BedDouble', ordem: 11 },
-      { modulo: 'Quartos', recurso: 'Categorias', rota: '/categorias_quartos', icone: 'BedDouble', ordem: 12 },
+      {
+        modulo: 'Quartos',
+        recurso: 'Cadastrar',
+        rota: '/quartos/novo',
+        icone: 'BedDouble',
+        ordem: 10,
+      },
+      {
+        modulo: 'Quartos',
+        recurso: 'Consultar',
+        rota: '/quartos',
+        icone: 'BedDouble',
+        ordem: 11,
+      },
+      {
+        modulo: 'Quartos',
+        recurso: 'Categorias',
+        rota: '/categorias_quartos',
+        icone: 'BedDouble',
+        ordem: 12,
+      },
     ])
 
     // 2. Tarifários
     const tarifarios = BASE_ROUTES.filter(r => r.modulo === 'Tarifários')
     expect(tarifarios).toEqual([
-      { modulo: 'Tarifários', recurso: 'Cadastrar', rota: '/tarifarios/novo', icone: 'CalendarRange', ordem: 20 },
-      { modulo: 'Tarifários', recurso: 'Consultar', rota: '/tarifarios', icone: 'CalendarRange', ordem: 21 },
+      {
+        modulo: 'Tarifários',
+        recurso: 'Cadastrar',
+        rota: '/tarifarios/novo',
+        icone: 'CalendarRange',
+        ordem: 20,
+      },
+      {
+        modulo: 'Tarifários',
+        recurso: 'Consultar',
+        rota: '/tarifarios',
+        icone: 'CalendarRange',
+        ordem: 21,
+      },
+      {
+        modulo: 'Tarifários',
+        recurso: 'Regimes de Alimentação',
+        rota: '/regimes_alimentacao',
+        icone: 'CalendarRange',
+        ordem: 22,
+      },
     ])
 
     // 3. Usuários
     const usuarios = BASE_ROUTES.filter(r => r.modulo === 'Usuários')
     expect(usuarios).toEqual([
-      { modulo: 'Usuários', recurso: 'Cadastrar', rota: '/usuarios/novo', icone: 'Users', ordem: 30 },
-      { modulo: 'Usuários', recurso: 'Consultar', rota: '/usuarios', icone: 'Users', ordem: 31 },
+      {
+        modulo: 'Usuários',
+        recurso: 'Cadastrar',
+        rota: '/usuarios/novo',
+        icone: 'Users',
+        ordem: 30,
+      },
+      {
+        modulo: 'Usuários',
+        recurso: 'Consultar',
+        rota: '/usuarios',
+        icone: 'Users',
+        ordem: 31,
+      },
     ])
 
     // 4. Grupos
     const grupos = BASE_ROUTES.filter(r => r.modulo === 'Grupos')
     expect(grupos).toEqual([
-      { modulo: 'Grupos', recurso: 'Cadastrar', rota: '/grupos/novo', icone: 'Shield', ordem: 40 },
-      { modulo: 'Grupos', recurso: 'Consultar', rota: '/grupos', icone: 'Shield', ordem: 41 },
+      {
+        modulo: 'Grupos',
+        recurso: 'Cadastrar',
+        rota: '/grupos/novo',
+        icone: 'Shield',
+        ordem: 40,
+      },
+      {
+        modulo: 'Grupos',
+        recurso: 'Consultar',
+        rota: '/grupos',
+        icone: 'Shield',
+        ordem: 41,
+      },
     ])
 
     // Dashboard
@@ -62,7 +141,11 @@ describe('routes_seed', () => {
     const mockDb = {
       rota: {
         findFirst: vi.fn().mockResolvedValue(null),
-        create: vi.fn().mockImplementation(({ data }) => Promise.resolve({ id: `id-${data.rota}`, ...data })),
+        create: vi
+          .fn()
+          .mockImplementation(({ data }) =>
+            Promise.resolve({ id: `id-${data.rota}`, ...data })
+          ),
         update: vi.fn(),
         updateMany: vi.fn().mockResolvedValue({ count: 0 }),
       },

@@ -48,6 +48,23 @@ export function TarifariosPage() {
       render: row => row.categoria_quarto.nome,
     },
     {
+      key: 'regime_alimentacao',
+      header: 'Regime de Alimentação',
+      render: row =>
+        row.regime_alimentacao ? (
+          <div className="flex items-center gap-2">
+            <span
+              className="inline-block h-3 w-3 shrink-0 rounded-full border border-black/10 shadow-sm"
+              style={{ backgroundColor: row.regime_alimentacao.cor_pulseira }}
+              aria-hidden="true"
+            />
+            <span>{row.regime_alimentacao.titulo}</span>
+          </div>
+        ) : (
+          <span className="text-muted-foreground">—</span>
+        ),
+    },
+    {
       key: 'datas',
       header: 'Datas selecionadas',
       render: row => (

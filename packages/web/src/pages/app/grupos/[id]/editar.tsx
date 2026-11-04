@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { CheckboxGroupList } from '@/components/forms/CheckboxGroupList'
-import { CrudFormLayout } from '@/components/forms/CrudFormLayout'
+import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
 import { gruposService } from '@/api/grupos.service'
 import type { RotaItem } from '@/api/grupos.service'
 
@@ -137,14 +137,9 @@ export function EditarGrupoPage() {
       cardTitle="Dados do grupo"
       onSubmit={handleSubmit(d => updateMutation.mutate(d))}
       actions={
-        <Button
-          type="submit"
-          disabled={updateMutation.isPending || syncRotasMutation.isPending}
-        >
-          {updateMutation.isPending || syncRotasMutation.isPending
-            ? 'Salvando...'
-            : 'Salvar'}
-        </Button>
+        <SaveButton
+          isPending={updateMutation.isPending || syncRotasMutation.isPending}
+        />
       }
     >
       <div className="flex flex-col gap-4">

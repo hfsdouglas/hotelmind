@@ -70,7 +70,7 @@ describe('NovoGrupoPage', () => {
 
     await fillRequiredFields(user)
     await user.click(await screen.findByText('Usuários'))
-    await user.click(screen.getByRole('button', { name: /criar grupo/i }))
+    await user.click(screen.getByRole('button', { name: /salvar/i }))
 
     await waitFor(() => {
       expect(syncedIds).toEqual(['rota-1'])
@@ -100,7 +100,7 @@ describe('NovoGrupoPage', () => {
     await screen.findByText('Rotas de acesso')
 
     await fillRequiredFields(user)
-    await user.click(screen.getByRole('button', { name: /criar grupo/i }))
+    await user.click(screen.getByRole('button', { name: /salvar/i }))
 
     await waitFor(() => {
       expect(createCalled).toBe(true)

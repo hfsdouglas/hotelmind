@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { CrudFormLayout } from '@/components/forms/CrudFormLayout'
+import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
 
 const schema = z.object({
   nome_completo: z.string().min(2),
@@ -58,7 +58,7 @@ export function AdministradorEditarPage() {
       onSubmit={form.handleSubmit(d => mutate(d))}
       actions={
         <>
-          <Button type="submit" disabled={isPending}>{isPending ? 'Salvando...' : 'Salvar'}</Button>
+          <SaveButton isPending={isPending} />
           <Button type="button" variant="outline" onClick={() => navigate('/administradores')}>Cancelar</Button>
         </>
       }

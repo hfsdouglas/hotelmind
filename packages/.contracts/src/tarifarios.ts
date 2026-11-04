@@ -1,15 +1,23 @@
 import type { PaginacaoMeta } from './grupos.js'
 import type { CategoriaQuartoResumo } from './quartos.js'
 
+export interface RegimeAlimentacaoResumo {
+  id: string
+  titulo: string
+  cor_pulseira: string
+}
+
 export interface Tarifario {
   id: string
   hotel_id: string
   categoria_quarto_id: string
+  regime_alimentacao_id: string
   nome: string
   datas: string[]
   valor_diaria: string
   ativo: boolean
   categoria_quarto: CategoriaQuartoResumo
+  regime_alimentacao: RegimeAlimentacaoResumo
   criado_em: string
   atualizado_em: string
 }
@@ -24,11 +32,13 @@ export interface TarifarioListParams {
   limite?: number
   busca?: string
   categoria_quarto_id?: string
+  regime_alimentacao_id?: string
   ativo?: boolean
 }
 
 export interface CreateTarifarioPayload {
   categoria_quarto_id: string
+  regime_alimentacao_id: string
   nome: string
   datas: string[]
   valor_diaria: string
@@ -37,6 +47,7 @@ export interface CreateTarifarioPayload {
 
 export interface UpdateTarifarioPayload {
   categoria_quarto_id?: string
+  regime_alimentacao_id?: string
   nome?: string
   datas?: string[]
   valor_diaria?: string

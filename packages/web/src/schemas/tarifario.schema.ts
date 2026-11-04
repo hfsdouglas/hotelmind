@@ -50,10 +50,7 @@ export function get_local_today_iso(now: Date = new Date()): string {
   return `${year}-${month}-${day}`
 }
 
-export function format_dates_summary(
-  datas: string[],
-  max_visible = 3,
-): string {
+export function format_dates_summary(datas: string[], max_visible = 3): string {
   if (!datas || datas.length === 0) return 'Nenhuma data'
   const sorted = [...datas].sort()
   const visible = sorted.slice(0, max_visible).map(format_iso_to_br).join(', ')
@@ -66,7 +63,7 @@ export function format_dates_summary(
 
 export function toggle_date_selection(
   selected_dates: string[],
-  iso_date: string,
+  iso_date: string
 ): string[] {
   const set = new Set(selected_dates)
   if (set.has(iso_date)) {
@@ -80,7 +77,7 @@ export function toggle_date_selection(
 export function find_conflicting_periods(
   selected_dates: string[],
   periods: PeriodoTarifarioCalendario[],
-  exclude_id?: string,
+  exclude_id?: string
 ): PeriodoTarifarioCalendario[] {
   if (!selected_dates.length) return []
   const selected_set = new Set(selected_dates)
@@ -93,12 +90,12 @@ export function find_conflicting_periods(
 
 export function get_calendar_month_grid(
   year: number,
-  month_zero_based: number,
+  month_zero_based: number
 ): CalendarMonthCell[] {
   const first_day = new Date(Date.UTC(year, month_zero_based, 1))
   const start_weekday = first_day.getUTCDay()
   const days_in_month = new Date(
-    Date.UTC(year, month_zero_based + 1, 0),
+    Date.UTC(year, month_zero_based + 1, 0)
   ).getUTCDate()
 
   const cells: CalendarMonthCell[] = []
@@ -124,7 +121,7 @@ export function get_calendar_month_grid(
   const remaining = (7 - (cells.length % 7)) % 7
   for (let i = 1; i <= remaining; i++) {
     const next_date = new Date(
-      Date.UTC(year, month_zero_based, days_in_month + i),
+      Date.UTC(year, month_zero_based, days_in_month + i)
     )
     cells.push({
       iso_date: next_date.toISOString().slice(0, 10),
@@ -139,12 +136,12 @@ export function get_calendar_month_grid(
 export function get_visible_calendar_months(
   start_year: number,
   start_month_zero_based: number,
-  count: CalendarMonthsViewCount,
+  count: CalendarMonthsViewCount
 ): VisibleCalendarMonth[] {
   const months: VisibleCalendarMonth[] = []
   for (let offset = 0; offset < count; offset++) {
     const normalized = new Date(
-      Date.UTC(start_year, start_month_zero_based + offset, 1),
+      Date.UTC(start_year, start_month_zero_based + offset, 1)
     )
     const year = normalized.getUTCFullYear()
     const month_zero_based = normalized.getUTCMonth()
@@ -157,6 +154,22 @@ export function get_visible_calendar_months(
   return months
 }
 
+export function infer_months_count_from_dates(
+  selected_dates: string[]
+): CalendarMonthsViewCount {
+  const valid = selected_dates.filter(is_valid_date_string).sort()
+  if (valid.length === 0) return 1
+
+  const [first_y, first_m] = valid[0].split('-').map(Number)
+  const [last_y, last_m] = valid[valid.length - 1].split('-').map(Number)
+  const span_months = (last_y - first_y) * 12 + (last_m - first_m) + 1
+
+  if (span_months > 6 || valid.length > 180) return 12
+  if (span_months > 3 || valid.length > 90) return 6
+  if (span_months > 1 || valid.length > 31) return 3
+  return 1
+}
+
 export function compute_bulk_selection_dates(input: {
   visible_months: Array<{ year: number; month_zero_based: number }>
   mode: CalendarBulkSelectMode
@@ -166,7 +179,10 @@ export function compute_bulk_selection_dates(input: {
   const active_occupied_dates = new Set<string>()
   for (const period of input.occupied_periods) {
     if (!period.ativo) continue
-    if (input.exclude_tarifario_id && period.id === input.exclude_tarifario_id) {
+    if (
+      input.exclude_tarifario_id &&
+      period.id === input.exclude_tarifario_id
+    ) {
       continue
     }
     for (const iso_date of period.datas) {
@@ -177,7 +193,7 @@ export function compute_bulk_selection_dates(input: {
   const selected = new Set<string>()
   for (const { year, month_zero_based } of input.visible_months) {
     const days_in_month = new Date(
-      Date.UTC(year, month_zero_based + 1, 0),
+      Date.UTC(year, month_zero_based + 1, 0)
     ).getUTCDate()
 
     for (let day = 1; day <= days_in_month; day++) {
@@ -210,13 +226,12 @@ export const tarifario_form_schema = z.object({
     .string()
     .trim()
     .min(1, 'Selecione uma categoria de quarto.'),
+  regime_alimentacao_id: z
+    .string()
+    .trim()
+    .min(1, 'Selecione um regime de alimentação.'),
   datas: z
-    .array(
-      z
-        .string()
-        .trim()
-        .refine(is_valid_date_string, 'Data inválida.'),
-    )
+    .array(z.string().trim().refine(is_valid_date_string, 'Data inválida.'))
     .min(1, 'Selecione ao menos uma data no calendário.'),
   valor_diaria: z
     .string()
@@ -224,7 +239,7 @@ export const tarifario_form_schema = z.object({
     .transform(val => val.replace(',', '.'))
     .refine(
       val => DECIMAL_VALUE_REGEX.test(val) && Number(val) >= 0,
-      'Informe um valor de diária válido maior ou igual a zero com até duas casas decimais.',
+      'Informe um valor de diária válido maior ou igual a zero com até duas casas decimais.'
     ),
   ativo: z.boolean(),
 })

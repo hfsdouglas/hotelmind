@@ -1,5 +1,5 @@
 import type { PeriodoTarifarioCalendario } from '@hotelmind/contracts'
-import { Tarifario, normalize_datas } from '@/core/entities/tarifario'
+import { normalize_datas, Tarifario } from '@/core/entities/tarifario'
 import { TarifarioPeriodConflictError } from '@/core/errors/tarifario_errors'
 import type { PaginatedResult } from '@/core/repositories/pagination'
 import type {
@@ -13,15 +13,30 @@ import type {
 
 export class InMemoryTarifarioRepository implements ITarifarioRepository {
   private items: Tarifario[] = []
-  private category_names = new Map<string, { nome: string; status: 'S' | 'N' }>()
+  private category_names = new Map<
+    string,
+    { nome: string; status: 'S' | 'N' }
+  >()
+  private regime_names = new Map<
+    string,
+    { titulo: string; cor_pulseira: string }
+  >()
 
   register_category(id: string, nome: string, status: 'S' | 'N' = 'S') {
     this.category_names.set(id, { nome, status })
   }
 
+  register_regime_alimentacao(
+    id: string,
+    titulo: string,
+    cor_pulseira: string
+  ) {
+    this.regime_names.set(id, { titulo, cor_pulseira })
+  }
+
   async list(
     hotel_id: string,
-    input: TarifarioListFilter,
+    input: TarifarioListFilter
   ): Promise<PaginatedResult<Tarifario>> {
     const filtered = this.items
       .filter(item => {
@@ -67,7 +82,7 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
   }
 
   async find_periods_by_category(
-    input: FindCalendarioPeriodsInput,
+    input: FindCalendarioPeriodsInput
   ): Promise<PeriodoTarifarioCalendario[]> {
     return this.items
       .filter(item => {
@@ -92,7 +107,7 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
   }
 
   private find_overlapping_active_sync(
-    input: FindOverlappingActiveInput,
+    input: FindOverlappingActiveInput
   ): Tarifario | null {
     const requested = new Set(normalize_datas(input.datas))
     return (
@@ -102,13 +117,13 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
           item.categoria_quarto_id === input.categoria_quarto_id &&
           item.ativo &&
           (!input.exclude_id || item.id !== input.exclude_id) &&
-          item.datas.some(d => requested.has(d)),
+          item.datas.some(d => requested.has(d))
       ) ?? null
     )
   }
 
   async find_overlapping_active(
-    input: FindOverlappingActiveInput,
+    input: FindOverlappingActiveInput
   ): Promise<Tarifario | null> {
     return this.find_overlapping_active_sync(input)
   }
@@ -124,7 +139,7 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
         item.hotel_id === input.hotel_id &&
         item.categoria_quarto_id === input.categoria_quarto_id &&
         item.ativo &&
-        item.datas.some(d => d >= input.data_inicio && d < input.data_fim),
+        item.datas.some(d => d >= input.data_inicio && d < input.data_fim)
     )
   }
 
@@ -144,11 +159,16 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
       nome: 'Categoria',
       status: 'S' as const,
     }
+    const regime_meta = this.regime_names.get(data.regime_alimentacao_id) ?? {
+      titulo: 'Regime',
+      cor_pulseira: '#2563EB',
+    }
     const now = new Date().toISOString()
     const entity = new Tarifario({
       id: crypto.randomUUID(),
       hotel_id: data.hotel_id,
       categoria_quarto_id: data.categoria_quarto_id,
+      regime_alimentacao_id: data.regime_alimentacao_id,
       nome: data.nome,
       datas: data.datas,
       valor_diaria: data.valor_diaria,
@@ -157,6 +177,11 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
         id: data.categoria_quarto_id,
         nome: cat_meta.nome,
         status: cat_meta.status,
+      },
+      regime_alimentacao: {
+        id: data.regime_alimentacao_id,
+        titulo: regime_meta.titulo,
+        cor_pulseira: regime_meta.cor_pulseira,
       },
       criado_em: now,
       atualizado_em: now,
@@ -167,7 +192,7 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
 
   async update(data: UpdateTarifarioData): Promise<Tarifario> {
     const index = this.items.findIndex(
-      item => item.id === data.id && item.hotel_id === data.hotel_id,
+      item => item.id === data.id && item.hotel_id === data.hotel_id
     )
     if (index < 0) {
       throw new Error('Tarifário não encontrado.')
@@ -190,10 +215,14 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
       nome: current.categoria_quarto.nome,
       status: current.categoria_quarto.status,
     }
+    const regime_id = data.regime_alimentacao_id ?? current.regime_alimentacao_id
+    const regime_meta = this.regime_names.get(regime_id) ?? (current.regime_alimentacao?.id === regime_id ? current.regime_alimentacao : { titulo: 'Regime', cor_pulseira: '#2563EB' })
+
     const updated = new Tarifario({
       id: current.id,
       hotel_id: current.hotel_id,
       categoria_quarto_id: data.categoria_quarto_id,
+      regime_alimentacao_id: regime_id,
       nome: data.nome,
       datas: data.datas,
       valor_diaria: data.valor_diaria,
@@ -202,6 +231,11 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
         id: data.categoria_quarto_id,
         nome: cat_meta.nome,
         status: cat_meta.status,
+      },
+      regime_alimentacao: {
+        id: regime_id,
+        titulo: regime_meta.titulo,
+        cor_pulseira: regime_meta.cor_pulseira,
       },
       criado_em: current.criado_em,
       atualizado_em: new Date().toISOString(),

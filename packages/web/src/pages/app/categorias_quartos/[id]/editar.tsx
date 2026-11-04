@@ -10,7 +10,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { CrudFormLayout } from '@/components/forms/CrudFormLayout'
+import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
 import { categoriasQuartosService } from '@/api/categorias_quartos.service'
 
 const schema = z.object({ nome: z.string().trim().min(1, 'Nome obrigatório').max(100), status: z.enum(['S', 'N']) })
@@ -30,7 +30,7 @@ export function EditarCategoriaQuartoPage() {
     onError: (error: { response?: { status?: number } }) => toast.error(error.response?.status === 409 ? 'Já existe uma categoria com este nome.' : 'Erro ao atualizar categoria.'),
   })
   if (isLoading || !data) return <p>Carregando categoria...</p>
-  return <><CrudFormLayout title="Editar categoria de quarto" backTo="/categorias_quartos" cardTitle="Dados da categoria" onSubmit={handleSubmit(form => { if (data.status === 'S' && form.status === 'N') { setPendingForm(form); setConfirmOpen(true) } else mutation.mutate(form) })} actions={<Button type="submit" disabled={mutation.isPending}>{mutation.isPending ? 'Salvando...' : 'Salvar alterações'}</Button>}>
+  return <><CrudFormLayout title="Editar categoria de quarto" backTo="/categorias_quartos" cardTitle="Dados da categoria" onSubmit={handleSubmit(form => { if (data.status === 'S' && form.status === 'N') { setPendingForm(form); setConfirmOpen(true) } else mutation.mutate(form) })} actions={<SaveButton isPending={mutation.isPending} />}>
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5"><Label htmlFor="nome">Nome *</Label><Input id="nome" {...register('nome')} />{errors.nome && <p className="text-sm text-destructive">{errors.nome.message}</p>}</div>
       <div className="flex flex-col gap-1.5"><Label htmlFor="status">Status</Label><Controller name="status" control={control} render={({ field }) => <Select value={field.value} onValueChange={field.onChange}><SelectTrigger id="status"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="S">Ativa</SelectItem><SelectItem value="N">Inativa</SelectItem></SelectContent></Select>} /></div>

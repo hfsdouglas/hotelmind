@@ -14,6 +14,7 @@ import { tarifarios_routes } from '@/routes/tarifarios/tarifarios_routes'
 
 const HOTEL_A = 'hotel-a'
 const HOTEL_B = 'hotel-b'
+const REGIME_ID = '33333333-3333-4333-8333-333333333333'
 const TEST_SECRET = 'test-jwt-secret'
 
 let tarifario_repo: InMemoryTarifarioRepository
@@ -86,6 +87,11 @@ describe('tarifarios_routes', () => {
     })
     cat_a_id = cat_a.id
     tarifario_repo.register_category(cat_a.id, cat_a.nome, 'S')
+    tarifario_repo.register_regime_alimentacao(
+      REGIME_ID,
+      'Meia Pensão',
+      '#2563EB',
+    )
 
     app = await build_app()
     token_hotel_a = make_token(app, HOTEL_A)
@@ -104,6 +110,7 @@ describe('tarifarios_routes', () => {
       cookies: { token: token_hotel_a },
       payload: {
         categoria_quarto_id: cat_a_id,
+        regime_alimentacao_id: REGIME_ID,
         nome: 'Baixa temporada',
         datas: ['2027-03-01', '2027-03-05'],
         valor_diaria: '200.00',
@@ -123,6 +130,7 @@ describe('tarifarios_routes', () => {
       cookies: { token: token_hotel_a },
       payload: {
         categoria_quarto_id: cat_a_id,
+        regime_alimentacao_id: REGIME_ID,
         nome: 'Sobreposição',
         datas: ['2027-03-05', '2027-03-10'],
         valor_diaria: '220.00',
@@ -137,6 +145,7 @@ describe('tarifarios_routes', () => {
       cookies: { token: token_hotel_a },
       payload: {
         categoria_quarto_id: cat_a_id,
+        regime_alimentacao_id: REGIME_ID,
         nome: 'Outros dias de Março',
         datas: ['2027-03-02', '2027-03-06'],
         valor_diaria: '250.00',
@@ -191,6 +200,7 @@ describe('tarifarios_routes', () => {
       cookies: { token: token_hotel_a },
       payload: {
         categoria_quarto_id: cat_a_id,
+        regime_alimentacao_id: REGIME_ID,
         nome: 'Tarifa Hotel A',
         datas: ['2027-03-01'],
         valor_diaria: '200.00',
@@ -226,11 +236,27 @@ describe('tarifarios_routes', () => {
       cookies: { token: token_hotel_b },
       payload: {
         categoria_quarto_id: cat_a_id,
+        regime_alimentacao_id: REGIME_ID,
         nome: 'Categoria de outro hotel',
         datas: ['2027-03-01'],
         valor_diaria: '200.00',
       },
     })
     expect(create_foreign_cat.statusCode).toBe(404)
+  })
+
+  it('rejects creation when regime_alimentacao_id is missing', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/tarifarios',
+      cookies: { token: token_hotel_a },
+      payload: {
+        categoria_quarto_id: cat_a_id,
+        nome: 'Sem regime',
+        datas: ['2027-03-01'],
+        valor_diaria: '200.00',
+      },
+    })
+    expect(res.statusCode).toBe(400)
   })
 })

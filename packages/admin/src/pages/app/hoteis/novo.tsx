@@ -8,7 +8,7 @@ import { hoteisService } from '@/api/hoteis.service'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { CrudFormLayout } from '@/components/forms/CrudFormLayout'
+import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
 
 const schema = z.object({
   nome_hotel: z.string().min(2),
@@ -45,9 +45,7 @@ export function HotelNovoPage() {
       onSubmit={form.handleSubmit(d => mutate(d))}
       actions={
         <>
-          <Button type="submit" disabled={isPending}>
-            {isPending ? 'Salvando...' : 'Criar hotel'}
-          </Button>
+          <SaveButton isPending={isPending} />
           <Button type="button" variant="outline" onClick={() => navigate('/hoteis')}>
             Cancelar
           </Button>

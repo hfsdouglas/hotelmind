@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { CrudFormLayout } from '@/components/forms/CrudFormLayout'
+import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
 import { categoriasQuartosService } from '@/api/categorias_quartos.service'
 import { quartosService } from '@/api/quartos.service'
 import { TIPOS_CAMA, type TipoCama } from '@hotelmind/contracts'
@@ -59,7 +59,7 @@ export function NovoQuartoPage() {
   if (!categories) return <p>Carregando categorias...</p>
   if (!categories.data.length) return <div className="flex flex-col gap-6"><h1 className="text-2xl font-bold tracking-tight">Novo quarto</h1><Card><CardContent className="flex items-center justify-between gap-4 p-6"><p className="text-sm text-muted-foreground">Nenhuma categoria ativa foi cadastrada.</p><Button asChild className="w-auto shrink-0"><Link to="/categorias_quartos/novo">Criar categoria</Link></Button></CardContent></Card></div>
 
-  return <CrudFormLayout title="Novo quarto" backTo="/quartos" cardTitle="Dados do quarto" onSubmit={submit} actions={<Button type="submit" disabled={mutation.isPending}>{mutation.isPending ? 'Salvando...' : 'Criar quarto'}</Button>}>
+  return <CrudFormLayout title="Novo quarto" backTo="/quartos" cardTitle="Dados do quarto" onSubmit={submit} actions={<SaveButton isPending={mutation.isPending} />}>
     <div className="flex flex-col gap-4">
       {errors.map(error => <p key={error} className="text-sm text-destructive">{error}</p>)}
       <div className="flex flex-col gap-1.5"><Label htmlFor="categoria_id">Categoria *</Label><Select value={categoria_id || undefined} onValueChange={setCategoriaId}><SelectTrigger id="categoria_id"><SelectValue placeholder="Selecione" /></SelectTrigger><SelectContent>{categories.data.map(category => <SelectItem key={category.id} value={category.id}>{category.nome}</SelectItem>)}</SelectContent></Select></div>

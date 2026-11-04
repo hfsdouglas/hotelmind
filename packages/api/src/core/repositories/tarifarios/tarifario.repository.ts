@@ -7,12 +7,14 @@ export interface TarifarioListFilter {
   limite: number
   busca?: string
   categoria_quarto_id?: string[]
+  regime_alimentacao_id?: string
   ativo?: boolean
 }
 
 export interface CreateTarifarioData {
   hotel_id: string
   categoria_quarto_id: string
+  regime_alimentacao_id: string
   nome: string
   datas: string[]
   valor_diaria: string
@@ -23,6 +25,7 @@ export interface UpdateTarifarioData {
   id: string
   hotel_id: string
   categoria_quarto_id: string
+  regime_alimentacao_id?: string
   nome: string
   datas: string[]
   valor_diaria: string
@@ -46,14 +49,14 @@ export interface FindOverlappingActiveInput {
 export interface ITarifarioRepository {
   list(
     hotel_id: string,
-    input: TarifarioListFilter,
+    input: TarifarioListFilter
   ): Promise<PaginatedResult<Tarifario>>
   find_by_id(id: string, hotel_id: string): Promise<Tarifario | null>
   find_periods_by_category(
-    input: FindCalendarioPeriodsInput,
+    input: FindCalendarioPeriodsInput
   ): Promise<PeriodoTarifarioCalendario[]>
   find_overlapping_active(
-    input: FindOverlappingActiveInput,
+    input: FindOverlappingActiveInput
   ): Promise<Tarifario | null>
   find_active_for_range(input: {
     hotel_id: string

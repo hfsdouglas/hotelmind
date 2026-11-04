@@ -11,11 +11,17 @@ describe('Tarifario Entity', () => {
     id: 'tar-1',
     hotel_id: 'hotel-1',
     categoria_quarto_id: 'cat-1',
+    regime_alimentacao_id: 'reg-1',
     nome: 'Alta Temporada',
     datas: ['2026-12-20', '2026-12-25', '2026-12-22'],
     valor_diaria: '350.5',
     ativo: true,
     categoria_quarto: { id: 'cat-1', nome: 'Standard', status: 'S' as const },
+    regime_alimentacao: {
+      id: 'reg-1',
+      titulo: 'Café da Manhã',
+      cor_pulseira: '#2563EB',
+    },
     criado_em: '2026-11-02T12:00:00.000Z',
     atualizado_em: '2026-11-02T12:00:00.000Z',
   }
@@ -34,6 +40,12 @@ describe('Tarifario Entity', () => {
     expect(
       () => new Tarifario({ ...base_props, nome: 'A'.repeat(101) }),
     ).toThrow(/100 caracteres/)
+  })
+
+  it('rejects missing regime_alimentacao_id', () => {
+    expect(
+      () => new Tarifario({ ...base_props, regime_alimentacao_id: '' }),
+    ).toThrow(/regime de alimentação é obrigatório/)
   })
 
   it('rejects empty datas array or invalid ISO date', () => {

@@ -14,6 +14,7 @@ import type { ITarifarioRepository } from '@/core/repositories/tarifarios/tarifa
 export interface CriarTarifarioInput {
   hotel_id: string
   categoria_quarto_id: string
+  regime_alimentacao_id: string
   nome: string
   datas: string[]
   valor_diaria: string
@@ -23,7 +24,7 @@ export interface CriarTarifarioInput {
 export class CriarTarifarioUseCase {
   constructor(
     private readonly tarifarios: ITarifarioRepository,
-    private readonly categorias: ICategoriaQuartoRepository,
+    private readonly categorias: ICategoriaQuartoRepository
   ) {}
 
   async execute(input: CriarTarifarioInput): Promise<Tarifario> {
@@ -33,7 +34,13 @@ export class CriarTarifarioUseCase {
     }
     if (trimmed_nome.length > 100) {
       throw new TarifarioValidationError(
-        'O nome do tarifário deve ter no máximo 100 caracteres.',
+        'O nome do tarifário deve ter no máximo 100 caracteres.'
+      )
+    }
+    const trimmed_regime_id = input.regime_alimentacao_id?.trim()
+    if (!trimmed_regime_id) {
+      throw new TarifarioValidationError(
+        'O regime de alimentação é obrigatório.'
       )
     }
     const datas = normalize_datas(input.datas)
@@ -42,7 +49,7 @@ export class CriarTarifarioUseCase {
 
     const categoria = await this.categorias.find_by_id(
       input.categoria_quarto_id,
-      input.hotel_id,
+      input.hotel_id
     )
     if (!categoria?.is_ativa) {
       throw new CategoriaQuartoInativaError()
@@ -62,6 +69,7 @@ export class CriarTarifarioUseCase {
     return this.tarifarios.create({
       hotel_id: input.hotel_id,
       categoria_quarto_id: input.categoria_quarto_id,
+      regime_alimentacao_id: trimmed_regime_id,
       nome: trimmed_nome,
       datas,
       valor_diaria,

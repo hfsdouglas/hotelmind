@@ -6,16 +6,20 @@ import {
   update_tarifario_body_schema,
 } from './tarifarios_schema'
 
+const VALID_REGIME_ID = '33333333-3333-4333-8333-333333333333'
+
 describe('tarifarios_schema', () => {
   it('validates create_tarifario_body_schema with trimmed name, deduplicated sorted dates and decimal normalization', () => {
     const parsed = create_tarifario_body_schema.parse({
       categoria_quarto_id: 'cat-1',
+      regime_alimentacao_id: VALID_REGIME_ID,
       nome: '  Baixa temporada  ',
       datas: ['2027-03-05', '2027-03-01', '2027-03-05'],
       valor_diaria: '200.5',
     })
     expect(parsed).toEqual({
       categoria_quarto_id: 'cat-1',
+      regime_alimentacao_id: VALID_REGIME_ID,
       nome: 'Baixa temporada',
       datas: ['2027-03-01', '2027-03-05'],
       valor_diaria: '200.50',
@@ -23,10 +27,20 @@ describe('tarifarios_schema', () => {
     })
   })
 
-  it('rejects empty name, empty datas array, and negative or 3-decimal rate values', () => {
+  it('rejects empty name, empty datas array, negative or 3-decimal rate values, and missing regime_alimentacao_id', () => {
     expect(
       create_tarifario_body_schema.safeParse({
         categoria_quarto_id: 'cat-1',
+        nome: 'Tarifa',
+        datas: ['2027-03-01'],
+        valor_diaria: '200.00',
+      }).success,
+    ).toBe(false)
+
+    expect(
+      create_tarifario_body_schema.safeParse({
+        categoria_quarto_id: 'cat-1',
+        regime_alimentacao_id: VALID_REGIME_ID,
         nome: '   ',
         datas: ['2027-03-01'],
         valor_diaria: '200.00',
@@ -36,6 +50,7 @@ describe('tarifarios_schema', () => {
     expect(
       create_tarifario_body_schema.safeParse({
         categoria_quarto_id: 'cat-1',
+        regime_alimentacao_id: VALID_REGIME_ID,
         nome: 'Tarifa',
         datas: [],
         valor_diaria: '200.00',
@@ -45,6 +60,7 @@ describe('tarifarios_schema', () => {
     expect(
       create_tarifario_body_schema.safeParse({
         categoria_quarto_id: 'cat-1',
+        regime_alimentacao_id: VALID_REGIME_ID,
         nome: 'Tarifa',
         datas: ['2027-03-01'],
         valor_diaria: '-5.00',
@@ -54,6 +70,7 @@ describe('tarifarios_schema', () => {
     expect(
       create_tarifario_body_schema.safeParse({
         categoria_quarto_id: 'cat-1',
+        regime_alimentacao_id: VALID_REGIME_ID,
         nome: 'Tarifa',
         datas: ['2027-03-01'],
         valor_diaria: '200.999',

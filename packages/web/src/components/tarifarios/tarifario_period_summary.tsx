@@ -1,6 +1,5 @@
 import type { PeriodoTarifarioCalendario } from '@hotelmind/contracts'
 import { AlertTriangle, CalendarCheck2, Info } from 'lucide-react'
-import { format_dates_summary } from '@/schemas/tarifario.schema'
 
 interface TarifarioPeriodSummaryProps {
   selectedDates: string[]
@@ -44,10 +43,7 @@ export function TarifarioPeriodSummary({
           />
           <div className="min-w-0 flex-1 break-words leading-relaxed">
             <span className="font-medium">
-              {count} {count === 1 ? 'data marcada' : 'datas marcadas'}:{' '}
-            </span>
-            <span className="text-muted-foreground">
-              {format_dates_summary(selectedDates, 5)}
+              {count} {count === 1 ? 'data marcada' : 'datas marcadas'}
             </span>
           </div>
         </div>

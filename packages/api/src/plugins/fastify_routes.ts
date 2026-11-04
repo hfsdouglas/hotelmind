@@ -1,16 +1,17 @@
-import type { FastifyTypedInstance } from '@/types/fastify'
-import { auth_routes } from '@/routes/auth/web/auth_routes'
-import { admin_auth_routes } from '@/routes/auth/admin/auth_routes'
-import { groups_routes } from '@/routes/groups/groups_routes'
-import { users_routes } from '@/routes/users/users_routes'
-import { routes_routes } from '@/routes/routes/web/routes_routes'
-import { admin_hotels_routes } from '@/routes/hotels/admin/hotels_routes'
-import { admin_routes_routes } from '@/routes/routes/admin/routes_routes'
 import { admin_administrators_routes } from '@/routes/admin/admin_administrators_routes'
-import { admin_suporte_routes } from '@/routes/suporte/admin/suporte_routes'
+import { admin_auth_routes } from '@/routes/auth/admin/auth_routes'
+import { auth_routes } from '@/routes/auth/web/auth_routes'
 import { categorias_quartos_routes } from '@/routes/categorias_quartos/categorias_quartos_routes'
+import { groups_routes } from '@/routes/groups/groups_routes'
+import { admin_hotels_routes } from '@/routes/hotels/admin/hotels_routes'
 import { quartos_routes } from '@/routes/quartos/quartos_routes'
+import { regimes_alimentacao_routes } from '@/routes/regimes_alimentacao/regimes_alimentacao_routes'
+import { admin_routes_routes } from '@/routes/routes/admin/routes_routes'
+import { routes_routes } from '@/routes/routes/web/routes_routes'
+import { admin_suporte_routes } from '@/routes/suporte/admin/suporte_routes'
 import { tarifarios_routes } from '@/routes/tarifarios/tarifarios_routes'
+import { users_routes } from '@/routes/users/users_routes'
+import type { FastifyTypedInstance } from '@/types/fastify'
 
 export function setRoutes(app: FastifyTypedInstance) {
   app.register(auth_routes)
@@ -25,4 +26,5 @@ export function setRoutes(app: FastifyTypedInstance) {
   app.register(categorias_quartos_routes)
   app.register(quartos_routes)
   app.register(tarifarios_routes)
+  app.register(regimes_alimentacao_routes)
 }

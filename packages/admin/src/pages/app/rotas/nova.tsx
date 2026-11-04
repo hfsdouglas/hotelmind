@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Checkbox } from '@/components/ui/checkbox'
-import { CrudFormLayout } from '@/components/forms/CrudFormLayout'
+import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
 
 const schema = z.object({
   modulo: z.string().min(1),
@@ -48,7 +48,7 @@ export function RotaNovaPage() {
       onSubmit={form.handleSubmit(d => mutate(d))}
       actions={
         <>
-          <Button type="submit" disabled={isPending}>{isPending ? 'Salvando...' : 'Criar rota'}</Button>
+          <SaveButton isPending={isPending} />
           <Button type="button" variant="outline" onClick={() => navigate('/rotas')}>Cancelar</Button>
         </>
       }

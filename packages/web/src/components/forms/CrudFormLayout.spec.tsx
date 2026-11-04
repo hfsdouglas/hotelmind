@@ -68,4 +68,18 @@ describe('CrudFormLayout', () => {
       '2xl:max-w-[1320px]',
     )
   })
+
+  it('renders default SaveButton with floppy disk icon when actions prop is omitted', () => {
+    render(
+      <MemoryRouter>
+        <CrudFormLayout title="Novo registro" backTo="/registros" onSubmit={vi.fn()}>
+          <p>campos</p>
+        </CrudFormLayout>
+      </MemoryRouter>,
+    )
+
+    const defaultBtn = screen.getByRole('button', { name: /Salvar/i })
+    expect(defaultBtn).toBeInTheDocument()
+    expect(defaultBtn.querySelector('svg')).toBeInTheDocument()
+  })
 })

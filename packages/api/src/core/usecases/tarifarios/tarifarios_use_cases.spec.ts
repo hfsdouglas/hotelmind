@@ -3,6 +3,7 @@ import { CategoriaQuartoInativaError } from '@/core/errors/quarto_errors'
 import {
   TarifarioNotFoundError,
   TarifarioPeriodConflictError,
+  TarifarioValidationError,
 } from '@/core/errors/tarifario_errors'
 import { InMemoryCategoriaQuartoRepository } from '@/core/repositories/categorias_quartos/in-memory/in_memory_categoria_quarto_repository'
 import { InMemoryTarifarioRepository } from '@/core/repositories/tarifarios/in-memory/in_memory_tarifario_repository'
@@ -26,10 +27,13 @@ describe('Tarifarios Use Cases', () => {
   let calendario_use_case: ConsultarPeriodosTarifariosUseCase
   let cat_luxo_id: string
   let cat_master_id: string
+  let regime_id: string
 
   beforeEach(async () => {
     tarifarios_repo = new InMemoryTarifarioRepository()
     categorias_repo = new InMemoryCategoriaQuartoRepository()
+    regime_id = 'regime-1'
+    tarifarios_repo.register_regime_alimentacao(regime_id, 'Meia Pensão', '#2563EB')
     criar_use_case = new CriarTarifarioUseCase(tarifarios_repo, categorias_repo)
     editar_use_case = new EditarTarifarioUseCase(
       tarifarios_repo,
@@ -64,6 +68,7 @@ describe('Tarifarios Use Cases', () => {
     const dias_uteis = await criar_use_case.execute({
       hotel_id: 'hotel-1',
       categoria_quarto_id: cat_luxo_id,
+      regime_alimentacao_id: regime_id,
       nome: '  Dias Úteis Março  ',
       datas: ['2027-03-01', '2027-03-03', '2027-03-05'],
       valor_diaria: '200',
@@ -76,6 +81,7 @@ describe('Tarifarios Use Cases', () => {
     const dias_alternados = await criar_use_case.execute({
       hotel_id: 'hotel-1',
       categoria_quarto_id: cat_luxo_id,
+      regime_alimentacao_id: regime_id,
       nome: 'Terça e Quinta Março',
       datas: ['2027-03-02', '2027-03-04'],
       valor_diaria: '250.00',
@@ -93,6 +99,7 @@ describe('Tarifarios Use Cases', () => {
     await criar_use_case.execute({
       hotel_id: 'hotel-1',
       categoria_quarto_id: cat_luxo_id,
+      regime_alimentacao_id: regime_id,
       nome: 'Março Luxo',
       datas: ['2027-03-10', '2027-03-15'],
       valor_diaria: '200.00',
@@ -102,6 +109,7 @@ describe('Tarifarios Use Cases', () => {
       criar_use_case.execute({
         hotel_id: 'hotel-1',
         categoria_quarto_id: cat_luxo_id,
+        regime_alimentacao_id: regime_id,
         nome: 'Conflito 15 de Março',
         datas: ['2027-03-15', '2027-03-20'],
         valor_diaria: '220.00',
@@ -112,6 +120,7 @@ describe('Tarifarios Use Cases', () => {
     const master_marco = await criar_use_case.execute({
       hotel_id: 'hotel-1',
       categoria_quarto_id: cat_master_id,
+      regime_alimentacao_id: regime_id,
       nome: 'Março Master',
       datas: ['2027-03-10', '2027-03-15'],
       valor_diaria: '350.00',
@@ -124,6 +133,7 @@ describe('Tarifarios Use Cases', () => {
       criar_use_case.execute({
         hotel_id: 'hotel-1',
         categoria_quarto_id: cat_luxo_id,
+        regime_alimentacao_id: regime_id,
         nome: 'Concorrente A',
         datas: ['2027-06-01', '2027-06-10'],
         valor_diaria: '200.00',
@@ -131,6 +141,7 @@ describe('Tarifarios Use Cases', () => {
       criar_use_case.execute({
         hotel_id: 'hotel-1',
         categoria_quarto_id: cat_luxo_id,
+        regime_alimentacao_id: regime_id,
         nome: 'Concorrente B',
         datas: ['2027-06-10', '2027-06-15'],
         valor_diaria: '210.00',
@@ -147,6 +158,7 @@ describe('Tarifarios Use Cases', () => {
     const created = await criar_use_case.execute({
       hotel_id: 'hotel-1',
       categoria_quarto_id: cat_luxo_id,
+      regime_alimentacao_id: regime_id,
       nome: 'Temporada Inverno',
       datas: ['2027-07-01', '2027-07-05'],
       valor_diaria: '300.00',
@@ -168,6 +180,7 @@ describe('Tarifarios Use Cases', () => {
     const first = await criar_use_case.execute({
       hotel_id: 'hotel-1',
       categoria_quarto_id: cat_luxo_id,
+      regime_alimentacao_id: regime_id,
       nome: 'Tarifa Original',
       datas: ['2027-09-10', '2027-09-15'],
       valor_diaria: '200.00',
@@ -182,6 +195,7 @@ describe('Tarifarios Use Cases', () => {
     await criar_use_case.execute({
       hotel_id: 'hotel-1',
       categoria_quarto_id: cat_luxo_id,
+      regime_alimentacao_id: regime_id,
       nome: 'Nova Tarifa Setembro',
       datas: ['2027-09-15', '2027-09-20'],
       valor_diaria: '240.00',
@@ -196,6 +210,7 @@ describe('Tarifarios Use Cases', () => {
     const created = await criar_use_case.execute({
       hotel_id: 'hotel-1',
       categoria_quarto_id: cat_luxo_id,
+      regime_alimentacao_id: regime_id,
       nome: 'Tarifa Hotel 1',
       datas: ['2027-11-01'],
       valor_diaria: '200.00',
@@ -227,10 +242,41 @@ describe('Tarifarios Use Cases', () => {
       criar_use_case.execute({
         hotel_id: 'hotel-2',
         categoria_quarto_id: cat_luxo_id,
+        regime_alimentacao_id: regime_id,
         nome: 'Categoria de outro hotel',
         datas: ['2027-11-01'],
         valor_diaria: '200.00',
       }),
     ).rejects.toThrow(CategoriaQuartoInativaError)
+  })
+
+  it('enforces mandatory meal plan on create and edit', async () => {
+    await expect(
+      criar_use_case.execute({
+        hotel_id: 'hotel-1',
+        categoria_quarto_id: cat_luxo_id,
+        regime_alimentacao_id: '' as unknown as string,
+        nome: 'Sem regime',
+        datas: ['2027-12-01'],
+        valor_diaria: '200.00',
+      }),
+    ).rejects.toThrow(TarifarioValidationError)
+
+    const created = await criar_use_case.execute({
+      hotel_id: 'hotel-1',
+      categoria_quarto_id: cat_luxo_id,
+      regime_alimentacao_id: regime_id,
+      nome: 'Com regime',
+      datas: ['2027-12-05'],
+      valor_diaria: '200.00',
+    })
+
+    await expect(
+      editar_use_case.execute({
+        id: created.id,
+        hotel_id: 'hotel-1',
+        regime_alimentacao_id: '   ',
+      }),
+    ).rejects.toThrow(TarifarioValidationError)
   })
 })

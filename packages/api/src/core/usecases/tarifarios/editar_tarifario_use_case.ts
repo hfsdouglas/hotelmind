@@ -16,6 +16,7 @@ export interface EditarTarifarioInput {
   id: string
   hotel_id: string
   categoria_quarto_id?: string
+  regime_alimentacao_id?: string
   nome?: string
   datas?: string[]
   valor_diaria?: string
@@ -25,7 +26,7 @@ export interface EditarTarifarioInput {
 export class EditarTarifarioUseCase {
   constructor(
     private readonly tarifarios: ITarifarioRepository,
-    private readonly categorias: ICategoriaQuartoRepository,
+    private readonly categorias: ICategoriaQuartoRepository
   ) {}
 
   async execute(input: EditarTarifarioInput): Promise<Tarifario> {
@@ -41,7 +42,7 @@ export class EditarTarifarioUseCase {
 
     const categoria = await this.categorias.find_by_id(
       next_categoria_id,
-      input.hotel_id,
+      input.hotel_id
     )
     if (!categoria || (!categoria.is_ativa && !keeping_current_category)) {
       throw new CategoriaQuartoInativaError()
@@ -54,7 +55,7 @@ export class EditarTarifarioUseCase {
     }
     if (next_nome.length > 100) {
       throw new TarifarioValidationError(
-        'O nome do tarifário deve ter no máximo 100 caracteres.',
+        'O nome do tarifário deve ter no máximo 100 caracteres.'
       )
     }
 
@@ -65,6 +66,16 @@ export class EditarTarifarioUseCase {
         ? normalize_valor_diaria(input.valor_diaria)
         : current.valor_diaria
     const next_ativo = input.ativo ?? current.ativo
+
+    const next_regime_id =
+      input.regime_alimentacao_id !== undefined
+        ? input.regime_alimentacao_id.trim()
+        : current.regime_alimentacao_id
+    if (!next_regime_id) {
+      throw new TarifarioValidationError(
+        'O regime de alimentação é obrigatório.'
+      )
+    }
 
     if (next_ativo) {
       const conflict = await this.tarifarios.find_overlapping_active({
@@ -82,6 +93,7 @@ export class EditarTarifarioUseCase {
       id: current.id,
       hotel_id: input.hotel_id,
       categoria_quarto_id: next_categoria_id,
+      regime_alimentacao_id: next_regime_id,
       nome: next_nome,
       datas: next_datas,
       valor_diaria: next_valor,

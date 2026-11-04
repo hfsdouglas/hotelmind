@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { categoriasQuartosService } from '@/api/categorias_quartos.service'
+import { regimesAlimentacaoService } from '@/api/regimes_alimentacao.service'
 import {
   TarifarioForm,
   type TarifarioSubmitPayload,
@@ -18,7 +19,6 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import {
-  useDeactivateTarifarioMutation,
   useTarifario,
   useTarifariosCalendario,
   useUpdateTarifarioMutation,
@@ -36,6 +36,11 @@ export function EditarTarifarioPage() {
   const { data: categories, isLoading: is_loading_categories } = useQuery({
     queryKey: ['categorias_quartos', 'edit_tarifario'],
     queryFn: () => categoriasQuartosService.list({ limite: 250 }),
+  })
+
+  const { data: regimes } = useQuery({
+    queryKey: ['regimes_alimentacao', 'todos'],
+    queryFn: () => regimesAlimentacaoService.list({ limite: 250 }),
   })
 
   const [selected_category_id, setSelectedCategoryId] = useState('')
@@ -56,7 +61,6 @@ export function EditarTarifarioPage() {
     })
 
   const update_mutation = useUpdateTarifarioMutation(id)
-  const deactivate_mutation = useDeactivateTarifarioMutation()
 
   function execute_update(payload: TarifarioSubmitPayload) {
     update_mutation.mutate(payload, {
@@ -67,14 +71,14 @@ export function EditarTarifarioPage() {
       onError: (
         error: Error & {
           response?: { status?: number; data?: { message?: string } }
-        },
+        }
       ) => {
         const status = error.response?.status
         const api_msg = error.response?.data?.message
         if (status === 409) {
           toast.error(
             api_msg ??
-              'Conflito de data: uma ou mais datas já pertencem a outro tarifário ativo.',
+              'Conflito de data: uma ou mais datas já pertencem a outro tarifário ativo.'
           )
         } else if (status === 404) {
           toast.error(api_msg ?? 'Tarifário não encontrado.')
@@ -98,21 +102,8 @@ export function EditarTarifarioPage() {
     if (pending_submit_payload) {
       execute_update(pending_submit_payload)
       setPendingSubmitPayload(null)
-      setConfirmDeactivateOpen(false)
-      return
     }
-
-    deactivate_mutation.mutate(id, {
-      onSuccess: () => {
-        toast.success('Tarifário desativado com sucesso.')
-        setConfirmDeactivateOpen(false)
-        navigate('/tarifarios')
-      },
-      onError: () => {
-        toast.error('Erro ao desativar tarifário.')
-        setConfirmDeactivateOpen(false)
-      },
-    })
+    setConfirmDeactivateOpen(false)
   }
 
   if (is_loading_tarifario || is_loading_categories) {
@@ -122,18 +113,16 @@ export function EditarTarifarioPage() {
   }
 
   if (is_error_tarifario || !tarifario || !categories) {
-    return (
-      <p className="text-sm text-destructive">Tarifário não encontrado.</p>
-    )
+    return <p className="text-sm text-destructive">Tarifário não encontrado.</p>
   }
 
   const selectable_categories = categories.data.some(
-    c => c.id === tarifario.categoria_quarto_id && c.status === 'N',
+    c => c.id === tarifario.categoria_quarto_id && c.status === 'N'
   )
     ? [
         tarifario.categoria_quarto,
         ...categories.data.filter(
-          c => c.id !== tarifario.categoria_quarto_id && c.status === 'S',
+          c => c.id !== tarifario.categoria_quarto_id && c.status === 'S'
         ),
       ]
     : categories.data.filter(c => c.status === 'S')
@@ -143,27 +132,23 @@ export function EditarTarifarioPage() {
       <TarifarioForm
         mode="edit"
         title="Editar tarifário"
-        submitLabel="Salvar alterações"
+        submitLabel="Salvar"
         initialValues={{
           nome: tarifario.nome,
           categoria_quarto_id: tarifario.categoria_quarto_id,
+          regime_alimentacao_id: tarifario.regime_alimentacao_id,
           datas: tarifario.datas,
           valor_diaria: tarifario.valor_diaria,
           ativo: tarifario.ativo,
         }}
         categories={selectable_categories}
+        regimes={regimes?.data ?? []}
         occupiedPeriods={calendario_data?.data ?? []}
         isLoadingPeriods={is_loading_periods}
         excludeTarifarioId={tarifario.id}
-        isSubmitting={
-          update_mutation.isPending || deactivate_mutation.isPending
-        }
+        isSubmitting={update_mutation.isPending}
         onCategoryChange={setSelectedCategoryId}
         onCancel={() => navigate('/tarifarios')}
-        onDeactivateClick={() => {
-          setPendingSubmitPayload(null)
-          setConfirmDeactivateOpen(true)
-        }}
         onSubmitPayload={handle_submit}
       />
 

@@ -20,7 +20,7 @@ export function is_valid_iso_date(value: string): boolean {
 export function normalize_datas(datas: string[]): string[] {
   if (!Array.isArray(datas) || datas.length === 0) {
     throw new TarifarioValidationError(
-      'Selecione ao menos uma data no calendário.',
+      'Selecione ao menos uma data no calendário.'
     )
   }
   const unique_dates = new Set<string>()
@@ -38,7 +38,7 @@ export function normalize_valor_diaria(value: string | number): string {
   const raw = typeof value === 'number' ? value.toFixed(2) : value.trim()
   if (!DECIMAL_VALUE_REGEX.test(raw)) {
     throw new TarifarioValidationError(
-      'O valor da diária deve ser numérico maior ou igual a zero com até duas casas decimais.',
+      'O valor da diária deve ser numérico maior ou igual a zero com até duas casas decimais.'
     )
   }
   const [int_part, frac_part = ''] = raw.split('.')
@@ -64,11 +64,17 @@ export interface TarifarioProps {
   id: string
   hotel_id: string
   categoria_quarto_id: string
+  regime_alimentacao_id: string
   nome: string
   datas: string[]
   valor_diaria: string
   ativo: boolean
   categoria_quarto: { id: string; nome: string; status: 'S' | 'N' }
+  regime_alimentacao: {
+    id: string
+    titulo: string
+    cor_pulseira: string
+  }
   criado_em: string
   atualizado_em: string
 }
@@ -77,11 +83,13 @@ export class Tarifario {
   readonly id: string
   readonly hotel_id: string
   readonly categoria_quarto_id: string
+  readonly regime_alimentacao_id: string
   readonly nome: string
   readonly datas: string[]
   readonly valor_diaria: string
   readonly ativo: boolean
   readonly categoria_quarto: TarifarioProps['categoria_quarto']
+  readonly regime_alimentacao: TarifarioProps['regime_alimentacao']
   readonly criado_em: string
   readonly atualizado_em: string
 
@@ -92,7 +100,12 @@ export class Tarifario {
     }
     if (trimmed_nome.length > 100) {
       throw new TarifarioValidationError(
-        'O nome do tarifário deve ter no máximo 100 caracteres.',
+        'O nome do tarifário deve ter no máximo 100 caracteres.'
+      )
+    }
+    if (!props.regime_alimentacao_id) {
+      throw new TarifarioValidationError(
+        'O regime de alimentação é obrigatório.'
       )
     }
     const normalized_datas = normalize_datas(props.datas)
@@ -101,11 +114,13 @@ export class Tarifario {
     this.id = props.id
     this.hotel_id = props.hotel_id
     this.categoria_quarto_id = props.categoria_quarto_id
+    this.regime_alimentacao_id = props.regime_alimentacao_id
     this.nome = trimmed_nome
     this.datas = normalized_datas
     this.valor_diaria = normalized_valor
     this.ativo = props.ativo
     this.categoria_quarto = props.categoria_quarto
+    this.regime_alimentacao = props.regime_alimentacao
     this.criado_em = props.criado_em
     this.atualizado_em = props.atualizado_em
   }

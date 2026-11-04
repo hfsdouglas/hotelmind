@@ -1,7 +1,7 @@
 import {
-  Tarifario,
   normalize_datas,
   normalize_valor_diaria,
+  Tarifario,
 } from '@/core/entities/tarifario'
 import { TarifarioPeriodConflictError } from '@/core/errors/tarifario_errors'
 import type {
@@ -18,11 +18,17 @@ interface TarifarioRow {
   id: string
   hotel_id: string
   categoria_quarto_id: string
+  regime_alimentacao_id?: string | null
   nome: string
   valor_diaria: { toFixed(digits: number): string } | number | string
   ativo: boolean
   datas: Array<{ data: Date }>
   categoria_quarto: { id: string; nome: string; status: string }
+  regime_alimentacao?: {
+    id: string
+    titulo: string
+    cor_pulseira: string
+  } | null
   criado_em: Date
   atualizado_em: Date
 }
@@ -36,7 +42,7 @@ function to_utc_date(iso_date: string): Date {
 }
 
 function format_decimal(
-  value: { toFixed(digits: number): string } | number | string,
+  value: { toFixed(digits: number): string } | number | string
 ): string {
   if (typeof value === 'object' && value !== null && 'toFixed' in value) {
     return value.toFixed(2)
@@ -49,6 +55,7 @@ function map_row(row: TarifarioRow): Tarifario {
     id: row.id,
     hotel_id: row.hotel_id,
     categoria_quarto_id: row.categoria_quarto_id,
+    regime_alimentacao_id: row.regime_alimentacao_id,
     nome: row.nome,
     datas: row.datas.map(d => to_date_only_string(d.data)),
     valor_diaria: format_decimal(row.valor_diaria),
@@ -57,6 +64,11 @@ function map_row(row: TarifarioRow): Tarifario {
       id: row.categoria_quarto.id,
       nome: row.categoria_quarto.nome,
       status: row.categoria_quarto.status === 'N' ? 'N' : 'S',
+    },
+    regime_alimentacao: {
+      id: row.regime_alimentacao.id,
+      titulo: row.regime_alimentacao.titulo,
+      cor_pulseira: row.regime_alimentacao.cor_pulseira,
     },
     criado_em: row.criado_em.toISOString(),
     atualizado_em: row.atualizado_em.toISOString(),
@@ -67,12 +79,20 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
   constructor(private readonly db: DB) {}
 
   async list(hotel_id: string, input: TarifarioListFilter) {
-    const { pagina, limite, busca, categoria_quarto_id, ativo } = input
+    const {
+      pagina,
+      limite,
+      busca,
+      categoria_quarto_id,
+      regime_alimentacao_id,
+      ativo,
+    } = input
     const where = {
       hotel_id,
       ...(categoria_quarto_id?.length
         ? { categoria_quarto_id: { in: categoria_quarto_id } }
         : {}),
+      ...(regime_alimentacao_id ? { regime_alimentacao_id } : {}),
       ...(typeof ativo === 'boolean' ? { ativo } : {}),
       ...(busca
         ? {
@@ -93,6 +113,7 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
         where,
         include: {
           categoria_quarto: true,
+          regime_alimentacao: true,
           datas: { orderBy: { data: 'asc' } },
         },
         orderBy: [{ nome: 'asc' }, { criado_em: 'desc' }],
@@ -118,6 +139,7 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
       where: { id, hotel_id },
       include: {
         categoria_quarto: true,
+        regime_alimentacao: true,
         datas: { orderBy: { data: 'asc' } },
       },
     })
@@ -176,6 +198,7 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
       },
       include: {
         categoria_quarto: true,
+        regime_alimentacao: true,
         datas: { orderBy: { data: 'asc' } },
       },
     })
@@ -204,6 +227,7 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
       },
       include: {
         categoria_quarto: true,
+        regime_alimentacao: true,
         datas: { orderBy: { data: 'asc' } },
       },
       orderBy: [{ valor_diaria: 'asc' }, { nome: 'asc' }],
@@ -228,6 +252,7 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
       data: {
         hotel_id: data.hotel_id,
         categoria_quarto_id: data.categoria_quarto_id,
+        regime_alimentacao_id: data.regime_alimentacao_id,
         nome: data.nome.trim(),
         valor_diaria: normalize_valor_diaria(data.valor_diaria),
         ativo: data.ativo,
@@ -237,6 +262,7 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
       },
       include: {
         categoria_quarto: true,
+        regime_alimentacao: true,
         datas: { orderBy: { data: 'asc' } },
       },
     })
@@ -261,6 +287,9 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
       where: { id: data.id },
       data: {
         categoria_quarto_id: data.categoria_quarto_id,
+        ...(data.regime_alimentacao_id !== undefined
+          ? { regime_alimentacao_id: data.regime_alimentacao_id }
+          : {}),
         nome: data.nome.trim(),
         valor_diaria: normalize_valor_diaria(data.valor_diaria),
         ativo: data.ativo,
@@ -271,6 +300,7 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
       },
       include: {
         categoria_quarto: true,
+        regime_alimentacao: true,
         datas: { orderBy: { data: 'asc' } },
       },
     })

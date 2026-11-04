@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { CrudFormLayout } from '@/components/forms/CrudFormLayout'
+import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
 import { categoriasQuartosService } from '@/api/categorias_quartos.service'
 import { quartosService } from '@/api/quartos.service'
 import { TIPOS_CAMA, type TipoCama } from '@hotelmind/contracts'
@@ -73,7 +73,7 @@ export function EditarQuartoPage() {
 
   if (isLoading || !room || !categories) return <p>Carregando quarto...</p>
   const selectable_categories = categories.data.some(category => category.id === room.categoria_id && category.status === 'N') ? [room.categoria, ...categories.data.filter(category => category.id !== room.categoria_id && category.status === 'S')] : categories.data.filter(category => category.status === 'S')
-  return <><CrudFormLayout title="Editar quarto" backTo="/quartos" cardTitle="Dados do quarto" onSubmit={submit} actions={<Button type="submit" disabled={mutation.isPending}>{mutation.isPending ? 'Salvando...' : 'Salvar alterações'}</Button>}>
+  return <><CrudFormLayout title="Editar quarto" backTo="/quartos" cardTitle="Dados do quarto" onSubmit={submit} actions={<SaveButton isPending={mutation.isPending} />}>
     <div className="flex flex-col gap-4">
       {errors.map(error => <p key={error} className="text-sm text-destructive">{error}</p>)}
       <div className="flex flex-col gap-1.5"><Label htmlFor="categoria_id">Categoria *</Label><Select value={categoria_id} onValueChange={setCategoriaId}><SelectTrigger id="categoria_id"><SelectValue placeholder="Selecione" /></SelectTrigger><SelectContent>{selectable_categories.map(category => <SelectItem key={category.id} value={category.id}>{category.nome}</SelectItem>)}</SelectContent></Select></div>

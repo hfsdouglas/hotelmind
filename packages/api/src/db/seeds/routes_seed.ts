@@ -11,19 +11,104 @@ export interface RouteSeedItem {
 }
 
 export const BASE_ROUTES: RouteSeedItem[] = [
-  { modulo: 'Dashboard', recurso: 'Dashboard', rota: '/', icone: 'LayoutDashboard', ordem: 0 },
-  { modulo: 'Reservas', recurso: 'Calendário', rota: '/reservas/calendario', icone: 'CalendarDays', ordem: 5 },
-  { modulo: 'Reservas', recurso: 'Reservar', rota: '/reservas/novo', icone: 'CalendarDays', ordem: 6 },
-  { modulo: 'Reservas', recurso: 'Consultar', rota: '/reservas', icone: 'CalendarDays', ordem: 7 },
-  { modulo: 'Quartos', recurso: 'Cadastrar', rota: '/quartos/novo', icone: 'BedDouble', ordem: 10 },
-  { modulo: 'Quartos', recurso: 'Consultar', rota: '/quartos', icone: 'BedDouble', ordem: 11 },
-  { modulo: 'Quartos', recurso: 'Categorias', rota: '/categorias_quartos', icone: 'BedDouble', ordem: 12 },
-  { modulo: 'Tarifários', recurso: 'Cadastrar', rota: '/tarifarios/novo', icone: 'CalendarRange', ordem: 20 },
-  { modulo: 'Tarifários', recurso: 'Consultar', rota: '/tarifarios', icone: 'CalendarRange', ordem: 21 },
-  { modulo: 'Usuários', recurso: 'Cadastrar', rota: '/usuarios/novo', icone: 'Users', ordem: 30 },
-  { modulo: 'Usuários', recurso: 'Consultar', rota: '/usuarios', icone: 'Users', ordem: 31 },
-  { modulo: 'Grupos', recurso: 'Cadastrar', rota: '/grupos/novo', icone: 'Shield', ordem: 40 },
-  { modulo: 'Grupos', recurso: 'Consultar', rota: '/grupos', icone: 'Shield', ordem: 41 },
+  {
+    modulo: 'Dashboard',
+    recurso: 'Dashboard',
+    rota: '/',
+    icone: 'LayoutDashboard',
+    ordem: 0,
+  },
+  {
+    modulo: 'Reservas',
+    recurso: 'Calendário',
+    rota: '/reservas/calendario',
+    icone: 'CalendarDays',
+    ordem: 5,
+  },
+  {
+    modulo: 'Reservas',
+    recurso: 'Reservar',
+    rota: '/reservas/novo',
+    icone: 'CalendarDays',
+    ordem: 6,
+  },
+  {
+    modulo: 'Reservas',
+    recurso: 'Consultar',
+    rota: '/reservas',
+    icone: 'CalendarDays',
+    ordem: 7,
+  },
+  {
+    modulo: 'Quartos',
+    recurso: 'Cadastrar',
+    rota: '/quartos/novo',
+    icone: 'BedDouble',
+    ordem: 10,
+  },
+  {
+    modulo: 'Quartos',
+    recurso: 'Consultar',
+    rota: '/quartos',
+    icone: 'BedDouble',
+    ordem: 11,
+  },
+  {
+    modulo: 'Quartos',
+    recurso: 'Categorias',
+    rota: '/categorias_quartos',
+    icone: 'BedDouble',
+    ordem: 12,
+  },
+  {
+    modulo: 'Tarifários',
+    recurso: 'Cadastrar',
+    rota: '/tarifarios/novo',
+    icone: 'CalendarRange',
+    ordem: 20,
+  },
+  {
+    modulo: 'Tarifários',
+    recurso: 'Consultar',
+    rota: '/tarifarios',
+    icone: 'CalendarRange',
+    ordem: 21,
+  },
+  {
+    modulo: 'Tarifários',
+    recurso: 'Regimes de Alimentação',
+    rota: '/regimes_alimentacao',
+    icone: 'CalendarRange',
+    ordem: 22,
+  },
+  {
+    modulo: 'Usuários',
+    recurso: 'Cadastrar',
+    rota: '/usuarios/novo',
+    icone: 'Users',
+    ordem: 30,
+  },
+  {
+    modulo: 'Usuários',
+    recurso: 'Consultar',
+    rota: '/usuarios',
+    icone: 'Users',
+    ordem: 31,
+  },
+  {
+    modulo: 'Grupos',
+    recurso: 'Cadastrar',
+    rota: '/grupos/novo',
+    icone: 'Shield',
+    ordem: 40,
+  },
+  {
+    modulo: 'Grupos',
+    recurso: 'Consultar',
+    rota: '/grupos',
+    icone: 'Shield',
+    ordem: 41,
+  },
 ]
 
 export async function seedRoutes(client: DB = db) {
@@ -114,7 +199,9 @@ export async function seedRoutes(client: DB = db) {
         where: { grupo_id: group.id },
         select: { rota_id: true },
       })
-      const existingGroupRouteIds = new Set(existingGroupRoutes.map(gr => gr.rota_id))
+      const existingGroupRouteIds = new Set(
+        existingGroupRoutes.map(gr => gr.rota_id)
+      )
 
       const missingForGroup = activeRoutes
         .filter(r => !existingGroupRouteIds.has(r.id))
@@ -129,7 +216,9 @@ export async function seedRoutes(client: DB = db) {
     }
   }
 
-  console.log(`Seed de rotas finalizado com sucesso! ${activeRoutes.length} rotas ativas.`)
+  console.log(
+    `Seed de rotas finalizado com sucesso! ${activeRoutes.length} rotas ativas.`
+  )
   return activeRoutes
 }
 

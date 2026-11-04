@@ -10,6 +10,7 @@ function make_tarifario(overrides: Partial<{
   id: string
   hotel_id: string
   categoria_quarto_id: string
+  regime_alimentacao_id: string
   nome: string
   datas: string[]
   valor_diaria: string
@@ -19,11 +20,17 @@ function make_tarifario(overrides: Partial<{
     id: overrides.id ?? crypto.randomUUID(),
     hotel_id: overrides.hotel_id ?? 'hotel-1',
     categoria_quarto_id: overrides.categoria_quarto_id ?? 'cat-1',
+    regime_alimentacao_id: overrides.regime_alimentacao_id ?? 'regime-1',
     nome: overrides.nome ?? 'Tarifa Padrão',
     datas: overrides.datas ?? ['2027-03-01'],
     valor_diaria: overrides.valor_diaria ?? '200.00',
     ativo: overrides.ativo ?? true,
     categoria_quarto: { id: 'cat-1', nome: 'Suítes Luxo', status: 'S' },
+    regime_alimentacao: {
+      id: overrides.regime_alimentacao_id ?? 'regime-1',
+      titulo: 'Meia Pensão',
+      cor_pulseira: '#2563EB',
+    },
     criado_em: '2026-11-02T12:00:00.000Z',
     atualizado_em: '2026-11-02T12:00:00.000Z',
   })
@@ -102,6 +109,7 @@ describe('TarifarioPricingService & CalcularTarifaReservaUseCase (CA10 & RN06)',
     await tarifarios_repo.create({
       hotel_id: 'hotel-1',
       categoria_quarto_id: cat.id,
+      regime_alimentacao_id: 'regime-1',
       nome: 'Março',
       datas: ['2027-03-31'],
       valor_diaria: '200.00',
@@ -110,6 +118,7 @@ describe('TarifarioPricingService & CalcularTarifaReservaUseCase (CA10 & RN06)',
     await tarifarios_repo.create({
       hotel_id: 'hotel-1',
       categoria_quarto_id: cat.id,
+      regime_alimentacao_id: 'regime-1',
       nome: 'Abril',
       datas: ['2027-04-01'],
       valor_diaria: '300.00',

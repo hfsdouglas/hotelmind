@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { CheckboxGroupList } from '@/components/forms/CheckboxGroupList'
-import { CrudFormLayout } from '@/components/forms/CrudFormLayout'
+import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
 import { gruposService } from '@/api/grupos.service'
 import type { RotaItem } from '@/api/grupos.service'
 
@@ -104,11 +104,7 @@ export function NovoGrupoPage() {
       backTo="/grupos"
       cardTitle="Dados do grupo"
       onSubmit={handleSubmit(d => mutation.mutate(d))}
-      actions={
-        <Button type="submit" disabled={isPending}>
-          {isPending ? 'Salvando...' : 'Criar grupo'}
-        </Button>
-      }
+      actions={<SaveButton isPending={isPending} />}
     >
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">

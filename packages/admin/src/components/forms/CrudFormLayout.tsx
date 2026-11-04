@@ -3,12 +3,17 @@ import { Link } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { SaveButton } from '@/components/forms/save_button'
 
-interface CrudFormLayoutProps {
+export { SaveButton }
+
+export interface CrudFormLayoutProps {
   title: string
   backTo: string
   onSubmit: (event: FormEvent<HTMLFormElement>) => void
-  actions: ReactNode
+  actions?: ReactNode
+  submitLabel?: string
+  isSubmitting?: boolean
   cardTitle?: string
   children: ReactNode
 }
@@ -18,6 +23,8 @@ export function CrudFormLayout({
   backTo,
   onSubmit,
   actions,
+  submitLabel = 'Salvar',
+  isSubmitting = false,
   cardTitle,
   children,
 }: CrudFormLayoutProps) {
@@ -48,7 +55,9 @@ export function CrudFormLayout({
           data-testid="crud-form-actions"
           className="flex justify-end gap-3 [&>button]:min-w-[140px]"
         >
-          {actions}
+          {actions ?? (
+            <SaveButton isPending={isSubmitting} label={submitLabel} />
+          )}
         </div>
       </form>
     </div>

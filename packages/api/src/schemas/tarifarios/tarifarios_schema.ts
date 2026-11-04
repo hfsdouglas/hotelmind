@@ -36,15 +36,23 @@ const categoria_resumo_schema = z.object({
   status: z.enum(['S', 'N']),
 })
 
+const regime_alimentacao_resumo_schema = z.object({
+  id: z.string(),
+  titulo: z.string(),
+  cor_pulseira: z.string(),
+})
+
 export const tarifario_response_schema = z.object({
   id: z.string(),
   hotel_id: z.string(),
   categoria_quarto_id: z.string(),
+  regime_alimentacao_id: z.string(),
   nome: z.string(),
   datas: z.array(z.string()),
   valor_diaria: z.string(),
   ativo: z.boolean(),
   categoria_quarto: categoria_resumo_schema,
+  regime_alimentacao: regime_alimentacao_resumo_schema,
   criado_em: z.string(),
   atualizado_em: z.string(),
 })
@@ -56,7 +64,7 @@ export const list_tarifarios_query_schema = z.object({
     .int()
     .refine(
       value => [25, 50, 100, 250].includes(value),
-      'O limite deve ser 25, 50, 100 ou 250.',
+      'O limite deve ser 25, 50, 100 ou 250.'
     )
     .default(25),
   busca: z.string().trim().min(1).optional(),
@@ -64,6 +72,7 @@ export const list_tarifarios_query_schema = z.object({
     .string()
     .transform(value => value.split(',').filter(Boolean))
     .optional(),
+  regime_alimentacao_id: z.string().uuid().optional(),
   ativo: z
     .enum(['true', 'false'])
     .transform(value => value === 'true')
@@ -75,6 +84,9 @@ export const create_tarifario_body_schema = z.object({
     .string()
     .trim()
     .min(1, 'A categoria de quarto é obrigatória.'),
+  regime_alimentacao_id: z
+    .string()
+    .uuid('Informe o regime de alimentação.'),
   nome: z
     .string()
     .trim()
@@ -90,6 +102,10 @@ export const update_tarifario_body_schema = z.object({
     .string()
     .trim()
     .min(1, 'A categoria de quarto é obrigatória.')
+    .optional(),
+  regime_alimentacao_id: z
+    .string()
+    .uuid('Informe o regime de alimentação.')
     .optional(),
   nome: z
     .string()
@@ -121,7 +137,7 @@ export const calendario_tarifarios_query_schema = z
     {
       message: 'A data de início deve ser anterior ou igual à data de término.',
       path: ['data_fim'],
-    },
+    }
   )
 
 export const list_tarifarios_response_schema = z.object({

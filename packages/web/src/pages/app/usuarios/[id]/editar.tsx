@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { CheckboxGrid } from '@/components/forms/CheckboxGrid'
-import { CrudFormLayout } from '@/components/forms/CrudFormLayout'
+import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
 import { usuariosService } from '@/api/usuarios.service'
 import { gruposService } from '@/api/grupos.service'
 
@@ -104,11 +104,7 @@ export function EditarUsuarioPage() {
       backTo="/usuarios"
       cardTitle="Dados do usuário"
       onSubmit={handleSubmit(d => mutation.mutate(d))}
-      actions={
-        <Button type="submit" disabled={mutation.isPending}>
-          {mutation.isPending ? 'Salvando...' : 'Salvar'}
-        </Button>
-      }
+      actions={<SaveButton isPending={mutation.isPending} />}
     >
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">

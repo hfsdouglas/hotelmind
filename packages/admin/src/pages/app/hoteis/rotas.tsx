@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import { hoteisService } from '@/api/hoteis.service'
 import { rotasService, type Rota } from '@/api/rotas.service'
 import { Button } from '@/components/ui/button'
+import { SaveButton } from '@/components/forms/save_button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/lib/utils'
 
@@ -94,9 +95,7 @@ export function HotelRotasPage() {
       </div>
 
       <div className="flex gap-2">
-        <Button onClick={() => save()} disabled={isPending}>
-          {isPending ? 'Salvando...' : 'Salvar rotas'}
-        </Button>
+        <SaveButton type="button" onClick={() => save()} isPending={isPending} />
         <Button variant="outline" onClick={() => navigate('/hoteis')}>
           Cancelar
         </Button>

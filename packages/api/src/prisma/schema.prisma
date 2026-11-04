@@ -30,6 +30,7 @@ model Hotel {
   categorias_quarto  CategoriaQuarto[]
   quartos            Quarto[]
   tarifarios         Tarifario[]
+  regimes_alimentacao RegimeAlimentacao[]
 
   @@map("hoteis")
 }
@@ -194,20 +195,23 @@ model ConfiguracaoCama {
 }
 
 model Tarifario {
-  id                  String          @id @default(uuid())
+  id                  String             @id @default(uuid())
   hotel_id            String
-  hotel               Hotel           @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+  hotel               Hotel              @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
   categoria_quarto_id String
-  categoria_quarto    CategoriaQuarto @relation(fields: [categoria_quarto_id], references: [id], onDelete: Restrict)
-  nome                String          @db.VarChar(100)
-  valor_diaria        Decimal         @db.Decimal(12, 2)
-  ativo               Boolean         @default(true)
+  categoria_quarto    CategoriaQuarto   @relation(fields: [categoria_quarto_id], references: [id], onDelete: Restrict)
+  regime_alimentacao_id String
+  regime_alimentacao  RegimeAlimentacao @relation(fields: [regime_alimentacao_id], references: [id], onDelete: Restrict)
+  nome                String            @db.VarChar(100)
+  valor_diaria        Decimal            @db.Decimal(12, 2)
+  ativo               Boolean            @default(true)
   datas               TarifarioData[]
-  criado_em           DateTime        @default(now())
-  atualizado_em       DateTime        @updatedAt
+  criado_em           DateTime           @default(now())
+  atualizado_em       DateTime           @updatedAt
 
   @@index([hotel_id])
   @@index([categoria_quarto_id])
+  @@index([regime_alimentacao_id])
   @@index([hotel_id, categoria_quarto_id, ativo])
   @@map("tarifarios")
 }
@@ -222,4 +226,22 @@ model TarifarioData {
   @@index([tarifario_id])
   @@index([data])
   @@map("tarifarios_datas")
+}
+
+model RegimeAlimentacao {
+  id           String   @id @default(uuid())
+  hotel_id     String
+  hotel        Hotel    @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+  titulo       String   @db.VarChar(100)
+  descricao    String?  @db.Text
+  cor_pulseira String   @db.VarChar(20)
+  ativo        Boolean  @default(true)
+  tarifarios   Tarifario[]
+  criado_em    DateTime @default(now())
+  atualizado_em DateTime @updatedAt
+
+  @@unique([hotel_id, titulo])
+  @@index([hotel_id])
+  @@index([hotel_id, ativo])
+  @@map("regimes_alimentacao")
 }

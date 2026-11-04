@@ -167,11 +167,12 @@ describe('tarifario.schema utilities and form validation', () => {
     ).toHaveLength(0)
   })
 
-  it('validates tarifario_form_schema requiring at least one selected date', () => {
+  it('validates tarifario_form_schema requiring at least one selected date and mandatory meal plan', () => {
     expect(
       tarifario_form_schema.safeParse({
         nome: 'Temporada',
         categoria_quarto_id: 'cat-1',
+        regime_alimentacao_id: 'reg-1',
         datas: [],
         valor_diaria: '250.00',
         ativo: true,
@@ -182,6 +183,28 @@ describe('tarifario.schema utilities and form validation', () => {
       tarifario_form_schema.safeParse({
         nome: 'Temporada',
         categoria_quarto_id: 'cat-1',
+        datas: ['2027-03-10', '2027-03-15'],
+        valor_diaria: '250,00',
+        ativo: true,
+      }).success,
+    ).toBe(false)
+
+    expect(
+      tarifario_form_schema.safeParse({
+        nome: 'Temporada',
+        categoria_quarto_id: 'cat-1',
+        regime_alimentacao_id: '   ',
+        datas: ['2027-03-10', '2027-03-15'],
+        valor_diaria: '250,00',
+        ativo: true,
+      }).success,
+    ).toBe(false)
+
+    expect(
+      tarifario_form_schema.safeParse({
+        nome: 'Temporada',
+        categoria_quarto_id: 'cat-1',
+        regime_alimentacao_id: 'reg-1',
         datas: ['2027-03-10', '2027-03-15'],
         valor_diaria: '250,00',
         ativo: true,

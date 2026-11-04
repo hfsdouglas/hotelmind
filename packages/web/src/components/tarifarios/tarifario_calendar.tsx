@@ -114,9 +114,18 @@ export function TarifarioCalendar({
   const [viewed_month, setViewedMonth] = useState<{
     year: number
     month: number
-  }>(() => initialMonth ?? parse_year_month(selectedDates[0]))
-  const [months_count, setMonthsCount] =
-    useState<CalendarMonthsViewCount>(initialMonthsCount)
+  }>(() => {
+    if (initialMonth) return initialMonth
+    if (selectedDates.length >= 200 && selectedDates[0]) {
+      const [y] = selectedDates[0].split('-').map(Number)
+      return { year: y, month: 0 }
+    }
+    return parse_year_month(selectedDates[0])
+  })
+  const [months_count, setMonthsCount] = useState<CalendarMonthsViewCount>(() => {
+    if (selectedDates.length >= 200) return 12
+    return initialMonthsCount
+  })
   const [datepicker_open, setDatepickerOpen] = useState(false)
   const [inspected_period, setInspectedPeriod] =
     useState<PeriodoTarifarioCalendario | null>(null)
