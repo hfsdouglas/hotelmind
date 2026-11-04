@@ -96,6 +96,20 @@ export const BASE_ROUTES: RouteSeedItem[] = [
     ordem: 22,
   },
   {
+    modulo: 'Comercial',
+    recurso: 'Novo Parceiro',
+    rota: '/comercial/parceiros/novo',
+    icone: 'Handshake',
+    ordem: 25,
+  },
+  {
+    modulo: 'Comercial',
+    recurso: 'Parceiros',
+    rota: '/comercial/parceiros',
+    icone: 'Handshake',
+    ordem: 26,
+  },
+  {
     modulo: 'Usuários',
     recurso: 'Cadastrar',
     rota: '/usuarios/novo',

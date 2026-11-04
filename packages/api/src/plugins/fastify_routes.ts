@@ -2,6 +2,7 @@ import { admin_administrators_routes } from '@/routes/admin/admin_administrators
 import { admin_auth_routes } from '@/routes/auth/admin/auth_routes'
 import { auth_routes } from '@/routes/auth/web/auth_routes'
 import { categorias_quartos_routes } from '@/routes/categorias_quartos/categorias_quartos_routes'
+import { parceiros_comerciais_routes } from '@/routes/comercial/parceiros_routes'
 import { groups_routes } from '@/routes/groups/groups_routes'
 import { admin_hotels_routes } from '@/routes/hotels/admin/hotels_routes'
 import { leads_routes } from '@/routes/leads/leads_routes'
@@ -31,4 +32,5 @@ export function setRoutes(app: FastifyTypedInstance) {
   app.register(regimes_alimentacao_routes)
   app.register(leads_routes)
   app.register(orcamentos_routes)
+  app.register(parceiros_comerciais_routes)
 }

@@ -4,6 +4,7 @@ import {
   CalendarDays,
   CalendarRange,
   ChevronRight,
+  Handshake,
   LayoutDashboard,
   Moon,
   Shield,
@@ -43,6 +44,7 @@ const ICON_MAP: Record<string, ElementType> = {
   Users,
   Shield,
   Calculator,
+  Handshake,
 }
 
 function buildNavigation(rotas: RotaMenu[]): NavEntry[] {

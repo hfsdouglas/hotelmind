@@ -28,6 +28,8 @@ function build_year_dates_by_schedule(year: number): {
 }
 
 async function clean() {
+  await db.parceiroContato.deleteMany()
+  await db.parceiroComercial.deleteMany()
   await db.orcamento.deleteMany()
   await db.lead.deleteMany()
   await db.tarifarioData.deleteMany()

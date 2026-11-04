@@ -33,6 +33,7 @@ model Hotel {
   regimes_alimentacao RegimeAlimentacao[]
   leads              Lead[]
   orcamentos         Orcamento[]
+  parceiros_comerciais ParceiroComercial[]
 
   @@map("hoteis")
 }
@@ -298,4 +299,71 @@ model Orcamento {
   @@index([lead_id])
   @@index([token_publico])
   @@map("orcamentos")
+}
+
+model ParceiroComercial {
+  id                    String             @id @default(uuid())
+  hotel_id              String
+  tipo_parceiro         String             @db.VarChar(30)
+  tipo_pessoa           String             @db.Char(2)
+  razao_social          String             @db.VarChar(150)
+  nome_fantasia         String?            @db.VarChar(150)
+  documento             String?            @db.VarChar(20)
+  inscricao_estadual    String?            @db.VarChar(30)
+  estrangeiro           Boolean            @default(false)
+  cadastur              String?            @db.VarChar(30)
+  codigo_iata           String?            @db.VarChar(20)
+  registro_embratur     String?            @db.VarChar(30)
+
+  // Endereço
+  logradouro            String?            @db.VarChar(120)
+  numero                String?            @db.VarChar(20)
+  complemento           String?            @db.VarChar(50)
+  bairro                String?            @db.VarChar(60)
+  cidade                String?            @db.VarChar(60)
+  estado                String?            @db.VarChar(2)
+  cep                   String?            @db.VarChar(10)
+  pais                  String             @default("Brasil") @db.VarChar(50)
+
+  // Regras Comerciais
+  modelo_tarifario      String             @default("comissionada") @db.VarChar(20)
+  comissao_padrao       Decimal            @default(0.00) @db.Decimal(5, 2)
+  politica_faturamento  String             @default("prepago") @db.VarChar(20)
+  prazo_pagamento_dias  Int                @default(0)
+  limite_credito        Decimal            @default(0.00) @db.Decimal(12, 2)
+  allotment_quartos     Int                @default(0)
+
+  // Ciclo de vida e observações
+  status                String             @default("ativo") @db.VarChar(20)
+  motivo_bloqueio       String?            @db.Text
+  observacoes           String?            @db.Text
+  criado_em             DateTime           @default(now())
+  atualizado_em         DateTime           @updatedAt
+
+  hotel                 Hotel              @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+  contatos              ParceiroContato[]
+
+  @@unique([hotel_id, documento])
+  @@index([hotel_id])
+  @@index([hotel_id, tipo_parceiro])
+  @@index([hotel_id, status])
+  @@index([hotel_id, razao_social])
+  @@map("parceiros_comerciais")
+}
+
+model ParceiroContato {
+  id           String            @id @default(uuid())
+  parceiro_id  String
+  tipo_contato String            @db.VarChar(20)
+  nome         String            @db.VarChar(100)
+  email        String            @db.VarChar(150)
+  telefone     String            @db.VarChar(30)
+  cargo        String?           @db.VarChar(50)
+  criado_em    DateTime          @default(now())
+
+  parceiro     ParceiroComercial @relation(fields: [parceiro_id], references: [id], onDelete: Cascade)
+
+  @@index([parceiro_id])
+  @@index([parceiro_id, tipo_contato])
+  @@map("parceiros_contatos")
 }

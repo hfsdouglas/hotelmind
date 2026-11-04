@@ -4,6 +4,9 @@ import { LoginLayout } from '@/pages/_layouts/login'
 import { CategoriasQuartosPage } from '@/pages/app/categorias_quartos'
 import { EditarCategoriaQuartoPage } from '@/pages/app/categorias_quartos/[id]/editar'
 import { NovaCategoriaQuartoPage } from '@/pages/app/categorias_quartos/novo'
+import { ParceirosComerciaisPage } from '@/pages/app/comercial/parceiros'
+import { EditarParceiroPage } from '@/pages/app/comercial/parceiros/[id]/editar'
+import { NovoParceiroPage } from '@/pages/app/comercial/parceiros/novo'
 import { DashboardPage } from '@/pages/app/dashboard'
 import { EditarGrupoPage } from '@/pages/app/grupos/[id]/editar'
 import { GruposPage } from '@/pages/app/grupos/index'
@@ -97,6 +100,12 @@ export const router = createBrowserRouter([
       {
         path: '/orcamentos/:id/editar',
         element: <EditarOrcamentoPage />,
+      },
+      { path: '/comercial/parceiros', element: <ParceirosComerciaisPage /> },
+      { path: '/comercial/parceiros/novo', element: <NovoParceiroPage /> },
+      {
+        path: '/comercial/parceiros/:id/editar',
+        element: <EditarParceiroPage />,
       },
     ],
   },

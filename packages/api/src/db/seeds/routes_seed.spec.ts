@@ -96,6 +96,25 @@ describe('routes_seed', () => {
       },
     ])
 
+    // Comercial
+    const comercial = BASE_ROUTES.filter(r => r.modulo === 'Comercial')
+    expect(comercial).toEqual([
+      {
+        modulo: 'Comercial',
+        recurso: 'Novo Parceiro',
+        rota: '/comercial/parceiros/novo',
+        icone: 'Handshake',
+        ordem: 25,
+      },
+      {
+        modulo: 'Comercial',
+        recurso: 'Parceiros',
+        rota: '/comercial/parceiros',
+        icone: 'Handshake',
+        ordem: 26,
+      },
+    ])
+
     // 3. Usuários
     const usuarios = BASE_ROUTES.filter(r => r.modulo === 'Usuários')
     expect(usuarios).toEqual([
