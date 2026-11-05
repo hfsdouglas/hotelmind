@@ -1,815 +1,124 @@
-# Hotel WEB app
+# Hotel Web Application
 
-This is the frontend application for this monorepo, built with React, Vite, and TypeScript. This document is the authoritative guide for contributors and AI agents working in this package. It defines architectural decisions, coding standards, and interaction patterns that must be followed to ensure consistency, scalability, and long-term maintainability across the UI layer.
-
-## Monorepo Context
-
-**Read the root `CLAUDE.md` before doing anything else.**
-
-This package is one service in a pnpm workspace monorepo. The root `CLAUDE.md` defines:
-
-- Where to install dependencies (workspace root vs package-level)
-- Tooling conventions (Biome, commit policy, workspace layout)
-- Rules for shared utilities and cross-package code
-
-Never install a dependency, create a shared abstraction, or move code between packages without first consulting the root `CLAUDE.md`.
-
-## Purpose
-
-This document defines the architecture, coding standards, quality guidelines, and development practices for the project.
-
-Every implementation must follow these principles:
-
-* Clarity over performance.
-* Simplicity over abstraction.
-* Consistency over personal preference.
-* Long-term maintainability over development speed.
-
-When making technical decisions, always prioritize code that is readable, predictable, and easy to maintain.
+Frontend web application for the HotelMind platform, built with React, Vite, and TypeScript. Used by hotel operators and staff to run day-to-day hospitality operations (reservations, room catalogs, pricing, quotes, guests, and check-in/out).
 
 ---
 
-# Tech Stack
+## Technology Stack
 
-## Core
+### Core
+- React, Vite, TypeScript (Strict Mode).
 
-* React (Latest)
-* Vite
-* TypeScript (Strict Mode)
+### UI & Styling
+- Tailwind CSS, shadcn/ui, Lucide React, clsx.
 
-## UI
+### Data Fetching & State Management
+- TanStack Query (Single source of truth for remote server state).
+- Axios (HTTP client configured with interceptors).
+- React Hook Form & Zod (Form management and validation schemas).
+- React Context (Authentication session and operational context).
 
-* Shadcn/UI
-* Tailwind CSS
-* Lucide React
-* clsx
+### Routing & Feedback
+- React Router (Route management).
+- Sonner (Toast notifications).
 
-## Data & State Management
-
-* TanStack Query
-* Axios
-* React Hook Form
-* Zod
-* React Context
-
-## Routing
-
-* React Router
-
-## Utilities
-
-* date-fns
-* Sonner
-
-## Testing
-
-* Vitest
-* React Testing Library
-
-## Mocking
-
-* Mock Service Worker (MSW)
+### Testing & Mocking
+- Vitest & React Testing Library (TDD).
+- Mock Service Worker (MSW) (API isolation in tests).
 
 ---
 
-# Project Structure
+## Project Structure & Component Location Rule
 
 ```text
 src/
 ├── pages/
-│   ├── _layouts/   ← route layout wrappers (Outlet-based)
-│   │   ├── app.tsx     ← protected app shell (Sidebar + TopNavbar)
-│   │   └── login.tsx   ← public auth wrapper (centered)
-│   ├── app/        ← protected pages (require auth)
-│   │   └── dashboard.tsx
-│   ├── auth/       ← public pages
-│   │   └── login.tsx
-│   └── error-404.tsx
-├── components/
-├── hooks/
-├── api/
-├── types/
-├── contexts/
-├── config/
-├── lib/
-├── routes.tsx
-├── App.tsx
-├── main.tsx
-└── index.css
+│   ├── _layouts/          # Route shells (app.tsx with Sidebar/Navbar; login.tsx)
+│   ├── app/               # Authenticated operational pages (reservas, orcamentos, etc.)
+│   ├── auth/              # Public authentication pages (login, recuperar-senha)
+│   └── error-404.tsx      # Fallback 404 page
+├── components/            # ALL reusable UI and domain components
+│   ├── ui/                # Base primitives (shadcn/ui)
+│   ├── forms/             # Form layouts (CrudFormLayout, CheckboxGrid, CheckboxGroupList)
+│   ├── data-table/        # SearchResultsSuspense, data_table, pagination, search_bar
+│   └── <domain>/          # Domain widgets (reservas/, orcamentos/, tarifarios/, etc.)
+├── hooks/                 # Custom React hooks (usePaginacao, useLogin, domain hooks)
+├── api/                   # HTTP client and endpoints
+├── contexts/              # Global React contexts (AuthContext)
+├── types/                 # Application contracts and types
+└── mocks/                 # MSW handlers and mock service configuration
 ```
 
-## Responsibilities
-
-### /pages
-
-Responsible for application pages and layout wrappers.
-
-- **Component Location Rule (RED FLAG)**: **NEVER** create a `components` directory inside `src/pages/**`.
-  - All reusable components, forms, modals, dialogs, sections, and domain components MUST be placed under `src/components/` (e.g., `src/components/parceiros/`, `src/components/orcamentos/`, `src/components/reservas/`).
-  - `src/pages/**` is strictly reserved for page route entrypoints (e.g., `index.tsx`, `novo.tsx`, `[id]/editar.tsx`) and their page tests. Zero subcomponent folders in `pages/`.
-
-- `_layouts/` — layout components registered as route elements; render `<Outlet />` for child pages. Each layout owns its shell (Sidebar, Navbar) and any mount-time side effects (e.g. session verification).
-- `app/` — pages that require authentication; always nested inside `_layouts/app.tsx`.
-- `auth/` — public pages (login, password reset); always nested inside `_layouts/login.tsx`.
-- `error-*.tsx` — error pages at the root of `pages/`.
-
-Pages should:
-
-* Compose components.
-* Orchestrate screen flows.
-* Avoid complex business logic.
-
-### /components
-
-Responsible for reusable UI components.
-
-Components must have a single responsibility.
-
-## Searchable List Suspense Standard
-
-Every page that searches or filters a result list must keep its title and controls outside a local `SearchResultsSuspense` boundary in `src/components/data-table/search_results_suspense.tsx`.
-
-- Query-backed result children use the suspense-compatible TanStack Query API.
-- Search, filter, sort, and pagination URL changes run in a React transition so the previous result remains visible while the latest result resolves.
-- The boundary uses the same table structure as the loaded result: its header stays stable, every skeleton row has one cell per column, `table-fixed` keeps all rows aligned, and the row count matches the page's default/current `limite`.
-- The boundary uses `aria-busy` and a polite `role="status"` announcement without moving focus or disabling controls.
-- Existing success, empty, and handled-error states must clear the loading indication.
-- New searchable pages must add focused tests for initial loading, refresh, empty/error results, latest-query precedence, and accessible status.
-
-### /hooks
-
-Responsible for reusable logic.
-
-Hooks should never render UI.
-
-### /api
-
-Responsible for external API communication.
-
-All HTTP requests must go through this layer.
-
-### /types
-
-Global types and application contracts.
-
-### /contexts
-
-Shared state using React Context.
-
-### /config
-
-Global application configuration.
-
-### /lib
-
-Shared utilities, helpers, and abstractions.
+### Component Location Rule (RED FLAG)
+- **NEVER** create a `components` directory inside `src/pages/**`.
+- All reusable components, forms, modals, dialogs, sections, and domain widgets MUST be placed under `src/components/` (e.g. `src/components/reservas/`, `src/components/orcamentos/`).
+- `src/pages/**` is strictly reserved for route entrypoints (`index.tsx`, `novo.tsx`, `[id]/editar.tsx`) and page tests.
 
 ---
 
-# Components
+## DataTable & List Page Standards
 
-Components should have only one responsibility.
+### DataTable Shared Primitives (`src/components/data-table/`)
+All list pages must use the standardized data-table components rather than building one-off table markup:
+- `data_table.tsx`: Sortable data table with configured columns.
+- `data_table_pagination.tsx`: Pagination controls and items-per-page selector.
+- `search_bar.tsx`: Standardized search input with debouncing/submit.
+- `filter_panel.tsx`: Collapsible secondary filters panel.
+- `result_count.tsx`: Current result count indicator.
 
-When a component starts to:
+### URL Query State (`usePaginacao`)
+All list pages MUST manage pagination, search, and sorting via URL search params using `usePaginacao` (`src/hooks/usePaginacao.ts`):
+- `?pagina=`: Current page number (1-indexed, default 1).
+- `?limite=`: Items per page (default 50; options 50, 100, 250).
+- `?busca=`: Search string.
+- `?ordenar_por=`: Field name to sort by.
+- `?direcao=`: Sort direction (`asc` or `desc`).
+- Never use local `useState` for pagination parameters.
 
-* Fetch data.
-* Handle business rules.
-* Manage multiple states.
-* Render complex interfaces.
-
-It is a strong indicator that it should be split into smaller components.
-
-## Rule
-
-The parent component coordinates.
-
-Child components execute specific responsibilities.
-
-### Example
-
-Bad:
-
-```tsx
-UserPage.tsx
-```
-
-Responsible for:
-
-* Fetching users.
-* Creating users.
-* Updating users.
-* Filtering users.
-* Rendering tables.
-* Rendering modals.
-
-Good:
-
-```tsx
-UserPage
- ├── UserTable
- ├── UserFilters
- ├── UserModal
- └── useUsers
-```
+### Searchable List Suspense Standard
+Every list page must wrap table results in `SearchResultsSuspense` (`src/components/data-table/search_results_suspense.tsx`):
+- Page headers, action buttons, and search inputs remain outside the boundary.
+- Result table child uses suspense-compatible TanStack Query queries.
+- Param updates are wrapped in `useTransition` so the previous table remains visible while new data loads.
+- Skeleton rows maintain exact column alignment and match the current `limite`.
+- Accessibility: Includes `aria-busy` and `role="status"`.
 
 ---
 
-# Separation of Concerns
+## Form Standards (`CrudFormLayout`)
 
-Fundamental rule:
-
-> Components display data. Hooks execute logic. Services communicate with APIs.
-
-## Components
-
-Responsible for presentation.
-
-## Hooks
-
-Responsible for reusable behavior.
-
-## Services
-
-Responsible for external communication.
+Every create and edit page MUST use `CrudFormLayout` (`src/components/forms/CrudFormLayout.tsx`):
+- Centers the form in a responsive container with breakpoint-scaled max-width.
+- Contains the back button and title header within the same aligned width.
+- Owns the `<form>` element, rendering exactly **one** `Card` around form fields.
+- Renders the action buttons row outside and below the card, right-aligned with fixed button widths.
+- Never split form content into multiple side-by-side cards. Render multiple contextual sections as sibling blocks within the same card.
+- Use `CheckboxGrid` for flat checkbox sets; use `CheckboxGroupList` for grouped checkboxes.
+- Multi-line fields MUST use the `Textarea` primitive (`src/components/ui/textarea.tsx`), not `Input`.
 
 ---
 
-# TypeScript
+## Dynamic Sidebar & Navigation
 
-The project must use TypeScript in strict mode.
-
-## Rules
-
-Avoid:
-
-```ts
-any
-```
-
-Prefer:
-
-```ts
-unknown
-```
-
-or explicit types.
-
-Always define clear contracts for:
-
-* APIs
-* Forms
-* Contexts
-* Components
+`Sidebar.tsx` renders navigation dynamically from `session.rotas` stored during login:
+- Routes are grouped by `modulo` and sorted by `ordem`.
+- Icons are resolved dynamically via `ICON_MAP` in `Sidebar.tsx` using the `icone` field from each route.
+- Never hardcode navigation items directly into `Sidebar.tsx`.
 
 ---
 
-# State Management
+## State Management & Server State
 
-Before creating global state, ask:
-
-> Does this data really need to be shared?
-
-## Preferred Order
-
-### 1. Local State
-
-```tsx
-useState
-```
-
-### 2. Props
-
-When possible.
-
-### 3. Context API
-
-When multiple components require the same state.
-
-### 4. Global State
-
-Only when truly necessary.
-
-Examples:
-
-* User session
-* Theme
-* Global preferences
-
-Not everything belongs in a global store.
+- **Server State vs Client State**: TanStack Query is the single source of truth for remote data. Never duplicate server data into local component state.
+- **Local State**: Reserve `useState` strictly for ephemeral UI state (dialog visibility, drawer state, field focus).
+- **Feedback**: Provide immediate feedback on asynchronous mutations using `Sonner` toasts (`toast.success`, `toast.error`).
 
 ---
 
-# Server State vs Client State
+## Testing (Mandatory TDD)
 
-A fundamental rule:
+HotelMind follows strict Test-Driven Development (Red → Green → Refactor).
 
-> Server State is not Client State.
-
-Data fetched from APIs should remain managed by TanStack Query whenever possible.
-
-Avoid duplicating server data into local state without a clear reason.
-
-Bad:
-
-```tsx
-const { data: users } = useQuery(...)
-const [localUsers, setLocalUsers] = useState(users)
-```
-
-This creates unnecessary synchronization problems.
-
-Prefer:
-
-```tsx
-const { data: users } = useQuery(...)
-```
-
-Use local state only for UI-specific concerns such as:
-
-* Modal visibility
-* Selected items
-* Filters
-* Form inputs
-* Temporary interactions
-
-TanStack Query should remain the source of truth for remote data.
-
----
-
-# Custom Hooks
-
-Whenever logic begins to be reused in multiple places, it should be extracted into a custom hook.
-
-## Characteristics of a Good Hook
-
-* Single responsibility.
-* Clear naming.
-* Simple API.
-* Low coupling.
-
-Examples:
-
-```tsx
-useUsers()
-useAuth()
-usePagination()
-```
-
-Avoid overly generic hooks.
-
-Bad:
-
-```tsx
-useApp()
-```
-
-Good:
-
-```tsx
-useUsers()
-useProducts()
-useAuth()
-```
-
----
-
-# Data Fetching
-
-Use TanStack Query for:
-
-* Caching
-* Retries
-* Cache invalidation
-* Loading states
-* Data synchronization
-
-## Rules
-
-Avoid using:
-
-```tsx
-useEffect + useState
-```
-
-for remote data fetching when TanStack Query already solves the problem.
-
-Prefer:
-
-```tsx
-useQuery()
-useMutation()
-```
-
----
-
-# Forms
-
-Mandatory tools:
-
-* React Hook Form
-* Zod
-
-## Validation
-
-All validation should be centralized through schemas.
-
-Example:
-
-```ts
-const schema = z.object({
-  name: z.string().min(3),
-})
-```
-
-Avoid spreading validation logic throughout components.
-
-## CRUD Form Layout
-
-Every create/edit page MUST use `CrudFormLayout` (`src/components/forms/CrudFormLayout.tsx`) instead of hand-rolled header/container/card/form markup. It centers the page in a container whose max-width scales by breakpoint (a Bootstrap-style scale — roughly 540/720/960/1140/1320px at sm/md/lg/xl/2xl), keeps the back-arrow + title header contained and left-aligned within that same width, and owns the page's `<form>` element, rendering exactly **one** `Card` around `children` followed by a right-aligned `actions` row **outside** the card with a consistent, non-stretched button width.
-
-```tsx
-<CrudFormLayout
-  title="Novo grupo"
-  backTo="/grupos"
-  cardTitle="Dados do grupo"
-  onSubmit={handleSubmit(d => mutation.mutate(d))}
-  actions={<Button type="submit">Criar grupo</Button>}
->
-  {/* fields */}
-</CrudFormLayout>
-```
-
-**Never** split a page's content into two side-by-side cards/columns. A page with more than one contextual section (e.g. primary fields + an access-routes selector) renders both as sibling blocks inside the same `children`, each under its own heading — never as a second `Card` passed through a `sidebar`-style prop. `CrudFormLayout` has no such prop; it structurally enforces one card per page.
-
-Whenever a form renders a flat list of checkboxes (e.g. group/role assignment), use `CheckboxGrid` (`src/components/forms/CheckboxGrid.tsx`) instead of a manual `flex flex-col` list. It lays options out in a responsive grid (up to 4 columns on wide screens, collapsing to fewer columns on narrower screens) and takes `items`, `selectedIds`, and `onToggle`.
-
-Whenever the checkboxes are grouped by context (e.g. access routes grouped by module), use `CheckboxGroupList` (`src/components/forms/CheckboxGroupList.tsx`) instead. It renders each group as its own column (heading + a vertical list of that group's checkboxes below it), with groups arranged in the same responsive up-to-4-column grid — never lay a group's own items out side by side within the group, and never lay groups out as a vertical stack.
-
-Multi-line fields (e.g. a "Descrição") MUST use the `Textarea` primitive (`src/components/ui/textarea.tsx`), not `Input`.
-
----
-
-# Performance
-
-Do not optimize prematurely.
-
-Avoid excessive use of:
-
-* useMemo
-* useCallback
-* memo
-
-These tools exist to solve specific performance problems.
-
-They should not be used by default.
-
-## Rule
-
-Measure first.
-
-Optimize later.
-
----
-
-# Naming
-
-Names should clearly express intent.
-
-Bad:
-
-```ts
-const d = []
-const x = true
-```
-
-Good:
-
-```ts
-const users = []
-const isAuthenticated = true
-```
-
-If a name requires a comment to be understood, it is probably wrong.
-
----
-
-# Error Handling
-
-Every asynchronous operation must handle:
-
-* Loading
-* Success
-* Error
-
-Avoid:
-
-```tsx
-const users = await getUsers()
-```
-
-without failure handling.
-
-Prefer:
-
-```tsx
-if (isLoading) {
-  return <Loading />
-}
-
-if (error) {
-  return <ErrorMessage />
-}
-```
-
-Users should never be left without feedback.
-
----
-
-# User Feedback
-
-Always communicate important actions.
-
-Use Sonner for:
-
-* Success messages
-* Error messages
-* Warnings
-* Confirmations
-
-Example:
-
-```ts
-toast.success("User created successfully")
-toast.error("Failed to create user")
-```
-
----
-
-# Testing
-
-This is a TDD (Test-Driven Development) application. **Tests are written before the implementation, without exception.**
-
-## Workflow — Red → Green → Refactor
-
-1. **Red** — write a failing test that describes the expected behavior
-2. **Green** — write the minimum implementation to make the test pass
-3. **Refactor** — clean up the code without breaking the test
-
-Never write a component, hook, or service before its test exists.
-
-## Recommended Tools
-
-* Vitest
-* React Testing Library
-* Mock Service Worker (MSW) — for isolating API calls in tests
-
-## Guidelines
-
-Prioritize behavior testing. Do not test implementation details.
-
-Avoid:
-
-```ts
-expect(component.state.count).toBe(1)
-```
-
-Prefer:
-
-```ts
-expect(screen.getByText("User created")).toBeInTheDocument()
-```
-
-Apenas páginas (`pages/`), contextos (`contexts/`) e componentes (`components/`) precisam de ser testados. Schemas do Zod, hooks, lib e services não precisam de testes unitários isolados, sendo exercitados via testes de páginas e componentes.
-
-Test files must be co-located with the source file and use the `.spec.tsx` (or `.spec.ts`) suffix.
-
----
-
-# Accessibility
-
-Accessibility is part of the definition of done.
-
-Every component must be usable via keyboard.
-
-## Always
-
-* Use semantic HTML.
-* Associate labels with inputs.
-* Ensure visible focus states.
-* Use ARIA attributes when necessary.
-
-Accessibility should never be treated as a future enhancement.
-
----
-
-# Security
-
-Never trust data coming from the frontend.
-
-Even when validation exists in React:
-
-* Validate again on the backend.
-* Sanitize user-generated content.
-* Never store secrets in the frontend.
-* Never expose credentials, private keys, or sensitive tokens.
-
----
-
-# Mocking & Offline Development
-
-The application must be able to operate independently of the backend during development.
-
-Benefits include:
-
-* Parallel frontend and backend development.
-* Independent UI testing.
-* Easier demonstrations.
-* Complex scenario simulation.
-* Better developer experience.
-
-## Official Tool
-
-Use Mock Service Worker (MSW).
-
-### Benefits
-
-* Intercepts HTTP requests.
-* Simulates real network behavior.
-* Requires no component modifications.
-* Easy to enable or disable.
-* Integrates well with React, Vitest, and Storybook.
-
-## Required Scenarios
-
-Whenever possible, provide mocks for:
-
-### Success
-
-```json
-{
-  "id": 1,
-  "name": "John Doe"
-}
-```
-
-### Error
-
-```json
-{
-  "message": "Internal Server Error"
-}
-```
-
-### Empty State
-
-```json
-[]
-```
-
-### Loading State
-
-Simulate network latency to validate loading experiences.
-
-## Suggested Structure
-
-```text
-src/
-├── mocks/
-│   ├── handlers/
-│   ├── browser.ts
-│   └── server.ts
-```
-
-## Rule
-
-The UI should never depend on backend availability to be developed.
-
----
-
-# Code Quality
-
-Every commit must pass:
-
-## Linting
-
-```bash
-npm run lint
-```
-
-## Type Checking
-
-```bash
-npm run typecheck
-```
-
-## Tests
-
-```bash
-npm run test
-```
-
-No code should be merged without passing the basic quality checks.
-
----
-
-# Import Conventions
-
-Prefer absolute imports configured through aliases.
-
-Good:
-
-```ts
-import { Button } from "@/components/ui/button"
-```
-
-Avoid:
-
-```ts
-import { Button } from "../../../components/ui/button"
-```
-
----
-
-# File Naming Conventions
-
-Components:
-
-```text
-UserCard.tsx
-UserTable.tsx
-```
-
-Hooks:
-
-```text
-useUsers.ts
-useAuth.ts
-```
-
-Services:
-
-```text
-users.service.ts
-auth.service.ts
-```
-
-Schemas:
-
-```text
-user.schema.ts
-auth.schema.ts
-```
-
----
-
-# Most Important Rule
-
-Whenever you write code, ask yourself:
-
-> Can a developer who has never seen this project understand what I built in less than five minutes?
-
-If the answer is no, simplify it.
-
-Simple code almost always beats clever code.
-
----
-
-## DataTable Components
-
-Reusable data-table components live in `src/components/data-table/`:
-
-| File | Purpose |
-|---|---|
-| `data_table.tsx` | Generic sortable table with configurable columns |
-| `data_table_pagination.tsx` | First/prev/next/last controls + items-per-page selector |
-| `search_bar.tsx` | Search input + submit button |
-| `filter_panel.tsx` | Collapsible filter area (hidden by default) |
-| `result_count.tsx` | Displays total result count |
-
-Use these components on every list page. Never build one-off table UIs.
-
----
-
-## Pagination Query Params (`usePaginacao`)
-
-The hook `usePaginacao` (in `src/hooks/usePaginacao.ts`) manages URL query params for all list pages:
-
-- `?pagina=` — current page (default 1)
-- `?limite=` — items per page (default 50; options 50/100/250)
-- `?busca=` — search text
-- `?ordenar_por=` — sort field
-- `?direcao=` — sort direction (`asc`/`desc`)
-
-All list pages MUST use `usePaginacao` to read/write these params. Never use local state for pagination.
-
----
-
-## Dynamic Sidebar
-
-`Sidebar.tsx` renders navigation from `session.rotas` (set at login). It must never use a hardcoded `navigation` array.
-
-- Routes are grouped by `modulo`, sorted by `ordem`
-- Icons are resolved from the `ICON_MAP` in `Sidebar.tsx` using the `icone` field from the route
-- To add a new icon, add it to `ICON_MAP` — do not add hardcoded nav entries
-
-When a user logs in, `useLogin` stores `rotas` in the session via `AuthContext.setSession`. The sidebar derives navigation from `session.rotas ?? []`.
+- **Scope**: Write `.spec.tsx` tests for pages (`src/pages/`), contexts (`src/contexts/`), and reusable components (`src/components/`).
+- **MSW**: Mock external API calls via Mock Service Worker (`src/mocks/handlers/`).
+- **Behavior-Driven**: Test observable user interactions and rendered output (`screen.getByRole`, `screen.getByText`). Do not test internal component state.

@@ -1,474 +1,172 @@
 # API Package
 
-Fastify HTTP server for this monorepo. This document is the authoritative guide for contributors and AI agents working in this package.
-
-## Monorepo Context
-
-**Read the root `CLAUDE.md` before doing anything else.**
-
-This package is one service in a pnpm workspace monorepo. The root `CLAUDE.md` defines:
-
-- Where to install dependencies (workspace root vs package-level)
-- Tooling conventions (Biome, commit policy, workspace layout)
-- Rules for shared utilities and cross-package code
-
-Never install a dependency, create a shared abstraction, or move code between packages without first consulting the root `CLAUDE.md`.
+Fastify HTTP server for the HotelMind monorepo. This document is the authoritative guide for contributors and AI agents working on the backend service.
 
 ## Technology Stack
 
 ### Runtime Dependencies
+- `fastify`: HTTP framework.
+- `@fastify/cookie`: Cookie management.
+- `@fastify/cors`: Cross-Origin Resource Sharing.
+- `@fastify/jwt`: JWT authentication.
+- `@fastify/swagger` & `@fastify/swagger-ui`: OpenAPI specification generation and documentation.
+- `fastify-type-provider-zod`: Type-safe schema validation bridging Fastify and Zod.
+- `zod`: Request/response validation schemas and TypeScript type inference.
+- `prisma`: ORM for database migrations and query execution.
+- `pg` & `@prisma/adapter-pg`: PostgreSQL driver and runtime adapter.
 
-| Package | Purpose |
-|---|---|
-| `fastify` | HTTP framework |
-| `@fastify/cookie` | Cookie support |
-| `@fastify/cors` | CORS headers |
-| `@fastify/jwt` | JWT authentication |
-| `@fastify/swagger` | OpenAPI spec generation |
-| `@fastify/swagger-ui` | Swagger UI endpoint |
-| `fastify-type-provider-zod` | Zod type provider for Fastify |
-| `zod` | Schema validation and type inference |
-| `prisma` | ORM (query builder + migrations) |
-| `pg` | PostgreSQL driver |
+### Development & Testing
+- `typescript`: Strict type checking.
+- `tsx`: TypeScript execution for development and seed scripts.
+- `vitest`: Test runner for unit and integration tests.
 
-### Development Dependencies
-
-| Package | Purpose |
-|---|---|
-| `typescript` | Type checking |
-| `tsx` | TypeScript execution for dev/scripts |
-| `vitest` | Test runner |
-| `@types/node` | Node.js type definitions |
+---
 
 ## Architecture Principles
 
-This service follows Clean Architecture with explicit domain boundaries.
+This service strictly adheres to **Clean Architecture** and **SOLID**:
 
-- **Clean Architecture** — dependencies point inward; domain never imports infrastructure
-- **SOLID** — single responsibility, open/closed, Liskov substitution, interface segregation, dependency inversion
-- **Separation of Concerns** — each layer owns one responsibility; do not leak concerns across boundaries
-- **Dependency Inversion** — high-level modules (use cases) depend on abstractions (repository contracts), not concrete implementations (Prisma)
-- **Framework Independence** — business logic must not import Fastify, Prisma, or any I/O library
+- **Dependencies Point Inward**: Domain entities and use cases are isolated at the core; they never import external infrastructure (Prisma, Fastify, pg).
+- **Dependency Inversion**: High-level modules (use cases) depend on abstractions (repository interfaces in `core/repositories/`), not concrete database implementations.
+- **Framework Independence**: All business workflows and validation rules must be unit-testable without booting Fastify or connecting to a physical database.
 
-If a piece of code cannot be tested without booting Fastify or connecting to a database, it belongs in the wrong layer.
+---
 
 ## Project Structure
 
-```
+```text
 src/
 ├── core/
-│   ├── entities/         # Domain entities and business rules
-│   ├── errors/           # Custom domain and application errors
-│   ├── repositories/     # Repository contracts and implementations
-│   │   ├── index.ts      # Central export — maps infrastructure implementations to domain contracts
-│   │   └── users/
-│   │       ├── user.repository.ts   # Repository interface (contract only)
-│   │       ├── implementation/      # Production implementations (e.g. Prisma/Postgres)
-│   │       └── in-memory/           # Test and development implementations
-
-│   ├── services/         # Domain service contracts and business services
-│   └── usecases/         # Application use cases and business workflows
+│   ├── entities/         # Domain entities, business invariants, and entity unit tests (.spec.ts)
+│   ├── errors/           # Custom domain and application error classes
+│   ├── repositories/     # Repository contracts, implementations, and in-memory test fakes
+│   │   ├── index.ts      # Re-exports concrete implementations under standard aliases
+│   │   └── <domain>/
+│   │       ├── <domain>.repository.ts   # Repository interface contract
+│   │       ├── implementation/          # Prisma production implementation
+│   │       └── in-memory/               # In-memory fake implementation for tests
+│   ├── services/         # Domain service contracts (e.g., password hashing)
+│   └── usecases/         # Application use cases and business workflows (.spec.ts + .ts)
 │
-├── config/               # Environment variables, application settings, and configuration loaders
-├── db/
-│   └── seeds/            # Database seed scripts
+├── config/               # Environment variables loader and validation
+├── db/                   # Seed scripts and database bootstrap
 ├── prisma/
 │   ├── migrations/       # Database migration history
 │   └── schema.prisma     # Prisma schema definition
-│
-├── lib/                  # Wrappers around third-party libraries and external SDKs
-│   └── prisma.ts         # Prisma Client singleton instance
-│
-├── plugins/              # Fastify plugins and framework integrations
-├── routes/               # HTTP route definitions and request handlers
-├── schemas/              # Zod schemas for request, response, and validation contracts
-├── types/                # Shared TypeScript types, interfaces, and module augmentations
-│
-└── server.ts             # Application entry point — creates and starts the Fastify server
-
+├── lib/                  # Shared external wrappers (e.g., prisma singleton)
+├── plugins/              # Fastify plugins (CORS, JWT, cookies, Swagger)
+├── routes/               # HTTP route plugins, handlers, and integration tests
+├── schemas/              # Zod validation schemas for requests and responses
+├── types/                # Project TypeScript types (e.g., FastifyTypedInstance)
+└── server.ts             # Application entry point
 ```
+
+---
 
 ## Layer Responsibilities
 
 ### `core/entities`
-
-Domain entities and their invariants.
-
-- Must not import Fastify, Prisma, `pg`, or any framework
-- Entities encode business rules, not persistence concerns
-- Constructor validation is acceptable; throw domain errors, not `Error`
+Domain entities and business invariants.
+- Must not import Fastify, Prisma, or I/O libraries.
+- Validate invariant business constraints upon instantiation; throw domain errors from `core/errors/`.
 
 ### `core/errors`
-
-Custom error classes for domain and application failures.
-
-- Create a specific error class for every distinct failure mode
-- Never `throw new Error('something went wrong')`
-- Errors here may be caught by route handlers and mapped to HTTP status codes
+Specific domain and application error classes.
+- Create explicit error classes (e.g. `ResourceNotFoundError`, `ConflictError`).
+- Never throw generic `Error('something went wrong')`.
 
 ### `core/repositories`
-
-Repository contracts and implementations, grouped by domain.
-
-- Each domain folder contains three things: the interface contract (`<domain>.repository.ts`), the Prisma-backed implementation (`implementation/`), and the in-memory fake for tests (`in-memory/`)
-- Use cases depend on the interface, never on the concrete implementation
-
-### `core/services`
-
-Domain service contracts and integration abstractions.
-
-- Use for logic that does not belong to a single entity (e.g., password hashing, token generation)
-- Keep as interfaces; implementations live in `lib/` or `db/`
+Organized by domain folder (`core/repositories/<domain>/`):
+1. `<domain>.repository.ts`: Interface contract defining required queries and mutations.
+2. `implementation/`: Production class backed by Prisma.
+3. `in-memory/`: In-memory fake class maintaining state in memory, used exclusively in tests.
+- Shared pagination types (`PaginationInput`, `PaginationMeta`, `PaginatedResult`) live in `core/repositories/pagination.ts`.
 
 ### `core/usecases`
+Orchestration of application use cases.
+- Exactly one use case per file, exposing a single public `execute` method.
+- Dependencies (repositories and services) injected via constructor.
+- Zero HTTP or framework concepts.
 
-Application use cases — the orchestration layer.
-
-- One use case per file, one public method (`execute`)
-- Receives repository contracts and services via constructor injection
-- Contains no Fastify types, no Prisma calls, no HTTP concepts
-- All business workflows live here
+---
 
 ## Fastify Organization
 
 ### Plugins
+Create one file per plugin under `plugins/` (e.g. `jwt_plugin.ts`, `cors_plugin.ts`).
+- Plugins handle framework integration only. They MUST NOT instantiate domain objects, use cases, or repositories.
+- `fastify-routes.ts` registers route plugins and nothing else.
 
-Create one file per plugin under `plugins/`. Never configure plugins inline in `server.ts`.
-
-```
-plugins/
-├── cookie_plugin.ts
-├── cors_plugin.ts
-├── jwt_plugin.ts
-├── swagger_plugin.ts
-└── swagger_ui_plugin.ts
-```
-
-Register all plugins through a centralized bootstrap call in `server.ts`. Plugin order matters — register auth plugins before route plugins.
-
-Plugins are exclusively for framework integration: CORS, JWT, cookies, Swagger, auth
-decorators. They MUST NOT instantiate domain objects — no use cases, no repositories,
-no domain services. `fastify-routes.ts` is the only file that calls `app.register`
-for routes, but it too MUST NOT create domain objects; it only delegates to route
-plugins.
-
-### Routes
-
-Routes must be thin. A route handler's only job is:
-
-1. Parse and validate the request using a Zod schema
-2. Call the appropriate use case
-3. Return the response
-
-Routes must not contain:
-
-- Business logic
-- Direct Prisma or database calls
-- Inline schema definitions (import from `schemas/`)
-- Conditional branching based on business rules
-
-Every route file must export Swagger documentation via the route schema.
-
-#### Dependency Composition
-
-Each route plugin is the **composition root** for its own dependencies. Use cases,
-repositories, and domain services are instantiated at the top of the route function —
-never in `fastify-routes.ts`, `server.ts`, or any plugin file.
+### Route Plugins & Composition Roots
+Routes must remain thin. A route handler only validates the request via Zod, calls the usecase, and formats the reply.
+- **Dependency Composition Root**: Each route plugin file is the composition root for its dependencies. Repositories and use cases are instantiated at the top of the route function.
+- **FastifyTypedInstance**: Route functions must always receive `app: FastifyTypedInstance` from `@/types` (never raw `FastifyInstance`).
+- **Named Exports**: Always use named function exports (`export async function users_routes(app: FastifyTypedInstance)`).
+- **Authentication Hook**: Use `app.authenticate` as the `onRequest` hook on protected routes. Single source of truth for JWT validation.
 
 ```ts
-// CORRECT — route owns its own DI
-export async function auth_routes(app: FastifyTypedInstance) {
-  const login_use_case = new LoginUseCase(
-    new UserRepository(db),
-    new HotelRepository(db),
-    new BcryptPasswordHasher(),
-  )
+export async function users_routes(app: FastifyTypedInstance) {
+  const user_repository = new PostgresUserRepository(prisma)
+  const create_user_use_case = new CreateUserUseCase(user_repository)
 
-  app.post('/auth/login', ..., async (request, reply) => {
-    await login_use_case.execute(request.body)
+  app.post('/users', {
+    onRequest: [app.authenticate],
+    schema: create_user_schema
+  }, async (request, reply) => {
+    const { hotelId } = request.user
+    const result = await create_user_use_case.execute({ hotelId, ...request.body })
+    return reply.status(201).send(result)
   })
 }
-
-// WRONG — factory that receives a use case as argument
-export function auth_routes(login_use_case: LoginUseCase) {
-  return async (app: FastifyTypedInstance) => { ... }
-}
-```
-
-`fastify-routes.ts` registers route plugins and nothing else:
-
-```ts
-export function setRoutes(app: FastifyTypedInstance) {
-  app.register(auth_routes)   // no arguments — never pass domain objects here
-}
-```
-
-Rationale: plugin and server files have no knowledge of domain intent. Only the route
-knows which use case it needs and how to wire it. Passing dependencies through an
-intermediary layer creates hidden coupling and makes the dependency graph non-obvious.
-
-#### Exports
-
-Always use named exports — never default exports:
-
-```ts
-// correct
-export function users_routes(app: FastifyTypedInstance) {
-  app.get('/users', ...)
-}
-
-// wrong
-export default function (app: FastifyTypedInstance) { ... }
-```
-
-#### Type
-
-Every route function receives `app: FastifyTypedInstance`. This is the project-local type that wires Fastify with the Zod type provider. Import it from `src/types/`:
-
-```ts
-import type { FastifyTypedInstance } from '@/types'
-```
-
-Never use the raw `FastifyInstance` type in route files.
-
-#### Authentication
-
-Use `app.authenticate` as the `onRequest` hook for protected routes. This decorator is registered by the auth plugin and is the single source of truth for JWT verification:
-
-```ts
-app.get('/me', { onRequest: [app.authenticate] }, async (request, reply) => {
-  ...
-})
-```
-
-Never manually verify tokens inside route handlers.
-
-## Repository Organization
-
-Repositories are grouped by domain under `core/repositories/`. Each domain folder contains:
-
-| Folder | Contents |
-|---|---|
-| `<domain>.repository.ts` | Repository interface (contract only) |
-| `implementation/` | Prisma-backed concrete class (e.g., `postgres_hotel_repository.ts`) |
-| `in-memory/` | In-memory fake used exclusively in tests (e.g., `in_memory_hotel_repository.ts`) |
-
-Shared pagination types (`PaginationInput`, `PaginationMeta`, `PaginatedResult`) live in `core/repositories/pagination.ts`. Import from there — never redefine them per domain.
-
-Current domains:
-
-| Domain | Scope |
-|---|---|
-| `users/` | Hotel users (multi-tenant CRUD + auth lookup) |
-| `hotels/` | Hotel management (admin CRUD + auth lookup) |
-| `groups/` | Access groups per hotel |
-| `routes/` | Route catalog (admin CRUD + tenant read) |
-| `administrators/` | System administrator entity |
-
-The central `core/repositories/index.ts` re-exports every implementation under its alias so route composition roots never reference concrete class names directly.
-
-Rules:
-- Use cases receive repository instances via constructor injection — they never instantiate them
-- Tests inject the corresponding `in-memory/` fake; never mock Prisma directly
-
-## Schemas
-
-All request and response schemas live in `schemas/`. Routes import schemas; they never declare them inline.
-
-```
-schemas/
-├── create_user_schema.ts
-├── login_schema.ts
-└── update_user_schema.ts
-```
-
-Rules:
-
-- Use Zod exclusively — no `joi`, no `yup`, no manual validation
-- Export the inferred TypeScript type alongside the schema
-- Reuse schemas across routes wherever the shape is identical
-- Keep schemas focused: one file per domain operation
-
-Example pattern:
-
-```ts
-import { z } from 'zod'
-
-export const create_user_schema = z.object({
-  name: z.string().min(1),
-  email: z.string().email(),
-  password: z.string().min(8),
-})
-
-export type CreateUserInput = z.infer<typeof create_user_schema>
-```
-
-## Database
-
-Use Prisma as the ORM and PostgreSQL as the database.
-
-### Access Rules
-
-- Routes must never import the Prisma client
-- Use cases must never import the Prisma client
-- Only repository implementations (in `db/`) may use Prisma
-
-### Request Flow
-
-```
-Route
-  ↓
-Use Case
-  ↓
-Repository Contract (core/repositories)
-  ↓
-Repository Implementation (db/)
-  ↓
-Prisma
-  ↓
-PostgreSQL
-```
-
-Violating this flow breaks the dependency inversion principle and makes the domain untestable without a real database.
-
-## Validation
-
-Use Zod for all validation:
-
-- HTTP request bodies, params, and query strings
-- HTTP response shapes
-- Environment variables (validate on startup; fail fast on missing vars)
-- DTO types passed between layers
-
-Do not write manual `if (!value)` validation logic. If Zod cannot express the constraint cleanly, write a domain error in `core/errors` and throw it from the entity or use case.
-
-## Testing
-
-This is a TDD (Test-Driven Development) application. **Tests are written before the implementation, without exception.**
-
-### Workflow — Red → Green → Refactor
-
-1. **Red** — write a failing test that describes the expected behavior
-2. **Green** — write the minimum implementation to make the test pass
-3. **Refactor** — clean up the code without breaking the test
-
-Never write implementation code before its corresponding test exists. A file without a `.spec.ts` is incomplete.
-
-### What to test
-
-| Layer | Required |
-|---|---|
-| Entities | Yes |
-| Use cases | Yes |
-| Routes | Yes |
-
-### File naming
-
-Use `.spec.ts` suffix, co-located with the source file:
-
-```
-core/
-  entities/
-    user.entity.ts
-    user.spec.ts          ← written first
-  usecases/
-    users/
-      create_user_use_case.spec.ts   ← written first
-      create_user_use_case.ts
-
-routes/
-  users/
-    users_routes.spec.ts  ← written first
-    users_routes.ts
-```
-
-### Testing guidelines
-
-- Write the `.spec.ts` file before the implementation file
-- Test entities without any framework dependency
-- Test use cases by injecting in-memory repository implementations
-- Test routes using Fastify's `inject` method — do not start a real server
-- Never mock the Prisma client in route tests; use in-memory repository fakes instead
-- Every in-memory fake must faithfully implement the repository interface — no shortcuts
-
-## AI Agent Rules
-
-When generating or modifying code in this package, follow these rules without exception:
-
-1. Read the root monorepo `CLAUDE.md` before taking any action.
-2. Never install a dependency without verifying where it belongs per the monorepo rules.
-3. Use snake_case for every file name, folder name, variable, function, and identifier.
-4. Keep routes thin — no business logic, no database access, no inline schemas. Each route instantiates its own use cases internally; never receive them as function parameters.
-5. Keep all Zod schemas inside `schemas/`; never declare them inline in route files.
-6. **TDD is mandatory** — write the `.spec.ts` file before writing the implementation. Red → Green → Refactor. No implementation without a prior failing test.
-7. Do not create generic utility files (`helpers.ts`, `utils.ts`) without documented justification.
-8. Ask for explicit user approval before creating any git commit.
-9. Scope every query, entity, and relation by `hotel_id` — never allow cross-hotel data leakage.
-10. Derive `hotel_id` exclusively from the authenticated JWT payload (`request.user.hotelId`); never accept it from the request body or query params.
-
----
-
-## Multi-tenant Architecture
-
-This system is multi-tenant. Every piece of business data belongs to exactly one hotel.
-
-### Mandatory Rules
-
-- Every business table MUST include a `hotel_id` column.
-- Every query that fetches, creates, updates, or deletes business data MUST filter or set `hotel_id`.
-- `hotel_id` is NEVER trusted from the client. It is derived from the authenticated user's JWT payload.
-- Repository implementations that accept a `hotel_id` parameter receive it from the use case, which receives it from the route, which reads it from `request.user.hotelId`.
-- Cross-hotel data access is a critical security vulnerability. Treat it as such.
-
-### Pattern
-
-```ts
-// Route handler
-const { hotelId } = request.user
-
-// Use case receives it as a parameter
-await useCase.execute({ hotelId, ...body })
-
-// Repository applies it to every query
-await db.reservation.findMany({ where: { hotel_id: hotelId } })
 ```
 
 ---
 
-## Database Rules
+## Multi-Tenancy Architecture
+
+HotelMind is multi-tenant. Every piece of business data belongs to exactly one hotel.
+
+1. **Mandatory `hotel_id`**: Every business database table and model MUST include a `hotel_id` column.
+2. **Untrusted Client Inputs**: `hotel_id` is NEVER accepted from the client request body or query params.
+3. **Derivation from JWT**: `hotel_id` is exclusively derived from the authenticated JWT token (`request.user.hotelId`).
+4. **Scoping**: Every query that fetches, creates, updates, or deletes business records MUST filter or set `hotel_id`.
+
+---
+
+## Database Standards (Prisma & PostgreSQL)
 
 - **ORM**: Prisma only. No raw SQL unless Prisma cannot express the query.
-- **Field names**: All schema fields MUST be written in Portuguese (pt-BR) with snake_case.
-- **Primary keys**: UUID using `@default(uuid())` on all models.
-- **Timestamps**: Every model must have `created_at DateTime @default(now())` and `updated_at DateTime @updatedAt`.
-- **Indexes**: All foreign key columns and frequently queried columns MUST have `@@index`.
-- **Cascades**: Use `onDelete: Cascade` on foreign key relations where child records should be removed with the parent.
-- **Datasource URL**: Set via `env("DATABASE_URL")` in the schema's `datasource db` block. The runtime adapter (`@prisma/adapter-pg`) overrides this for query execution; the env var is still required for `prisma migrate`.
-- **Table names**: Use `@@map("nome_em_portugues")` to map PascalCase model names to Portuguese table names.
+- **Field Names**: All schema fields MUST be written in Portuguese (`pt-BR`) using `snake_case`.
+- **Table Names**: PascalCase model names mapped to Portuguese table names via `@@map("tabela_em_portugues")`.
+- **Primary Keys**: UUID strings with `@default(uuid())`.
+- **Timestamps**: Every model must define `created_at DateTime @default(now())` and `updated_at DateTime @updatedAt`.
+- **Indexes**: All foreign keys (especially `hotel_id`) and search columns MUST have `@@index`.
+- **Deletion Policy & HTTP 409**: When a DELETE operation targets a resource with active dependent records, return **HTTP 409 Conflict** with an informative explanation. Never delete silently.
+- **`grupos_ids` Pattern**: The `User` model stores access group IDs as a comma-separated string in `grupos_ids` (`String? @db.Text`) without a pivot table. Membership queries must check `WHERE grupos_ids = id OR grupos_ids LIKE '<id>,%' OR grupos_ids LIKE '%,<id>' OR grupos_ids LIKE '%,<id>,%'`.
 
 ---
 
 ## Pagination Standard
 
-All list endpoints accept the following query parameters:
+All list endpoints accept standard query parameters:
 
 | Param | Type | Default | Description |
 |---|---|---|---|
 | `pagina` | number | 1 | Page number (1-indexed) |
 | `limite` | number | 50 | Items per page (max 250) |
-| `busca` | string | — | Optional free-text search |
+| `busca` | string | — | Optional search term |
 | `ordenar_por` | string | — | Field name to sort by |
 | `direcao` | `asc` \| `desc` | `asc` | Sort direction |
 
-All list responses include a `meta` object:
+List responses return a `data` array and a `meta` pagination object:
 
 ```ts
 {
   data: T[],
   meta: {
-    pagina: number
-    limite: number
-    total: number
+    pagina: number,
+    limite: number,
+    total: number,
     ultima_pagina: number
   }
 }
@@ -476,18 +174,19 @@ All list responses include a `meta` object:
 
 ---
 
-## Conflict Deletion Policy
+## Schemas & Validation
 
-When a DELETE request targets a resource that has dependent records, return HTTP **409 Conflict** with a descriptive message. Never delete silently or cascade beyond what the database schema enforces.
-
-Example: deleting a `Grupo` that has users linked via `grupos_ids` must return 409.
+- All request, response, and query schemas reside in `src/schemas/`.
+- Use Zod exclusively.
+- Export both the Zod schema and its inferred TypeScript type.
+- Keep schemas focused: one file per domain operation (e.g. `create_user_schema.ts`).
 
 ---
 
-## grupos_ids Pattern
+## Testing (Mandatory TDD)
 
-The `User` model stores group memberships as a comma-separated string in the `grupos_ids` field (`String? @db.Text`). There is no pivot table.
+Testing follows strict Test-Driven Development (Red → Green → Refactor). Tests are written before implementation code.
 
-- Format: `"uuid1,uuid2,uuid3"`
-- To check membership: query `WHERE grupos_ids = id OR grupos_ids LIKE '<id>,%' OR grupos_ids LIKE '%,<id>' OR grupos_ids LIKE '%,<id>,%'`
-- When updating groups: replace the full string; do not append/remove individual IDs in the DB layer
+- **Entity Tests** (`core/entities/<domain>/<entity>.spec.ts`): Test domain invariants and validations in pure TypeScript.
+- **Use Case Tests** (`core/usecases/<domain>/<use_case>.spec.ts`): Inject in-memory repository fakes. Never mock Prisma directly.
+- **Route Tests** (`routes/<domain>/<domain>_routes.spec.ts`): Use Fastify's `app.inject()` method to test HTTP routing, authentication hooks, and schema validation.

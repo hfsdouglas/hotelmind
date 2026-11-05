@@ -1,66 +1,44 @@
-# Hotel Management System
+# Hotel Management System (HotelMind)
 
-A hotel management system built as a monorepo with a microservices architecture.
-
-## Package Manager
-
-pnpm with workspaces. Workspace packages are declared in the root `package.json`.
+HotelMind is a hotel management system built as a monorepo with a microservices architecture.
 
 ## Monorepo Layout
 
-All apps and services live under `packages/`. When creating a new app or service, place it as a new directory under `packages/`.
+Packages live under `packages/`. Each package represents an autonomous service or application:
 
-```
+```text
 packages/
   .contracts/    # Shared TypeScript interfaces and types
-  api/           # HTTP server / backend API (gateway or primary service)
-  web/           # Front-end web application
+  api/           # HTTP server / backend API
+  web/           # Hotel operations web application
+  admin/         # Platform administration panel
 ```
 
-### `packages/.contracts`
+### Package Responsibilities & References
 
-Contains shared TypeScript interfaces and types consumed by microservices and front-end applications.
+When working inside a specific package, consult its local authoritative guide:
 
-- **Do not place runtime code here** — types only, no implementations
-- **Do not place Zod schemas here** — schemas live inside each service's `schemas/` directory
-- All packages that share a contract must import from here instead of duplicating type definitions
-- When an interface changes, update it here first, then update all consumers
+- **[`packages/api/CLAUDE.md`](packages/api/CLAUDE.md)**: Fastify HTTP server, Clean Architecture, Prisma, PostgreSQL, Zod schemas, multi-tenant isolation (`hotel_id`), and TDD with in-memory fakes.
+- **[`packages/admin/CLAUDE.md`](packages/admin/CLAUDE.md)**: Platform administrative panel, multi-hotel awareness, platform vs hotel scope, `CrudFormLayout`, and TanStack Query.
+- **[`packages/web/CLAUDE.md`](packages/web/CLAUDE.md)**: Hotel operations web frontend, `src/components/` structure, `SearchResultsSuspense`, `usePaginacao`, and dynamic sidebar.
+- **`packages/.contracts/`**: Shared TypeScript contracts consumed across packages.
 
-### Front-end Applications (`packages/web` and `packages/admin`)
+### Shared Contracts (`packages/.contracts`)
 
-- **Component Location Rule (RED FLAG)**: **NEVER** create a `components` directory inside `pages/**` in any front-end package (`packages/web/src/pages/**` or `packages/admin/src/pages/**`).
-  - All reusable components, forms, modals, dialogs, sections, and domain components MUST be placed under `src/components/` of the corresponding package (e.g., `packages/web/src/components/parceiros/`, `packages/web/src/components/orcamentos/`, `packages/admin/src/components/hoteis/`, etc.).
-  - `src/pages/**` is strictly reserved for page route entrypoints (e.g., `index.tsx`, `novo.tsx`, `[id]/editar.tsx`) and their page tests. Zero subcomponent folders in `pages/`.
+- **Types only**: Interfaces and types shared across packages.
+- **No runtime implementations**: Never place business logic, services, or runtime code here.
+- **No Zod schemas**: Validation schemas live inside each consuming service's `schemas/` directory.
+- Update contracts first when an interface changes, then update consumers.
 
-### Package-Specific Rules & Agent Sensitization
+## Dependency Management (pnpm)
 
-This repository is a monorepo where each package under `packages/` has its own authoritative `AGENTS.md` guide:
+- Root `package.json` manages workspace declarations and shared development tooling (Biome, TypeScript, Vitest).
+- Package-specific runtime dependencies must be installed within their respective package directory (or via `pnpm --filter <pkg> add <dep>`).
+- Always check workspace layout and dependency ownership before installing new libraries.
 
-- **`packages/web/AGENTS.md`** — Frontend Web Application
-  - **Component Location Rule (RED FLAG)**: **NEVER** create a `components` directory inside `src/pages/**`. All components MUST live under `src/components/`.
-  - Guidelines on layouts (`_layouts/`), TanStack Query, suspense boundaries, form hooks, and testing.
-- **`packages/admin/AGENTS.md`** — Admin Web Application
-  - **Component Location Rule (RED FLAG)**: **NEVER** create a `components` directory inside `src/pages/**`. All components MUST live under `src/components/`.
-  - Administrative scoping, multi-hotel context, table filters, and UI conventions.
-- **`packages/api/AGENTS.md`** — Backend API
-  - Clean Architecture layers (`core/entities`, `core/repositories`, `core/usecases`, `schemas`, `routes`).
-  - Business logic strictly isolated in use cases, never in route handlers or controllers.
-- **`packages/.contracts/`** — Shared TypeScript Contracts
-  - Contracts first! Types only, no runtime code, no Zod schemas.
+## Global Naming Conventions
 
-> [!IMPORTANT]
-> **MANDATORY SENSITIZATION FOR ALL AGENTS**:
-> Whenever an agent creates, inspects, edits, or reviews files in any package (`packages/web`, `packages/admin`, `packages/api`), the agent **MUST ALWAYS read and adhere to that package's local `AGENTS.md` file**. The root rules set the baseline, but package-specific `AGENTS.md` files contain the mandatory architecture, component location rules, and patterns for each domain.
-
-## Architecture
-
-The system is designed around microservices. Each service is an independent package under `packages/` with its own responsibilities and deployment lifecycle. Services communicate over the network rather than sharing in-process code.
-
-When adding a new service, create it as a new package under `packages/` and treat it as an autonomous unit.
-
-## Naming Conventions
-
-Use **snake_case** for all files, folders, route names, schemas, repositories, use cases, and services.
+Use **snake_case** for repository files, folders, route names, schemas, repositories, use cases, and services.
 
 | Good | Bad |
 |---|---|
@@ -69,101 +47,49 @@ Use **snake_case** for all files, folders, route names, schemas, repositories, u
 | `auth_service.ts` | `AuthService.ts` |
 | `users_routes.ts` | `usersRoutes.ts` |
 | `create_user_schema.ts` | `createUserSchema.ts` |
-| `jwt_plugin.ts` | `jwtPlugin.ts` |
 
-No exceptions. Consistency enables grep and automation.
+## Code Quality & Tooling
 
-## Tooling
+- **Biome** is used for linting and formatting across the monorepo (`biome.json`):
+  - 2-space indentation, 80-character line width.
+  - Single quotes (`'`).
+  - Semicolons as needed (`asNeeded`).
 
-- **Biome** — linting and formatting (config: `biome.json`)
-  - 2-space indentation, 80-char line width
-  - Single quotes, no semicolons (asNeeded)
+## General Development Principles
+
+- **Test-Driven Development (TDD)**: Mandatory across all packages. Write tests before writing production code (Red → Green → Refactor).
+- **Strict Multi-Tenancy**: Data is strictly scoped per hotel. Cross-hotel data leakage is a critical security vulnerability.
+- **Separation of Concerns**: Domain logic remains independent from frameworks and transport layers.
 
 ## Git Commit Policy
 
-### Commit Approval Required
-
-Before creating, suggesting, or executing any git commit, always ask for explicit user approval.
-
-Never assume a commit should be created automatically.
-
-Required question:
+### Mandatory Approval
+Before creating, suggesting, or executing any git commit, always ask for explicit user approval:
 
 > Would you like me to create a commit for these changes?
 
-Only proceed after receiving a clear affirmative response from the user.
+Only proceed after receiving clear affirmative confirmation from the user.
 
 ### Commit Message Standard
-
 All commit messages must follow the Conventional Commits specification:
 
 ```text
 <type>(<scope>): <description>
 ```
 
-Examples:
-
-```text
-feat(auth): add JWT authentication
-fix(api): handle invalid token validation
-refactor(users): simplify profile update flow
-docs(readme): update installation instructions
-test(auth): add login integration tests
-```
-
-### Allowed Types
-
-- `feat`: A new feature
-- `fix`: A bug fix
-- `docs`: Documentation changes
-- `style`: Formatting or style changes only
-- `refactor`: Code restructuring without behavior changes
-- `perf`: Performance improvements
-- `test`: Adding or updating tests
-- `build`: Build system or dependency changes
-- `ci`: CI/CD changes
-- `chore`: Maintenance tasks
-- `revert`: Revert a previous commit
+Allowed types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
 
 ### Commit Identity
+Always use the repository's configured Git identity:
+- Never manually set `user.name` or `user.email`.
+- Never use AI-related identities ("Claude", "bot", "assistant") or `Co-Authored-By` trailers with AI identifiers.
+- Never use `--author`.
+- Source of truth: `git config user.name` / `git config user.email` (fallback to global).
 
-The agent must always use the Git repository's configured identity when creating commits.
-
-**Rules:**
-
-- Never manually set `user.name` or `user.email`
-- Never override commit author information
-- Never use AI-related identities (e.g. "Claude", "AI assistant", "bot")
-- Never add `Co-Authored-By` trailers with AI identities
-- Never use `--author` flag
-- Never modify environment variables to alter identity
-- Always rely on the Git configuration values
-
-**Source of truth** — use in this order:
-
-1. Local repository config: `git config user.name` / `git config user.email`
-2. Fallback to global config: `git config --global user.name` / `git config --global user.email`
-
-**Validation:** Before committing, ensure both `user.name` and `user.email` are set. If either is missing, stop and ask:
-
-> "Git user.name/user.email is not configured. Would you like to set it up now?"
-
-### Commit Quality Rules
-
-- Keep commits atomic and focused on a single logical change.
-- Do not combine unrelated changes in the same commit.
-- Use clear and concise descriptions.
-- Write commit messages in the imperative mood.
+### Commit Quality
+- Atomic commits focused on a single logical change.
+- Imperative mood, concise summary.
 - Verify tests and linting before proposing a commit.
-
-### Workflow
-
-1. Complete the requested changes.
-2. Summarize what was modified.
-3. Verify Git identity configuration.
-4. Ask for commit approval.
-5. If approved, generate a Conventional Commit message.
-6. Create the commit using the repository's configured Git identity only.
 
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
