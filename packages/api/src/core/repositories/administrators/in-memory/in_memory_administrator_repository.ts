@@ -1,12 +1,17 @@
 import { Administrator } from '@/core/entities/administrator'
 import type {
-  IAdministratorRepository,
   CreateAdministratorData,
+  IAdministratorRepository,
   UpdateAdministratorData,
 } from '@/core/repositories/administrators/administrator.repository'
-import type { PaginationInput, PaginatedResult } from '@/core/repositories/pagination'
+import type {
+  PaginatedResult,
+  PaginationInput,
+} from '@/core/repositories/pagination'
 
-export class InMemoryAdministratorRepository implements IAdministratorRepository {
+export class InMemoryAdministratorRepository
+  implements IAdministratorRepository
+{
   private store = new Map<string, Administrator>()
 
   seed(admin: Administrator): void {
@@ -21,14 +26,19 @@ export class InMemoryAdministratorRepository implements IAdministratorRepository
       rows = rows.filter(
         a =>
           a.nome_completo.toLowerCase().includes(q) ||
-          a.email.toLowerCase().includes(q),
+          a.email.toLowerCase().includes(q)
       )
     }
     const total = rows.length
     const data = rows.slice((pagina - 1) * limite, pagina * limite)
     return {
       data,
-      meta: { pagina, limite, total, ultima_pagina: Math.max(1, Math.ceil(total / limite)) },
+      meta: {
+        pagina,
+        limite,
+        total,
+        ultima_pagina: Math.max(1, Math.ceil(total / limite)),
+      },
     }
   }
 
@@ -55,7 +65,10 @@ export class InMemoryAdministratorRepository implements IAdministratorRepository
     return admin
   }
 
-  async update(id: string, data: UpdateAdministratorData): Promise<Administrator> {
+  async update(
+    id: string,
+    data: UpdateAdministratorData
+  ): Promise<Administrator> {
     const existing = this.store.get(id)
     if (!existing) throw new Error('not found')
     const updated = new Administrator({

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { User } from '@/core/entities/user'
 
 function make_user(nome_completo: string): User {

@@ -9,15 +9,15 @@ import type {
 export class ConsultarPeriodosTarifariosUseCase {
   constructor(
     private readonly tarifarios: ITarifarioRepository,
-    private readonly categorias: ICategoriaQuartoRepository,
+    private readonly categorias: ICategoriaQuartoRepository
   ) {}
 
   async execute(
-    input: FindCalendarioPeriodsInput,
+    input: FindCalendarioPeriodsInput
   ): Promise<{ data: PeriodoTarifarioCalendario[] }> {
     const categoria = await this.categorias.find_by_id(
       input.categoria_quarto_id,
-      input.hotel_id,
+      input.hotel_id
     )
     if (!categoria) {
       throw new CategoriaQuartoInativaError()

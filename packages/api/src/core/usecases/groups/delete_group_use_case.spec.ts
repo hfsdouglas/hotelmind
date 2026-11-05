@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { DeleteGroupUseCase } from './delete_group_use_case'
-import { InMemoryGroupRepository } from '@/core/repositories/groups/in-memory/in_memory_group_repository'
-import { GrupoNotFoundError } from '@/core/errors/grupo_not_found_error'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { GrupoLinkedUsersError } from '@/core/errors/grupo_conflict_error'
+import { GrupoNotFoundError } from '@/core/errors/grupo_not_found_error'
+import { InMemoryGroupRepository } from '@/core/repositories/groups/in-memory/in_memory_group_repository'
+import { DeleteGroupUseCase } from './delete_group_use_case'
 
 describe('DeleteGroupUseCase', () => {
   let repo: InMemoryGroupRepository
@@ -20,7 +20,9 @@ describe('DeleteGroupUseCase', () => {
   })
 
   it('throws GrupoNotFoundError when grupo does not exist', async () => {
-    await expect(sut.execute('missing', 'h1')).rejects.toThrow(GrupoNotFoundError)
+    await expect(sut.execute('missing', 'h1')).rejects.toThrow(
+      GrupoNotFoundError
+    )
   })
 
   it('throws GrupoLinkedUsersError when grupo has linked users', async () => {

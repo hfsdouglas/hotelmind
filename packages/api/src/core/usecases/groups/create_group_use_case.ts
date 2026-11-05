@@ -1,6 +1,9 @@
-import type { IGroupRepository, CreateGroupData } from '@/core/repositories/groups/group.repository'
 import type { Grupo } from '@/core/entities/grupo'
 import { GrupoConflictError } from '@/core/errors/grupo_conflict_error'
+import type {
+  CreateGroupData,
+  IGroupRepository,
+} from '@/core/repositories/groups/group.repository'
 
 export class CreateGroupUseCase {
   constructor(private readonly groupRepository: IGroupRepository) {}

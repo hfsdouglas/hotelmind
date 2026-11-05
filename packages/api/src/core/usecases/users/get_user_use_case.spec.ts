@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { GetUserUseCase } from './get_user_use_case'
-import { InMemoryUserRepository } from '@/core/repositories/users/in-memory/in_memory_user_repository'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { User } from '@/core/entities/user'
 import { UsuarioNotFoundError } from '@/core/errors/usuario_errors'
+import { InMemoryUserRepository } from '@/core/repositories/users/in-memory/in_memory_user_repository'
+import { GetUserUseCase } from './get_user_use_case'
 
 const HOTEL_ID = 'hotel-001'
 const USER_ID = 'user-001'
@@ -26,7 +26,7 @@ describe('GetUserUseCase', () => {
         genero: 'Feminino',
         celular: '11999999999',
         cpf: '12345678901',
-      }),
+      })
     )
   })
 
@@ -37,10 +37,14 @@ describe('GetUserUseCase', () => {
   })
 
   it('throws UsuarioNotFoundError when user does not exist', async () => {
-    await expect(sut.execute('non-existent', HOTEL_ID)).rejects.toThrow(UsuarioNotFoundError)
+    await expect(sut.execute('non-existent', HOTEL_ID)).rejects.toThrow(
+      UsuarioNotFoundError
+    )
   })
 
   it('throws UsuarioNotFoundError when hotelId does not match', async () => {
-    await expect(sut.execute(USER_ID, 'other-hotel')).rejects.toThrow(UsuarioNotFoundError)
+    await expect(sut.execute(USER_ID, 'other-hotel')).rejects.toThrow(
+      UsuarioNotFoundError
+    )
   })
 })

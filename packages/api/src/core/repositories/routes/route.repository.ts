@@ -1,5 +1,8 @@
 import type { Rota } from '@/core/entities/rota'
-import type { PaginationInput, PaginatedResult } from '@/core/repositories/pagination'
+import type {
+  PaginatedResult,
+  PaginationInput,
+} from '@/core/repositories/pagination'
 
 export interface CreateRouteData {
   modulo: string

@@ -1,4 +1,4 @@
-import { ConfiguracaoCama } from './configuracao_cama'
+import type { ConfiguracaoCama } from './configuracao_cama'
 
 export interface QuartoProps {
   id: string
@@ -28,11 +28,16 @@ export class Quarto {
   readonly updated_at: Date
 
   constructor(props: QuartoProps) {
-    if (!props.identificacao.trim()) throw new Error('A identificação do quarto é obrigatória.')
-    if (!Number.isInteger(props.limite_hospedes) || props.limite_hospedes <= 0) {
+    if (!props.identificacao.trim())
+      throw new Error('A identificação do quarto é obrigatória.')
+    if (
+      !Number.isInteger(props.limite_hospedes) ||
+      props.limite_hospedes <= 0
+    ) {
       throw new Error('O limite de hóspedes deve ser positivo.')
     }
-    if (props.camas.length === 0) throw new Error('O quarto deve possuir uma cama.')
+    if (props.camas.length === 0)
+      throw new Error('O quarto deve possuir uma cama.')
     this.id = props.id
     this.hotel_id = props.hotel_id
     this.categoria_id = props.categoria_id

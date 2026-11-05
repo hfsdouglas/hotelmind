@@ -1,4 +1,7 @@
-import type { CalculoTarifaReserva, NoiteCalculadaReserva } from '@hotelmind/contracts'
+import type {
+  CalculoTarifaReserva,
+  NoiteCalculadaReserva,
+} from '@hotelmind/contracts'
 import type { Tarifario } from '@/core/entities/tarifario'
 import {
   cents_to_valor_diaria,
@@ -16,7 +19,7 @@ function enumerate_nights(check_in: string, check_out: string): string[] {
   }
   if (check_in >= check_out) {
     throw new TarifarioValidationError(
-      'A data de check-in deve ser anterior à data de check-out.',
+      'A data de check-in deve ser anterior à data de check-out.'
     )
   }
 
@@ -32,8 +35,8 @@ function enumerate_nights(check_in: string, check_out: string): string[] {
       Date.UTC(
         current.getUTCFullYear(),
         current.getUTCMonth(),
-        current.getUTCDate() + 1,
-      ),
+        current.getUTCDate() + 1
+      )
     )
   }
 
@@ -58,7 +61,7 @@ export class TarifarioPricingService {
           t.ativo &&
           t.hotel_id === input.hotel_id &&
           t.categoria_quarto_id === input.categoria_quarto_id &&
-          t.datas.includes(night),
+          t.datas.includes(night)
       )
 
       if (elegiveis.length === 0) {

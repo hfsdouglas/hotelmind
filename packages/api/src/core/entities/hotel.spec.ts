@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { Hotel } from './hotel'
 
 const BASE_PROPS = {
@@ -25,7 +25,10 @@ describe('Hotel', () => {
   })
 
   it('stores website when provided', () => {
-    const hotel = new Hotel({ ...BASE_PROPS, website: 'https://hotelmind.com.br' })
+    const hotel = new Hotel({
+      ...BASE_PROPS,
+      website: 'https://hotelmind.com.br',
+    })
     expect(hotel.website).toBe('https://hotelmind.com.br')
   })
 

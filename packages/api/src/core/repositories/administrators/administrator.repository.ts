@@ -1,5 +1,8 @@
 import type { Administrator } from '@/core/entities/administrator'
-import type { PaginationInput, PaginatedResult } from '@/core/repositories/pagination'
+import type {
+  PaginatedResult,
+  PaginationInput,
+} from '@/core/repositories/pagination'
 
 export interface CreateAdministratorData {
   nome_completo: string

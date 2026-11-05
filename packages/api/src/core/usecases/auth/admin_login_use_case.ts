@@ -1,10 +1,10 @@
 import type { Administrator } from '@/core/entities/administrator'
-import type { IAdministratorRepository } from '@/core/repositories/administrators/administrator.repository'
-import type { IPasswordHasher } from '@/core/services/password_hasher'
 import {
   InvalidCredentialsError,
   UserNotFoundError,
 } from '@/core/errors/authentication_error'
+import type { IAdministratorRepository } from '@/core/repositories/administrators/administrator.repository'
+import type { IPasswordHasher } from '@/core/services/password_hasher'
 
 interface AdminLoginInput {
   email: string
@@ -14,7 +14,7 @@ interface AdminLoginInput {
 export class AdminLoginUseCase {
   constructor(
     private readonly repository: IAdministratorRepository,
-    private readonly password_hasher: IPasswordHasher,
+    private readonly password_hasher: IPasswordHasher
   ) {}
 
   async execute({ email, password }: AdminLoginInput): Promise<Administrator> {

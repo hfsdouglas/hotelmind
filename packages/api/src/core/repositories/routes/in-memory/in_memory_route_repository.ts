@@ -1,10 +1,13 @@
 import { Rota } from '@/core/entities/rota'
 import type {
-  IRouteRepository,
+  PaginatedResult,
+  PaginationInput,
+} from '@/core/repositories/pagination'
+import type {
   CreateRouteData,
+  IRouteRepository,
   UpdateRouteData,
 } from '@/core/repositories/routes/route.repository'
-import type { PaginationInput, PaginatedResult } from '@/core/repositories/pagination'
 
 export class InMemoryRouteRepository implements IRouteRepository {
   private store = new Map<string, Rota>()
@@ -23,14 +26,19 @@ export class InMemoryRouteRepository implements IRouteRepository {
         r =>
           r.modulo.toLowerCase().includes(q) ||
           r.recurso.toLowerCase().includes(q) ||
-          r.rota.toLowerCase().includes(q),
+          r.rota.toLowerCase().includes(q)
       )
     }
     const total = rows.length
     const data = rows.slice((pagina - 1) * limite, pagina * limite)
     return {
       data,
-      meta: { pagina, limite, total, ultima_pagina: Math.max(1, Math.ceil(total / limite)) },
+      meta: {
+        pagina,
+        limite,
+        total,
+        ultima_pagina: Math.max(1, Math.ceil(total / limite)),
+      },
     }
   }
 
@@ -74,7 +82,9 @@ export class InMemoryRouteRepository implements IRouteRepository {
 
   async findByHotel(hotelId: string): Promise<Rota[]> {
     const ids = this.hotel_routes.get(hotelId) ?? []
-    return ids.map(id => this.store.get(id)).filter((r): r is Rota => r !== undefined)
+    return ids
+      .map(id => this.store.get(id))
+      .filter((r): r is Rota => r !== undefined)
   }
 
   async findByUsuario(hotelId: string, _grupoIds: string[]): Promise<Rota[]> {

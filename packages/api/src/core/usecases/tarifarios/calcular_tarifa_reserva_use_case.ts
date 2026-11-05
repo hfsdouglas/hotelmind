@@ -15,15 +15,15 @@ export class CalcularTarifaReservaUseCase {
   constructor(
     private readonly tarifarios: ITarifarioRepository,
     private readonly categorias: ICategoriaQuartoRepository,
-    private readonly pricing_service: TarifarioPricingService = new TarifarioPricingService(),
+    private readonly pricing_service: TarifarioPricingService = new TarifarioPricingService()
   ) {}
 
   async execute(
-    input: CalcularTarifaReservaInput,
+    input: CalcularTarifaReservaInput
   ): Promise<CalculoTarifaReserva> {
     const categoria = await this.categorias.find_by_id(
       input.categoria_quarto_id,
-      input.hotel_id,
+      input.hotel_id
     )
     if (!categoria?.is_ativa) {
       throw new CategoriaQuartoInativaError()

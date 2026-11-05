@@ -1,9 +1,9 @@
 import { Grupo } from '@/core/entities/grupo'
 import { Rota } from '@/core/entities/rota'
 import type {
-  IGroupRepository,
-  GroupPaginationInput,
   CreateGroupData,
+  GroupPaginationInput,
+  IGroupRepository,
   UpdateGroupData,
 } from '@/core/repositories/groups/group.repository'
 import type { PaginatedResult } from '@/core/repositories/pagination'
@@ -17,7 +17,10 @@ export class InMemoryGroupRepository implements IGroupRepository {
     this.linkedUsers.set(groupId, hasUsers)
   }
 
-  async list(hotelId: string, pagination: GroupPaginationInput): Promise<PaginatedResult<Grupo>> {
+  async list(
+    hotelId: string,
+    pagination: GroupPaginationInput
+  ): Promise<PaginatedResult<Grupo>> {
     let filtered = this.groups.filter(g => g.hotel_id === hotelId)
 
     if (pagination.busca) {
@@ -37,7 +40,12 @@ export class InMemoryGroupRepository implements IGroupRepository {
 
     return {
       data,
-      meta: { pagina, limite, total, ultima_pagina: Math.max(1, Math.ceil(total / limite)) },
+      meta: {
+        pagina,
+        limite,
+        total,
+        ultima_pagina: Math.max(1, Math.ceil(total / limite)),
+      },
     }
   }
 
@@ -59,8 +67,14 @@ export class InMemoryGroupRepository implements IGroupRepository {
     return this.groups.find(g => g.id === id && g.hotel_id === hotelId) ?? null
   }
 
-  async update(id: string, hotelId: string, data: UpdateGroupData): Promise<Grupo> {
-    const idx = this.groups.findIndex(g => g.id === id && g.hotel_id === hotelId)
+  async update(
+    id: string,
+    hotelId: string,
+    data: UpdateGroupData
+  ): Promise<Grupo> {
+    const idx = this.groups.findIndex(
+      g => g.id === id && g.hotel_id === hotelId
+    )
     if (idx === -1) throw new Error('not found')
     const old = this.groups[idx]
     const updated = new Grupo({

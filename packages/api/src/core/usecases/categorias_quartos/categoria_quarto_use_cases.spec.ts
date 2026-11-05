@@ -7,6 +7,8 @@ describe('CriarCategoriaQuartoUseCase', () => {
     const repository = new InMemoryCategoriaQuartoRepository()
     const use_case = new CriarCategoriaQuartoUseCase(repository)
     await use_case.execute({ hotel_id: 'h1', nome: 'Suíte' })
-    await expect(use_case.execute({ hotel_id: 'h1', nome: ' suíte ' })).rejects.toThrow('Já existe')
+    await expect(
+      use_case.execute({ hotel_id: 'h1', nome: ' suíte ' })
+    ).rejects.toThrow('Já existe')
   })
 })

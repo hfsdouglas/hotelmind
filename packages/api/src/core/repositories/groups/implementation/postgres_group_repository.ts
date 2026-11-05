@@ -1,23 +1,35 @@
-import type { DB } from '@/lib/prisma'
 import { Grupo } from '@/core/entities/grupo'
 import { Rota } from '@/core/entities/rota'
 import type {
-  IGroupRepository,
-  GroupPaginationInput,
   CreateGroupData,
+  GroupPaginationInput,
+  IGroupRepository,
   UpdateGroupData,
 } from '@/core/repositories/groups/group.repository'
 import type { PaginatedResult } from '@/core/repositories/pagination'
+import type { DB } from '@/lib/prisma'
 
 export class PostgresGroupRepository implements IGroupRepository {
   constructor(private readonly db: DB) {}
 
-  async list(hotelId: string, pagination: GroupPaginationInput): Promise<PaginatedResult<Grupo>> {
-    const { pagina, limite, busca, ordenar_por = 'grupo', direcao = 'asc', status } = pagination
+  async list(
+    hotelId: string,
+    pagination: GroupPaginationInput
+  ): Promise<PaginatedResult<Grupo>> {
+    const {
+      pagina,
+      limite,
+      busca,
+      ordenar_por = 'grupo',
+      direcao = 'asc',
+      status,
+    } = pagination
 
     const where = {
       hotel_id: hotelId,
-      ...(busca ? { grupo: { contains: busca, mode: 'insensitive' as const } } : {}),
+      ...(busca
+        ? { grupo: { contains: busca, mode: 'insensitive' as const } }
+        : {}),
       ...(status ? { status } : {}),
     }
 
@@ -55,11 +67,17 @@ export class PostgresGroupRepository implements IGroupRepository {
   }
 
   async findById(id: string, hotelId: string): Promise<Grupo | null> {
-    const row = await this.db.grupo.findFirst({ where: { id, hotel_id: hotelId } })
+    const row = await this.db.grupo.findFirst({
+      where: { id, hotel_id: hotelId },
+    })
     return row ? new Grupo(row) : null
   }
 
-  async update(id: string, hotelId: string, data: UpdateGroupData): Promise<Grupo> {
+  async update(
+    id: string,
+    hotelId: string,
+    data: UpdateGroupData
+  ): Promise<Grupo> {
     const row = await this.db.grupo.update({
       where: { id },
       data: {

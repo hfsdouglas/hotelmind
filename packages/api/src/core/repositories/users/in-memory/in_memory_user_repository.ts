@@ -1,11 +1,14 @@
 import bcrypt from 'bcryptjs'
 import { User } from '@/core/entities/user'
 import type {
-  IUserRepository,
+  PaginatedResult,
+  PaginationInput,
+} from '@/core/repositories/pagination'
+import type {
   CreateUserData,
+  IUserRepository,
   UpdateUserData,
 } from '@/core/repositories/users/user.repository'
-import type { PaginationInput, PaginatedResult } from '@/core/repositories/pagination'
 
 export class InMemoryUserRepository implements IUserRepository {
   private store: User[] = []
@@ -14,7 +17,10 @@ export class InMemoryUserRepository implements IUserRepository {
     this.store.push(user)
   }
 
-  async list(hotelId: string, pagination: PaginationInput): Promise<PaginatedResult<User>> {
+  async list(
+    hotelId: string,
+    pagination: PaginationInput
+  ): Promise<PaginatedResult<User>> {
     let filtered = this.store.filter(u => u.hotel_id === hotelId)
 
     if (pagination.busca) {
@@ -23,7 +29,7 @@ export class InMemoryUserRepository implements IUserRepository {
         u =>
           u.nome_completo.toLowerCase().includes(q) ||
           u.email.toLowerCase().includes(q) ||
-          u.cpf.includes(q),
+          u.cpf.includes(q)
       )
     }
 
@@ -33,7 +39,12 @@ export class InMemoryUserRepository implements IUserRepository {
 
     return {
       data,
-      meta: { pagina, limite, total, ultima_pagina: Math.max(1, Math.ceil(total / limite)) },
+      meta: {
+        pagina,
+        limite,
+        total,
+        ultima_pagina: Math.max(1, Math.ceil(total / limite)),
+      },
     }
   }
 
@@ -66,7 +77,11 @@ export class InMemoryUserRepository implements IUserRepository {
     return this.store.find(u => u.email === email) ?? null
   }
 
-  async update(id: string, hotelId: string, data: UpdateUserData): Promise<User> {
+  async update(
+    id: string,
+    hotelId: string,
+    data: UpdateUserData
+  ): Promise<User> {
     const idx = this.store.findIndex(u => u.id === id && u.hotel_id === hotelId)
     if (idx === -1) throw new Error('not found')
     const old = this.store[idx]
@@ -80,7 +95,8 @@ export class InMemoryUserRepository implements IUserRepository {
       celular: data.celular ?? old.celular,
       cpf: data.cpf ?? old.cpf,
       rg: data.rg !== undefined ? data.rg : old.rg,
-      grupos_ids: data.grupos_ids !== undefined ? data.grupos_ids : old.grupos_ids,
+      grupos_ids:
+        data.grupos_ids !== undefined ? data.grupos_ids : old.grupos_ids,
       updated_at: new Date(),
     })
     this.store[idx] = updated

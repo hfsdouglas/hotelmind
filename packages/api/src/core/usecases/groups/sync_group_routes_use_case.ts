@@ -1,11 +1,15 @@
-import type { IGroupRepository } from '@/core/repositories/groups/group.repository'
 import type { Rota } from '@/core/entities/rota'
 import { GrupoNotFoundError } from '@/core/errors/grupo_not_found_error'
+import type { IGroupRepository } from '@/core/repositories/groups/group.repository'
 
 export class SyncGroupRoutesUseCase {
   constructor(private readonly groupRepository: IGroupRepository) {}
 
-  async execute(groupId: string, hotelId: string, routeIds: string[]): Promise<Rota[]> {
+  async execute(
+    groupId: string,
+    hotelId: string,
+    routeIds: string[]
+  ): Promise<Rota[]> {
     const group = await this.groupRepository.findById(groupId, hotelId)
     if (!group) throw new GrupoNotFoundError()
 

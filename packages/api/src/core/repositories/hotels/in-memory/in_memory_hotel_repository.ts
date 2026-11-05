@@ -1,8 +1,8 @@
 import { Hotel } from '@/core/entities/hotel'
 import type {
-  IHotelRepository,
-  HotelPaginationInput,
   CreateHotelData,
+  HotelPaginationInput,
+  IHotelRepository,
   UpdateHotelData,
 } from '@/core/repositories/hotels/hotel.repository'
 import type { PaginatedResult } from '@/core/repositories/pagination'
@@ -22,7 +22,7 @@ export class InMemoryHotelRepository implements IHotelRepository {
       rows = rows.filter(
         h =>
           h.nome_hotel.toLowerCase().includes(q) ||
-          h.nome_fantasia.toLowerCase().includes(q),
+          h.nome_fantasia.toLowerCase().includes(q)
       )
     }
     if (status) {
@@ -30,7 +30,15 @@ export class InMemoryHotelRepository implements IHotelRepository {
     }
     const total = rows.length
     const data = rows.slice((pagina - 1) * limite, pagina * limite)
-    return { data, meta: { pagina, limite, total, ultima_pagina: Math.max(1, Math.ceil(total / limite)) } }
+    return {
+      data,
+      meta: {
+        pagina,
+        limite,
+        total,
+        ultima_pagina: Math.max(1, Math.ceil(total / limite)),
+      },
+    }
   }
 
   async findById(id: string): Promise<Hotel | null> {
@@ -38,7 +46,11 @@ export class InMemoryHotelRepository implements IHotelRepository {
   }
 
   async create(data: CreateHotelData): Promise<Hotel> {
-    const hotel = new Hotel({ id: crypto.randomUUID(), ...data, website: data.website ?? null })
+    const hotel = new Hotel({
+      id: crypto.randomUUID(),
+      ...data,
+      website: data.website ?? null,
+    })
     this.store.set(hotel.id, hotel)
     return hotel
   }

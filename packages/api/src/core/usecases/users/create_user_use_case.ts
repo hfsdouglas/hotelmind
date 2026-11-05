@@ -1,6 +1,9 @@
-import type { IUserRepository, CreateUserData } from '@/core/repositories/users/user.repository'
 import type { User } from '@/core/entities/user'
 import { UsuarioConflictError } from '@/core/errors/usuario_errors'
+import type {
+  CreateUserData,
+  IUserRepository,
+} from '@/core/repositories/users/user.repository'
 
 export class CreateUserUseCase {
   constructor(private readonly userRepository: IUserRepository) {}

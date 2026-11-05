@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { ListUsersUseCase } from './list_users_use_case'
-import { InMemoryUserRepository } from '@/core/repositories/users/in-memory/in_memory_user_repository'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { User } from '@/core/entities/user'
+import { InMemoryUserRepository } from '@/core/repositories/users/in-memory/in_memory_user_repository'
+import { ListUsersUseCase } from './list_users_use_case'
 
 const HOTEL_A = 'hotel-a'
 const HOTEL_B = 'hotel-b'

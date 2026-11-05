@@ -1,7 +1,12 @@
 import { ConfiguracaoCama } from '@/core/entities/configuracao_cama'
 import { Quarto } from '@/core/entities/quarto'
+import type {
+  CreateQuartoData,
+  IQuartoRepository,
+  QuartoPaginationInput,
+  UpdateQuartoData,
+} from '@/core/repositories/quartos/quarto.repository'
 import type { DB } from '@/lib/prisma'
-import type { CreateQuartoData, IQuartoRepository, QuartoPaginationInput, UpdateQuartoData } from '@/core/repositories/quartos/quarto.repository'
 
 interface RoomRow {
   id: string
@@ -42,20 +47,54 @@ export class PostgresQuartoRepository implements IQuartoRepository {
       hotel_id,
       ...(categoria_id?.length ? { categoria_id: { in: categoria_id } } : {}),
       ...(status ? { status } : {}),
-      ...(busca ? {
-        OR: [
-          { identificacao: { contains: busca, mode: 'insensitive' as const } },
-          { categoria: { nome: { contains: busca, mode: 'insensitive' as const } } },
-          { camas: { some: { tipo: { contains: busca, mode: 'insensitive' as const } } } },
-        ],
-      } : {}),
+      ...(busca
+        ? {
+            OR: [
+              {
+                identificacao: {
+                  contains: busca,
+                  mode: 'insensitive' as const,
+                },
+              },
+              {
+                categoria: {
+                  nome: { contains: busca, mode: 'insensitive' as const },
+                },
+              },
+              {
+                camas: {
+                  some: {
+                    tipo: { contains: busca, mode: 'insensitive' as const },
+                  },
+                },
+              },
+            ],
+          }
+        : {}),
     }
-    const include = { categoria: true, camas: { orderBy: { tipo: 'asc' as const } } }
+    const include = {
+      categoria: true,
+      camas: { orderBy: { tipo: 'asc' as const } },
+    }
     const [rows, total] = await Promise.all([
-      this.db.quarto.findMany({ where, include, orderBy: { identificacao: 'asc' }, skip: (pagina - 1) * limite, take: limite }),
+      this.db.quarto.findMany({
+        where,
+        include,
+        orderBy: { identificacao: 'asc' },
+        skip: (pagina - 1) * limite,
+        take: limite,
+      }),
       this.db.quarto.count({ where }),
     ])
-    return { data: rows.map(map_row), meta: { pagina, limite, total, ultima_pagina: Math.max(1, Math.ceil(total / limite)) } }
+    return {
+      data: rows.map(map_row),
+      meta: {
+        pagina,
+        limite,
+        total,
+        ultima_pagina: Math.max(1, Math.ceil(total / limite)),
+      },
+    }
   }
 
   async create(data: CreateQuartoData) {
@@ -77,7 +116,10 @@ export class PostgresQuartoRepository implements IQuartoRepository {
   }
 
   async find_by_id(id: string, hotel_id: string) {
-    const row = await this.db.quarto.findFirst({ where: { id, hotel_id }, include: { categoria: true, camas: true } })
+    const row = await this.db.quarto.findFirst({
+      where: { id, hotel_id },
+      include: { categoria: true, camas: true },
+    })
     return row ? map_row(row) : null
   }
 

@@ -1,5 +1,8 @@
 import type { Hotel } from '@/core/entities/hotel'
-import type { PaginationInput, PaginatedResult } from '@/core/repositories/pagination'
+import type {
+  PaginatedResult,
+  PaginationInput,
+} from '@/core/repositories/pagination'
 
 export interface HotelPaginationInput extends PaginationInput {
   status?: string

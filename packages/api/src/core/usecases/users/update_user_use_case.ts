@@ -1,11 +1,21 @@
-import type { IUserRepository, UpdateUserData } from '@/core/repositories/users/user.repository'
 import type { User } from '@/core/entities/user'
-import { UsuarioNotFoundError, UsuarioConflictError } from '@/core/errors/usuario_errors'
+import {
+  UsuarioConflictError,
+  UsuarioNotFoundError,
+} from '@/core/errors/usuario_errors'
+import type {
+  IUserRepository,
+  UpdateUserData,
+} from '@/core/repositories/users/user.repository'
 
 export class UpdateUserUseCase {
   constructor(private readonly userRepository: IUserRepository) {}
 
-  async execute(id: string, hotelId: string, data: UpdateUserData): Promise<User> {
+  async execute(
+    id: string,
+    hotelId: string,
+    data: UpdateUserData
+  ): Promise<User> {
     const existing = await this.userRepository.findById(id, hotelId)
     if (!existing) throw new UsuarioNotFoundError()
 

@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { ListGroupsUseCase } from './list_groups_use_case'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { InMemoryGroupRepository } from '@/core/repositories/groups/in-memory/in_memory_group_repository'
+import { ListGroupsUseCase } from './list_groups_use_case'
 
 const HOTEL_A = 'hotel-a'
 const HOTEL_B = 'hotel-b'
@@ -32,7 +32,11 @@ describe('ListGroupsUseCase', () => {
   })
 
   it('filters by busca', async () => {
-    const result = await sut.execute(HOTEL_A, { pagina: 1, limite: 50, busca: 'recep' })
+    const result = await sut.execute(HOTEL_A, {
+      pagina: 1,
+      limite: 50,
+      busca: 'recep',
+    })
     expect(result.data).toHaveLength(1)
     expect(result.data[0].grupo).toBe('Recepcionista')
   })

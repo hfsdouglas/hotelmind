@@ -1,13 +1,18 @@
-import type { DB } from '@/lib/prisma'
 import { Administrator } from '@/core/entities/administrator'
 import type {
-  IAdministratorRepository,
   CreateAdministratorData,
+  IAdministratorRepository,
   UpdateAdministratorData,
 } from '@/core/repositories/administrators/administrator.repository'
-import type { PaginationInput, PaginatedResult } from '@/core/repositories/pagination'
+import type {
+  PaginatedResult,
+  PaginationInput,
+} from '@/core/repositories/pagination'
+import type { DB } from '@/lib/prisma'
 
-export class PostgresAdministratorRepository implements IAdministratorRepository {
+export class PostgresAdministratorRepository
+  implements IAdministratorRepository
+{
   constructor(private readonly db: DB) {}
 
   async list(params: PaginationInput): Promise<PaginatedResult<Administrator>> {
@@ -17,13 +22,17 @@ export class PostgresAdministratorRepository implements IAdministratorRepository
     const where = busca
       ? {
           OR: [
-            { nome_completo: { contains: busca, mode: 'insensitive' as const } },
+            {
+              nome_completo: { contains: busca, mode: 'insensitive' as const },
+            },
             { email: { contains: busca, mode: 'insensitive' as const } },
           ],
         }
       : {}
 
-    const orderBy = ordenar_por ? { [ordenar_por]: direcao ?? 'asc' } : { created_at: 'desc' as const }
+    const orderBy = ordenar_por
+      ? { [ordenar_por]: direcao ?? 'asc' }
+      : { created_at: 'desc' as const }
 
     const [rows, total] = await Promise.all([
       this.db.administrator.findMany({ where, skip, take: limite, orderBy }),
@@ -56,7 +65,10 @@ export class PostgresAdministratorRepository implements IAdministratorRepository
     return new Administrator(row)
   }
 
-  async update(id: string, data: UpdateAdministratorData): Promise<Administrator> {
+  async update(
+    id: string,
+    data: UpdateAdministratorData
+  ): Promise<Administrator> {
     const row = await this.db.administrator.update({ where: { id }, data })
     return new Administrator(row)
   }

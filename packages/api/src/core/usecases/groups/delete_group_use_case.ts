@@ -1,6 +1,6 @@
-import type { IGroupRepository } from '@/core/repositories/groups/group.repository'
-import { GrupoNotFoundError } from '@/core/errors/grupo_not_found_error'
 import { GrupoLinkedUsersError } from '@/core/errors/grupo_conflict_error'
+import { GrupoNotFoundError } from '@/core/errors/grupo_not_found_error'
+import type { IGroupRepository } from '@/core/repositories/groups/group.repository'
 
 export class DeleteGroupUseCase {
   constructor(private readonly groupRepository: IGroupRepository) {}

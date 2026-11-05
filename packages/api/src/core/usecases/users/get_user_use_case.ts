@@ -1,6 +1,6 @@
-import type { IUserRepository } from '@/core/repositories/users/user.repository'
 import type { User } from '@/core/entities/user'
 import { UsuarioNotFoundError } from '@/core/errors/usuario_errors'
+import type { IUserRepository } from '@/core/repositories/users/user.repository'
 
 export class GetUserUseCase {
   constructor(private readonly userRepository: IUserRepository) {}

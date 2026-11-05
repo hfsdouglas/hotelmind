@@ -1,5 +1,8 @@
 import type { User } from '@/core/entities/user'
-import type { PaginationInput, PaginatedResult } from '@/core/repositories/pagination'
+import type {
+  PaginatedResult,
+  PaginationInput,
+} from '@/core/repositories/pagination'
 
 export interface CreateUserData {
   hotel_id: string
@@ -27,7 +30,10 @@ export interface UpdateUserData {
 }
 
 export interface IUserRepository {
-  list(hotelId: string, pagination: PaginationInput): Promise<PaginatedResult<User>>
+  list(
+    hotelId: string,
+    pagination: PaginationInput
+  ): Promise<PaginatedResult<User>>
   create(data: CreateUserData): Promise<User>
   findById(id: string, hotelId: string): Promise<User | null>
   findByEmail(email: string): Promise<User | null>

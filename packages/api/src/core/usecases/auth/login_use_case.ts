@@ -1,14 +1,14 @@
 import type { Hotel } from '@/core/entities/hotel'
-import type { User } from '@/core/entities/user'
 import type { Rota } from '@/core/entities/rota'
+import type { User } from '@/core/entities/user'
 import {
   InvalidCredentialsError,
   UserNotFoundError,
 } from '@/core/errors/authentication_error'
 import { HotelNotFoundError } from '@/core/errors/hotel_not_found_error'
 import type { IHotelRepository } from '@/core/repositories/hotels/hotel.repository'
-import type { IUserRepository } from '@/core/repositories/users/user.repository'
 import type { IRouteRepository } from '@/core/repositories/routes/route.repository'
+import type { IUserRepository } from '@/core/repositories/users/user.repository'
 import type { IPasswordHasher } from '@/core/services/password_hasher'
 
 interface LoginInput {
@@ -27,7 +27,7 @@ export class LoginUseCase {
     private readonly user_repository: IUserRepository,
     private readonly hotel_repository: IHotelRepository,
     private readonly password_hasher: IPasswordHasher,
-    private readonly route_repository?: IRouteRepository,
+    private readonly route_repository?: IRouteRepository
   ) {}
 
   async execute({ email, password }: LoginInput): Promise<LoginOutput> {
@@ -50,7 +50,10 @@ export class LoginUseCase {
     }
 
     const grupo_ids = user.grupos_ids
-      ? user.grupos_ids.split(',').map(id => id.trim()).filter(Boolean)
+      ? user.grupos_ids
+          .split(',')
+          .map(id => id.trim())
+          .filter(Boolean)
       : []
 
     const rotas =

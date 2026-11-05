@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { CreateUserUseCase } from './create_user_use_case'
-import { InMemoryUserRepository } from '@/core/repositories/users/in-memory/in_memory_user_repository'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { UsuarioConflictError } from '@/core/errors/usuario_errors'
+import { InMemoryUserRepository } from '@/core/repositories/users/in-memory/in_memory_user_repository'
+import { CreateUserUseCase } from './create_user_use_case'
 
 const HOTEL_ID = 'hotel-001'
 

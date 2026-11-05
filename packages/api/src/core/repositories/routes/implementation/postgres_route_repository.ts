@@ -1,11 +1,14 @@
-import type { DB } from '@/lib/prisma'
 import { Rota } from '@/core/entities/rota'
 import type {
-  IRouteRepository,
+  PaginatedResult,
+  PaginationInput,
+} from '@/core/repositories/pagination'
+import type {
   CreateRouteData,
+  IRouteRepository,
   UpdateRouteData,
 } from '@/core/repositories/routes/route.repository'
-import type { PaginationInput, PaginatedResult } from '@/core/repositories/pagination'
+import type { DB } from '@/lib/prisma'
 
 export class PostgresRouteRepository implements IRouteRepository {
   constructor(private readonly db: DB) {}
@@ -24,7 +27,9 @@ export class PostgresRouteRepository implements IRouteRepository {
         }
       : {}
 
-    const orderBy = ordenar_por ? { [ordenar_por]: direcao ?? 'asc' } : { ordem: 'asc' as const }
+    const orderBy = ordenar_por
+      ? { [ordenar_por]: direcao ?? 'asc' }
+      : { ordem: 'asc' as const }
 
     const [rows, total] = await Promise.all([
       this.db.rota.findMany({ where, skip, take: limite, orderBy }),

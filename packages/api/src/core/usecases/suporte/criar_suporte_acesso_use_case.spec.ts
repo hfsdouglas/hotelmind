@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { CriarSuporteAcessoUseCase } from './criar_suporte_acesso_use_case'
-import { InMemoryHotelRepository } from '@/core/repositories/hotels/in-memory/in_memory_hotel_repository'
-import { InMemoryUserRepository } from '@/core/repositories/users/in-memory/in_memory_user_repository'
-import { InMemoryRouteRepository } from '@/core/repositories/routes/in-memory/in_memory_route_repository'
-import { HotelNotFoundError } from '@/core/errors/hotel_not_found_error'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { UserNotFoundError } from '@/core/errors/authentication_error'
+import { HotelNotFoundError } from '@/core/errors/hotel_not_found_error'
 import { HotelInactiveError } from '@/core/errors/suporte_errors'
+import { InMemoryHotelRepository } from '@/core/repositories/hotels/in-memory/in_memory_hotel_repository'
+import { InMemoryRouteRepository } from '@/core/repositories/routes/in-memory/in_memory_route_repository'
+import { InMemoryUserRepository } from '@/core/repositories/users/in-memory/in_memory_user_repository'
+import { CriarSuporteAcessoUseCase } from './criar_suporte_acesso_use_case'
 
 const HOTEL_DATA = {
   nome_hotel: 'HotelMind',
@@ -41,41 +41,59 @@ describe('CriarSuporteAcessoUseCase', () => {
 
   it('throws HotelNotFoundError when the hotel does not exist', async () => {
     await expect(
-      useCase.execute({ hotelId: 'non-existent', usuarioId: 'any' }),
+      useCase.execute({ hotelId: 'non-existent', usuarioId: 'any' })
     ).rejects.toBeInstanceOf(HotelNotFoundError)
   })
 
   it('throws HotelInactiveError when the hotel is inactive', async () => {
     const hotel = await hotelRepo.create({ ...HOTEL_DATA, status: 'N' })
     await expect(
-      useCase.execute({ hotelId: hotel.id, usuarioId: 'any' }),
+      useCase.execute({ hotelId: hotel.id, usuarioId: 'any' })
     ).rejects.toBeInstanceOf(HotelInactiveError)
   })
 
   it('throws UserNotFoundError when the user does not belong to the hotel', async () => {
     const hotel = await hotelRepo.create({ ...HOTEL_DATA, status: 'S' })
-    const otherHotel = await hotelRepo.create({ ...HOTEL_DATA, cnpj: '99999999999999', email_comercial: 'outro@hotelmind.com.br' })
-    const user = await userRepo.create({ ...USER_DATA, hotel_id: otherHotel.id })
+    const otherHotel = await hotelRepo.create({
+      ...HOTEL_DATA,
+      cnpj: '99999999999999',
+      email_comercial: 'outro@hotelmind.com.br',
+    })
+    const user = await userRepo.create({
+      ...USER_DATA,
+      hotel_id: otherHotel.id,
+    })
 
     await expect(
-      useCase.execute({ hotelId: hotel.id, usuarioId: user.id }),
+      useCase.execute({ hotelId: hotel.id, usuarioId: user.id })
     ).rejects.toBeInstanceOf(UserNotFoundError)
   })
 
   it('throws UserNotFoundError when the user does not exist at all', async () => {
     const hotel = await hotelRepo.create({ ...HOTEL_DATA, status: 'S' })
     await expect(
-      useCase.execute({ hotelId: hotel.id, usuarioId: 'ghost' }),
+      useCase.execute({ hotelId: hotel.id, usuarioId: 'ghost' })
     ).rejects.toBeInstanceOf(UserNotFoundError)
   })
 
   it('returns user, hotel, and rotas on success', async () => {
     const hotel = await hotelRepo.create({ ...HOTEL_DATA, status: 'S' })
-    const user = await userRepo.create({ ...USER_DATA, hotel_id: hotel.id, grupos_ids: 'grupo-1' })
-    const rota = await routeRepo.create({ modulo: 'Dashboard', recurso: 'Dashboard', rota: '/' })
+    const user = await userRepo.create({
+      ...USER_DATA,
+      hotel_id: hotel.id,
+      grupos_ids: 'grupo-1',
+    })
+    const rota = await routeRepo.create({
+      modulo: 'Dashboard',
+      recurso: 'Dashboard',
+      rota: '/',
+    })
     await routeRepo.setHotelRoutes(hotel.id, [rota.id])
 
-    const result = await useCase.execute({ hotelId: hotel.id, usuarioId: user.id })
+    const result = await useCase.execute({
+      hotelId: hotel.id,
+      usuarioId: user.id,
+    })
 
     expect(result.user.id).toBe(user.id)
     expect(result.hotel.id).toBe(hotel.id)

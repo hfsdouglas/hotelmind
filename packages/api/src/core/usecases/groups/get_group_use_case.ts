@@ -1,6 +1,6 @@
-import type { IGroupRepository } from '@/core/repositories/groups/group.repository'
 import type { Grupo } from '@/core/entities/grupo'
 import { GrupoNotFoundError } from '@/core/errors/grupo_not_found_error'
+import type { IGroupRepository } from '@/core/repositories/groups/group.repository'
 
 export class GetGroupUseCase {
   constructor(private readonly groupRepository: IGroupRepository) {}

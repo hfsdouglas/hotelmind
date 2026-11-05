@@ -12,7 +12,8 @@ export class ConfiguracaoCama {
   readonly quantidade: number
 
   constructor(props: ConfiguracaoCamaProps) {
-    if (!TIPOS_CAMA.includes(props.tipo as TipoCama)) throw new Error('Tipo de cama inválido.')
+    if (!TIPOS_CAMA.includes(props.tipo as TipoCama))
+      throw new Error('Tipo de cama inválido.')
     if (!Number.isInteger(props.quantidade) || props.quantidade <= 0) {
       throw new Error('A quantidade de camas deve ser positiva.')
     }

@@ -215,8 +215,13 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
       nome: current.categoria_quarto.nome,
       status: current.categoria_quarto.status,
     }
-    const regime_id = data.regime_alimentacao_id ?? current.regime_alimentacao_id
-    const regime_meta = this.regime_names.get(regime_id) ?? (current.regime_alimentacao?.id === regime_id ? current.regime_alimentacao : { titulo: 'Regime', cor_pulseira: '#2563EB' })
+    const regime_id =
+      data.regime_alimentacao_id ?? current.regime_alimentacao_id
+    const regime_meta =
+      this.regime_names.get(regime_id) ??
+      (current.regime_alimentacao?.id === regime_id
+        ? current.regime_alimentacao
+        : { titulo: 'Regime', cor_pulseira: '#2563EB' })
 
     const updated = new Tarifario({
       id: current.id,

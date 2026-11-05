@@ -33,11 +33,15 @@ describe('Tarifarios Use Cases', () => {
     tarifarios_repo = new InMemoryTarifarioRepository()
     categorias_repo = new InMemoryCategoriaQuartoRepository()
     regime_id = 'regime-1'
-    tarifarios_repo.register_regime_alimentacao(regime_id, 'Meia Pensão', '#2563EB')
+    tarifarios_repo.register_regime_alimentacao(
+      regime_id,
+      'Meia Pensão',
+      '#2563EB'
+    )
     criar_use_case = new CriarTarifarioUseCase(tarifarios_repo, categorias_repo)
     editar_use_case = new EditarTarifarioUseCase(
       tarifarios_repo,
-      categorias_repo,
+      categorias_repo
     )
     listar_use_case = new ListarTarifariosUseCase(tarifarios_repo)
     buscar_use_case = new BuscarTarifarioUseCase(tarifarios_repo)
@@ -45,7 +49,7 @@ describe('Tarifarios Use Cases', () => {
     desativar_use_case = new DesativarTarifarioUseCase(tarifarios_repo)
     calendario_use_case = new ConsultarPeriodosTarifariosUseCase(
       tarifarios_repo,
-      categorias_repo,
+      categorias_repo
     )
 
     const cat_luxo = await categorias_repo.create({
@@ -113,7 +117,7 @@ describe('Tarifarios Use Cases', () => {
         nome: 'Conflito 15 de Março',
         datas: ['2027-03-15', '2027-03-20'],
         valor_diaria: '220.00',
-      }),
+      })
     ).rejects.toThrow(TarifarioPeriodConflictError)
 
     // Same dates in a different category are allowed
@@ -201,9 +205,9 @@ describe('Tarifarios Use Cases', () => {
       valor_diaria: '240.00',
     })
 
-    await expect(
-      ativar_use_case.execute(first.id, 'hotel-1'),
-    ).rejects.toThrow(TarifarioPeriodConflictError)
+    await expect(ativar_use_case.execute(first.id, 'hotel-1')).rejects.toThrow(
+      TarifarioPeriodConflictError
+    )
   })
 
   it('CA09: enforces multi-tenant isolation across list, get, edit, activate, deactivate, and category association', async () => {
@@ -223,7 +227,7 @@ describe('Tarifarios Use Cases', () => {
     expect(list_hotel_2.data).toHaveLength(0)
 
     await expect(
-      buscar_use_case.execute(created.id, 'hotel-2'),
+      buscar_use_case.execute(created.id, 'hotel-2')
     ).rejects.toThrow(TarifarioNotFoundError)
 
     await expect(
@@ -231,11 +235,11 @@ describe('Tarifarios Use Cases', () => {
         id: created.id,
         hotel_id: 'hotel-2',
         nome: 'Invasão',
-      }),
+      })
     ).rejects.toThrow(TarifarioNotFoundError)
 
     await expect(
-      desativar_use_case.execute(created.id, 'hotel-2'),
+      desativar_use_case.execute(created.id, 'hotel-2')
     ).rejects.toThrow(TarifarioNotFoundError)
 
     await expect(
@@ -246,7 +250,7 @@ describe('Tarifarios Use Cases', () => {
         nome: 'Categoria de outro hotel',
         datas: ['2027-11-01'],
         valor_diaria: '200.00',
-      }),
+      })
     ).rejects.toThrow(CategoriaQuartoInativaError)
   })
 
@@ -259,7 +263,7 @@ describe('Tarifarios Use Cases', () => {
         nome: 'Sem regime',
         datas: ['2027-12-01'],
         valor_diaria: '200.00',
-      }),
+      })
     ).rejects.toThrow(TarifarioValidationError)
 
     const created = await criar_use_case.execute({
@@ -276,7 +280,7 @@ describe('Tarifarios Use Cases', () => {
         id: created.id,
         hotel_id: 'hotel-1',
         regime_alimentacao_id: '   ',
-      }),
+      })
     ).rejects.toThrow(TarifarioValidationError)
   })
 })

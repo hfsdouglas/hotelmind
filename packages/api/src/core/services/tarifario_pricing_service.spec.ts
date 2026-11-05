@@ -6,16 +6,18 @@ import { InMemoryTarifarioRepository } from '@/core/repositories/tarifarios/in-m
 import { CalcularTarifaReservaUseCase } from '@/core/usecases/tarifarios/calcular_tarifa_reserva_use_case'
 import { TarifarioPricingService } from './tarifario_pricing_service'
 
-function make_tarifario(overrides: Partial<{
-  id: string
-  hotel_id: string
-  categoria_quarto_id: string
-  regime_alimentacao_id: string
-  nome: string
-  datas: string[]
-  valor_diaria: string
-  ativo: boolean
-}>) {
+function make_tarifario(
+  overrides: Partial<{
+    id: string
+    hotel_id: string
+    categoria_quarto_id: string
+    regime_alimentacao_id: string
+    nome: string
+    datas: string[]
+    valor_diaria: string
+    ativo: boolean
+  }>
+) {
   return new Tarifario({
     id: overrides.id ?? crypto.randomUUID(),
     hotel_id: overrides.hotel_id ?? 'hotel-1',
@@ -127,7 +129,7 @@ describe('TarifarioPricingService & CalcularTarifaReservaUseCase (CA10 & RN06)',
 
     const use_case = new CalcularTarifaReservaUseCase(
       tarifarios_repo,
-      categorias_repo,
+      categorias_repo
     )
     const calculo = await use_case.execute({
       hotel_id: 'hotel-1',
@@ -147,7 +149,7 @@ describe('TarifarioPricingService & CalcularTarifaReservaUseCase (CA10 & RN06)',
         categoria_quarto_id: cat.id,
         check_in: '2027-05-01',
         check_out: '2027-05-03',
-      }),
+      })
     ).rejects.toThrow(TarifarioSemCoberturaError)
   })
 })

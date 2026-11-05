@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
-  Tarifario,
   cents_to_valor_diaria,
   normalize_valor_diaria,
+  Tarifario,
   valor_diaria_to_cents,
 } from './tarifario'
 
@@ -35,25 +35,25 @@ describe('Tarifario Entity', () => {
 
   it('rejects empty name or name exceeding 100 chars', () => {
     expect(() => new Tarifario({ ...base_props, nome: '   ' })).toThrow(
-      /obrigatório/,
+      /obrigatório/
     )
     expect(
-      () => new Tarifario({ ...base_props, nome: 'A'.repeat(101) }),
+      () => new Tarifario({ ...base_props, nome: 'A'.repeat(101) })
     ).toThrow(/100 caracteres/)
   })
 
   it('rejects missing regime_alimentacao_id', () => {
     expect(
-      () => new Tarifario({ ...base_props, regime_alimentacao_id: '' }),
+      () => new Tarifario({ ...base_props, regime_alimentacao_id: '' })
     ).toThrow(/regime de alimentação é obrigatório/)
   })
 
   it('rejects empty datas array or invalid ISO date', () => {
     expect(() => new Tarifario({ ...base_props, datas: [] })).toThrow(
-      /Selecione ao menos uma data/,
+      /Selecione ao menos uma data/
     )
     expect(
-      () => new Tarifario({ ...base_props, datas: ['2026-02-30'] }),
+      () => new Tarifario({ ...base_props, datas: ['2026-02-30'] })
     ).toThrow(/inválida/)
   })
 

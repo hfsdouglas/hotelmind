@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { CreateGroupUseCase } from './create_group_use_case'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { InMemoryGroupRepository } from '@/core/repositories/groups/in-memory/in_memory_group_repository'
+import { CreateGroupUseCase } from './create_group_use_case'
 
 describe('CreateGroupUseCase', () => {
   let repo: InMemoryGroupRepository
@@ -19,7 +19,12 @@ describe('CreateGroupUseCase', () => {
   })
 
   it('creates a grupo with descricao and custom status', async () => {
-    const g = await sut.execute({ hotel_id: 'h1', grupo: 'G2', descricao: 'desc', status: 'N' })
+    const g = await sut.execute({
+      hotel_id: 'h1',
+      grupo: 'G2',
+      descricao: 'desc',
+      status: 'N',
+    })
     expect(g.descricao).toBe('desc')
     expect(g.status).toBe('N')
   })

@@ -1,12 +1,12 @@
-import type { DB } from '@/lib/prisma'
 import { Hotel } from '@/core/entities/hotel'
 import type {
-  IHotelRepository,
-  HotelPaginationInput,
   CreateHotelData,
+  HotelPaginationInput,
+  IHotelRepository,
   UpdateHotelData,
 } from '@/core/repositories/hotels/hotel.repository'
 import type { PaginatedResult } from '@/core/repositories/pagination'
+import type { DB } from '@/lib/prisma'
 
 export class PostgresHotelRepository implements IHotelRepository {
   constructor(private readonly db: DB) {}
@@ -20,7 +20,12 @@ export class PostgresHotelRepository implements IHotelRepository {
         ? {
             OR: [
               { nome_hotel: { contains: busca, mode: 'insensitive' as const } },
-              { nome_fantasia: { contains: busca, mode: 'insensitive' as const } },
+              {
+                nome_fantasia: {
+                  contains: busca,
+                  mode: 'insensitive' as const,
+                },
+              },
               { cnpj: { contains: busca } },
             ],
           }
@@ -28,7 +33,9 @@ export class PostgresHotelRepository implements IHotelRepository {
       ...(status ? { status } : {}),
     }
 
-    const orderBy = ordenar_por ? { [ordenar_por]: direcao ?? 'asc' } : { nome_hotel: 'asc' as const }
+    const orderBy = ordenar_por
+      ? { [ordenar_por]: direcao ?? 'asc' }
+      : { nome_hotel: 'asc' as const }
 
     const [rows, total] = await Promise.all([
       this.db.hotel.findMany({ where, skip, take: limite, orderBy }),
@@ -47,7 +54,9 @@ export class PostgresHotelRepository implements IHotelRepository {
   }
 
   async create(data: CreateHotelData): Promise<Hotel> {
-    const row = await this.db.hotel.create({ data: { ...data, status: data.status ?? 'S' } })
+    const row = await this.db.hotel.create({
+      data: { ...data, status: data.status ?? 'S' },
+    })
     return new Hotel(row)
   }
 

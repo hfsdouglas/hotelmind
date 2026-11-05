@@ -6,7 +6,9 @@ export class UsuarioNotFoundError extends Error {
 }
 
 export class UsuarioConflictError extends Error {
-  constructor(message = 'Já existe um usuário com este e-mail, CPF ou celular.') {
+  constructor(
+    message = 'Já existe um usuário com este e-mail, CPF ou celular.'
+  ) {
     super(message)
     this.name = 'UsuarioConflictError'
   }

@@ -8,7 +8,7 @@ export class TarifarioNotFoundError extends Error {
 export class TarifarioPeriodConflictError extends Error {
   constructor() {
     super(
-      'Já existe um tarifário ativo com período sobreposto para esta categoria.',
+      'Já existe um tarifário ativo com período sobreposto para esta categoria.'
     )
     this.name = 'TarifarioPeriodConflictError'
   }
