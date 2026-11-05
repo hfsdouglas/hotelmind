@@ -77,15 +77,8 @@ tests/
 ├── integration/
 └── unit/
 
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
-
-frontend/
+# [REMOVE IF UNUSED] Option 2: Web / Admin front-end application (packages/web, packages/admin)
+frontend (packages/web & packages/admin)/
 ├── src/
 │   ├── components/       # ALL reusable, modal, and domain components MUST live here. NEVER inside pages/
 │   ├── pages/            # STRICTLY route entrypoints (index.tsx, [id]/editar.tsx). Zero components folders!

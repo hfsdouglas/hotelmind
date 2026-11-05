@@ -171,8 +171,8 @@ Testability is a structural proxy for correctness of design.
 | `schemas/` | Declare and validate data shapes (Zod) | Execute side effects, reference repositories or use cases |
 | `infrastructure/` | DB drivers, queue adapters, HTTP clients, framework plugins | Contain domain logic, import from `use_cases/` or `services/` |
 | `.contracts` | Shared TypeScript interfaces and types | Contain Zod schemas, runtime code, or any implementation |
-| `pages/` (web) | Route entrypoints (`index.tsx`, `novo.tsx`, etc.) and page tests | MUST NOT contain `components/` folders. Zero subcomponent folders in `pages/` |
-| `components/` (web) | All reusable, form, modal, and domain UI components | Be placed inside `pages/`. All components MUST live under `src/components/` |
+| `pages/` (web & admin) | Route entrypoints (`index.tsx`, `novo.tsx`, etc.) and page tests | MUST NOT contain `components/` folders. Zero subcomponent folders in `pages/` |
+| `components/` (web & admin) | All reusable, form, modal, and domain UI components | Be placed inside `pages/`. All components MUST live under `src/components/` |
 
 ## Development Workflow
 
