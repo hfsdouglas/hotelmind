@@ -17,7 +17,10 @@ import { NovoQuartoPage } from '@/pages/app/quartos/novo'
 import { RegimesAlimentacaoPage } from '@/pages/app/regimes_alimentacao'
 import { EditarRegimeAlimentacaoPage } from '@/pages/app/regimes_alimentacao/[id]/editar'
 import { NovoRegimeAlimentacaoPage } from '@/pages/app/regimes_alimentacao/novo'
+import { ReservasPage } from '@/pages/app/reservas'
+import { DetalheReservaPage } from '@/pages/app/reservas/[id]'
 import { Calendario } from '@/pages/app/reservas/calendario'
+import { NovaReservaPage } from '@/pages/app/reservas/nova'
 import { EditarOrcamentoPage } from '@/pages/app/reservas/orcamentos/[id]/editar'
 import { OrcamentosPage } from '@/pages/app/reservas/orcamentos/index'
 import { NovoOrcamentoPage } from '@/pages/app/reservas/orcamentos/novo'
@@ -29,6 +32,7 @@ import { UsuariosPage } from '@/pages/app/usuarios/index'
 import { NovoUsuarioPage } from '@/pages/app/usuarios/novo'
 import { LoginPage } from '@/pages/auth/login'
 import { Error404Page } from '@/pages/error-404'
+import { FnrhPublicaPage } from '@/pages/public/fnrh'
 import { VisualizarOrcamentoPublicoPage } from '@/pages/public/orcamento'
 
 export const router = createBrowserRouter([
@@ -39,6 +43,10 @@ export const router = createBrowserRouter([
   {
     path: '/orcamento/:token',
     element: <VisualizarOrcamentoPublicoPage />,
+  },
+  {
+    path: '/fnrh/:token',
+    element: <FnrhPublicaPage />,
   },
   {
     element: <AppLayout />,
@@ -86,9 +94,11 @@ export const router = createBrowserRouter([
         path: '/tarifarios/regimes_alimentacao/:id/editar',
         element: <EditarRegimeAlimentacaoPage />,
       },
-      { path: '/reservas', element: <Calendario /> },
+      { path: '/reservas', element: <ReservasPage /> },
+      { path: '/reservas/nova', element: <NovaReservaPage /> },
+      { path: '/reservas/novo', element: <NovaReservaPage /> },
       { path: '/reservas/calendario', element: <Calendario /> },
-      { path: '/reservas/novo', element: <Calendario /> },
+      { path: '/reservas/:id', element: <DetalheReservaPage /> },
       { path: '/reservas/orcamentos', element: <OrcamentosPage /> },
       { path: '/reservas/orcamentos/novo', element: <NovoOrcamentoPage /> },
       {

@@ -1,6 +1,13 @@
 import type { PaginacaoMeta } from './grupos.js'
 
-export const TIPOS_CAMA = ['solteiro', 'casal', 'queen', 'king', 'beliche', 'sofa_cama'] as const
+export const TIPOS_CAMA = [
+  'solteiro',
+  'casal',
+  'queen',
+  'king',
+  'beliche',
+  'sofa_cama',
+] as const
 export type TipoCama = (typeof TIPOS_CAMA)[number]
 
 export interface ConfiguracaoCama {

@@ -10,11 +10,11 @@
 		"db:seed:routes": "pnpm --filter api db:seed:routes"
 	},
 	"devDependencies": {
-		"@types/bcryptjs": "^2.4.6",
-		"@types/pg": "^8.11.10",
 		"@biomejs/biome": "2.5.1",
 		"@tsconfig/node-lts": "^24.0.0",
+		"@types/bcryptjs": "^2.4.6",
 		"@types/node": "^26.0.1",
+		"@types/pg": "^8.11.10",
 		"esbuild": "^0.28.1",
 		"esbuild-node-externals": "^1.23.1",
 		"prisma": "^6.19.3",
@@ -23,14 +23,15 @@
 		"vitest": "^4.1.9"
 	},
 	"dependencies": {
-		"bcryptjs": "^3.0.2",
 		"@fastify/cookie": "^11.0.2",
 		"@fastify/cors": "^11.2.0",
 		"@fastify/jwt": "^10.1.0",
+		"@fastify/rate-limit": "^11.2.2",
 		"@fastify/swagger": "^9.7.0",
 		"@fastify/swagger-ui": "^6.0.0",
 		"@prisma/adapter-pg": "^6.19.3",
 		"@prisma/client": "^6.19.3",
+		"bcryptjs": "^3.0.2",
 		"dotenv": "^17.4.2",
 		"fastify": "^5.8.5",
 		"fastify-plugin": "^6.0.0",

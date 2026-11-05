@@ -9,6 +9,8 @@ import { leads_routes } from '@/routes/leads/leads_routes'
 import { orcamentos_routes } from '@/routes/orcamentos/orcamentos_routes'
 import { quartos_routes } from '@/routes/quartos/quartos_routes'
 import { regimes_alimentacao_routes } from '@/routes/regimes_alimentacao/regimes_alimentacao_routes'
+import { reservas_publicas_routes } from '@/routes/reservas/reservas_publicas_routes'
+import { reservas_routes } from '@/routes/reservas/reservas_routes'
 import { admin_routes_routes } from '@/routes/routes/admin/routes_routes'
 import { routes_routes } from '@/routes/routes/web/routes_routes'
 import { admin_suporte_routes } from '@/routes/suporte/admin/suporte_routes'
@@ -33,4 +35,6 @@ export function setRoutes(app: FastifyTypedInstance) {
   app.register(leads_routes)
   app.register(orcamentos_routes)
   app.register(parceiros_comerciais_routes)
+  app.register(reservas_routes)
+  app.register(reservas_publicas_routes)
 }

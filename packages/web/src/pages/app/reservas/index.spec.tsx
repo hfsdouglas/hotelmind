@@ -1,9 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { Calendario } from './index'
-import { Calendario as CalendarioDirect } from './calendario'
+import { ReservasPage } from './index'
 
 describe('Reservas Index', () => {
-  it('exports Calendario component correctly', () => {
-    expect(Calendario).toBe(CalendarioDirect)
+  it('exports ReservasPage component correctly', () => {
+    expect(ReservasPage).toBeDefined()
   })
 })

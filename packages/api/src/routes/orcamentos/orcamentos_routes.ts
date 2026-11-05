@@ -12,11 +12,13 @@ import {
 import { CategoriaQuartoInativaError } from '@/core/errors/quarto_errors'
 import { RegimeAlimentacaoNotFoundError } from '@/core/errors/regime_alimentacao_errors'
 import { TarifarioSemCoberturaError } from '@/core/errors/tarifario_errors'
-import { PostgresCategoriaQuartoRepository } from '@/core/repositories/categorias_quartos/implementation/postgres_categoria_quarto_repository'
-import { PostgresLeadRepository } from '@/core/repositories/leads/implementation/postgres_lead_repository'
-import { PostgresOrcamentoRepository } from '@/core/repositories/orcamentos/implementation/postgres_orcamento_repository'
-import { PostgresRegimeAlimentacaoRepository } from '@/core/repositories/regimes_alimentacao/implementation/postgres_regime_alimentacao_repository'
-import { PostgresTarifarioRepository } from '@/core/repositories/tarifarios/implementation/postgres_tarifario_repository'
+import {
+  CategoriaQuartoRepository,
+  LeadRepository,
+  OrcamentoRepository,
+  RegimeAlimentacaoRepository,
+  TarifarioRepository,
+} from '@/core/repositories'
 import { BuscarOrcamentoPublicoUseCase } from '@/core/usecases/orcamentos/buscar_orcamento_publico_use_case'
 import { BuscarOrcamentoUseCase } from '@/core/usecases/orcamentos/buscar_orcamento_use_case'
 import { CriarOrcamentoUseCase } from '@/core/usecases/orcamentos/criar_orcamento_use_case'
@@ -64,11 +66,11 @@ function orcamento_to_response(o: Orcamento) {
 }
 
 export async function orcamentos_routes(app: FastifyTypedInstance) {
-  const orcamentos_repo = new PostgresOrcamentoRepository(db)
-  const leads_repo = new PostgresLeadRepository(db)
-  const regimes_repo = new PostgresRegimeAlimentacaoRepository(db)
-  const categorias_repo = new PostgresCategoriaQuartoRepository(db)
-  const tarifarios_repo = new PostgresTarifarioRepository(db)
+  const orcamentos_repo = new OrcamentoRepository(db)
+  const leads_repo = new LeadRepository(db)
+  const regimes_repo = new RegimeAlimentacaoRepository(db)
+  const categorias_repo = new CategoriaQuartoRepository(db)
+  const tarifarios_repo = new TarifarioRepository(db)
 
   const criar_use_case = new CriarOrcamentoUseCase(
     orcamentos_repo,

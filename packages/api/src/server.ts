@@ -1,34 +1,33 @@
-import "dotenv/config";
+import 'dotenv/config'
 
-import { fastify } from "fastify";
+import { fastify } from 'fastify'
 import {
   serializerCompiler,
   validatorCompiler,
-  ZodTypeProvider,
-} from "fastify-type-provider-zod";
+  type ZodTypeProvider,
+} from 'fastify-type-provider-zod'
+import { HOST, PORT } from '@/config/env'
+import { setCookie } from '@/plugins/cookie_plugin'
+import { setCors } from '@/plugins/cors_plugin'
+import { setRoutes } from '@/plugins/fastify_routes'
+import { setJWT } from '@/plugins/jwt_plugin'
+import { setRateLimit } from '@/plugins/rate_limit_plugin'
+import { setSwagger } from '@/plugins/swagger_plugin'
 
-import { PORT } from "@/config/env";
-import { HOST } from "@/config/env";
+const app = fastify().withTypeProvider<ZodTypeProvider>()
 
-import { setRoutes } from "@/plugins/fastify_routes";
-import { setSwagger } from "@/plugins/swagger_plugin";
-import { setCors } from "@/plugins/cors_plugin";
-import { setCookie } from "@/plugins/cookie_plugin";
-import { setJWT } from "@/plugins/jwt_plugin";
+app.setValidatorCompiler(validatorCompiler)
+app.setSerializerCompiler(serializerCompiler)
 
-const app = fastify().withTypeProvider<ZodTypeProvider>();
+setCors(app)
+setRateLimit(app)
+setSwagger(app)
+setCookie(app)
+setJWT(app)
+setRoutes(app)
 
-app.setValidatorCompiler(validatorCompiler);
-app.setSerializerCompiler(serializerCompiler);
-
-setCors(app);
-setSwagger(app);
-setCookie(app);
-setJWT(app);
-setRoutes(app);
-
-const host = HOST || "0.0.0.0";
+const host = HOST || '0.0.0.0'
 
 app.listen({ port: Number(PORT), host }).then(() => {
-  console.log(`Hotel server is running on host ${host} and port ${PORT}! 🏨`);
-});
+  console.log(`Hotel server is running on host ${host} and port ${PORT}! 🏨`)
+})
