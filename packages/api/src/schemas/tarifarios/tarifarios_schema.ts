@@ -84,9 +84,7 @@ export const create_tarifario_body_schema = z.object({
     .string()
     .trim()
     .min(1, 'A categoria de quarto é obrigatória.'),
-  regime_alimentacao_id: z
-    .string()
-    .uuid('Informe o regime de alimentação.'),
+  regime_alimentacao_id: z.string().uuid('Informe o regime de alimentação.'),
   nome: z
     .string()
     .trim()

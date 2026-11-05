@@ -1,14 +1,12 @@
-import { z } from 'zod'
-import type { FastifyTypedInstance } from '@/types/fastify'
-import { db } from '@/lib/prisma'
-import { HotelRepository, UserRepository } from '@/core/repositories'
-import { PostgresRouteRepository } from '@/core/repositories/routes/implementation/postgres_route_repository'
-import { BcryptPasswordHasher } from '@/lib/bcrypt_password_hasher'
-import { LoginUseCase } from '@/core/usecases/auth/login_use_case'
 import {
   InvalidCredentialsError,
   UserNotFoundError,
 } from '@/core/errors/authentication_error'
+import { HotelRepository, UserRepository } from '@/core/repositories'
+import { PostgresRouteRepository } from '@/core/repositories/routes/implementation/postgres_route_repository'
+import { LoginUseCase } from '@/core/usecases/auth/login_use_case'
+import { BcryptPasswordHasher } from '@/lib/bcrypt_password_hasher'
+import { db } from '@/lib/prisma'
 import {
   login_body_schema,
   login_error_schema,
@@ -16,6 +14,7 @@ import {
   me_response_schema,
 } from '@/schemas/auth/web/login_schema'
 import { logout_response_schema } from '@/schemas/auth/web/logout_schema'
+import type { FastifyTypedInstance } from '@/types/fastify'
 
 export async function auth_routes(app: FastifyTypedInstance) {
   const userRepo = new UserRepository(db)
@@ -26,7 +25,7 @@ export async function auth_routes(app: FastifyTypedInstance) {
     userRepo,
     hotelRepo,
     new BcryptPasswordHasher(),
-    rotaRepo,
+    rotaRepo
   )
 
   app.get(
@@ -46,17 +45,24 @@ export async function auth_routes(app: FastifyTypedInstance) {
       const { email, hotelId, suporte } = request.user
 
       const user = await userRepo.findByEmail(email)
-      if (!user) return reply.status(401).send({ message: 'Usuário não encontrado.' })
+      if (!user)
+        return reply.status(401).send({ message: 'Usuário não encontrado.' })
 
       const hotel = await hotelRepo.findById(hotelId)
-      if (!hotel) return reply.status(401).send({ message: 'Hotel não encontrado.' })
+      if (!hotel)
+        return reply.status(401).send({ message: 'Hotel não encontrado.' })
 
       const grupoIds = user.grupos_ids
-        ? user.grupos_ids.split(',').map(id => id.trim()).filter(Boolean)
+        ? user.grupos_ids
+            .split(',')
+            .map(id => id.trim())
+            .filter(Boolean)
         : []
 
       const rotas =
-        grupoIds.length > 0 ? await rotaRepo.findByUsuario(hotelId, grupoIds) : []
+        grupoIds.length > 0
+          ? await rotaRepo.findByUsuario(hotelId, grupoIds)
+          : []
 
       return reply.status(200).send({
         user: {
@@ -79,9 +85,11 @@ export async function auth_routes(app: FastifyTypedInstance) {
           icone: r.icone,
           ordem: r.ordem,
         })),
-        ...(suporte ? { suporte: { administrador_nome: suporte.administratorNome } } : {}),
+        ...(suporte
+          ? { suporte: { administrador_nome: suporte.administratorNome } }
+          : {}),
       })
-    },
+    }
   )
 
   app.post(
@@ -100,7 +108,9 @@ export async function auth_routes(app: FastifyTypedInstance) {
     },
     async (request, reply) => {
       try {
-        const { user, hotel, rotas } = await login_use_case.execute(request.body)
+        const { user, hotel, rotas } = await login_use_case.execute(
+          request.body
+        )
 
         const token = app.jwt.sign(
           {
@@ -111,7 +121,7 @@ export async function auth_routes(app: FastifyTypedInstance) {
               email: user.email,
             },
           },
-          { expiresIn: '7d' },
+          { expiresIn: '7d' }
         )
 
         reply.setCookie('token', token, {
@@ -136,7 +146,9 @@ export async function auth_routes(app: FastifyTypedInstance) {
             nome_fantasia: hotel.nome_fantasia,
             cnpj: hotel.cnpj,
           },
-          message: user.first_name ? `Seja bem-vindo, ${user.first_name}!` : 'Bem-vindo!',
+          message: user.first_name
+            ? `Seja bem-vindo, ${user.first_name}!`
+            : 'Bem-vindo!',
           rotas: rotas.map(r => ({
             modulo: r.modulo,
             recurso: r.recurso,
@@ -155,7 +167,7 @@ export async function auth_routes(app: FastifyTypedInstance) {
 
         return reply.status(500).send({ message: 'Erro interno do servidor' })
       }
-    },
+    }
   )
 
   app.post(
@@ -173,7 +185,9 @@ export async function auth_routes(app: FastifyTypedInstance) {
     },
     async (_request, reply) => {
       reply.clearCookie('token', { path: '/' })
-      return reply.status(200).send({ message: 'Logout realizado com sucesso.' })
-    },
+      return reply
+        .status(200)
+        .send({ message: 'Logout realizado com sucesso.' })
+    }
   )
 }

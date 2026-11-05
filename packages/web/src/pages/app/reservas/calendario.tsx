@@ -1,5 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
-import { format, addDays, isSameDay } from 'date-fns'
+import { addDays, format, isSameDay } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import {
   ChevronLeft,
@@ -8,7 +7,10 @@ import {
   ChevronsRight,
   Plus,
 } from 'lucide-react'
-
+import { useEffect, useMemo, useState } from 'react'
+import { PageHeader } from '@/components/page_header'
+import { ReservationCell } from '@/components/reservation_cell'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -18,7 +20,6 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
 import {
   Select,
   SelectContent,
@@ -32,14 +33,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
-import { ReservationCell } from '@/components/reservation_cell'
 import {
   type Reservation,
   ReservationsProvider,
   useReservations,
 } from '@/contexts/reservations_context'
-import { PageHeader } from '@/components/page_header'
+import { cn } from '@/lib/utils'
 
 type RoomStatus =
   | 'disponivel'
@@ -246,7 +245,7 @@ function CalendarioContent() {
         toolbarWidth
       const calculatedDays = Math.max(
         15,
-        Math.floor(availableWidth / minCellWidth),
+        Math.floor(availableWidth / minCellWidth)
       )
       setDaysToShow(calculatedDays)
     }
@@ -272,6 +271,7 @@ function CalendarioContent() {
   }, [startDate])
 
   // Atualiza startDate quando mês ou ano mudam
+  // biome-ignore lint/correctness/useExhaustiveDependencies: today is intentionally omitted to avoid infinite render loops
   useEffect(() => {
     const newDate = new Date(selectedYear, selectedMonth, 1)
     if (newDate <= today) {
@@ -282,7 +282,7 @@ function CalendarioContent() {
   }, [selectedMonth, selectedYear])
 
   const handlePreviousDay = () => {
-    setStartDate((prev) => {
+    setStartDate(prev => {
       const newDate = new Date(prev)
       newDate.setDate(prev.getDate() - 1)
       return newDate
@@ -290,7 +290,7 @@ function CalendarioContent() {
   }
 
   const handleNextDay = () => {
-    setStartDate((prev) => {
+    setStartDate(prev => {
       const newDate = new Date(prev)
       newDate.setDate(prev.getDate() + 1)
       return newDate
@@ -298,7 +298,7 @@ function CalendarioContent() {
   }
 
   const handlePreviousWeek = () => {
-    setStartDate((prev) => {
+    setStartDate(prev => {
       const newDate = new Date(prev)
       newDate.setDate(prev.getDate() - 15)
       return newDate
@@ -306,7 +306,7 @@ function CalendarioContent() {
   }
 
   const handleNextWeek = () => {
-    setStartDate((prev) => {
+    setStartDate(prev => {
       const newDate = new Date(prev)
       newDate.setDate(prev.getDate() + 15)
       return newDate
@@ -327,7 +327,7 @@ function CalendarioContent() {
             </Label>
             <Select
               value={selectedMonth.toString()}
-              onValueChange={(value) => setSelectedMonth(parseInt(value, 10))}
+              onValueChange={value => setSelectedMonth(parseInt(value, 10))}
             >
               <SelectTrigger id="month" className="w-32 h-8 text-sm">
                 <SelectValue />
@@ -350,8 +350,10 @@ function CalendarioContent() {
               id="year"
               type="number"
               value={selectedYear}
-              onChange={(e) =>
-                setSelectedYear(parseInt(e.target.value, 10) || today.getFullYear())
+              onChange={e =>
+                setSelectedYear(
+                  parseInt(e.target.value, 10) || today.getFullYear()
+                )
               }
               className="w-20 h-8 text-sm"
               min={2020}
@@ -414,7 +416,7 @@ function CalendarioContent() {
                   key={index}
                   className={cn(
                     'p-2 text-center font-semibold border-r border-border last:border-r-0',
-                    isSameDay(day, today) && 'bg-primary/10',
+                    isSameDay(day, today) && 'bg-primary/10'
                   )}
                 >
                   <div className="flex flex-col">
@@ -428,9 +430,9 @@ function CalendarioContent() {
             </tr>
           </thead>
           <tbody>
-            {mockRooms.map((room) => {
+            {mockRooms.map(room => {
               // Verifica se a linha contém o dia atual
-              const hasTodayInRow = days.some((day) => isSameDay(day, today))
+              const hasTodayInRow = days.some(day => isSameDay(day, today))
 
               return (
                 <tr
@@ -439,7 +441,7 @@ function CalendarioContent() {
                     'hover:bg-muted/50 border-b border-border',
                     hasTodayInRow
                       ? 'bg-muted/30'
-                      : 'bg-muted/20 even:bg-muted/10',
+                      : 'bg-muted/20 even:bg-muted/10'
                   )}
                 >
                   <td className="p-2 sticky left-0 bg-background z-20 w-[120px] border-r border-border">
@@ -454,7 +456,7 @@ function CalendarioContent() {
                                 room.status === 'bloqueado' && 'bg-red-500',
                                 room.status === 'manutencao' && 'bg-orange-500',
                                 room.status === 'limpeza' && 'bg-blue-500',
-                                room.status === 'ocupado' && 'bg-purple-500',
+                                room.status === 'ocupado' && 'bg-purple-500'
                               )}
                             />
                             <div className="flex flex-col min-w-0">
@@ -472,12 +474,12 @@ function CalendarioContent() {
                             {room.status === 'disponivel'
                               ? 'Disponível'
                               : room.status === 'bloqueado'
-                              ? 'Bloqueado'
-                              : room.status === 'manutencao'
-                              ? 'Manutenção'
-                              : room.status === 'limpeza'
-                              ? 'Limpeza'
-                              : 'Ocupado'}
+                                ? 'Bloqueado'
+                                : room.status === 'manutencao'
+                                  ? 'Manutenção'
+                                  : room.status === 'limpeza'
+                                    ? 'Limpeza'
+                                    : 'Ocupado'}
                           </p>
                         </TooltipContent>
                       </Tooltip>
@@ -486,8 +488,8 @@ function CalendarioContent() {
                   {days.map((day, dayIndex) => {
                     // Busca todas as reservas do quarto neste dia
                     const allReservations = getReservationsByRoom(
-                      room.id,
-                    ).filter((reservation) => {
+                      room.id
+                    ).filter(reservation => {
                       const checkIn = new Date(reservation.checkIn)
                       checkIn.setHours(0, 0, 0, 0)
                       const checkOut = new Date(reservation.checkOut)
@@ -503,18 +505,18 @@ function CalendarioContent() {
                     })
 
                     // Separa reservas por tipo (check-in, check-out, ou intermediárias)
-                    const reservationsForCheckIn = allReservations.filter((r) =>
-                      isSameDay(day, new Date(r.checkIn)),
+                    const reservationsForCheckIn = allReservations.filter(r =>
+                      isSameDay(day, new Date(r.checkIn))
                     )
                     const reservationsForCheckOut = allReservations.filter(
-                      (r) =>
+                      r =>
                         isSameDay(day, new Date(r.checkOut)) &&
-                        !isSameDay(day, new Date(r.checkIn)),
+                        !isSameDay(day, new Date(r.checkIn))
                     )
                     const reservationsIntermediate = allReservations.filter(
-                      (r) =>
+                      r =>
                         !isSameDay(day, new Date(r.checkIn)) &&
-                        !isSameDay(day, new Date(r.checkOut)),
+                        !isSameDay(day, new Date(r.checkOut))
                     )
 
                     const hasReservations = allReservations.length > 0
@@ -524,12 +526,12 @@ function CalendarioContent() {
                         key={dayIndex}
                         className={cn(
                           'p-0 text-center relative border-r border-border last:border-r-0 overflow-visible',
-                          hasReservations && 'cursor-pointer',
+                          hasReservations && 'cursor-pointer'
                         )}
                       >
                         <div className="relative w-full h-8">
                           {/* Renderiza reservas intermediárias (largura total) */}
-                          {reservationsIntermediate.map((reservation) => (
+                          {reservationsIntermediate.map(reservation => (
                             <ReservationCell
                               key={reservation.id}
                               reservation={reservation}
@@ -538,7 +540,7 @@ function CalendarioContent() {
                             />
                           ))}
                           {/* Renderiza reservas de check-out (metade esquerda) */}
-                          {reservationsForCheckOut.map((reservation) => (
+                          {reservationsForCheckOut.map(reservation => (
                             <ReservationCell
                               key={reservation.id}
                               reservation={reservation}
@@ -547,7 +549,7 @@ function CalendarioContent() {
                             />
                           ))}
                           {/* Renderiza reservas de check-in (metade direita) - por último para ficar acima */}
-                          {reservationsForCheckIn.map((reservation) => (
+                          {reservationsForCheckIn.map(reservation => (
                             <ReservationCell
                               key={reservation.id}
                               reservation={reservation}
@@ -586,7 +588,7 @@ function CalendarioContent() {
       {/* Modal de Detalhes da Reserva */}
       <Dialog
         open={!!selectedReservation}
-        onOpenChange={(open) => !open && setSelectedReservation(null)}
+        onOpenChange={open => !open && setSelectedReservation(null)}
       >
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -608,7 +610,7 @@ function CalendarioContent() {
                       {format(
                         new Date(selectedReservation.checkIn),
                         'dd/MM/yyyy',
-                        { locale: ptBR },
+                        { locale: ptBR }
                       )}
                     </p>
                   </div>
@@ -618,7 +620,7 @@ function CalendarioContent() {
                       {format(
                         new Date(selectedReservation.checkOut),
                         'dd/MM/yyyy',
-                        { locale: ptBR },
+                        { locale: ptBR }
                       )}
                     </p>
                   </div>
@@ -631,7 +633,7 @@ function CalendarioContent() {
                     <p className="font-medium">
                       {
                         mockRooms.find(
-                          (r) => r.id === selectedReservation.quartoId,
+                          r => r.id === selectedReservation.quartoId
                         )?.numero
                       }
                     </p>

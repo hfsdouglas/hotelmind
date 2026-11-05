@@ -1,5 +1,5 @@
-import { useSuspenseQuery, type QueryKey } from '@tanstack/react-query'
-import { DataTable, type Column } from '@/components/data-table/data_table'
+import { type QueryKey, useSuspenseQuery } from '@tanstack/react-query'
+import { type Column, DataTable } from '@/components/data-table/data_table'
 import { DataTablePagination } from '@/components/data-table/data_table_pagination'
 import { ResultCount } from '@/components/data-table/result_count'
 import { SearchResultsSuspense } from '@/components/data-table/search_results_suspense'
@@ -9,7 +9,12 @@ export interface PagedDataTableProps<T extends { id?: string }> {
   queryKey: QueryKey
   queryFn: () => Promise<{
     data: T[]
-    meta?: { total: number; pagina?: number; ultima_pagina?: number; limite?: number }
+    meta?: {
+      total: number
+      pagina?: number
+      ultima_pagina?: number
+      limite?: number
+    }
   }>
   label: string
   isPending?: boolean

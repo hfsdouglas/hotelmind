@@ -1,15 +1,15 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { fastify, type FastifyInstance } from 'fastify'
+import fastifyCookie from '@fastify/cookie'
+import { fastifyJwt } from '@fastify/jwt'
+import { type FastifyInstance, fastify } from 'fastify'
 import {
   serializerCompiler,
   validatorCompiler,
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod'
-import { fastifyJwt } from '@fastify/jwt'
-import fastifyCookie from '@fastify/cookie'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { InMemoryRouteRepository } from '@/core/repositories/routes/in-memory/in_memory_route_repository'
 import adminAuthPlugin from '@/plugins/admin_auth_plugin'
 import { admin_routes_routes } from '@/routes/routes/admin/routes_routes'
-import { InMemoryRouteRepository } from '@/core/repositories/routes/in-memory/in_memory_route_repository'
 
 const ADMIN_ID = 'admin-001'
 const TEST_SECRET = 'test-jwt-secret'
@@ -18,18 +18,25 @@ let routeRepo: InMemoryRouteRepository
 
 vi.mock('@/lib/prisma', () => ({ db: {} }))
 
-vi.mock('@/core/repositories/routes/implementation/postgres_route_repository', () => ({
-  PostgresRouteRepository: vi.fn(function () {
-    return routeRepo
-  }),
-}))
+vi.mock(
+  '@/core/repositories/routes/implementation/postgres_route_repository',
+  () => ({
+    // biome-ignore lint/complexity/useArrowFunction: constructor function
+    PostgresRouteRepository: vi.fn().mockImplementation(function () {
+      return routeRepo
+    }),
+  })
+)
 
 async function build_app(): Promise<FastifyInstance> {
   const app = fastify().withTypeProvider<ZodTypeProvider>()
   app.setValidatorCompiler(validatorCompiler)
   app.setSerializerCompiler(serializerCompiler)
   await app.register(fastifyCookie)
-  await app.register(fastifyJwt, { secret: TEST_SECRET, cookie: { cookieName: 'admin_token', signed: false } })
+  await app.register(fastifyJwt, {
+    secret: TEST_SECRET,
+    cookie: { cookieName: 'admin_token', signed: false },
+  })
   await app.register(adminAuthPlugin)
   await app.register(admin_routes_routes)
   await app.ready()
@@ -38,8 +45,12 @@ async function build_app(): Promise<FastifyInstance> {
 
 function make_token(app: FastifyInstance) {
   return app.jwt.sign(
-    { sub: ADMIN_ID, role: 'admin', admin: { nomecompleto: 'Super Admin', email: 'super@test.com' } },
-    { expiresIn: '1h' },
+    {
+      sub: ADMIN_ID,
+      role: 'admin',
+      admin: { nomecompleto: 'Super Admin', email: 'super@test.com' },
+    },
+    { expiresIn: '1h' }
   )
 }
 
@@ -63,7 +74,11 @@ describe('routes_routes (admin)', () => {
 
   describe('GET /admin/rotas', () => {
     it('returns 200 with paginated list', async () => {
-      const res = await app.inject({ method: 'GET', url: '/admin/rotas', cookies: { admin_token: token } })
+      const res = await app.inject({
+        method: 'GET',
+        url: '/admin/rotas',
+        cookies: { admin_token: token },
+      })
       expect(res.statusCode).toBe(200)
       expect(res.json().data).toEqual([])
     })

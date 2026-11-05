@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
 import { Bell } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 

@@ -1,17 +1,17 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import fastifyCookie from '@fastify/cookie'
+import { fastifyJwt } from '@fastify/jwt'
 import bcrypt from 'bcryptjs'
-import { fastify, type FastifyInstance } from 'fastify'
+import { type FastifyInstance, fastify } from 'fastify'
 import {
   serializerCompiler,
   validatorCompiler,
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod'
-import { fastifyJwt } from '@fastify/jwt'
-import fastifyCookie from '@fastify/cookie'
-import adminAuthPlugin from '@/plugins/admin_auth_plugin'
-import { admin_auth_routes } from '@/routes/auth/admin/auth_routes'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Administrator } from '@/core/entities/administrator'
 import { InMemoryAdministratorRepository } from '@/core/repositories/administrators/in-memory/in_memory_administrator_repository'
+import adminAuthPlugin from '@/plugins/admin_auth_plugin'
+import { admin_auth_routes } from '@/routes/auth/admin/auth_routes'
 
 const ADMIN_ID = 'admin-001'
 const PLAIN_PASSWORD = 'senha123'
@@ -21,18 +21,25 @@ let adminRepo: InMemoryAdministratorRepository
 
 vi.mock('@/lib/prisma', () => ({ db: {} }))
 
-vi.mock('@/core/repositories/administrators/implementation/postgres_administrator_repository', () => ({
-  PostgresAdministratorRepository: vi.fn(function () {
-    return adminRepo
-  }),
-}))
+vi.mock(
+  '@/core/repositories/administrators/implementation/postgres_administrator_repository',
+  () => ({
+    // biome-ignore lint/complexity/useArrowFunction: constructor function
+    PostgresAdministratorRepository: vi.fn().mockImplementation(function () {
+      return adminRepo
+    }),
+  })
+)
 
 async function build_app(): Promise<FastifyInstance> {
   const app = fastify().withTypeProvider<ZodTypeProvider>()
   app.setValidatorCompiler(validatorCompiler)
   app.setSerializerCompiler(serializerCompiler)
   await app.register(fastifyCookie)
-  await app.register(fastifyJwt, { secret: TEST_SECRET, cookie: { cookieName: 'admin_token', signed: false } })
+  await app.register(fastifyJwt, {
+    secret: TEST_SECRET,
+    cookie: { cookieName: 'admin_token', signed: false },
+  })
   await app.register(adminAuthPlugin)
   await app.register(admin_auth_routes)
   await app.ready()
@@ -51,7 +58,7 @@ describe('admin auth_routes', () => {
         nome_completo: 'Super Admin',
         email: 'super@hotelmind.com',
         senha: hashed,
-      }),
+      })
     )
     app = await build_app()
   })
@@ -90,8 +97,12 @@ describe('admin auth_routes', () => {
   describe('GET /admin/auth/me', () => {
     it('returns 200 with admin info when authenticated', async () => {
       const token = app.jwt.sign(
-        { sub: ADMIN_ID, role: 'admin', admin: { nomecompleto: 'Super Admin', email: 'super@hotelmind.com' } },
-        { expiresIn: '1h' },
+        {
+          sub: ADMIN_ID,
+          role: 'admin',
+          admin: { nomecompleto: 'Super Admin', email: 'super@hotelmind.com' },
+        },
+        { expiresIn: '1h' }
       )
       const res = await app.inject({
         method: 'GET',
@@ -111,8 +122,12 @@ describe('admin auth_routes', () => {
   describe('POST /admin/auth/logout', () => {
     it('returns 200 and clears admin_token cookie', async () => {
       const token = app.jwt.sign(
-        { sub: ADMIN_ID, role: 'admin', admin: { nomecompleto: 'Super Admin', email: 'super@hotelmind.com' } },
-        { expiresIn: '1h' },
+        {
+          sub: ADMIN_ID,
+          role: 'admin',
+          admin: { nomecompleto: 'Super Admin', email: 'super@hotelmind.com' },
+        },
+        { expiresIn: '1h' }
       )
       const res = await app.inject({
         method: 'POST',
@@ -125,7 +140,10 @@ describe('admin auth_routes', () => {
     })
 
     it('returns 401 without cookie', async () => {
-      const res = await app.inject({ method: 'POST', url: '/admin/auth/logout' })
+      const res = await app.inject({
+        method: 'POST',
+        url: '/admin/auth/logout',
+      })
       expect(res.statusCode).toBe(401)
     })
   })

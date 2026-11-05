@@ -1,10 +1,10 @@
-import { http, HttpResponse } from 'msw'
+import { HttpResponse, http } from 'msw'
 
 const BASE_URL = 'http://localhost:3000'
 
 export const authHandlers = [
   http.post(`${BASE_URL}/auth/login`, async ({ request }) => {
-    const body = await request.json() as { email: string; password: string }
+    const body = (await request.json()) as { email: string; password: string }
 
     if (body.email === 'test@example.com' && body.password === 'password123') {
       return HttpResponse.json({
@@ -28,7 +28,7 @@ export const authHandlers = [
 
     return HttpResponse.json(
       { message: 'Credenciais inválidas' },
-      { status: 401 },
+      { status: 401 }
     )
   }),
 

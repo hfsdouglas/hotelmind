@@ -1,15 +1,15 @@
-import { z } from 'zod'
 import bcrypt from 'bcryptjs'
-import type { FastifyTypedInstance } from '@/types/fastify'
-import { db } from '@/lib/prisma'
+import { z } from 'zod'
 import { PostgresAdministratorRepository } from '@/core/repositories/administrators/implementation/postgres_administrator_repository'
+import { db } from '@/lib/prisma'
 import {
   administrator_body_schema,
+  administrator_response_schema,
   administrator_update_schema,
   administrators_list_schema,
-  administrator_response_schema,
   error_schema,
 } from '@/schemas/admin/admin_administrators_schema'
+import type { FastifyTypedInstance } from '@/types/fastify'
 
 const pagination_query = z.object({
   pagina: z.coerce.number().min(1).default(1),
@@ -36,7 +36,7 @@ export async function admin_administrators_routes(app: FastifyTypedInstance) {
     async (request, reply) => {
       const result = await repo.list(request.query)
       return reply.status(200).send(result)
-    },
+    }
   )
 
   app.post(
@@ -55,11 +55,16 @@ export async function admin_administrators_routes(app: FastifyTypedInstance) {
         const { senha, ...rest } = request.body
         const hashed = await bcrypt.hash(senha, 10)
         const admin = await repo.create({ ...rest, senha: hashed })
-        return reply.status(201).send({ id: admin.id, nome_completo: admin.nome_completo, email: admin.email, status: admin.status })
+        return reply.status(201).send({
+          id: admin.id,
+          nome_completo: admin.nome_completo,
+          email: admin.email,
+          status: admin.status,
+        })
       } catch {
         return reply.status(409).send({ message: 'E-mail já cadastrado.' })
       }
-    },
+    }
   )
 
   app.get(
@@ -75,9 +80,17 @@ export async function admin_administrators_routes(app: FastifyTypedInstance) {
     },
     async (request, reply) => {
       const admin = await repo.findById(request.params.id)
-      if (!admin) return reply.status(404).send({ message: 'Administrador não encontrado.' })
-      return reply.status(200).send({ id: admin.id, nome_completo: admin.nome_completo, email: admin.email, status: admin.status })
-    },
+      if (!admin)
+        return reply
+          .status(404)
+          .send({ message: 'Administrador não encontrado.' })
+      return reply.status(200).send({
+        id: admin.id,
+        nome_completo: admin.nome_completo,
+        email: admin.email,
+        status: admin.status,
+      })
+    }
   )
 
   app.put(
@@ -94,15 +107,23 @@ export async function admin_administrators_routes(app: FastifyTypedInstance) {
     },
     async (request, reply) => {
       const admin = await repo.findById(request.params.id)
-      if (!admin) return reply.status(404).send({ message: 'Administrador não encontrado.' })
+      if (!admin)
+        return reply
+          .status(404)
+          .send({ message: 'Administrador não encontrado.' })
 
       const { senha, ...rest } = request.body
       const data: Record<string, unknown> = { ...rest }
       if (senha) data.senha = await bcrypt.hash(senha, 10)
 
       const updated = await repo.update(request.params.id, data)
-      return reply.status(200).send({ id: updated.id, nome_completo: updated.nome_completo, email: updated.email, status: updated.status })
-    },
+      return reply.status(200).send({
+        id: updated.id,
+        nome_completo: updated.nome_completo,
+        email: updated.email,
+        status: updated.status,
+      })
+    }
   )
 
   app.delete(
@@ -118,9 +139,12 @@ export async function admin_administrators_routes(app: FastifyTypedInstance) {
     },
     async (request, reply) => {
       const admin = await repo.findById(request.params.id)
-      if (!admin) return reply.status(404).send({ message: 'Administrador não encontrado.' })
+      if (!admin)
+        return reply
+          .status(404)
+          .send({ message: 'Administrador não encontrado.' })
       await repo.delete(request.params.id)
       return reply.status(204).send(null)
-    },
+    }
   )
 }

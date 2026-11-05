@@ -1,21 +1,24 @@
 import { z } from 'zod'
-import type { FastifyTypedInstance } from '@/types/fastify'
-import { db } from '@/lib/prisma'
+import {
+  UsuarioConflictError,
+  UsuarioNotFoundError,
+} from '@/core/errors/usuario_errors'
 import { PostgresUserRepository } from '@/core/repositories/users/implementation/postgres_user_repository'
-import { ListUsersUseCase } from '@/core/usecases/users/list_users_use_case'
 import { CreateUserUseCase } from '@/core/usecases/users/create_user_use_case'
 import { GetUserUseCase } from '@/core/usecases/users/get_user_use_case'
+import { ListUsersUseCase } from '@/core/usecases/users/list_users_use_case'
 import { UpdateUserUseCase } from '@/core/usecases/users/update_user_use_case'
-import { UsuarioNotFoundError, UsuarioConflictError } from '@/core/errors/usuario_errors'
-import {
-  list_users_query_schema,
-  list_users_response_schema,
-} from '@/schemas/users/list_users_schema'
+import { db } from '@/lib/prisma'
 import {
   create_user_body_schema,
   update_user_body_schema,
   user_response_schema,
 } from '@/schemas/users/create_user_schema'
+import {
+  list_users_query_schema,
+  list_users_response_schema,
+} from '@/schemas/users/list_users_schema'
+import type { FastifyTypedInstance } from '@/types/fastify'
 
 const error_schema = z.object({ message: z.string() })
 
@@ -44,7 +47,7 @@ export async function users_routes(app: FastifyTypedInstance) {
       const { hotelId } = request.user
       const result = await list_use_case.execute(hotelId, request.query)
       return reply.status(200).send(result)
-    },
+    }
   )
 
   app.post(
@@ -65,7 +68,10 @@ export async function users_routes(app: FastifyTypedInstance) {
     async (request, reply) => {
       try {
         const { hotelId } = request.user
-        const user = await create_use_case.execute({ ...request.body, hotel_id: hotelId })
+        const user = await create_use_case.execute({
+          ...request.body,
+          hotel_id: hotelId,
+        })
         return reply.status(201).send(user)
       } catch (err) {
         if (err instanceof UsuarioConflictError) {
@@ -73,7 +79,7 @@ export async function users_routes(app: FastifyTypedInstance) {
         }
         throw err
       }
-    },
+    }
   )
 
   app.get(
@@ -102,7 +108,7 @@ export async function users_routes(app: FastifyTypedInstance) {
         }
         throw err
       }
-    },
+    }
   )
 
   app.put(
@@ -125,7 +131,11 @@ export async function users_routes(app: FastifyTypedInstance) {
     async (request, reply) => {
       try {
         const { hotelId } = request.user
-        const user = await update_use_case.execute(request.params.id, hotelId, request.body)
+        const user = await update_use_case.execute(
+          request.params.id,
+          hotelId,
+          request.body
+        )
         return reply.status(200).send(user)
       } catch (err) {
         if (err instanceof UsuarioNotFoundError) {
@@ -136,6 +146,6 @@ export async function users_routes(app: FastifyTypedInstance) {
         }
         throw err
       }
-    },
+    }
   )
 }

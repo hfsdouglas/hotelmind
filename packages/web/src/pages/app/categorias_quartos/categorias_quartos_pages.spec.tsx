@@ -2,10 +2,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { categoriasQuartosService } from '@/api/categorias_quartos.service'
-import { NovaCategoriaQuartoPage } from './novo'
 import { EditarCategoriaQuartoPage } from './[id]/editar'
+import { NovaCategoriaQuartoPage } from './novo'
 
 vi.mock('@/api/categorias_quartos.service', () => ({
   categoriasQuartosService: {
@@ -46,10 +46,12 @@ describe('Categorias de Quartos Pages', () => {
         <MemoryRouter initialEntries={['/categorias_quartos/novo']}>
           <NovaCategoriaQuartoPage />
         </MemoryRouter>
-      </QueryClientProvider>,
+      </QueryClientProvider>
     )
 
-    expect(screen.getByRole('heading', { name: 'Nova categoria de quarto' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: 'Nova categoria de quarto' })
+    ).toBeInTheDocument()
 
     const nameInput = screen.getByLabelText('Nome *')
     await user.type(nameInput, 'Luxo Premium')
@@ -87,10 +89,13 @@ describe('Categorias de Quartos Pages', () => {
       <QueryClientProvider client={queryClient}>
         <MemoryRouter initialEntries={['/categorias_quartos/cat-1/editar']}>
           <Routes>
-            <Route path="/categorias_quartos/:id/editar" element={<EditarCategoriaQuartoPage />} />
+            <Route
+              path="/categorias_quartos/:id/editar"
+              element={<EditarCategoriaQuartoPage />}
+            />
           </Routes>
         </MemoryRouter>
-      </QueryClientProvider>,
+      </QueryClientProvider>
     )
 
     expect(await screen.findByDisplayValue('Standard')).toBeInTheDocument()

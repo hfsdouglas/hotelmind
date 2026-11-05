@@ -1,14 +1,14 @@
 import { z } from 'zod'
-import type { FastifyTypedInstance } from '@/types/fastify'
-import { db } from '@/lib/prisma'
 import { PostgresRouteRepository } from '@/core/repositories/routes/implementation/postgres_route_repository'
+import { db } from '@/lib/prisma'
 import {
+  error_schema,
   route_body_schema,
+  route_response_schema,
   route_update_schema,
   routes_list_schema,
-  route_response_schema,
-  error_schema,
 } from '@/schemas/routes/admin/routes_schema'
+import type { FastifyTypedInstance } from '@/types/fastify'
 
 const pagination_query = z.object({
   pagina: z.coerce.number().min(1).default(1),
@@ -35,7 +35,7 @@ export async function admin_routes_routes(app: FastifyTypedInstance) {
     async (request, reply) => {
       const result = await routeRepo.list(request.query)
       return reply.status(200).send(result)
-    },
+    }
   )
 
   app.post(
@@ -56,7 +56,7 @@ export async function admin_routes_routes(app: FastifyTypedInstance) {
       } catch {
         return reply.status(409).send({ message: 'Erro ao criar rota.' })
       }
-    },
+    }
   )
 
   app.get(
@@ -72,9 +72,10 @@ export async function admin_routes_routes(app: FastifyTypedInstance) {
     },
     async (request, reply) => {
       const rota = await routeRepo.findById(request.params.id)
-      if (!rota) return reply.status(404).send({ message: 'Rota não encontrada.' })
+      if (!rota)
+        return reply.status(404).send({ message: 'Rota não encontrada.' })
       return reply.status(200).send(rota)
-    },
+    }
   )
 
   app.put(
@@ -91,10 +92,11 @@ export async function admin_routes_routes(app: FastifyTypedInstance) {
     },
     async (request, reply) => {
       const rota = await routeRepo.findById(request.params.id)
-      if (!rota) return reply.status(404).send({ message: 'Rota não encontrada.' })
+      if (!rota)
+        return reply.status(404).send({ message: 'Rota não encontrada.' })
       const updated = await routeRepo.update(request.params.id, request.body)
       return reply.status(200).send(updated)
-    },
+    }
   )
 
   app.delete(
@@ -110,15 +112,17 @@ export async function admin_routes_routes(app: FastifyTypedInstance) {
     },
     async (request, reply) => {
       const rota = await routeRepo.findById(request.params.id)
-      if (!rota) return reply.status(404).send({ message: 'Rota não encontrada.' })
+      if (!rota)
+        return reply.status(404).send({ message: 'Rota não encontrada.' })
       try {
         await routeRepo.delete(request.params.id)
         return reply.status(204).send(null)
       } catch {
-        return reply
-          .status(409)
-          .send({ message: 'Rota vinculada a hotéis ou grupos. Remova os vínculos antes.' })
+        return reply.status(409).send({
+          message:
+            'Rota vinculada a hotéis ou grupos. Remova os vínculos antes.',
+        })
       }
-    },
+    }
   )
 }

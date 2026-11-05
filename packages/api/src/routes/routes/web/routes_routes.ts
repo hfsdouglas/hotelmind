@@ -1,7 +1,7 @@
 import { z } from 'zod'
-import type { FastifyTypedInstance } from '@/types/fastify'
-import { db } from '@/lib/prisma'
 import { PostgresRouteRepository } from '@/core/repositories/routes/implementation/postgres_route_repository'
+import { db } from '@/lib/prisma'
+import type { FastifyTypedInstance } from '@/types/fastify'
 
 const error_schema = z.object({ message: z.string() })
 
@@ -35,6 +35,6 @@ export async function routes_routes(app: FastifyTypedInstance) {
       const { hotelId } = request.user
       const rotas = await repo.findByHotel(hotelId)
       return reply.status(200).send(rotas)
-    },
+    }
   )
 }

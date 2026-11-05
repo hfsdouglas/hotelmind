@@ -1,9 +1,13 @@
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { loginSchema, type LoginFormData } from '@/schemas/auth/auth_schema'
-import { useLogin } from '@/hooks/useLogin'
+import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -12,13 +16,9 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { useLogin } from '@/hooks/useLogin'
+import { type LoginFormData, loginSchema } from '@/schemas/auth/auth_schema'
 
 export function LoginForm() {
   const form = useForm<LoginFormData>({
@@ -32,11 +32,17 @@ export function LoginForm() {
     <Card className="w-full max-w-sm">
       <CardHeader>
         <CardTitle className="text-2xl">Hoteis</CardTitle>
-        <CardDescription>Entre com suas credenciais para acessar</CardDescription>
+        <CardDescription>
+          Entre com suas credenciais para acessar
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form noValidate onSubmit={form.handleSubmit(data => mutate(data))} className="space-y-4">
+          <form
+            noValidate
+            onSubmit={form.handleSubmit(data => mutate(data))}
+            className="space-y-4"
+          >
             <FormField
               control={form.control}
               name="email"

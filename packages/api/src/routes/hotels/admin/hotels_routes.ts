@@ -1,21 +1,21 @@
 import { z } from 'zod'
-import type { FastifyTypedInstance } from '@/types/fastify'
-import { db } from '@/lib/prisma'
 import { PostgresHotelRepository } from '@/core/repositories/hotels/implementation/postgres_hotel_repository'
 import { PostgresRouteRepository } from '@/core/repositories/routes/implementation/postgres_route_repository'
 import { PostgresUserRepository } from '@/core/repositories/users/implementation/postgres_user_repository'
+import { db } from '@/lib/prisma'
 import {
-  hotel_body_schema,
-  hotel_update_schema,
-  hotels_list_schema,
-  hotel_response_schema,
-  hotel_usuarios_response_schema,
   error_schema,
+  hotel_body_schema,
+  hotel_response_schema,
+  hotel_update_schema,
+  hotel_usuarios_response_schema,
+  hotels_list_schema,
 } from '@/schemas/hotels/admin/hotels_schema'
 import {
-  hotel_routes_response_schema,
   hotel_routes_body_schema,
+  hotel_routes_response_schema,
 } from '@/schemas/routes/admin/routes_schema'
+import type { FastifyTypedInstance } from '@/types/fastify'
 
 const pagination_query = z.object({
   pagina: z.coerce.number().min(1).default(1),
@@ -45,7 +45,7 @@ export async function admin_hotels_routes(app: FastifyTypedInstance) {
     async (request, reply) => {
       const result = await hotelRepo.list(request.query)
       return reply.status(200).send(result)
-    },
+    }
   )
 
   app.post(
@@ -64,9 +64,11 @@ export async function admin_hotels_routes(app: FastifyTypedInstance) {
         const hotel = await hotelRepo.create(request.body)
         return reply.status(201).send(hotel)
       } catch {
-        return reply.status(409).send({ message: 'CNPJ ou e-mail já cadastrado.' })
+        return reply
+          .status(409)
+          .send({ message: 'CNPJ ou e-mail já cadastrado.' })
       }
-    },
+    }
   )
 
   app.get(
@@ -82,9 +84,10 @@ export async function admin_hotels_routes(app: FastifyTypedInstance) {
     },
     async (request, reply) => {
       const hotel = await hotelRepo.findById(request.params.id)
-      if (!hotel) return reply.status(404).send({ message: 'Hotel não encontrado.' })
+      if (!hotel)
+        return reply.status(404).send({ message: 'Hotel não encontrado.' })
       return reply.status(200).send(hotel)
-    },
+    }
   )
 
   app.put(
@@ -101,10 +104,11 @@ export async function admin_hotels_routes(app: FastifyTypedInstance) {
     },
     async (request, reply) => {
       const hotel = await hotelRepo.findById(request.params.id)
-      if (!hotel) return reply.status(404).send({ message: 'Hotel não encontrado.' })
+      if (!hotel)
+        return reply.status(404).send({ message: 'Hotel não encontrado.' })
       const updated = await hotelRepo.update(request.params.id, request.body)
       return reply.status(200).send(updated)
-    },
+    }
   )
 
   app.delete(
@@ -120,10 +124,11 @@ export async function admin_hotels_routes(app: FastifyTypedInstance) {
     },
     async (request, reply) => {
       const hotel = await hotelRepo.findById(request.params.id)
-      if (!hotel) return reply.status(404).send({ message: 'Hotel não encontrado.' })
+      if (!hotel)
+        return reply.status(404).send({ message: 'Hotel não encontrado.' })
       await hotelRepo.delete(request.params.id)
       return reply.status(204).send(null)
-    },
+    }
   )
 
   app.get(
@@ -139,10 +144,11 @@ export async function admin_hotels_routes(app: FastifyTypedInstance) {
     },
     async (request, reply) => {
       const hotel = await hotelRepo.findById(request.params.id)
-      if (!hotel) return reply.status(404).send({ message: 'Hotel não encontrado.' })
+      if (!hotel)
+        return reply.status(404).send({ message: 'Hotel não encontrado.' })
       const rotas = await routeRepo.findHotelRoutes(request.params.id)
       return reply.status(200).send(rotas)
-    },
+    }
   )
 
   app.put(
@@ -159,10 +165,11 @@ export async function admin_hotels_routes(app: FastifyTypedInstance) {
     },
     async (request, reply) => {
       const hotel = await hotelRepo.findById(request.params.id)
-      if (!hotel) return reply.status(404).send({ message: 'Hotel não encontrado.' })
+      if (!hotel)
+        return reply.status(404).send({ message: 'Hotel não encontrado.' })
       await routeRepo.setHotelRoutes(request.params.id, request.body.rota_ids)
       return reply.status(204).send(null)
-    },
+    }
   )
 
   app.get(
@@ -178,13 +185,14 @@ export async function admin_hotels_routes(app: FastifyTypedInstance) {
     },
     async (request, reply) => {
       const hotel = await hotelRepo.findById(request.params.id)
-      if (!hotel) return reply.status(404).send({ message: 'Hotel não encontrado.' })
+      if (!hotel)
+        return reply.status(404).send({ message: 'Hotel não encontrado.' })
       const { data: usuarios } = await userRepo.list(request.params.id, {
         pagina: 1,
         limite: 250,
         direcao: 'asc',
       })
       return reply.status(200).send(usuarios)
-    },
+    }
   )
 }

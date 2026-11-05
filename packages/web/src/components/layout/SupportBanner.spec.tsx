@@ -1,9 +1,9 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
-import { SupportBanner } from './SupportBanner'
+import { describe, expect, it } from 'vitest'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { SupportBanner } from './SupportBanner'
 
 const STORAGE_KEY = 'hotelmind:session'
 
@@ -31,7 +31,7 @@ function renderBanner(session: unknown) {
       <AuthProvider>
         <SupportBanner />
       </AuthProvider>
-    </MemoryRouter>,
+    </MemoryRouter>
   )
 }
 
@@ -42,14 +42,20 @@ describe('SupportBanner', () => {
   })
 
   it('renders the banner when session.suporte is present', () => {
-    renderBanner({ ...BASE_SESSION, suporte: { administrador_nome: 'Super Admin' } })
+    renderBanner({
+      ...BASE_SESSION,
+      suporte: { administrador_nome: 'Super Admin' },
+    })
     expect(screen.getByRole('status')).toHaveTextContent(/Super Admin/)
     expect(screen.getByRole('status')).toHaveTextContent(/Douglas Faria/)
   })
 
   it('logs out when "Encerrar" is clicked', async () => {
     const user = userEvent.setup()
-    renderBanner({ ...BASE_SESSION, suporte: { administrador_nome: 'Super Admin' } })
+    renderBanner({
+      ...BASE_SESSION,
+      suporte: { administrador_nome: 'Super Admin' },
+    })
 
     await user.click(screen.getByRole('button', { name: /encerrar/i }))
 

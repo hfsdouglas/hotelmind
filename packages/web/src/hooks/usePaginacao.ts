@@ -39,7 +39,7 @@ export function usePaginacao(defaults?: Partial<PaginacaoParams>) {
         setSearchParams(next)
       })
     },
-    [setSearchParams],
+    [setSearchParams]
   )
 
   const setParams = useCallback(
@@ -62,7 +62,7 @@ export function usePaginacao(defaults?: Partial<PaginacaoParams>) {
         setSearchParams(next)
       })
     },
-    [setSearchParams],
+    [setSearchParams]
   )
 
   const setPagina = useCallback(
@@ -75,7 +75,7 @@ export function usePaginacao(defaults?: Partial<PaginacaoParams>) {
         })
       })
     },
-    [setSearchParams, startTransition],
+    [setSearchParams, startTransition]
   )
 
   const toggleSort = useCallback(
@@ -96,7 +96,7 @@ export function usePaginacao(defaults?: Partial<PaginacaoParams>) {
         })
       })
     },
-    [setSearchParams, startTransition],
+    [setSearchParams, startTransition]
   )
 
   return {

@@ -1,4 +1,3 @@
-import { useMemo, useState } from 'react'
 import {
   Baby,
   Bed,
@@ -11,7 +10,10 @@ import {
   Users,
   UtensilsCrossed,
 } from 'lucide-react'
-
+import { useMemo, useState } from 'react'
+import { PageHeader } from '@/components/page_header'
+import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
 import {
   Card,
   CardContent,
@@ -25,10 +27,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { Button } from '@/components/ui/button'
-import { Calendar } from '@/components/ui/calendar'
 import { usePageTitle } from '@/hooks/use_document_title'
-import { PageHeader } from '@/components/page_header'
 
 // Dados mockados - substituir por chamadas de API depois
 interface DashboardData {
@@ -114,10 +113,7 @@ export function VisaoGeral() {
                 {date ? date.toLocaleDateString() : 'Select date'}
               </Button>
             </PopoverTrigger>
-            <PopoverContent
-              className="w-auto overflow-hidden p-0"
-              align="end"
-            >
+            <PopoverContent className="w-auto overflow-hidden p-0" align="end">
               <Calendar
                 mode="single"
                 selected={date}

@@ -2,11 +2,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { usuariosService } from '@/api/usuarios.service'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { gruposService } from '@/api/grupos.service'
-import { NovoUsuarioPage } from './novo'
+import { usuariosService } from '@/api/usuarios.service'
 import { EditarUsuarioPage } from './[id]/editar'
+import { NovoUsuarioPage } from './novo'
 
 vi.mock('@/api/usuarios.service', () => ({
   usuariosService: {
@@ -62,10 +62,12 @@ describe('Usuarios Pages', () => {
         <MemoryRouter initialEntries={['/usuarios/novo']}>
           <NovoUsuarioPage />
         </MemoryRouter>
-      </QueryClientProvider>,
+      </QueryClientProvider>
     )
 
-    expect(screen.getByRole('heading', { name: 'Novo usuário' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: 'Novo usuário' })
+    ).toBeInTheDocument()
 
     await user.type(screen.getByLabelText('Nome completo *'), 'Felipe Souza')
     await user.type(screen.getByLabelText('E-mail *'), 'felipe@hotel.com')
@@ -83,7 +85,7 @@ describe('Usuarios Pages', () => {
         expect.objectContaining({
           nome_completo: 'Felipe Souza',
           email: 'felipe@hotel.com',
-        }),
+        })
       )
     })
   })
@@ -120,10 +122,13 @@ describe('Usuarios Pages', () => {
       <QueryClientProvider client={queryClient}>
         <MemoryRouter initialEntries={['/usuarios/u-1/editar']}>
           <Routes>
-            <Route path="/usuarios/:id/editar" element={<EditarUsuarioPage />} />
+            <Route
+              path="/usuarios/:id/editar"
+              element={<EditarUsuarioPage />}
+            />
           </Routes>
         </MemoryRouter>
-      </QueryClientProvider>,
+      </QueryClientProvider>
     )
 
     expect(await screen.findByDisplayValue('Ana Oliveira')).toBeInTheDocument()
@@ -140,7 +145,7 @@ describe('Usuarios Pages', () => {
         'u-1',
         expect.objectContaining({
           nome_completo: 'Ana Oliveira Atualizada',
-        }),
+        })
       )
     })
   })

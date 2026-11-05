@@ -1,6 +1,6 @@
-import { z } from 'zod'
-import fp from 'fastify-plugin'
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
+import fp from 'fastify-plugin'
+import { z } from 'zod'
 
 const AdminPayloadSchema = z.object({
   sub: z.string(),
@@ -33,7 +33,7 @@ async function adminAuthPlugin(app: FastifyInstance) {
       } catch {
         return reply.status(401).send({ message: 'Token inválido!' })
       }
-    },
+    }
   )
 }
 

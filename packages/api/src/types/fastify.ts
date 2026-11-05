@@ -1,12 +1,12 @@
 /// <reference path="./fastify.d.ts" />
-import {
-  FastifyInstance,
+import type {
   FastifyBaseLogger,
-  RawServerDefault,
-  RawRequestDefaultExpression,
+  FastifyInstance,
   RawReplyDefaultExpression,
-} from "fastify";
-import { ZodTypeProvider } from "fastify-type-provider-zod";
+  RawRequestDefaultExpression,
+  RawServerDefault,
+} from 'fastify'
+import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 
 export type FastifyTypedInstance = FastifyInstance<
   RawServerDefault,
@@ -14,4 +14,4 @@ export type FastifyTypedInstance = FastifyInstance<
   RawReplyDefaultExpression,
   FastifyBaseLogger,
   ZodTypeProvider
->;
+>

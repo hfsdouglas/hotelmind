@@ -1,9 +1,9 @@
-import { type ReactNode } from 'react'
-import { render, type RenderOptions } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { type RenderOptions, render } from '@testing-library/react'
+import type { ReactNode } from 'react'
 import { MemoryRouter, type MemoryRouterProps } from 'react-router-dom'
-import { ThemeProvider } from '@/contexts/ThemeContext'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { ThemeProvider } from '@/contexts/ThemeContext'
 import type { SessionData } from '@/types/auth'
 
 interface RenderWithProvidersOptions extends RenderOptions {
@@ -22,7 +22,7 @@ function make_query_client() {
 
 export function render_with_providers(
   ui: ReactNode,
-  { router_props, ...render_options }: RenderWithProvidersOptions = {},
+  { router_props, ...render_options }: RenderWithProvidersOptions = {}
 ) {
   const query_client = make_query_client()
 

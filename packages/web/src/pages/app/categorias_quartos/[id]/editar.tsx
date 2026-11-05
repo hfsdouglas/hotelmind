@@ -56,9 +56,8 @@ export function EditarCategoriaQuartoPage() {
     }
   }, [data, reset])
   const [confirm_open, setConfirmOpen] = useState(false)
-  const [pending_form, setPendingForm] = useState<CategoriaQuartoFormData | null>(
-    null
-  )
+  const [pending_form, setPendingForm] =
+    useState<CategoriaQuartoFormData | null>(null)
   const mutation = useMutation({
     mutationFn: (form: CategoriaQuartoFormData) =>
       categoriasQuartosService.update(id, form),

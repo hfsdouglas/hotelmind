@@ -1,17 +1,17 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { fastify, type FastifyInstance } from 'fastify'
+import fastifyCookie from '@fastify/cookie'
+import { fastifyJwt } from '@fastify/jwt'
+import { type FastifyInstance, fastify } from 'fastify'
 import {
   serializerCompiler,
   validatorCompiler,
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod'
-import { fastifyJwt } from '@fastify/jwt'
-import fastifyCookie from '@fastify/cookie'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { InMemoryHotelRepository } from '@/core/repositories/hotels/in-memory/in_memory_hotel_repository'
+import { InMemoryRouteRepository } from '@/core/repositories/routes/in-memory/in_memory_route_repository'
+import { InMemoryUserRepository } from '@/core/repositories/users/in-memory/in_memory_user_repository'
 import adminAuthPlugin from '@/plugins/admin_auth_plugin'
 import { admin_suporte_routes } from '@/routes/suporte/admin/suporte_routes'
-import { InMemoryHotelRepository } from '@/core/repositories/hotels/in-memory/in_memory_hotel_repository'
-import { InMemoryUserRepository } from '@/core/repositories/users/in-memory/in_memory_user_repository'
-import { InMemoryRouteRepository } from '@/core/repositories/routes/in-memory/in_memory_route_repository'
 
 const ADMIN_ID = 'admin-001'
 const TEST_SECRET = 'test-jwt-secret'
@@ -22,23 +22,35 @@ let routeRepo: InMemoryRouteRepository
 
 vi.mock('@/lib/prisma', () => ({ db: {} }))
 
-vi.mock('@/core/repositories/hotels/implementation/postgres_hotel_repository', () => ({
-  PostgresHotelRepository: vi.fn(function () {
-    return hotelRepo
-  }),
-}))
+vi.mock(
+  '@/core/repositories/hotels/implementation/postgres_hotel_repository',
+  () => ({
+    // biome-ignore lint/complexity/useArrowFunction: constructor function
+    PostgresHotelRepository: vi.fn().mockImplementation(function () {
+      return hotelRepo
+    }),
+  })
+)
 
-vi.mock('@/core/repositories/users/implementation/postgres_user_repository', () => ({
-  PostgresUserRepository: vi.fn(function () {
-    return userRepo
-  }),
-}))
+vi.mock(
+  '@/core/repositories/users/implementation/postgres_user_repository',
+  () => ({
+    // biome-ignore lint/complexity/useArrowFunction: constructor function
+    PostgresUserRepository: vi.fn().mockImplementation(function () {
+      return userRepo
+    }),
+  })
+)
 
-vi.mock('@/core/repositories/routes/implementation/postgres_route_repository', () => ({
-  PostgresRouteRepository: vi.fn(function () {
-    return routeRepo
-  }),
-}))
+vi.mock(
+  '@/core/repositories/routes/implementation/postgres_route_repository',
+  () => ({
+    // biome-ignore lint/complexity/useArrowFunction: constructor function
+    PostgresRouteRepository: vi.fn().mockImplementation(function () {
+      return routeRepo
+    }),
+  })
+)
 
 vi.mock('@/config/env', () => ({
   WEB_APP_URL: 'http://localhost:5173',
@@ -49,7 +61,10 @@ async function build_app(): Promise<FastifyInstance> {
   app.setValidatorCompiler(validatorCompiler)
   app.setSerializerCompiler(serializerCompiler)
   await app.register(fastifyCookie)
-  await app.register(fastifyJwt, { secret: TEST_SECRET, cookie: { cookieName: 'admin_token', signed: false } })
+  await app.register(fastifyJwt, {
+    secret: TEST_SECRET,
+    cookie: { cookieName: 'admin_token', signed: false },
+  })
   await app.register(adminAuthPlugin)
   await app.register(admin_suporte_routes)
   await app.ready()
@@ -58,8 +73,12 @@ async function build_app(): Promise<FastifyInstance> {
 
 function make_admin_token(app: FastifyInstance) {
   return app.jwt.sign(
-    { sub: ADMIN_ID, role: 'admin', admin: { nomecompleto: 'Super Admin', email: 'super@test.com' } },
-    { expiresIn: '1h' },
+    {
+      sub: ADMIN_ID,
+      role: 'admin',
+      admin: { nomecompleto: 'Super Admin', email: 'super@test.com' },
+    },
+    { expiresIn: '1h' }
   )
 }
 
@@ -96,7 +115,10 @@ describe('suporte_routes (admin)', () => {
 
   describe('GET /admin/hoteis/:id/suporte-acesso', () => {
     it('returns 401 without an admin session', async () => {
-      const res = await app.inject({ method: 'GET', url: '/admin/hoteis/any/suporte-acesso?usuario_id=any' })
+      const res = await app.inject({
+        method: 'GET',
+        url: '/admin/hoteis/any/suporte-acesso?usuario_id=any',
+      })
       expect(res.statusCode).toBe(401)
     })
 
@@ -116,7 +138,9 @@ describe('suporte_routes (admin)', () => {
       const set_cookie = res.cookies.find(c => c.name === 'token')
       expect(set_cookie).toBeDefined()
 
-      const decoded = app.jwt.decode<{ suporte?: { administratorId: string } }>(set_cookie!.value)
+      const decoded = app.jwt.decode<{ suporte?: { administratorId: string } }>(
+        set_cookie?.value ?? ''
+      )
       expect(decoded?.suporte?.administratorId).toBe(ADMIN_ID)
     })
 

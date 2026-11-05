@@ -23,7 +23,7 @@ export function useTarifario(id: string) {
 }
 
 export function useTarifariosCalendario(
-  params: ConsultarCalendarioTarifariosParams,
+  params: ConsultarCalendarioTarifariosParams
 ) {
   return useQuery({
     queryKey: ['tarifarios_calendario', params],

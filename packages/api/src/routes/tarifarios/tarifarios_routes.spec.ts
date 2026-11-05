@@ -2,9 +2,9 @@ import fastifyCookie from '@fastify/cookie'
 import { fastifyJwt } from '@fastify/jwt'
 import { type FastifyInstance, fastify } from 'fastify'
 import {
-  type ZodTypeProvider,
   serializerCompiler,
   validatorCompiler,
+  type ZodTypeProvider,
 } from 'fastify-type-provider-zod'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { InMemoryCategoriaQuartoRepository } from '@/core/repositories/categorias_quartos/in-memory/in_memory_categoria_quarto_repository'
@@ -25,19 +25,21 @@ vi.mock('@/lib/prisma', () => ({ db: {} }))
 vi.mock(
   '@/core/repositories/tarifarios/implementation/postgres_tarifario_repository',
   () => ({
-    PostgresTarifarioRepository: vi.fn(function () {
+    // biome-ignore lint/complexity/useArrowFunction: constructor function
+    PostgresTarifarioRepository: vi.fn().mockImplementation(function () {
       return tarifario_repo
     }),
-  }),
+  })
 )
 
 vi.mock(
   '@/core/repositories/categorias_quartos/implementation/postgres_categoria_quarto_repository',
   () => ({
-    PostgresCategoriaQuartoRepository: vi.fn(function () {
+    // biome-ignore lint/complexity/useArrowFunction: constructor function
+    PostgresCategoriaQuartoRepository: vi.fn().mockImplementation(function () {
       return categoria_repo
     }),
-  }),
+  })
 )
 
 async function build_app(): Promise<FastifyInstance> {
@@ -67,7 +69,7 @@ function make_token(app: FastifyInstance, hotel_id: string) {
         email: `gestor@${hotel_id}.com`,
       },
     },
-    { expiresIn: '1h' },
+    { expiresIn: '1h' }
   )
 }
 
@@ -90,7 +92,7 @@ describe('tarifarios_routes', () => {
     tarifario_repo.register_regime_alimentacao(
       REGIME_ID,
       'Meia Pensão',
-      '#2563EB',
+      '#2563EB'
     )
 
     app = await build_app()

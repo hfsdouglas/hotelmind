@@ -2,7 +2,7 @@ import type { Reserva, ReservaStatus } from '@hotelmind/contracts'
 import { useQuery } from '@tanstack/react-query'
 import { CheckCircle2, Eye, Handshake, Plus } from 'lucide-react'
 import { useMemo } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { parceirosComerciaisService } from '@/api/parceiros_comerciais.service'
 import { reservasService } from '@/api/reservas.service'
 import type { Column } from '@/components/data-table/data_table'
@@ -92,7 +92,6 @@ function getStatusBadge(status: ReservaStatus) {
 }
 
 export function ReservasPage() {
-  const navigate = useNavigate()
   const { pagina, limite, busca, setParam, setPagina, isPending } =
     usePaginacao()
 
@@ -258,99 +257,93 @@ export function ReservasPage() {
     <ListPageLayout
       title="Gestão de Reservas"
       action={
-        <Button
-          onClick={() => navigate('/reservas/nova')}
-          className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white"
-        >
-          <Plus className="size-4" />
-          Nova Reserva
+        <Button asChild className="gap-2">
+          <Link to="/reservas/nova">
+            <Plus className="size-4" />
+            Nova Reserva
+          </Link>
         </Button>
       }
-    >
-      <div className="space-y-4">
-        {/* Barra de Filtros */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          <div className="flex-1 max-w-md">
-            <SearchBar
-              defaultValue={busca}
-              onChange={val => {
-                setParam('busca', val)
-                setPagina(1)
-              }}
-              placeholder="Buscar por código ou nome do hóspede..."
-              isPending={isPending}
-            />
-          </div>
-
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Filtro de Status */}
-            <select
-              value={statusFiltro || ''}
-              onChange={e => {
-                setParam('status', e.target.value)
-                setPagina(1)
-              }}
-              className="text-xs px-2.5 py-2 border rounded-md bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800"
-            >
-              <option value="">Todos os status</option>
-              <option value="a_confirmar">A Confirmar</option>
-              <option value="confirmada">Confirmada</option>
-              <option value="check_in">Check-in</option>
-              <option value="check_out">Check-out</option>
-              <option value="no_show">No-show</option>
-              <option value="cancelada">Cancelada</option>
-            </select>
-
-            {/* Filtro de Parceiro */}
-            <select
-              value={parceiroFiltro || ''}
-              onChange={e => {
-                setParam('parceiro_id', e.target.value)
-                setPagina(1)
-              }}
-              className="text-xs px-2.5 py-2 border rounded-md bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800"
-            >
-              <option value="">Todos os parceiros</option>
-              {parceiros.map(p => (
-                <option key={p.id} value={p.id}>
-                  {p.razao_social}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Tabela Paginada */}
-        <PagedDataTable
-          columns={colunas}
-          queryKey={[
-            'reservas',
-            {
-              pagina,
-              limite,
-              busca,
-              status: statusFiltro,
-              parceiro_comercial_id: parceiroFiltro,
-            },
-          ]}
-          queryFn={() =>
-            reservasService.list({
-              pagina,
-              limite,
-              busca: busca || undefined,
-              status: statusFiltro,
-              parceiro_comercial_id: parceiroFiltro,
-            })
-          }
-          label="Resultados de reservas"
-          emptyMessage="Nenhuma reserva encontrada."
-          isPending={isPending}
-          pagina={pagina}
-          limite={limite}
-          onPageChange={setPagina}
-          onLimitChange={l => setParam('limite', l)}
+      searchBar={
+        <SearchBar
+          value={busca}
+          onSearch={val => {
+            setParam('busca', val)
+            setPagina(1)
+          }}
+          placeholder="Buscar por código ou nome do hóspede..."
         />
-      </div>
+      }
+      filters={
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Filtro de Status */}
+          <select
+            value={statusFiltro || ''}
+            onChange={e => {
+              setParam('status', e.target.value)
+              setPagina(1)
+            }}
+            aria-label="Filtrar por status"
+            className="text-xs px-2.5 py-2 border rounded-md bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800"
+          >
+            <option value="">Todos os status</option>
+            <option value="a_confirmar">A Confirmar</option>
+            <option value="confirmada">Confirmada</option>
+            <option value="check_in">Check-in</option>
+            <option value="check_out">Check-out</option>
+            <option value="no_show">No-show</option>
+            <option value="cancelada">Cancelada</option>
+          </select>
+
+          {/* Filtro de Parceiro */}
+          <select
+            value={parceiroFiltro || ''}
+            onChange={e => {
+              setParam('parceiro_id', e.target.value)
+              setPagina(1)
+            }}
+            aria-label="Filtrar por parceiro"
+            className="text-xs px-2.5 py-2 border rounded-md bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800"
+          >
+            <option value="">Todos os parceiros</option>
+            {parceiros.map(p => (
+              <option key={p.id} value={p.id}>
+                {p.razao_social}
+              </option>
+            ))}
+          </select>
+        </div>
+      }
+    >
+      <PagedDataTable
+        columns={colunas}
+        queryKey={[
+          'reservas',
+          {
+            pagina,
+            limite,
+            busca,
+            status: statusFiltro,
+            parceiro_comercial_id: parceiroFiltro,
+          },
+        ]}
+        queryFn={() =>
+          reservasService.list({
+            pagina,
+            limite,
+            busca: busca || undefined,
+            status: statusFiltro,
+            parceiro_comercial_id: parceiroFiltro,
+          })
+        }
+        label="Resultados de reservas"
+        emptyMessage="Nenhuma reserva encontrada."
+        isPending={isPending}
+        pagina={pagina}
+        limite={limite}
+        onPageChange={setPagina}
+        onLimitChange={l => setParam('limite', l)}
+      />
     </ListPageLayout>
   )
 }

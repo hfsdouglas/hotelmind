@@ -1,15 +1,15 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { fastify, type FastifyInstance } from 'fastify'
+import fastifyCookie from '@fastify/cookie'
+import { fastifyJwt } from '@fastify/jwt'
+import { type FastifyInstance, fastify } from 'fastify'
 import {
   serializerCompiler,
   validatorCompiler,
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod'
-import { fastifyJwt } from '@fastify/jwt'
-import fastifyCookie from '@fastify/cookie'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { InMemoryRouteRepository } from '@/core/repositories/routes/in-memory/in_memory_route_repository'
 import authPlugin from '@/plugins/auth_plugin'
 import { routes_routes } from '@/routes/routes/web/routes_routes'
-import { InMemoryRouteRepository } from '@/core/repositories/routes/in-memory/in_memory_route_repository'
 
 const HOTEL_ID = 'hotel-001'
 const USER_ID = 'user-001'
@@ -19,11 +19,15 @@ let routeRepo: InMemoryRouteRepository
 
 vi.mock('@/lib/prisma', () => ({ db: {} }))
 
-vi.mock('@/core/repositories/routes/implementation/postgres_route_repository', () => ({
-  PostgresRouteRepository: vi.fn(function () {
-    return routeRepo
-  }),
-}))
+vi.mock(
+  '@/core/repositories/routes/implementation/postgres_route_repository',
+  () => ({
+    // biome-ignore lint/complexity/useArrowFunction: constructor function
+    PostgresRouteRepository: vi.fn().mockImplementation(function () {
+      return routeRepo
+    }),
+  })
+)
 
 async function build_app(): Promise<FastifyInstance> {
   const app = fastify().withTypeProvider<ZodTypeProvider>()
@@ -42,8 +46,11 @@ async function build_app(): Promise<FastifyInstance> {
 
 function make_token(app: FastifyInstance) {
   return app.jwt.sign(
-    { sub: USER_ID, user: { hotelId: HOTEL_ID, nomecompleto: 'Test', email: 't@t.com' } },
-    { expiresIn: '1h' },
+    {
+      sub: USER_ID,
+      user: { hotelId: HOTEL_ID, nomecompleto: 'Test', email: 't@t.com' },
+    },
+    { expiresIn: '1h' }
   )
 }
 
@@ -59,7 +66,11 @@ describe('routes_routes (web)', () => {
 
   describe('GET /rotas', () => {
     it('returns 200 with an empty array when no routes assigned', async () => {
-      const res = await app.inject({ method: 'GET', url: '/rotas', cookies: { token } })
+      const res = await app.inject({
+        method: 'GET',
+        url: '/rotas',
+        cookies: { token },
+      })
       expect(res.statusCode).toBe(200)
       expect(res.json()).toEqual([])
     })
@@ -74,7 +85,11 @@ describe('routes_routes (web)', () => {
       })
       await routeRepo.setHotelRoutes(HOTEL_ID, [rota.id])
 
-      const res = await app.inject({ method: 'GET', url: '/rotas', cookies: { token } })
+      const res = await app.inject({
+        method: 'GET',
+        url: '/rotas',
+        cookies: { token },
+      })
       expect(res.statusCode).toBe(200)
       expect(res.json()).toHaveLength(1)
       expect(res.json()[0].rota).toBe('/dashboard')

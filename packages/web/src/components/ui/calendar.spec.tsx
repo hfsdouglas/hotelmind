@@ -10,7 +10,7 @@ describe('Calendar component', () => {
         selected={new Date(2026, 2, 15)}
         defaultMonth={new Date(2026, 2, 15)}
         captionLayout="dropdown"
-      />,
+      />
     )
 
     // Radix SelectTrigger has role="combobox"

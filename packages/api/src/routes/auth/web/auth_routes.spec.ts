@@ -1,19 +1,19 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import fastifyCookie from '@fastify/cookie'
+import { fastifyJwt } from '@fastify/jwt'
 import bcrypt from 'bcryptjs'
-import { fastify, type FastifyInstance } from 'fastify'
+import { type FastifyInstance, fastify } from 'fastify'
 import {
   serializerCompiler,
   validatorCompiler,
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod'
-import { fastifyJwt } from '@fastify/jwt'
-import fastifyCookie from '@fastify/cookie'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { Hotel } from '@/core/entities/hotel'
+import { User } from '@/core/entities/user'
+import { InMemoryHotelRepository } from '@/core/repositories/hotels/in-memory/in_memory_hotel_repository'
+import { InMemoryUserRepository } from '@/core/repositories/users/in-memory/in_memory_user_repository'
 import authPlugin from '@/plugins/auth_plugin'
 import { auth_routes } from '@/routes/auth/web/auth_routes'
-import { User } from '@/core/entities/user'
-import { Hotel } from '@/core/entities/hotel'
-import { InMemoryUserRepository } from '@/core/repositories/users/in-memory/in_memory_user_repository'
-import { InMemoryHotelRepository } from '@/core/repositories/hotels/in-memory/in_memory_hotel_repository'
 
 const HOTEL_ID = 'hotel-001'
 const USER_ID = 'user-001'
@@ -26,18 +26,28 @@ let hotelRepo: InMemoryHotelRepository
 vi.mock('@/lib/prisma', () => ({ db: {} }))
 
 vi.mock('@/core/repositories', () => ({
-  UserRepository: vi.fn(function () { return userRepo }),
-  HotelRepository: vi.fn(function () { return hotelRepo }),
-}))
-
-vi.mock('@/core/repositories/routes/implementation/postgres_route_repository', () => ({
-  PostgresRouteRepository: vi.fn(function () {
-    return {
-      findByHotel: async () => [],
-      findByUsuario: async () => [],
-    }
+  // biome-ignore lint/complexity/useArrowFunction: constructor function
+  UserRepository: vi.fn().mockImplementation(function () {
+    return userRepo
+  }),
+  // biome-ignore lint/complexity/useArrowFunction: constructor function
+  HotelRepository: vi.fn().mockImplementation(function () {
+    return hotelRepo
   }),
 }))
+
+vi.mock(
+  '@/core/repositories/routes/implementation/postgres_route_repository',
+  () => ({
+    // biome-ignore lint/complexity/useArrowFunction: constructor function
+    PostgresRouteRepository: vi.fn().mockImplementation(function () {
+      return {
+        findByHotel: async () => [],
+        findByUsuario: async () => [],
+      }
+    }),
+  })
+)
 
 async function build_app(): Promise<FastifyInstance> {
   const app = fastify().withTypeProvider<ZodTypeProvider>()
@@ -73,7 +83,7 @@ describe('auth_routes', () => {
         cnpj: '00000000000000',
         email_comercial: 'contato@hotelmind.com.br',
         telefone_comercial: '11999999999',
-      }),
+      })
     )
 
     userRepo.seed(
@@ -87,7 +97,7 @@ describe('auth_routes', () => {
         genero: 'Masculino',
         celular: '11999999999',
         cpf: '00000000000',
-      }),
+      })
     )
 
     app = await build_app()
@@ -107,7 +117,7 @@ describe('auth_routes', () => {
       expect(body.hotel.id).toBe(HOTEL_ID)
       expect(body.message).toBe('Seja bem-vindo, Admin!')
       expect(Array.isArray(body.rotas)).toBe(true)
-      expect(response.cookies.some((c) => c.name === 'token')).toBe(true)
+      expect(response.cookies.some(c => c.name === 'token')).toBe(true)
     })
 
     it('returns 401 on wrong password', async () => {
@@ -143,7 +153,7 @@ describe('auth_routes', () => {
             email: 'admin@hotelmind.com.br',
           },
         },
-        { expiresIn: '1h' },
+        { expiresIn: '1h' }
       )
 
       const response = await app.inject({
@@ -177,9 +187,12 @@ describe('auth_routes', () => {
             nomecompleto: 'Admin HotelMind',
             email: 'admin@hotelmind.com.br',
           },
-          suporte: { administratorId: 'admin-001', administratorNome: 'Super Admin' },
+          suporte: {
+            administratorId: 'admin-001',
+            administratorNome: 'Super Admin',
+          },
         },
-        { expiresIn: '1h' },
+        { expiresIn: '1h' }
       )
 
       const response = await app.inject({
@@ -189,7 +202,9 @@ describe('auth_routes', () => {
       })
 
       expect(response.statusCode).toBe(200)
-      expect(response.json().suporte).toEqual({ administrador_nome: 'Super Admin' })
+      expect(response.json().suporte).toEqual({
+        administrador_nome: 'Super Admin',
+      })
     })
 
     it('omits suporte when the JWT does not carry the claim', async () => {
@@ -202,7 +217,7 @@ describe('auth_routes', () => {
             email: 'admin@hotelmind.com.br',
           },
         },
-        { expiresIn: '1h' },
+        { expiresIn: '1h' }
       )
 
       const response = await app.inject({
@@ -227,7 +242,7 @@ describe('auth_routes', () => {
             email: 'admin@hotelmind.com.br',
           },
         },
-        { expiresIn: '1h' },
+        { expiresIn: '1h' }
       )
 
       const response = await app.inject({
@@ -238,7 +253,7 @@ describe('auth_routes', () => {
 
       expect(response.statusCode).toBe(200)
       expect(response.json().message).toBe('Logout realizado com sucesso.')
-      const cleared = response.cookies.find((c) => c.name === 'token')
+      const cleared = response.cookies.find(c => c.name === 'token')
       expect(cleared?.maxAge).toBe(0)
     })
 

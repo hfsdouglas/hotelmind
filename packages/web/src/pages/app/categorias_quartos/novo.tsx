@@ -33,7 +33,8 @@ export function NovaCategoriaQuartoPage() {
   })
 
   const mutation = useMutation({
-    mutationFn: (data: CategoriaQuartoFormData) => categoriasQuartosService.create(data),
+    mutationFn: (data: CategoriaQuartoFormData) =>
+      categoriasQuartosService.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categorias_quartos'] })
       toast.success('Categoria criada com sucesso.')

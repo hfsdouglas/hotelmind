@@ -1,13 +1,13 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { HttpResponse, http } from 'msw'
 import { MemoryRouter } from 'react-router-dom'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'sonner'
-import { http, HttpResponse } from 'msw'
+import { describe, expect, it } from 'vitest'
+import { AuthProvider } from '@/contexts/AuthContext'
 import { server } from '@/mocks/server'
 import { LoginForm } from './LoginForm'
-import { AuthProvider } from '@/contexts/AuthContext'
 
 function renderLoginForm() {
   const queryClient = new QueryClient({
@@ -21,7 +21,7 @@ function renderLoginForm() {
           <LoginForm />
         </AuthProvider>
       </QueryClientProvider>
-    </MemoryRouter>,
+    </MemoryRouter>
   )
 }
 
@@ -53,7 +53,7 @@ describe('LoginForm', () => {
     await user.click(screen.getByRole('button', { name: /entrar/i }))
 
     expect(
-      await screen.findByText('Senha deve ter pelo menos 8 caracteres'),
+      await screen.findByText('Senha deve ter pelo menos 8 caracteres')
     ).toBeInTheDocument()
   })
 
@@ -64,7 +64,7 @@ describe('LoginForm', () => {
       http.post('http://localhost:3000/auth/login', async () => {
         await new Promise(() => {}) // never resolves
         return HttpResponse.json({})
-      }),
+      })
     )
     renderLoginForm()
 
@@ -86,7 +86,7 @@ describe('LoginForm', () => {
     await user.click(screen.getByRole('button', { name: /entrar/i }))
 
     expect(
-      await screen.findByText('Login realizado com sucesso'),
+      await screen.findByText('Login realizado com sucesso')
     ).toBeInTheDocument()
   })
 
@@ -99,7 +99,7 @@ describe('LoginForm', () => {
     await user.click(screen.getByRole('button', { name: /entrar/i }))
 
     expect(
-      await screen.findByText('Email ou senha inválidos'),
+      await screen.findByText('Email ou senha inválidos')
     ).toBeInTheDocument()
   })
 })

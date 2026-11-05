@@ -1,15 +1,15 @@
-import { useNavigate } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
+import { gruposService } from '@/api/grupos.service'
+import { usuariosService } from '@/api/usuarios.service'
+import { CheckboxGrid } from '@/components/forms/CheckboxGrid'
+import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { CheckboxGrid } from '@/components/forms/CheckboxGrid'
-import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
-import { usuariosService } from '@/api/usuarios.service'
-import { gruposService } from '@/api/grupos.service'
 import {
   type UsuarioCreateFormData,
   usuarioCreateSchema,
@@ -27,7 +27,13 @@ export function NovoUsuarioPage() {
 
   const grupos = gruposData?.data ?? []
 
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormData>({
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<FormData>({
     resolver: zodResolver(usuarioCreateSchema as never),
     defaultValues: { grupos_ids: '' },
   })
@@ -75,7 +81,9 @@ export function NovoUsuarioPage() {
           <Label htmlFor="nome_completo">Nome completo *</Label>
           <Input id="nome_completo" {...register('nome_completo')} />
           {errors.nome_completo && (
-            <p className="text-sm text-destructive">{errors.nome_completo.message}</p>
+            <p className="text-sm text-destructive">
+              {errors.nome_completo.message}
+            </p>
           )}
         </div>
         <div className="flex flex-col gap-1.5">

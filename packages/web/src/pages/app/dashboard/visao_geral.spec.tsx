@@ -6,9 +6,11 @@ describe('VisaoGeral Page', () => {
   it('renders title, description and metric cards', () => {
     render(<VisaoGeral />)
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Visão Geral' })).toBeInTheDocument()
     expect(
-      screen.getByText('Dashboard com informações gerais do hotel'),
+      screen.getByRole('heading', { level: 1, name: 'Visão Geral' })
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText('Dashboard com informações gerais do hotel')
     ).toBeInTheDocument()
 
     expect(screen.getByText('Total de Pessoas')).toBeInTheDocument()
@@ -22,10 +24,10 @@ describe('VisaoGeral Page', () => {
     expect(screen.getByText('Quartos Disponíveis')).toBeInTheDocument()
 
     expect(
-      screen.getByText('Pessoas por Regime de Alimentação'),
+      screen.getByText('Pessoas por Regime de Alimentação')
     ).toBeInTheDocument()
     expect(
-      screen.getByText('Distribuição por Tipo de Quarto'),
+      screen.getByText('Distribuição por Tipo de Quarto')
     ).toBeInTheDocument()
   })
 })

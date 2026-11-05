@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { Lead } from './lead'
 import { LeadValidationError } from '@/core/errors/lead_errors'
+import { Lead } from './lead'
 
 describe('Lead Entity', () => {
   const base_props = {
@@ -28,7 +28,7 @@ describe('Lead Entity', () => {
         new Lead({
           ...base_props,
           nome: '   ',
-        }),
+        })
     ).toThrow(LeadValidationError)
 
     expect(
@@ -36,7 +36,7 @@ describe('Lead Entity', () => {
         new Lead({
           ...base_props,
           nome: 'a'.repeat(151),
-        }),
+        })
     ).toThrow(LeadValidationError)
   })
 
@@ -46,7 +46,7 @@ describe('Lead Entity', () => {
         new Lead({
           ...base_props,
           telefone: ' ',
-        }),
+        })
     ).toThrow(LeadValidationError)
   })
 
@@ -56,7 +56,7 @@ describe('Lead Entity', () => {
         new Lead({
           ...base_props,
           email: 'email-invalido',
-        }),
+        })
     ).toThrow(LeadValidationError)
   })
 })

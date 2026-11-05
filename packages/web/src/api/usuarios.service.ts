@@ -1,5 +1,5 @@
+import type { PaginatedResponse, Usuario } from '@hotelmind/contracts'
 import { api } from '@/lib/axios'
-import type { Usuario, PaginatedResponse } from '@hotelmind/contracts'
 
 export interface UsuarioListParams {
   pagina?: number
@@ -35,7 +35,9 @@ export interface UpdateUsuarioPayload {
 
 export const usuariosService = {
   list: (params: UsuarioListParams) =>
-    api.get<PaginatedResponse<Usuario>>('/usuarios', { params }).then(r => r.data),
+    api
+      .get<PaginatedResponse<Usuario>>('/usuarios', { params })
+      .then(r => r.data),
 
   get: (id: string) => api.get<Usuario>(`/usuarios/${id}`).then(r => r.data),
 

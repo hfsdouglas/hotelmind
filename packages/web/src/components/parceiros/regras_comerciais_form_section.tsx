@@ -1,6 +1,5 @@
 import type { ModeloTarifario, PoliticaFaturamento } from '@hotelmind/contracts'
 import { BadgeDollarSign } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -37,14 +36,12 @@ export function RegrasComerciaisFormSection({
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold flex items-center gap-2">
-          <BadgeDollarSign className="h-5 w-5 text-primary" />
-          Regras Comerciais & Faturamento
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+    <section className="space-y-4 border-t pt-6">
+      <h3 className="text-base font-semibold flex items-center gap-2">
+        <BadgeDollarSign className="h-5 w-5 text-primary" />
+        Regras Comerciais & Faturamento
+      </h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         <div className="flex flex-col gap-1.5">
           <Label>Modelo Tarifário Padrão</Label>
           <Select
@@ -171,7 +168,7 @@ export function RegrasComerciaisFormSection({
             parceiro.
           </p>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   )
 }

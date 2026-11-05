@@ -3,11 +3,11 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
+  DialogTrigger,
 } from './dialog'
 
 describe('Dialog', () => {
@@ -26,7 +26,7 @@ describe('Dialog', () => {
           </DialogHeader>
           <p>Conteúdo interno do modal</p>
         </DialogContent>
-      </Dialog>,
+      </Dialog>
     )
 
     await user.click(screen.getByRole('button', { name: 'Abrir Modal' }))

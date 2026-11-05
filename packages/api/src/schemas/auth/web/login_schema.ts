@@ -31,7 +31,7 @@ export const login_response_schema = z.object({
       rota: z.string(),
       icone: z.string().nullable(),
       ordem: z.number(),
-    }),
+    })
   ),
   suporte: suporte_session_schema.optional(),
 })
@@ -61,7 +61,7 @@ export const me_response_schema = z.object({
       rota: z.string(),
       icone: z.string().nullable(),
       ordem: z.number(),
-    }),
+    })
   ),
   suporte: suporte_session_schema.optional(),
 })

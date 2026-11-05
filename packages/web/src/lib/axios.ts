@@ -9,7 +9,10 @@ export const api = axios.create({
 api.interceptors.response.use(
   res => res,
   err => {
-    if (err.response?.status === 401 && localStorage.getItem('hotelmind:session')) {
+    if (
+      err.response?.status === 401 &&
+      localStorage.getItem('hotelmind:session')
+    ) {
       window.dispatchEvent(new CustomEvent('auth:session-expired'))
     }
     return Promise.reject(err)

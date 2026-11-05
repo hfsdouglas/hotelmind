@@ -1,14 +1,20 @@
+import type { CategoriaQuarto } from '@hotelmind/contracts'
+import { Pencil, Plus } from 'lucide-react'
 import { useTransition } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { Pencil, Plus } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { categoriasQuartosService } from '@/api/categorias_quartos.service'
 import type { Column } from '@/components/data-table/data_table'
 import { ListPageLayout } from '@/components/data-table/list_page_layout'
 import { PagedDataTable } from '@/components/data-table/paged_data_table'
-import { categoriasQuartosService } from '@/api/categorias_quartos.service'
-import type { CategoriaQuarto } from '@hotelmind/contracts'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 export function CategoriasQuartosPage() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -65,7 +71,7 @@ export function CategoriasQuartosPage() {
             value={status ?? 'all'}
             onValueChange={value =>
               startTransition(() =>
-                setSearchParams(value === 'all' ? {} : { status: value }),
+                setSearchParams(value === 'all' ? {} : { status: value })
               )
             }
           >

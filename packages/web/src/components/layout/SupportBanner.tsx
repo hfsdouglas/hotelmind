@@ -13,8 +13,8 @@ export function SupportBanner() {
       className="flex items-center justify-between gap-4 bg-amber-500 px-4 py-2 text-sm font-medium text-black"
     >
       <span>
-        Modo suporte — administrador {session.suporte.administrador_nome} acessando
-        como {session.user.nome_completo}
+        Modo suporte — administrador {session.suporte.administrador_nome}{' '}
+        acessando como {session.user.nome_completo}
       </span>
       <button
         type="button"

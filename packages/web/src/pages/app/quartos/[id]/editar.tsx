@@ -138,8 +138,7 @@ export function EditarQuartoPage() {
   if (isLoading || !room || !categories) return <p>Carregando quarto...</p>
 
   const selectable_categories = categories.data.some(
-    category =>
-      category.id === room.categoria_id && category.status === 'N'
+    category => category.id === room.categoria_id && category.status === 'N'
   )
     ? [
         room.categoria,
@@ -233,10 +232,7 @@ export function EditarQuartoPage() {
               name="status"
               control={control}
               render={({ field }) => (
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                >
+                <Select value={field.value} onValueChange={field.onChange}>
                   <SelectTrigger id="status">
                     <SelectValue />
                   </SelectTrigger>

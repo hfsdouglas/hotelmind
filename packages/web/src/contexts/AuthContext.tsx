@@ -1,6 +1,11 @@
 import { createContext, useEffect, useRef, useState } from 'react'
-import type { AuthHotel, AuthUser, RotaMenu, SuporteSession } from '@/types/auth'
 import { authService } from '@/api/auth.service'
+import type {
+  AuthHotel,
+  AuthUser,
+  RotaMenu,
+  SuporteSession,
+} from '@/types/auth'
 
 interface AuthSession {
   user: AuthUser
@@ -46,7 +51,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       window.location.replace('/login')
     }
     window.addEventListener('auth:session-expired', handleExpired)
-    return () => window.removeEventListener('auth:session-expired', handleExpired)
+    return () =>
+      window.removeEventListener('auth:session-expired', handleExpired)
   }, [])
 
   const bootstrapped = useRef(false)

@@ -5,10 +5,7 @@ import { TarifarioPeriodSummary } from './tarifario_period_summary'
 describe('TarifarioPeriodSummary', () => {
   it('renders empty message when no dates are selected', () => {
     render(
-      <TarifarioPeriodSummary
-        selectedDates={[]}
-        conflictingPeriods={[]}
-      />,
+      <TarifarioPeriodSummary selectedDates={[]} conflictingPeriods={[]} />
     )
 
     expect(screen.getByTestId('period-summary-empty')).toBeInTheDocument()
@@ -21,7 +18,7 @@ describe('TarifarioPeriodSummary', () => {
         selectedDates={['2026-11-10', '2026-11-11']}
         valorDiaria="250,00"
         conflictingPeriods={[]}
-      />,
+      />
     )
 
     expect(screen.getByTestId('period-summary-selected')).toBeInTheDocument()
@@ -44,10 +41,12 @@ describe('TarifarioPeriodSummary', () => {
             ativo: true,
           },
         ]}
-      />,
+      />
     )
 
-    expect(screen.getByText('Conflito de data identificado')).toBeInTheDocument()
+    expect(
+      screen.getByText('Conflito de data identificado')
+    ).toBeInTheDocument()
     expect(screen.getByText(/"Tarifário Conflitante"/i)).toBeInTheDocument()
   })
 })

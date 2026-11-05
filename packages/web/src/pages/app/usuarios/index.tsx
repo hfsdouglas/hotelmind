@@ -1,17 +1,26 @@
+import type { Usuario } from '@hotelmind/contracts'
+import { Pencil, Plus } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { Plus, Pencil } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { usuariosService } from '@/api/usuarios.service'
 import type { Column } from '@/components/data-table/data_table'
-import { SearchBar } from '@/components/data-table/search_bar'
 import { ListPageLayout } from '@/components/data-table/list_page_layout'
 import { PagedDataTable } from '@/components/data-table/paged_data_table'
+import { SearchBar } from '@/components/data-table/search_bar'
+import { Button } from '@/components/ui/button'
 import { usePaginacao } from '@/hooks/usePaginacao'
-import { usuariosService } from '@/api/usuarios.service'
-import type { Usuario } from '@hotelmind/contracts'
 
 export function UsuariosPage() {
-  const { pagina, limite, busca, ordenar_por, direcao, setParam, setPagina, toggleSort, isPending } =
-    usePaginacao()
+  const {
+    pagina,
+    limite,
+    busca,
+    ordenar_por,
+    direcao,
+    setParam,
+    setPagina,
+    toggleSort,
+    isPending,
+  } = usePaginacao()
 
   const columns: Column<Usuario>[] = [
     { key: 'nome_completo', header: 'Nome', sortable: true },

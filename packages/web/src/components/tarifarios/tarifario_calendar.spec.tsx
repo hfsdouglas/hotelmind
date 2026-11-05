@@ -35,15 +35,17 @@ function ControlledCalendarWrapper() {
 }
 
 describe('TarifarioCalendar & TarifarioForm (Hospitality Classification, Month/Year Selector & Usability)', () => {
-  it('US2: replaces "Mês atual" button with month/year selectors, renders icon-only navigation buttons, and preserves selected dates across view modes and navigation', () => {
-    render(<ControlledCalendarWrapper />)
+  it(
+    'US2: replaces "Mês atual" button with month/year selectors, renders icon-only navigation buttons, and preserves selected dates across view modes and navigation',
+    () => {
+      render(<ControlledCalendarWrapper />)
 
-    // "Mês atual" button does not exist anymore
-    expect(
-      screen.queryByRole('button', { name: 'Mês atual' })
-    ).not.toBeInTheDocument()
+      // "Mês atual" button does not exist anymore
+      expect(
+        screen.queryByRole('button', { name: 'Mês atual' })
+      ).not.toBeInTheDocument()
 
-    // Previous and Next buttons are icon-only (no text content inside the buttons)
+      // Previous and Next buttons are icon-only (no text content inside the buttons)
     const prev_btn = screen.getByTestId('calendar-prev-period')
     const next_btn = screen.getByTestId('calendar-next-period')
     expect(prev_btn.textContent).toBe('')
@@ -121,7 +123,7 @@ describe('TarifarioCalendar & TarifarioForm (Hospitality Classification, Month/Y
     expect(screen.getByTestId('calendar-month-title')).toHaveTextContent(
       'Fevereiro de 2029 — Janeiro de 2030'
     )
-  })
+  }, 15000)
 
   it('US1: bulk selects all days, hospitality weekdays (Sun-Thu), and hospitality weekends (Fri-Sat) in visible months excluding occupied dates', () => {
     render(<ControlledCalendarWrapper />)

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { Reserva } from './reserva'
 import { ReservaValidationError } from '@/core/errors/reserva_errors'
+import { Reserva } from './reserva'
 
 describe('Reserva Entity', () => {
   const base_props = {
@@ -48,7 +48,7 @@ describe('Reserva Entity', () => {
         new Reserva({
           ...base_props,
           titular_nome: ' ',
-        }),
+        })
     ).toThrow(ReservaValidationError)
 
     expect(
@@ -56,7 +56,7 @@ describe('Reserva Entity', () => {
         new Reserva({
           ...base_props,
           titular_nome: 'A',
-        }),
+        })
     ).toThrow(ReservaValidationError)
   })
 
@@ -66,7 +66,7 @@ describe('Reserva Entity', () => {
         new Reserva({
           ...base_props,
           titular_email: 'invalido-email',
-        }),
+        })
     ).toThrow(ReservaValidationError)
   })
 
@@ -76,7 +76,7 @@ describe('Reserva Entity', () => {
         new Reserva({
           ...base_props,
           quarto_id: '',
-        }),
+        })
     ).toThrow(ReservaValidationError)
   })
 
@@ -86,7 +86,7 @@ describe('Reserva Entity', () => {
         new Reserva({
           ...base_props,
           check_in: 'data-invalida',
-        }),
+        })
     ).toThrow(ReservaValidationError)
 
     expect(
@@ -95,7 +95,7 @@ describe('Reserva Entity', () => {
           ...base_props,
           check_in: '2026-12-10',
           check_out: '2026-12-05',
-        }),
+        })
     ).toThrow(ReservaValidationError)
   })
 
@@ -105,7 +105,7 @@ describe('Reserva Entity', () => {
         new Reserva({
           ...base_props,
           quantidade_adultos: 0,
-        }),
+        })
     ).toThrow(ReservaValidationError)
   })
 
@@ -115,7 +115,7 @@ describe('Reserva Entity', () => {
         new Reserva({
           ...base_props,
           token_fnrh: '',
-        }),
+        })
     ).toThrow(ReservaValidationError)
   })
 })

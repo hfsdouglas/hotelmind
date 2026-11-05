@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { describe, expect, it } from 'vitest'
 import { FilterPanel } from './filter_panel'
 
 describe('FilterPanel', () => {
@@ -8,9 +8,11 @@ describe('FilterPanel', () => {
     render(
       <FilterPanel>
         <input placeholder="filtro interno" />
-      </FilterPanel>,
+      </FilterPanel>
     )
-    expect(screen.queryByPlaceholderText('filtro interno')).not.toBeInTheDocument()
+    expect(
+      screen.queryByPlaceholderText('filtro interno')
+    ).not.toBeInTheDocument()
   })
 
   it('reveals children when "Mais filtros" is clicked', async () => {
@@ -18,7 +20,7 @@ describe('FilterPanel', () => {
     render(
       <FilterPanel>
         <input placeholder="filtro interno" />
-      </FilterPanel>,
+      </FilterPanel>
     )
     await user.click(screen.getByRole('button', { name: /mais filtros/i }))
     expect(screen.getByPlaceholderText('filtro interno')).toBeInTheDocument()
@@ -29,11 +31,13 @@ describe('FilterPanel', () => {
     render(
       <FilterPanel>
         <input placeholder="filtro interno" />
-      </FilterPanel>,
+      </FilterPanel>
     )
     const toggle = screen.getByRole('button', { name: /mais filtros/i })
     await user.click(toggle)
     await user.click(toggle)
-    expect(screen.queryByPlaceholderText('filtro interno')).not.toBeInTheDocument()
+    expect(
+      screen.queryByPlaceholderText('filtro interno')
+    ).not.toBeInTheDocument()
   })
 })

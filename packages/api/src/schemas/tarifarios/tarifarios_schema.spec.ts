@@ -34,7 +34,7 @@ describe('tarifarios_schema', () => {
         nome: 'Tarifa',
         datas: ['2027-03-01'],
         valor_diaria: '200.00',
-      }).success,
+      }).success
     ).toBe(false)
 
     expect(
@@ -44,7 +44,7 @@ describe('tarifarios_schema', () => {
         nome: '   ',
         datas: ['2027-03-01'],
         valor_diaria: '200.00',
-      }).success,
+      }).success
     ).toBe(false)
 
     expect(
@@ -54,7 +54,7 @@ describe('tarifarios_schema', () => {
         nome: 'Tarifa',
         datas: [],
         valor_diaria: '200.00',
-      }).success,
+      }).success
     ).toBe(false)
 
     expect(
@@ -64,7 +64,7 @@ describe('tarifarios_schema', () => {
         nome: 'Tarifa',
         datas: ['2027-03-01'],
         valor_diaria: '-5.00',
-      }).success,
+      }).success
     ).toBe(false)
 
     expect(
@@ -74,7 +74,7 @@ describe('tarifarios_schema', () => {
         nome: 'Tarifa',
         datas: ['2027-03-01'],
         valor_diaria: '200.999',
-      }).success,
+      }).success
     ).toBe(false)
   })
 
@@ -88,22 +88,22 @@ describe('tarifarios_schema', () => {
     expect(list_query.ativo).toBe(false)
     expect(list_query.categoria_quarto_id).toEqual(['cat-1', 'cat-2'])
 
-    expect(
-      list_tarifarios_query_schema.safeParse({ limite: 10 }).success,
-    ).toBe(false)
+    expect(list_tarifarios_query_schema.safeParse({ limite: 10 }).success).toBe(
+      false
+    )
 
     expect(
       calendario_tarifarios_query_schema.safeParse({
         categoria_quarto_id: 'cat-1',
         data_inicio: '2027-03-01',
         data_fim: '2027-04-01',
-      }).success,
+      }).success
     ).toBe(true)
 
     expect(
       update_tarifario_body_schema.safeParse({
         datas: [],
-      }).success,
+      }).success
     ).toBe(false)
   })
 })

@@ -34,7 +34,7 @@ export function TarifarioCalendarDay({
   if (isConflicting) state_labels.push('Data em conflito')
   else if (primary_occupied) {
     state_labels.push(
-      `Ocupado por ${primary_occupied.nome} (R$ ${primary_occupied.valor_diaria})`,
+      `Ocupado por ${primary_occupied.nome} (R$ ${primary_occupied.valor_diaria})`
     )
   } else {
     state_labels.push('Disponível')
@@ -61,7 +61,7 @@ export function TarifarioCalendarDay({
           !isConflicting &&
           'border-2 border-primary bg-primary/15 ring-1 ring-primary',
         isConflicting &&
-          'border-2 border-dashed border-destructive bg-destructive/15 ring-1 ring-destructive',
+          'border-2 border-dashed border-destructive bg-destructive/15 ring-1 ring-destructive'
       )}
     >
       <button
@@ -83,7 +83,7 @@ export function TarifarioCalendarDay({
                   'border-primary bg-primary text-primary-foreground',
                 isConflicting &&
                   'border-destructive bg-destructive text-destructive-foreground',
-                !isSelected && 'border-muted-foreground/50 bg-background',
+                !isSelected && 'border-muted-foreground/50 bg-background'
               )}
               aria-hidden="true"
             >
@@ -92,7 +92,7 @@ export function TarifarioCalendarDay({
             <span
               className={cn(
                 ' shrink-0 text-xs font-semibold leading-none',
-                isToday && 'underline font-bold',
+                isToday && 'underline font-bold'
               )}
             >
               {dayNumber}
@@ -152,7 +152,9 @@ export function TarifarioCalendarDay({
           title={`Consultar tarifário: ${primary_occupied.nome} (R$ ${primary_occupied.valor_diaria})`}
         >
           <span className="truncate">{primary_occupied.nome}</span>
-          <span className="ml-1 shrink-0">R${primary_occupied.valor_diaria}</span>
+          <span className="ml-1 shrink-0">
+            R${primary_occupied.valor_diaria}
+          </span>
         </button>
       )}
     </div>

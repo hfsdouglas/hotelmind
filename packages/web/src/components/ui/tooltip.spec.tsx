@@ -2,10 +2,10 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import {
-  TooltipProvider,
   Tooltip,
-  TooltipTrigger,
   TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
 } from './tooltip'
 
 describe('Tooltip', () => {
@@ -22,7 +22,7 @@ describe('Tooltip', () => {
             <p>Dica de ajuda</p>
           </TooltipContent>
         </Tooltip>
-      </TooltipProvider>,
+      </TooltipProvider>
     )
 
     const trigger = screen.getByRole('button', { name: 'Passe o mouse' })

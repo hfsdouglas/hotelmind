@@ -3,26 +3,19 @@ import type {
   StatusParceiro,
   TipoParceiro,
 } from '@hotelmind/contracts'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import {
-  AlertCircle,
-  Building2,
-  Edit,
-  Handshake,
-  Plus,
-  Search,
-  ShieldAlert,
-  Trash2,
-} from 'lucide-react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Edit, Plus, ShieldAlert, Trash2 } from 'lucide-react'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { parceirosComerciaisService } from '@/api/parceiros_comerciais.service'
+import type { Column } from '@/components/data-table/data_table'
+import { ListPageLayout } from '@/components/data-table/list_page_layout'
+import { PagedDataTable } from '@/components/data-table/paged_data_table'
+import { SearchBar } from '@/components/data-table/search_bar'
 import { ModalStatusParceiro } from '@/components/parceiros/modal_status_parceiro'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -30,15 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Skeleton } from '@/components/ui/skeleton'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { usePaginacao } from '@/hooks/usePaginacao'
 
 const TIPO_LABELS: Record<TipoParceiro, string> = {
   agente_autonomo: 'Agente Autônomo',
@@ -48,31 +33,51 @@ const TIPO_LABELS: Record<TipoParceiro, string> = {
   empresa_corporativa: 'Empresa Corporativa',
 }
 
+function getStatusBadge(status: StatusParceiro) {
+  switch (status) {
+    case 'ativo':
+      return (
+        <Badge
+          variant="outline"
+          className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300"
+        >
+          Ativo
+        </Badge>
+      )
+    case 'inativo':
+      return (
+        <Badge
+          variant="outline"
+          className="bg-zinc-100 text-zinc-700 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-300"
+        >
+          Inativo
+        </Badge>
+      )
+    case 'bloqueado':
+      return (
+        <Badge
+          variant="outline"
+          className="bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300"
+        >
+          Bloqueado
+        </Badge>
+      )
+    default:
+      return <Badge variant="outline">{status}</Badge>
+  }
+}
+
 export function ParceirosComerciaisPage() {
   const queryClient = useQueryClient()
-  const [pagina, setPagina] = useState(1)
-  const [busca, setBusca] = useState('')
-  const [tipoFiltro, setTipoFiltro] = useState<string>('todos')
-  const [statusFiltro, setStatusFiltro] = useState<string>('todos')
+  const { pagina, limite, busca, setParam, setPagina, isPending } =
+    usePaginacao()
+  const [searchParams] = useSearchParams()
+
+  const tipoFiltro = searchParams.get('tipo_parceiro') || 'todos'
+  const statusFiltro = searchParams.get('status') || 'todos'
 
   const [parceiroStatusModal, setParceiroStatusModal] =
     useState<ParceiroComercial | null>(null)
-
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['parceiros_comerciais', pagina, busca, tipoFiltro, statusFiltro],
-    queryFn: () =>
-      parceirosComerciaisService.list({
-        pagina,
-        limite: 15,
-        busca: busca.trim() || undefined,
-        tipo_parceiro:
-          tipoFiltro !== 'todos' ? (tipoFiltro as TipoParceiro) : undefined,
-        status:
-          statusFiltro !== 'todos'
-            ? (statusFiltro as StatusParceiro)
-            : undefined,
-      }),
-  })
 
   const statusMutation = useMutation({
     mutationFn: ({
@@ -122,52 +127,168 @@ export function ParceirosComerciaisPage() {
     }
   }
 
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-            <Handshake className="h-6 w-6 text-primary" />
-            Parceiros Comerciais
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Gerencie o cadastro unificado de agências, operadoras, consultores,
-            clubes e empresas B2B.
-          </p>
+  const columns: Column<ParceiroComercial>[] = [
+    {
+      key: 'parceiro',
+      header: 'Parceiro',
+      render: p => (
+        <div className="flex flex-col gap-1">
+          <div className="font-semibold text-sm text-foreground">
+            {p.razao_social}
+          </div>
+          {p.nome_fantasia && (
+            <div className="text-xs text-muted-foreground">
+              {p.nome_fantasia}
+            </div>
+          )}
+          <div className="text-xs text-primary font-medium flex items-center gap-1">
+            <span>{TIPO_LABELS[p.tipo_parceiro]}</span>
+            <span className="text-muted-foreground">({p.tipo_pessoa})</span>
+          </div>
         </div>
+      ),
+    },
+    {
+      key: 'documento',
+      header: 'Documento / Órgãos',
+      render: p => (
+        <div className="flex flex-col text-xs text-muted-foreground gap-0.5">
+          <span>{p.documento || (p.estrangeiro ? 'Estrangeiro' : '-')}</span>
+          {p.cadastur && <span>CADASTUR: {p.cadastur}</span>}
+          {p.codigo_iata && <span>IATA: {p.codigo_iata}</span>}
+        </div>
+      ),
+    },
+    {
+      key: 'localizacao',
+      header: 'Localização',
+      render: p => (
+        <div className="text-xs text-muted-foreground">
+          {p.cidade && p.estado ? `${p.cidade}/${p.estado}` : '-'}
+        </div>
+      ),
+    },
+    {
+      key: 'modelo',
+      header: 'Modelo / Comissão',
+      render: p => (
+        <div className="flex flex-col text-xs gap-0.5">
+          <span className="capitalize font-medium text-foreground">
+            {p.modelo_tarifario}
+          </span>
+          <span className="text-muted-foreground">
+            {Number(p.comissao_padrao)}% de comissão
+          </span>
+        </div>
+      ),
+    },
+    {
+      key: 'faturamento',
+      header: 'Faturamento / Limite',
+      render: p => (
+        <div className="flex flex-col text-xs gap-0.5">
+          <span className="capitalize text-foreground">
+            {p.politica_faturamento}
+          </span>
+          {Number(p.limite_credito) > 0 && (
+            <span className="text-muted-foreground font-medium">
+              Limite:{' '}
+              {new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+              }).format(Number(p.limite_credito))}
+            </span>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: p => (
+        <div className="flex flex-col gap-1 items-start">
+          {getStatusBadge(p.status)}
+          {p.motivo_bloqueio && (
+            <span
+              className="text-[11px] text-destructive max-w-xs truncate"
+              title={p.motivo_bloqueio}
+            >
+              {p.motivo_bloqueio}
+            </span>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'acoes',
+      header: '',
+      render: p => (
+        <div className="flex items-center justify-end gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-amber-600 hover:text-amber-700"
+            title="Alterar Status"
+            onClick={() => setParceiroStatusModal(p)}
+          >
+            <ShieldAlert className="h-4 w-4" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            asChild
+            title="Editar Parceiro"
+          >
+            <Link to={`/comercial/parceiros/${p.id}/editar`}>
+              <Edit className="h-4 w-4" />
+            </Link>
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-destructive hover:text-destructive"
+            title="Excluir Parceiro"
+            onClick={() => handleDelete(p)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+    },
+  ]
+
+  return (
+    <ListPageLayout
+      title="Parceiros Comerciais"
+      description="Gerencie o cadastro unificado de agências, operadoras, consultores, clubes e empresas B2B."
+      action={
         <Button asChild className="gap-2">
           <Link to="/comercial/parceiros/novo">
             <Plus className="h-4 w-4" />
             Novo Parceiro
           </Link>
         </Button>
-      </div>
-
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base font-medium">
-            Filtros e Consulta
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar por Razão Social, Nome Fantasia, CNPJ/CPF, CADASTUR..."
-              value={busca}
-              onChange={e => {
-                setBusca(e.target.value)
-                setPagina(1)
-              }}
-              className="pl-9"
-            />
-          </div>
-
+      }
+      searchBar={
+        <SearchBar
+          value={busca}
+          onSearch={val => {
+            setParam('busca', val)
+            setPagina(1)
+          }}
+          placeholder="Buscar por Razão Social, Nome Fantasia, CNPJ/CPF, CADASTUR..."
+        />
+      }
+      filters={
+        <div className="flex flex-col sm:flex-row items-center gap-3">
           <div className="w-full sm:w-56">
             <Select
               value={tipoFiltro}
               onValueChange={v => {
-                setTipoFiltro(v)
+                setParam('tipo_parceiro', v === 'todos' ? '' : v)
                 setPagina(1)
               }}
             >
@@ -197,7 +318,7 @@ export function ParceirosComerciaisPage() {
             <Select
               value={statusFiltro}
               onValueChange={v => {
-                setStatusFiltro(v)
+                setParam('status', v === 'todos' ? '' : v)
                 setPagina(1)
               }}
             >
@@ -212,223 +333,59 @@ export function ParceirosComerciaisPage() {
               </SelectContent>
             </Select>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Tabela de Parceiros */}
-      <Card>
-        <CardContent className="p-0">
-          {isLoading ? (
-            <div className="flex flex-col gap-2 p-6">
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-            </div>
-          ) : isError ? (
-            <div className="flex flex-col items-center justify-center p-8 text-center text-destructive">
-              <AlertCircle className="h-8 w-8 mb-2" />
-              <p>Erro ao carregar parceiros comerciais.</p>
-            </div>
-          ) : data && data.data.length > 0 ? (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Parceiro</TableHead>
-                    <TableHead>Documento / Órgãos</TableHead>
-                    <TableHead>Localização</TableHead>
-                    <TableHead>Modelo / Comissão</TableHead>
-                    <TableHead>Faturamento / Limite</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.data.map(p => (
-                    <TableRow key={p.id}>
-                      <TableCell>
-                        <div className="flex flex-col gap-1">
-                          <span className="font-medium text-foreground">
-                            {p.razao_social}
-                          </span>
-                          {p.nome_fantasia && (
-                            <span className="text-xs text-muted-foreground">
-                              {p.nome_fantasia}
-                            </span>
-                          )}
-                          <Badge
-                            variant="outline"
-                            className="w-fit text-xs mt-0.5"
-                          >
-                            {TIPO_LABELS[p.tipo_parceiro] || p.tipo_parceiro}
-                          </Badge>
-                        </div>
-                      </TableCell>
-
-                      <TableCell>
-                        <div className="flex flex-col text-xs gap-0.5">
-                          <span className="font-mono">
-                            {p.documento ||
-                              (p.estrangeiro ? 'Estrangeiro' : '—')}
-                          </span>
-                          {p.cadastur && (
-                            <span className="text-muted-foreground">
-                              CADASTUR: {p.cadastur}
-                            </span>
-                          )}
-                          {p.codigo_iata && (
-                            <span className="text-muted-foreground">
-                              IATA: {p.codigo_iata}
-                            </span>
-                          )}
-                        </div>
-                      </TableCell>
-
-                      <TableCell className="text-sm">
-                        {p.cidade && p.estado
-                          ? `${p.cidade}/${p.estado}`
-                          : p.pais || '—'}
-                      </TableCell>
-
-                      <TableCell>
-                        <div className="flex flex-col text-xs gap-0.5">
-                          <span className="capitalize font-medium">
-                            {p.modelo_tarifario}
-                          </span>
-                          <span className="text-muted-foreground">
-                            Comissão: {p.comissao_padrao}%
-                          </span>
-                        </div>
-                      </TableCell>
-
-                      <TableCell>
-                        <div className="flex flex-col text-xs gap-0.5">
-                          <span className="capitalize font-medium">
-                            {p.politica_faturamento}
-                          </span>
-                          {p.politica_faturamento === 'faturado' && (
-                            <span className="text-muted-foreground">
-                              Lim: R$ {p.limite_credito} (
-                              {p.prazo_pagamento_dias}d)
-                            </span>
-                          )}
-                        </div>
-                      </TableCell>
-
-                      <TableCell>
-                        {p.status === 'ativo' ? (
-                          <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white">
-                            Ativo
-                          </Badge>
-                        ) : p.status === 'inativo' ? (
-                          <Badge variant="secondary">Inativo</Badge>
-                        ) : (
-                          <Badge
-                            variant="destructive"
-                            className="gap-1 cursor-pointer"
-                            title={p.motivo_bloqueio || 'Bloqueado'}
-                          >
-                            <ShieldAlert className="h-3 w-3" />
-                            Bloqueado
-                          </Badge>
-                        )}
-                      </TableCell>
-
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            title="Alterar Status"
-                            onClick={() => setParceiroStatusModal(p)}
-                          >
-                            <ShieldAlert className="h-4 w-4 text-amber-600" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            asChild
-                            title="Editar"
-                          >
-                            <Link to={`/comercial/parceiros/${p.id}/editar`}>
-                              <Edit className="h-4 w-4" />
-                            </Link>
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-destructive hover:bg-destructive/10"
-                            title="Excluir"
-                            onClick={() => handleDelete(p)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center p-12 text-center text-muted-foreground">
-              <Building2 className="h-10 w-10 mb-3 text-muted-foreground/50" />
-              <p className="font-medium text-base">
-                Nenhum parceiro encontrado
-              </p>
-              <p className="text-sm mt-1">
-                Tente ajustar os filtros ou clique em "Novo Parceiro" para
-                cadastrar.
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Paginação */}
-      {data && data.meta.ultima_pagina > 1 && (
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>Total: {data.meta.total} parceiros</span>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={pagina <= 1}
-              onClick={() => setPagina(p => p - 1)}
-            >
-              Anterior
-            </Button>
-            <span className="flex items-center px-2">
-              Página {pagina} de {data.meta.ultima_pagina}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={pagina >= data.meta.ultima_pagina}
-              onClick={() => setPagina(p => p + 1)}
-            >
-              Próxima
-            </Button>
-          </div>
         </div>
-      )}
+      }
+    >
+      <PagedDataTable
+        columns={columns}
+        queryKey={[
+          'parceiros_comerciais',
+          {
+            pagina,
+            limite,
+            busca,
+            tipo_parceiro: tipoFiltro,
+            status: statusFiltro,
+          },
+        ]}
+        queryFn={() =>
+          parceirosComerciaisService.list({
+            pagina,
+            limite,
+            busca: busca.trim() || undefined,
+            tipo_parceiro:
+              tipoFiltro !== 'todos' ? (tipoFiltro as TipoParceiro) : undefined,
+            status:
+              statusFiltro !== 'todos'
+                ? (statusFiltro as StatusParceiro)
+                : undefined,
+          })
+        }
+        label="Resultados de parceiros comerciais"
+        emptyMessage="Nenhum parceiro comercial encontrado."
+        isPending={isPending}
+        pagina={pagina}
+        limite={limite}
+        onPageChange={setPagina}
+        onLimitChange={v => setParam('limite', v)}
+      />
 
-      {/* Modal de Alteração de Status */}
-      <ModalStatusParceiro
-        parceiro={parceiroStatusModal}
-        open={Boolean(parceiroStatusModal)}
-        onOpenChange={open => !open && setParceiroStatusModal(null)}
-        onConfirm={async (status, motivo) => {
-          if (parceiroStatusModal) {
-            await statusMutation.mutateAsync({
+      {parceiroStatusModal && (
+        <ModalStatusParceiro
+          isOpen={Boolean(parceiroStatusModal)}
+          onClose={() => setParceiroStatusModal(null)}
+          parceiro={parceiroStatusModal}
+          isSubmitting={statusMutation.isPending}
+          onConfirm={(status, motivo) => {
+            statusMutation.mutate({
               id: parceiroStatusModal.id,
               status,
               motivo,
             })
-          }
-        }}
-        isPending={statusMutation.isPending}
-      />
-    </div>
+            setParceiroStatusModal(null)
+          }}
+        />
+      )}
+    </ListPageLayout>
   )
 }

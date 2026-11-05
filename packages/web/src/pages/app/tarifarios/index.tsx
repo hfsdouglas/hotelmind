@@ -108,140 +108,140 @@ export function TarifariosPage() {
 
   return (
     <ListPageLayout
-        title="Tarifários"
-        action={
-          <Button asChild>
-            <Link to="/tarifarios/novo">
-              <Plus className="mr-2 h-4 w-4" />
-              Novo tarifário
-            </Link>
-          </Button>
-        }
-        searchBar={
-          <SearchBar
-            value={busca}
-            onSearch={value => setParam('busca', value)}
-            placeholder="Pesquisar por nome ou categoria..."
-          />
-        }
-        filters={
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                type="button"
-                variant="outline"
-                data-testid="more-filters-trigger"
-                className="shrink-0"
-              >
-                <Filter className="mr-2 h-4 w-4" />
-                Mais filtros
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              data-testid="more-filters-content"
-              className="min-w-[280px] sm:min-w-[320px]"
-            >
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="filtro-situacao">Situação</Label>
-                  <Select
-                    value={ativo_param ?? 'all'}
-                    onValueChange={value =>
-                      setParam('ativo', value === 'all' ? '' : value)
-                    }
-                  >
-                    <SelectTrigger
-                      id="filtro-situacao"
-                      aria-label="Filtrar por situação"
-                    >
-                      <SelectValue placeholder="Todas as situações" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todas as situações</SelectItem>
-                      <SelectItem value="true">Ativos</SelectItem>
-                      <SelectItem value="false">Inativos</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="filtro-categoria">Categoria de quarto</Label>
-                  <Select
-                    value={categoria_quarto_id || 'all'}
-                    onValueChange={value =>
-                      setParam(
-                        'categoria_quarto_id',
-                        value === 'all' ? '' : value,
-                      )
-                    }
-                  >
-                    <SelectTrigger
-                      id="filtro-categoria"
-                      aria-label="Filtrar por categoria"
-                    >
-                      <SelectValue placeholder="Todas as categorias" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todas as categorias</SelectItem>
-                      {categories?.data.map(cat => (
-                        <SelectItem key={cat.id} value={cat.id}>
-                          {cat.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {(categoria_quarto_id || ativo_param) && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    data-testid="clear-more-filters"
-                    className="h-7 self-start px-2 text-xs text-muted-foreground hover:text-foreground"
-                    onClick={() => {
-                      setParams({ categoria_quarto_id: '', ativo: '' })
-                    }}
-                  >
-                    Limpar filtros
-                    <X className="ml-1.5 h-3.5 w-3.5" />
-                  </Button>
-                )}
-              </div>
-            </PopoverContent>
-          </Popover>
-        }
-      >
-        <PagedDataTable
-          columns={columns}
-          queryKey={[
-            'tarifarios',
-            {
-              pagina,
-              limite,
-              busca,
-              categoria_quarto_id,
-              ativo: ativo_filter,
-            },
-          ]}
-          queryFn={() =>
-            tarifariosService.list({
-              pagina,
-              limite,
-              busca: busca || undefined,
-              categoria_quarto_id: categoria_quarto_id || undefined,
-              ativo: ativo_filter,
-            })
-          }
-          label="Resultados de tarifários"
-          errorMessage="Não foi possível carregar os tarifários."
-          emptyMessage="Nenhum tarifário encontrado."
-          isPending={isPending}
-          pagina={pagina}
-          limite={limite}
-          onPageChange={setPagina}
-          onLimitChange={value => setParam('limite', value)}
+      title="Tarifários"
+      action={
+        <Button asChild>
+          <Link to="/tarifarios/novo">
+            <Plus className="mr-2 h-4 w-4" />
+            Novo tarifário
+          </Link>
+        </Button>
+      }
+      searchBar={
+        <SearchBar
+          value={busca}
+          onSearch={value => setParam('busca', value)}
+          placeholder="Pesquisar por nome ou categoria..."
         />
-      </ListPageLayout>
+      }
+      filters={
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              data-testid="more-filters-trigger"
+              className="shrink-0"
+            >
+              <Filter className="mr-2 h-4 w-4" />
+              Mais filtros
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent
+            data-testid="more-filters-content"
+            className="min-w-[280px] sm:min-w-[320px]"
+          >
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="filtro-situacao">Situação</Label>
+                <Select
+                  value={ativo_param ?? 'all'}
+                  onValueChange={value =>
+                    setParam('ativo', value === 'all' ? '' : value)
+                  }
+                >
+                  <SelectTrigger
+                    id="filtro-situacao"
+                    aria-label="Filtrar por situação"
+                  >
+                    <SelectValue placeholder="Todas as situações" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as situações</SelectItem>
+                    <SelectItem value="true">Ativos</SelectItem>
+                    <SelectItem value="false">Inativos</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="filtro-categoria">Categoria de quarto</Label>
+                <Select
+                  value={categoria_quarto_id || 'all'}
+                  onValueChange={value =>
+                    setParam(
+                      'categoria_quarto_id',
+                      value === 'all' ? '' : value
+                    )
+                  }
+                >
+                  <SelectTrigger
+                    id="filtro-categoria"
+                    aria-label="Filtrar por categoria"
+                  >
+                    <SelectValue placeholder="Todas as categorias" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as categorias</SelectItem>
+                    {categories?.data.map(cat => (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {(categoria_quarto_id || ativo_param) && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  data-testid="clear-more-filters"
+                  className="h-7 self-start px-2 text-xs text-muted-foreground hover:text-foreground"
+                  onClick={() => {
+                    setParams({ categoria_quarto_id: '', ativo: '' })
+                  }}
+                >
+                  Limpar filtros
+                  <X className="ml-1.5 h-3.5 w-3.5" />
+                </Button>
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
+      }
+    >
+      <PagedDataTable
+        columns={columns}
+        queryKey={[
+          'tarifarios',
+          {
+            pagina,
+            limite,
+            busca,
+            categoria_quarto_id,
+            ativo: ativo_filter,
+          },
+        ]}
+        queryFn={() =>
+          tarifariosService.list({
+            pagina,
+            limite,
+            busca: busca || undefined,
+            categoria_quarto_id: categoria_quarto_id || undefined,
+            ativo: ativo_filter,
+          })
+        }
+        label="Resultados de tarifários"
+        errorMessage="Não foi possível carregar os tarifários."
+        emptyMessage="Nenhum tarifário encontrado."
+        isPending={isPending}
+        pagina={pagina}
+        limite={limite}
+        onPageChange={setPagina}
+        onLimitChange={value => setParam('limite', value)}
+      />
+    </ListPageLayout>
   )
 }

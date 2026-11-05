@@ -6,7 +6,6 @@ import { Plus, Trash2, UserCheck } from 'lucide-react'
 import { useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -63,14 +62,12 @@ export function ContatosFormSection({
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold flex items-center gap-2">
-          <UserCheck className="h-5 w-5 text-primary" />
-          Contatos do Parceiro
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-5">
+    <section className="space-y-4 border-t pt-6">
+      <h3 className="text-base font-semibold flex items-center gap-2">
+        <UserCheck className="h-5 w-5 text-primary" />
+        Contatos do Parceiro
+      </h3>
+      <div className="flex flex-col gap-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end bg-muted/40 p-4 rounded-lg border">
           <div className="flex flex-col gap-1.5">
             <Label>Área / Finalidade</Label>
@@ -202,7 +199,7 @@ export function ContatosFormSection({
             financeiros acima.
           </p>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   )
 }

@@ -2,10 +2,10 @@ import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import {
   Select,
-  SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from './select'
 
 describe('Select', () => {
@@ -18,7 +18,7 @@ describe('Select', () => {
         <SelectContent>
           <SelectItem value="op1">Opção Um</SelectItem>
         </SelectContent>
-      </Select>,
+      </Select>
     )
 
     expect(screen.getByRole('combobox', { name: 'Opções' })).toBeInTheDocument()

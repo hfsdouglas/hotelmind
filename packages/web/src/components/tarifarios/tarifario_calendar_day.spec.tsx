@@ -18,7 +18,7 @@ describe('TarifarioCalendarDay', () => {
         isConflicting={false}
         occupiedPeriods={[]}
         onToggleDay={onToggleDay}
-      />,
+      />
     )
 
     const button = screen.getByTestId('calendar-day-2026-11-15')
@@ -38,7 +38,7 @@ describe('TarifarioCalendarDay', () => {
         isConflicting={false}
         occupiedPeriods={[]}
         onToggleDay={vi.fn()}
-      />,
+      />
     )
 
     const cell = screen.getByTestId('calendar-day-cell-2026-11-15')

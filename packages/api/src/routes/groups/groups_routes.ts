@@ -1,24 +1,30 @@
 import { z } from 'zod'
-import type { FastifyTypedInstance } from '@/types/fastify'
-import { db } from '@/lib/prisma'
-import { PostgresGroupRepository } from '@/core/repositories/groups/implementation/postgres_group_repository'
-import { ListGroupsUseCase } from '@/core/usecases/groups/list_groups_use_case'
-import { CreateGroupUseCase } from '@/core/usecases/groups/create_group_use_case'
-import { GetGroupUseCase } from '@/core/usecases/groups/get_group_use_case'
-import { UpdateGroupUseCase } from '@/core/usecases/groups/update_group_use_case'
-import { DeleteGroupUseCase } from '@/core/usecases/groups/delete_group_use_case'
-import { SyncGroupRoutesUseCase } from '@/core/usecases/groups/sync_group_routes_use_case'
+import {
+  GrupoConflictError,
+  GrupoLinkedUsersError,
+} from '@/core/errors/grupo_conflict_error'
 import { GrupoNotFoundError } from '@/core/errors/grupo_not_found_error'
-import { GrupoConflictError, GrupoLinkedUsersError } from '@/core/errors/grupo_conflict_error'
+import { PostgresGroupRepository } from '@/core/repositories/groups/implementation/postgres_group_repository'
+import { CreateGroupUseCase } from '@/core/usecases/groups/create_group_use_case'
+import { DeleteGroupUseCase } from '@/core/usecases/groups/delete_group_use_case'
+import { GetGroupUseCase } from '@/core/usecases/groups/get_group_use_case'
+import { ListGroupsUseCase } from '@/core/usecases/groups/list_groups_use_case'
+import { SyncGroupRoutesUseCase } from '@/core/usecases/groups/sync_group_routes_use_case'
+import { UpdateGroupUseCase } from '@/core/usecases/groups/update_group_use_case'
+import { db } from '@/lib/prisma'
+import {
+  create_group_body_schema,
+  create_group_response_schema,
+} from '@/schemas/groups/create_group_schema'
 import {
   list_groups_query_schema,
   list_groups_response_schema,
 } from '@/schemas/groups/list_groups_schema'
 import {
-  create_group_body_schema,
-  create_group_response_schema,
-} from '@/schemas/groups/create_group_schema'
-import { update_group_body_schema, sync_routes_body_schema } from '@/schemas/groups/update_group_schema'
+  sync_routes_body_schema,
+  update_group_body_schema,
+} from '@/schemas/groups/update_group_schema'
+import type { FastifyTypedInstance } from '@/types/fastify'
 
 const error_schema = z.object({ message: z.string() })
 
@@ -69,7 +75,7 @@ export async function groups_routes(app: FastifyTypedInstance) {
       const { hotelId } = request.user
       const result = await list_use_case.execute(hotelId, request.query)
       return reply.status(200).send(result)
-    },
+    }
   )
 
   app.post(
@@ -90,7 +96,10 @@ export async function groups_routes(app: FastifyTypedInstance) {
     async (request, reply) => {
       try {
         const { hotelId } = request.user
-        const grupo = await create_use_case.execute({ ...request.body, hotel_id: hotelId })
+        const grupo = await create_use_case.execute({
+          ...request.body,
+          hotel_id: hotelId,
+        })
         return reply.status(201).send(grupo)
       } catch (err) {
         if (err instanceof GrupoConflictError) {
@@ -98,7 +107,7 @@ export async function groups_routes(app: FastifyTypedInstance) {
         }
         throw err
       }
-    },
+    }
   )
 
   app.get(
@@ -127,7 +136,7 @@ export async function groups_routes(app: FastifyTypedInstance) {
         }
         throw err
       }
-    },
+    }
   )
 
   app.put(
@@ -150,7 +159,11 @@ export async function groups_routes(app: FastifyTypedInstance) {
     async (request, reply) => {
       try {
         const { hotelId } = request.user
-        const grupo = await update_use_case.execute(request.params.id, hotelId, request.body)
+        const grupo = await update_use_case.execute(
+          request.params.id,
+          hotelId,
+          request.body
+        )
         return reply.status(200).send(grupo)
       } catch (err) {
         if (err instanceof GrupoNotFoundError) {
@@ -161,7 +174,7 @@ export async function groups_routes(app: FastifyTypedInstance) {
         }
         throw err
       }
-    },
+    }
   )
 
   app.delete(
@@ -194,7 +207,7 @@ export async function groups_routes(app: FastifyTypedInstance) {
         }
         throw err
       }
-    },
+    }
   )
 
   app.get(
@@ -224,7 +237,7 @@ export async function groups_routes(app: FastifyTypedInstance) {
         }
         throw err
       }
-    },
+    }
   )
 
   app.put(
@@ -249,7 +262,7 @@ export async function groups_routes(app: FastifyTypedInstance) {
         const rotas = await sync_routes_use_case.execute(
           request.params.id,
           hotelId,
-          request.body.rota_ids,
+          request.body.rota_ids
         )
         return reply.status(200).send(rotas)
       } catch (err) {
@@ -258,6 +271,6 @@ export async function groups_routes(app: FastifyTypedInstance) {
         }
         throw err
       }
-    },
+    }
   )
 }

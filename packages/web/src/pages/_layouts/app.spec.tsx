@@ -1,10 +1,10 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { describe, expect, it, vi } from 'vitest'
-import { AppLayout } from './app'
 import { AuthContext } from '@/contexts/AuthContext'
 import { ThemeProvider } from '@/contexts/ThemeContext'
+import { AppLayout } from './app'
 
 vi.mock('@/hooks/useRotasSync', () => ({
   useRotasSync: vi.fn(),
@@ -22,8 +22,16 @@ function renderAppLayout(isAuthenticated: boolean) {
           value={{
             session: isAuthenticated
               ? {
-                  user: { id: 'u1', nome_completo: 'Operador', email: 'op@hotel.com' },
-                  hotel: { id: 'h1', nome_fantasia: 'Hotel Luxo', nome_hotel: 'Hotel Luxo LTDA' },
+                  user: {
+                    id: 'u1',
+                    nome_completo: 'Operador',
+                    email: 'op@hotel.com',
+                  },
+                  hotel: {
+                    id: 'h1',
+                    nome_fantasia: 'Hotel Luxo',
+                    nome_hotel: 'Hotel Luxo LTDA',
+                  },
                   rotas: [],
                 }
               : null,
@@ -36,13 +44,16 @@ function renderAppLayout(isAuthenticated: boolean) {
             <Routes>
               <Route path="/login" element={<div>Tela de Login</div>} />
               <Route element={<AppLayout />}>
-                <Route path="/dashboard" element={<div>Conteúdo do Dashboard</div>} />
+                <Route
+                  path="/dashboard"
+                  element={<div>Conteúdo do Dashboard</div>}
+                />
               </Route>
             </Routes>
           </MemoryRouter>
         </AuthContext.Provider>
       </ThemeProvider>
-    </QueryClientProvider>,
+    </QueryClientProvider>
   )
 }
 

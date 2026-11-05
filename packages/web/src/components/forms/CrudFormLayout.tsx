@@ -1,9 +1,9 @@
+import { ArrowLeft } from 'lucide-react'
 import type { FormEvent, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
+import { SaveButton } from '@/components/forms/save_button'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { SaveButton } from '@/components/forms/save_button'
 import { cn } from '@/lib/utils'
 
 export { SaveButton }
@@ -35,7 +35,7 @@ export function CrudFormLayout({
     <div
       className={cn(
         'mx-auto flex w-full flex-col gap-6 sm:max-w-[540px] md:max-w-[720px] lg:max-w-[960px] xl:max-w-[1140px] 2xl:max-w-[1320px]',
-        className,
+        className
       )}
     >
       <div className="flex items-center gap-4">

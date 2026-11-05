@@ -8,7 +8,7 @@ describe('Página de Calendário de Reservas', () => {
 
     expect(screen.getByText('Calendário de Reservas')).toBeInTheDocument()
     expect(
-      screen.getByText('Visualize e gerencie as reservas do hotel'),
+      screen.getByText('Visualize e gerencie as reservas do hotel')
     ).toBeInTheDocument()
 
     // Quartos mockados
@@ -31,7 +31,7 @@ describe('Página de Calendário de Reservas', () => {
 
     expect(await screen.findByText('Detalhes da Reserva')).toBeInTheDocument()
     expect(
-      screen.getByText('Informações completas sobre a hospedagem'),
+      screen.getByText('Informações completas sobre a hospedagem')
     ).toBeInTheDocument()
   })
 })

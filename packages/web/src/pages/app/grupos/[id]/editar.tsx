@@ -1,12 +1,15 @@
-import { useNavigate, useParams } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { useNavigate, useParams } from 'react-router-dom'
+import { toast } from 'sonner'
+import type { RotaItem } from '@/api/grupos.service'
+import { gruposService } from '@/api/grupos.service'
+import { CheckboxGroupList } from '@/components/forms/CheckboxGroupList'
+import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -15,10 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { CheckboxGroupList } from '@/components/forms/CheckboxGroupList'
-import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
-import { gruposService } from '@/api/grupos.service'
-import type { RotaItem } from '@/api/grupos.service'
+import { Textarea } from '@/components/ui/textarea'
 import { type GrupoFormData, grupoSchema } from '@/schemas/grupos/grupo_schema'
 
 type FormData = GrupoFormData
@@ -50,7 +50,7 @@ export function EditarGrupoPage() {
     queryKey: ['rotas'],
     queryFn: () =>
       import('@/lib/axios').then(({ api }) =>
-        api.get<RotaItem[]>('/rotas').then(r => r.data),
+        api.get<RotaItem[]>('/rotas').then(r => r.data)
       ),
   })
 
@@ -68,8 +68,13 @@ export function EditarGrupoPage() {
     }
   }, [grupoRotas])
 
-  const { register, handleSubmit, setValue, formState: { errors }, reset } =
-    useForm<FormData>({ resolver: zodResolver(grupoSchema as never) })
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+    reset,
+  } = useForm<FormData>({ resolver: zodResolver(grupoSchema as never) })
 
   useEffect(() => {
     if (grupo) {

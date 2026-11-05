@@ -8,11 +8,13 @@ describe('Error404Page', () => {
     render(
       <MemoryRouter>
         <Error404Page />
-      </MemoryRouter>,
+      </MemoryRouter>
     )
 
     expect(screen.getByText('404')).toBeInTheDocument()
     expect(screen.getByText('Página não encontrada')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Voltar ao início' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('link', { name: 'Voltar ao início' })
+    ).toBeInTheDocument()
   })
 })

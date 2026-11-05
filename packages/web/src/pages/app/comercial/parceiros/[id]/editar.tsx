@@ -1,9 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft } from 'lucide-react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { parceirosComerciaisService } from '@/api/parceiros_comerciais.service'
-import { SaveButton } from '@/components/forms/save_button'
 import {
   ParceiroForm,
   type ParceiroFormState,
@@ -73,40 +71,19 @@ export function EditarParceiroPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full flex-col gap-6 sm:max-w-[540px] md:max-w-[720px] lg:max-w-[960px] xl:max-w-[1140px] 2xl:max-w-[1320px]">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link to="/comercial/parceiros">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            Editar Parceiro Comercial
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {parceiro.razao_social}
-            {parceiro.nome_fantasia ? ` (${parceiro.nome_fantasia})` : ''}
-          </p>
-        </div>
-      </div>
-
-      <ParceiroForm
-        initialData={{
-          ...parceiro,
-          comissao_padrao: Number(parceiro.comissao_padrao),
-          limite_credito: Number(parceiro.limite_credito),
-          contatos: parceiro.contatos || [],
-        }}
-        onSubmit={data => mutation.mutate(data)}
-        isSubmitting={mutation.isPending}
-        submitButtonNode={
-          <SaveButton
-            label="Salvar Alterações"
-            isPending={mutation.isPending}
-          />
-        }
-      />
-    </div>
+    <ParceiroForm
+      title="Editar Parceiro Comercial"
+      backTo="/comercial/parceiros"
+      cardTitle={`Dados de ${parceiro.razao_social}`}
+      initialData={{
+        ...parceiro,
+        comissao_padrao: Number(parceiro.comissao_padrao),
+        limite_credito: Number(parceiro.limite_credito),
+        contatos: parceiro.contatos || [],
+      }}
+      onSubmit={data => mutation.mutate(data)}
+      isSubmitting={mutation.isPending}
+      submitLabel="Salvar Parceiro"
+    />
   )
 }

@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
+import { ParceiroComercialValidationError } from '@/core/errors/parceiro_comercial_errors'
 import {
   ParceiroComercial,
   validar_cnpj,
   validar_cpf,
 } from './parceiro_comercial'
-import { ParceiroComercialValidationError } from '@/core/errors/parceiro_comercial_errors'
 
 describe('ParceiroComercial Entity', () => {
   it('valida cpf e cnpj corretamente com algoritmos oficiais', () => {
@@ -59,7 +59,7 @@ describe('ParceiroComercial Entity', () => {
           status: 'ativo',
           criado_em: new Date(),
           atualizado_em: new Date(),
-        }),
+        })
     ).toThrow(ParceiroComercialValidationError)
   })
 
@@ -82,7 +82,7 @@ describe('ParceiroComercial Entity', () => {
           status: 'ativo',
           criado_em: new Date(),
           atualizado_em: new Date(),
-        }),
+        })
     ).toThrow(ParceiroComercialValidationError)
   })
 })

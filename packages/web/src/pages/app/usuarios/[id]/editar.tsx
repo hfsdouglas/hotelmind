@@ -1,16 +1,16 @@
-import { useNavigate, useParams } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import { useNavigate, useParams } from 'react-router-dom'
+import { toast } from 'sonner'
+import { gruposService } from '@/api/grupos.service'
+import { usuariosService } from '@/api/usuarios.service'
+import { CheckboxGrid } from '@/components/forms/CheckboxGrid'
+import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { CheckboxGrid } from '@/components/forms/CheckboxGrid'
-import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
-import { usuariosService } from '@/api/usuarios.service'
-import { gruposService } from '@/api/grupos.service'
 import {
   type UsuarioUpdateFormData,
   usuarioUpdateSchema,
@@ -36,8 +36,14 @@ export function EditarUsuarioPage() {
 
   const grupos = gruposData?.data ?? []
 
-  const { register, handleSubmit, setValue, watch, formState: { errors }, reset } =
-    useForm<FormData>({ resolver: zodResolver(usuarioUpdateSchema as never) })
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+    reset,
+  } = useForm<FormData>({ resolver: zodResolver(usuarioUpdateSchema as never) })
 
   useEffect(() => {
     if (usuario) {
@@ -87,7 +93,8 @@ export function EditarUsuarioPage() {
   })
 
   if (isLoading) return <p className="text-muted-foreground">Carregando...</p>
-  if (!usuario) return <p className="text-destructive">Usuário não encontrado.</p>
+  if (!usuario)
+    return <p className="text-destructive">Usuário não encontrado.</p>
 
   return (
     <CrudFormLayout
@@ -111,7 +118,12 @@ export function EditarUsuarioPage() {
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="senha">Nova senha</Label>
-          <Input id="senha" type="password" {...register('senha')} placeholder="Deixe em branco para não alterar" />
+          <Input
+            id="senha"
+            type="password"
+            {...register('senha')}
+            placeholder="Deixe em branco para não alterar"
+          />
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="nascimento">Data de nascimento</Label>

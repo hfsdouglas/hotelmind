@@ -46,7 +46,7 @@ describe('TarifarioForm', () => {
             ativo: true,
           }}
         />
-      </MemoryRouter>,
+      </MemoryRouter>
     )
 
     expect(screen.getByDisplayValue('Alta Temporada')).toBeInTheDocument()

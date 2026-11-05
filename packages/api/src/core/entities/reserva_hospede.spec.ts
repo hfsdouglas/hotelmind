@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { ReservaHospede } from './reserva_hospede'
 import { ReservaValidationError } from '@/core/errors/reserva_errors'
+import { ReservaHospede } from './reserva_hospede'
 
 describe('ReservaHospede Entity', () => {
   const base_props = {
@@ -29,7 +29,7 @@ describe('ReservaHospede Entity', () => {
         new ReservaHospede({
           ...base_props,
           reserva_id: '',
-        }),
+        })
     ).toThrow(ReservaValidationError)
   })
 
@@ -39,7 +39,7 @@ describe('ReservaHospede Entity', () => {
         new ReservaHospede({
           ...base_props,
           posicao: 0,
-        }),
+        })
     ).toThrow(ReservaValidationError)
   })
 

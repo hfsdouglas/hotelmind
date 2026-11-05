@@ -1,20 +1,30 @@
+import type { Quarto } from '@hotelmind/contracts'
 import { useQuery } from '@tanstack/react-query'
-import { Link, useSearchParams } from 'react-router-dom'
 import { Filter, Pencil, Plus, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Checkbox } from '@/components/ui/checkbox'
+import { Link, useSearchParams } from 'react-router-dom'
+import { categoriasQuartosService } from '@/api/categorias_quartos.service'
+import { quartosService } from '@/api/quartos.service'
 import type { Column } from '@/components/data-table/data_table'
-import { SearchBar } from '@/components/data-table/search_bar'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { ListPageLayout } from '@/components/data-table/list_page_layout'
 import { PagedDataTable } from '@/components/data-table/paged_data_table'
-import { quartosService } from '@/api/quartos.service'
-import { categoriasQuartosService } from '@/api/categorias_quartos.service'
+import { SearchBar } from '@/components/data-table/search_bar'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from '@/components/ui/label'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { usePaginacao } from '@/hooks/usePaginacao'
-import type { Quarto } from '@hotelmind/contracts'
 
 function format_bed_type(type: string) {
   return type
@@ -24,9 +34,12 @@ function format_bed_type(type: string) {
 }
 
 export function QuartosPage() {
-  const { pagina, limite, busca, setParam, setPagina, isPending } = usePaginacao()
+  const { pagina, limite, busca, setParam, setPagina, isPending } =
+    usePaginacao()
   const [searchParams] = useSearchParams()
-  const categoria_ids = (searchParams.get('categoria_id') ?? '').split(',').filter(Boolean)
+  const categoria_ids = (searchParams.get('categoria_id') ?? '')
+    .split(',')
+    .filter(Boolean)
   const status = searchParams.get('status') as 'S' | 'N' | null
   const { data: categories } = useQuery({
     queryKey: ['categorias_quartos', 'all'],
@@ -35,7 +48,11 @@ export function QuartosPage() {
 
   const columns: Column<Quarto>[] = [
     { key: 'identificacao', header: 'Quarto' },
-    { key: 'categoria', header: 'Categoria', render: row => row.categoria.nome },
+    {
+      key: 'categoria',
+      header: 'Categoria',
+      render: row => row.categoria.nome,
+    },
     { key: 'limite_hospedes', header: 'Limite de hóspedes' },
     {
       key: 'camas',

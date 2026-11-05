@@ -1,23 +1,26 @@
-import type { FastifyTypedInstance } from '@/types/fastify'
-import { db } from '@/lib/prisma'
-import { PostgresAdministratorRepository } from '@/core/repositories/administrators/implementation/postgres_administrator_repository'
-import { BcryptPasswordHasher } from '@/lib/bcrypt_password_hasher'
-import { AdminLoginUseCase } from '@/core/usecases/auth/admin_login_use_case'
 import {
   InvalidCredentialsError,
   UserNotFoundError,
 } from '@/core/errors/authentication_error'
+import { PostgresAdministratorRepository } from '@/core/repositories/administrators/implementation/postgres_administrator_repository'
+import { AdminLoginUseCase } from '@/core/usecases/auth/admin_login_use_case'
+import { BcryptPasswordHasher } from '@/lib/bcrypt_password_hasher'
+import { db } from '@/lib/prisma'
 import {
+  error_schema,
   login_body_schema,
   login_response_schema,
-  me_response_schema,
-  error_schema,
   logout_response_schema,
+  me_response_schema,
 } from '@/schemas/auth/admin/auth_schema'
+import type { FastifyTypedInstance } from '@/types/fastify'
 
 export async function admin_auth_routes(app: FastifyTypedInstance) {
   const adminRepo = new PostgresAdministratorRepository(db)
-  const login_use_case = new AdminLoginUseCase(adminRepo, new BcryptPasswordHasher())
+  const login_use_case = new AdminLoginUseCase(
+    adminRepo,
+    new BcryptPasswordHasher()
+  )
 
   app.post(
     '/admin/auth/login',
@@ -26,7 +29,11 @@ export async function admin_auth_routes(app: FastifyTypedInstance) {
         tags: ['Admin - Auth'],
         summary: 'Autenticar administrador',
         body: login_body_schema,
-        response: { 200: login_response_schema, 401: error_schema, 500: error_schema },
+        response: {
+          200: login_response_schema,
+          401: error_schema,
+          500: error_schema,
+        },
       },
     },
     async (request, reply) => {
@@ -34,8 +41,12 @@ export async function admin_auth_routes(app: FastifyTypedInstance) {
         const admin = await login_use_case.execute(request.body)
 
         const token = app.jwt.sign(
-          { sub: admin.id, role: 'admin', admin: { nomecompleto: admin.nome_completo, email: admin.email } },
-          { expiresIn: '7d' },
+          {
+            sub: admin.id,
+            role: 'admin',
+            admin: { nomecompleto: admin.nome_completo, email: admin.email },
+          },
+          { expiresIn: '7d' }
         )
 
         reply.setCookie('admin_token', token, {
@@ -47,16 +58,23 @@ export async function admin_auth_routes(app: FastifyTypedInstance) {
         })
 
         return reply.status(200).send({
-          admin: { id: admin.id, nome_completo: admin.nome_completo, email: admin.email },
+          admin: {
+            id: admin.id,
+            nome_completo: admin.nome_completo,
+            email: admin.email,
+          },
           message: `Seja bem-vindo, ${admin.first_name}!`,
         })
       } catch (error) {
-        if (error instanceof UserNotFoundError || error instanceof InvalidCredentialsError) {
+        if (
+          error instanceof UserNotFoundError ||
+          error instanceof InvalidCredentialsError
+        ) {
           return reply.status(401).send({ message: 'Credenciais inválidas' })
         }
         return reply.status(500).send({ message: 'Erro interno do servidor' })
       }
-    },
+    }
   )
 
   app.get(
@@ -70,9 +88,18 @@ export async function admin_auth_routes(app: FastifyTypedInstance) {
       },
     },
     async (request, reply) => {
-      const { adminId, nomecompleto, email } = request.admin!
-      return reply.status(200).send({ admin: { id: adminId, nome_completo: nomecompleto, email } })
-    },
+      const admin = request.admin
+      if (!admin) {
+        return reply.status(401).send({ message: 'Não autenticado' })
+      }
+      return reply.status(200).send({
+        admin: {
+          id: admin.adminId,
+          nome_completo: admin.nomecompleto,
+          email: admin.email,
+        },
+      })
+    }
   )
 
   app.post(
@@ -87,7 +114,9 @@ export async function admin_auth_routes(app: FastifyTypedInstance) {
     },
     async (_request, reply) => {
       reply.clearCookie('admin_token', { path: '/' })
-      return reply.status(200).send({ message: 'Logout realizado com sucesso.' })
-    },
+      return reply
+        .status(200)
+        .send({ message: 'Logout realizado com sucesso.' })
+    }
   )
 }

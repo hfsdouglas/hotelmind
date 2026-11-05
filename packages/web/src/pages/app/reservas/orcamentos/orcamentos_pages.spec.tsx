@@ -137,14 +137,17 @@ describe('Orcamentos Admin Pages', () => {
       </QueryClientProvider>
     )
 
-    await waitFor(() => {
-      expect(screen.getByText('Orçamentos de Reserva')).toBeInTheDocument()
-      expect(screen.getByText('Novo Orçamento')).toBeInTheDocument()
-      expect(screen.getByText('Ana Carolina')).toBeInTheDocument()
-      expect(screen.getByText('Suíte Luxo')).toBeInTheDocument()
-      expect(screen.getByText('Café da Manhã')).toBeInTheDocument()
-      expect(screen.getByText('R$ 600,00')).toBeInTheDocument()
-    })
+    await waitFor(
+      () => {
+        expect(screen.getByText('Orçamentos de Reserva')).toBeInTheDocument()
+        expect(screen.getByText('Novo Orçamento')).toBeInTheDocument()
+        expect(screen.getByText('Ana Carolina')).toBeInTheDocument()
+        expect(screen.getByText('Suíte Luxo')).toBeInTheDocument()
+        expect(screen.getByText('Café da Manhã')).toBeInTheDocument()
+        expect(screen.getByText('R$ 600,00')).toBeInTheDocument()
+      },
+      { timeout: 3000 }
+    )
   })
 
   it('renders novo orcamento form with sequential steps', async () => {

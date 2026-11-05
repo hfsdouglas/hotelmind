@@ -1,4 +1,4 @@
-import { createContext, useContext, type ReactNode } from 'react'
+import { createContext, type ReactNode, useContext } from 'react'
 
 export interface Guest {
   nome: string
@@ -31,9 +31,9 @@ export interface ReservationsContextType {
   getReservationById: (id: string) => Reservation | undefined
 }
 
-export const ReservationsContext = createContext<ReservationsContextType | undefined>(
-  undefined,
-)
+export const ReservationsContext = createContext<
+  ReservationsContextType | undefined
+>(undefined)
 
 export interface ReservationsProviderProps {
   children: ReactNode
@@ -45,13 +45,11 @@ export function ReservationsProvider({
   reservations,
 }: ReservationsProviderProps) {
   const getReservationsByRoom = (roomId: string) => {
-    return reservations.filter(
-      (reservation) => reservation.quartoId === roomId,
-    )
+    return reservations.filter(reservation => reservation.quartoId === roomId)
   }
 
   const getReservationById = (id: string) => {
-    return reservations.find((reservation) => reservation.id === id)
+    return reservations.find(reservation => reservation.id === id)
   }
 
   return (

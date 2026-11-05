@@ -116,9 +116,7 @@ describe('Regimes de Alimentação Pages', () => {
     expect(
       screen.getByRole('radio', { name: /^desativado$/i })
     ).not.toBeChecked()
-    expect(
-      screen.getByRole('button', { name: /Salvar/i })
-    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Salvar/i })).toBeInTheDocument()
   })
 
   it('submits novo regime form with selected fields', async () => {

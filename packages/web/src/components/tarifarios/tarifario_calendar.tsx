@@ -122,10 +122,12 @@ export function TarifarioCalendar({
     }
     return parse_year_month(selectedDates[0])
   })
-  const [months_count, setMonthsCount] = useState<CalendarMonthsViewCount>(() => {
-    if (selectedDates.length >= 200) return 12
-    return initialMonthsCount
-  })
+  const [months_count, setMonthsCount] = useState<CalendarMonthsViewCount>(
+    () => {
+      if (selectedDates.length >= 200) return 12
+      return initialMonthsCount
+    }
+  )
   const [datepicker_open, setDatepickerOpen] = useState(false)
   const [inspected_period, setInspectedPeriod] =
     useState<PeriodoTarifarioCalendario | null>(null)
@@ -134,18 +136,18 @@ export function TarifarioCalendar({
   const visible_months = get_visible_calendar_months(
     viewed_month.year,
     viewed_month.month,
-    months_count,
+    months_count
   )
   const selected_set = new Set(selectedDates)
 
   const visible_occupied_periods = occupiedPeriods.filter(
-    p => !excludeTarifarioId || p.id !== excludeTarifarioId,
+    p => !excludeTarifarioId || p.id !== excludeTarifarioId
   )
 
   const conflicting_periods = find_conflicting_periods(
     selectedDates,
     occupiedPeriods,
-    excludeTarifarioId,
+    excludeTarifarioId
   )
 
   function navigate_to(year: number, month: number) {
@@ -249,7 +251,7 @@ export function TarifarioCalendar({
               onClick={() =>
                 navigate_to(
                   viewed_month.year,
-                  viewed_month.month - months_count,
+                  viewed_month.month - months_count
                 )
               }
               aria-label="Período anterior"
@@ -375,7 +377,7 @@ export function TarifarioCalendar({
               onClick={() =>
                 navigate_to(
                   viewed_month.year,
-                  viewed_month.month + months_count,
+                  viewed_month.month + months_count
                 )
               }
               aria-label="Próximo período"
@@ -448,7 +450,7 @@ export function TarifarioCalendar({
           'grid gap-4',
           months_count === 1
             ? 'grid-cols-1'
-            : 'grid-cols-1 lg:grid-cols-2 xl:grid-cols-3',
+            : 'grid-cols-1 lg:grid-cols-2 xl:grid-cols-3'
         )}
       >
         {visible_months.map(month_block => {
@@ -459,7 +461,7 @@ export function TarifarioCalendar({
               data-testid={`calendar-month-block-${month_key}`}
               className={cn(
                 'flex flex-col gap-2',
-                months_count > 1 && 'rounded-md border bg-background/60 p-3',
+                months_count > 1 && 'rounded-md border bg-background/60 p-3'
               )}
             >
               {months_count > 1 && (
@@ -480,14 +482,14 @@ export function TarifarioCalendar({
               <div className="grid grid-cols-7 gap-1.5">
                 {month_block.cells.map(cell => {
                   const day_occupied = visible_occupied_periods.filter(period =>
-                    period.datas.includes(cell.iso_date),
+                    period.datas.includes(cell.iso_date)
                   )
                   const is_selected = selected_set.has(cell.iso_date)
                   const is_conflicting = Boolean(
                     is_selected &&
                       conflicting_periods.some(period =>
-                        period.datas.includes(cell.iso_date),
-                      ),
+                        period.datas.includes(cell.iso_date)
+                      )
                   )
 
                   return (

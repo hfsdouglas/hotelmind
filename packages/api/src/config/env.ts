@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod'
 
 export const env = z.object({
   PORT: z.string(),
@@ -6,8 +6,8 @@ export const env = z.object({
   DATABASE_URL: z.url(),
   COOKIE_SECRET: z.string(),
   JWT_SECRET: z.string(),
-  WEB_APP_URL: z.string().default("http://localhost:5173"),
-});
+  WEB_APP_URL: z.string().default('http://localhost:5173'),
+})
 
 export const {
   DATABASE_URL,

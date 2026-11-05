@@ -1,12 +1,15 @@
-import { useNavigate } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { toast } from 'sonner'
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
+import type { RotaItem } from '@/api/grupos.service'
+import { gruposService } from '@/api/grupos.service'
+import { CheckboxGroupList } from '@/components/forms/CheckboxGroupList'
+import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -15,10 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { CheckboxGroupList } from '@/components/forms/CheckboxGroupList'
-import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
-import { gruposService } from '@/api/grupos.service'
-import type { RotaItem } from '@/api/grupos.service'
+import { Textarea } from '@/components/ui/textarea'
 import { type GrupoFormData, grupoSchema } from '@/schemas/grupos/grupo_schema'
 
 type FormData = GrupoFormData
@@ -37,7 +37,12 @@ function groupByModule(rotas: RotaItem[]) {
 
 export function NovoGrupoPage() {
   const navigate = useNavigate()
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormData>({
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<FormData>({
     resolver: zodResolver(grupoSchema as never),
     defaultValues: { status: 'S' },
   })
@@ -46,11 +51,13 @@ export function NovoGrupoPage() {
     queryKey: ['rotas'],
     queryFn: () =>
       import('@/lib/axios').then(({ api }) =>
-        api.get<RotaItem[]>('/rotas').then(r => r.data),
+        api.get<RotaItem[]>('/rotas').then(r => r.data)
       ),
   })
 
-  const [selectedRouteIds, setSelectedRouteIds] = useState<Set<string>>(new Set())
+  const [selectedRouteIds, setSelectedRouteIds] = useState<Set<string>>(
+    new Set()
+  )
 
   function toggleRota(rotaId: string) {
     setSelectedRouteIds(prev => {
@@ -77,7 +84,10 @@ export function NovoGrupoPage() {
           toast.success('Grupo criado com sucesso.')
           navigate('/grupos')
         },
-        onError: () => toast.error('Grupo criado, mas houve um erro ao sincronizar as rotas.'),
+        onError: () =>
+          toast.error(
+            'Grupo criado, mas houve um erro ao sincronizar as rotas.'
+          ),
       })
     },
     onError: (err: { response?: { status?: number } }) => {
@@ -104,7 +114,9 @@ export function NovoGrupoPage() {
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="grupo">Nome *</Label>
           <Input id="grupo" {...register('grupo')} />
-          {errors.grupo && <p className="text-sm text-destructive">{errors.grupo.message}</p>}
+          {errors.grupo && (
+            <p className="text-sm text-destructive">{errors.grupo.message}</p>
+          )}
         </div>
 
         <div className="flex flex-col gap-1.5">
@@ -114,7 +126,10 @@ export function NovoGrupoPage() {
 
         <div className="flex flex-col gap-1.5">
           <Label>Status</Label>
-          <Select defaultValue="S" onValueChange={v => setValue('status', v as 'S' | 'N')}>
+          <Select
+            defaultValue="S"
+            onValueChange={v => setValue('status', v as 'S' | 'N')}
+          >
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>

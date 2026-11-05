@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { Orcamento } from './orcamento'
 import { OrcamentoValidationError } from '@/core/errors/orcamento_errors'
+import { Orcamento } from './orcamento'
 
 describe('Orcamento Entity', () => {
   const base_props = {
@@ -37,7 +37,7 @@ describe('Orcamento Entity', () => {
         new Orcamento({
           ...base_props,
           lead_id: '',
-        }),
+        })
     ).toThrow(OrcamentoValidationError)
   })
 
@@ -47,7 +47,7 @@ describe('Orcamento Entity', () => {
         new Orcamento({
           ...base_props,
           regime_alimentacao_id: '',
-        }),
+        })
     ).toThrow(OrcamentoValidationError)
   })
 
@@ -57,7 +57,7 @@ describe('Orcamento Entity', () => {
         new Orcamento({
           ...base_props,
           check_in: 'data-invalida',
-        }),
+        })
     ).toThrow(OrcamentoValidationError)
 
     expect(
@@ -66,7 +66,7 @@ describe('Orcamento Entity', () => {
           ...base_props,
           check_in: '2026-12-10',
           check_out: '2026-12-05',
-        }),
+        })
     ).toThrow(OrcamentoValidationError)
   })
 
@@ -76,7 +76,7 @@ describe('Orcamento Entity', () => {
         new Orcamento({
           ...base_props,
           quantidade_adultos: 0,
-        }),
+        })
     ).toThrow(OrcamentoValidationError)
   })
 })

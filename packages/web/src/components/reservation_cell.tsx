@@ -1,5 +1,4 @@
 import { isSameDay } from 'date-fns'
-import { cn } from '@/lib/utils'
 import {
   Tooltip,
   TooltipContent,
@@ -7,6 +6,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import type { Reservation } from '@/contexts/reservations_context'
+import { cn } from '@/lib/utils'
 
 export interface ReservationCellProps {
   reservation: Reservation
@@ -47,7 +47,7 @@ export function ReservationCell({
               !isCheckIn && !isCheckOut && 'w-full left-0 rounded-none z-10',
               // Apenas duas cores baseadas no status (check-in feito ou não)
               hasCheckedIn && 'bg-primary',
-              !hasCheckedIn && 'bg-primary/50',
+              !hasCheckedIn && 'bg-primary/50'
             )}
             onClick={() => onSelect(reservation)}
           />

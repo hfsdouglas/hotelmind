@@ -20,7 +20,11 @@ describe('Button', () => {
     const user = userEvent.setup()
     const onClick = vi.fn()
 
-    render(<Button disabled onClick={onClick}>Desabilitado</Button>)
+    render(
+      <Button disabled onClick={onClick}>
+        Desabilitado
+      </Button>
+    )
     const button = screen.getByRole('button', { name: 'Desabilitado' })
     expect(button).toBeDisabled()
 

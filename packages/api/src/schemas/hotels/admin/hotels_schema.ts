@@ -43,5 +43,5 @@ export const hotel_usuarios_response_schema = z.array(
     id: z.string(),
     nome_completo: z.string(),
     email: z.string(),
-  }),
+  })
 )

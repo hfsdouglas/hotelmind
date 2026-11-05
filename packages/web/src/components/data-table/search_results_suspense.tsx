@@ -1,4 +1,11 @@
-import { Component, Suspense, useEffect, useRef, useState, type ReactNode } from 'react'
+import {
+  Component,
+  type ReactNode,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
@@ -82,14 +89,19 @@ class SearchResultsErrorBoundary extends Component<
   }
 
   componentDidUpdate(previous_props: SearchResultsErrorBoundaryProps) {
-    if (previous_props.reset_key !== this.props.reset_key && this.state.has_error) {
+    if (
+      previous_props.reset_key !== this.props.reset_key &&
+      this.state.has_error
+    ) {
       this.setState({ has_error: false })
     }
   }
 
   render() {
     if (this.state.has_error) {
-      return <p className="text-sm text-destructive">{this.props.error_message}</p>
+      return (
+        <p className="text-sm text-destructive">{this.props.error_message}</p>
+      )
     }
 
     return this.props.children
@@ -108,7 +120,7 @@ export function SearchResultsSuspense({
 }: SearchResultsSuspenseProps) {
   const resolved_column_labels = Array.from(
     { length: column_count },
-    (_, index) => column_labels[index] ?? '',
+    (_, index) => column_labels[index] ?? ''
   )
   const was_pending = useRef(false)
   const [announcement, setAnnouncement] = useState('')
@@ -139,7 +151,10 @@ export function SearchResultsSuspense({
         className="relative flex flex-1 flex-col min-h-0 gap-4"
         role="region"
       >
-        <SearchResultsErrorBoundary error_message={error_message} reset_key={reset_key}>
+        <SearchResultsErrorBoundary
+          error_message={error_message}
+          reset_key={reset_key}
+        >
           <Suspense
             fallback={
               <SearchResultsSkeleton
@@ -153,7 +168,10 @@ export function SearchResultsSuspense({
           </Suspense>
         </SearchResultsErrorBoundary>
         {is_pending && (
-          <div className="pointer-events-none mt-2 opacity-60" aria-hidden="true">
+          <div
+            className="pointer-events-none mt-2 opacity-60"
+            aria-hidden="true"
+          >
             <SearchResultsSkeleton
               column_count={column_count}
               column_labels={resolved_column_labels}

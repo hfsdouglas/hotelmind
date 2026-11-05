@@ -1,5 +1,5 @@
-import { api } from '@/lib/axios'
 import type { Grupo, PaginatedResponse } from '@hotelmind/contracts'
+import { api } from '@/lib/axios'
 
 export interface GrupoListParams {
   pagina?: number

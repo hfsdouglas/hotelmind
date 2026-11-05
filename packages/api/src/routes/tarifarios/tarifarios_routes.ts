@@ -39,7 +39,7 @@ export async function tarifarios_routes(app: FastifyTypedInstance) {
   const desativar_use_case = new DesativarTarifarioUseCase(tarifarios)
   const consultar_calendario_use_case = new ConsultarPeriodosTarifariosUseCase(
     tarifarios,
-    categorias,
+    categorias
   )
 
   app.get(
@@ -58,8 +58,10 @@ export async function tarifarios_routes(app: FastifyTypedInstance) {
     async (request, reply) => {
       return reply
         .status(200)
-        .send(await listar_use_case.execute(request.user.hotelId, request.query))
-    },
+        .send(
+          await listar_use_case.execute(request.user.hotelId, request.query)
+        )
+    }
   )
 
   app.get(
@@ -84,7 +86,7 @@ export async function tarifarios_routes(app: FastifyTypedInstance) {
             categoria_quarto_id: request.query.categoria_quarto_id,
             data_inicio: request.query.data_inicio,
             data_fim: request.query.data_fim,
-          }),
+          })
         )
       } catch (error) {
         if (error instanceof CategoriaQuartoInativaError) {
@@ -92,7 +94,7 @@ export async function tarifarios_routes(app: FastifyTypedInstance) {
         }
         throw error
       }
-    },
+    }
   )
 
   app.get(
@@ -116,8 +118,8 @@ export async function tarifarios_routes(app: FastifyTypedInstance) {
           .send(
             await buscar_use_case.execute(
               request.params.id,
-              request.user.hotelId,
-            ),
+              request.user.hotelId
+            )
           )
       } catch (error) {
         if (error instanceof TarifarioNotFoundError) {
@@ -125,7 +127,7 @@ export async function tarifarios_routes(app: FastifyTypedInstance) {
         }
         throw error
       }
-    },
+    }
   )
 
   app.post(
@@ -150,7 +152,7 @@ export async function tarifarios_routes(app: FastifyTypedInstance) {
           await criar_use_case.execute({
             ...request.body,
             hotel_id: request.user.hotelId,
-          }),
+          })
         )
       } catch (error) {
         if (error instanceof TarifarioValidationError) {
@@ -164,7 +166,7 @@ export async function tarifarios_routes(app: FastifyTypedInstance) {
         }
         throw error
       }
-    },
+    }
   )
 
   app.patch(
@@ -191,7 +193,7 @@ export async function tarifarios_routes(app: FastifyTypedInstance) {
             ...request.body,
             id: request.params.id,
             hotel_id: request.user.hotelId,
-          }),
+          })
         )
       } catch (error) {
         if (error instanceof TarifarioValidationError) {
@@ -208,7 +210,7 @@ export async function tarifarios_routes(app: FastifyTypedInstance) {
         }
         throw error
       }
-    },
+    }
   )
 
   app.patch(
@@ -233,8 +235,8 @@ export async function tarifarios_routes(app: FastifyTypedInstance) {
           .send(
             await ativar_use_case.execute(
               request.params.id,
-              request.user.hotelId,
-            ),
+              request.user.hotelId
+            )
           )
       } catch (error) {
         if (error instanceof TarifarioNotFoundError) {
@@ -245,7 +247,7 @@ export async function tarifarios_routes(app: FastifyTypedInstance) {
         }
         throw error
       }
-    },
+    }
   )
 
   app.patch(
@@ -269,8 +271,8 @@ export async function tarifarios_routes(app: FastifyTypedInstance) {
           .send(
             await desativar_use_case.execute(
               request.params.id,
-              request.user.hotelId,
-            ),
+              request.user.hotelId
+            )
           )
       } catch (error) {
         if (error instanceof TarifarioNotFoundError) {
@@ -278,6 +280,6 @@ export async function tarifarios_routes(app: FastifyTypedInstance) {
         }
         throw error
       }
-    },
+    }
   )
 }

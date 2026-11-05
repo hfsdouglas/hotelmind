@@ -7,13 +7,15 @@ import { DataTablePagination } from './data_table_pagination'
 // exactly the 4 navigation buttons in DOM order:
 // [0] ChevronFirst  [1] ChevronLeft  [2] ChevronRight  [3] ChevronLast
 
-function renderPagination(overrides: {
-  pagina?: number
-  limite?: number
-  ultima_pagina?: number
-  onPageChange?: ReturnType<typeof vi.fn>
-  onLimitChange?: ReturnType<typeof vi.fn>
-} = {}) {
+function renderPagination(
+  overrides: {
+    pagina?: number
+    limite?: number
+    ultima_pagina?: number
+    onPageChange?: ReturnType<typeof vi.fn>
+    onLimitChange?: ReturnType<typeof vi.fn>
+  } = {}
+) {
   const props = {
     pagina: 2,
     limite: 50,

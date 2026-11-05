@@ -1,14 +1,18 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { describe, expect, it, vi } from 'vitest'
-import { Sidebar } from './Sidebar'
-import { ThemeProvider } from '@/contexts/ThemeContext'
 import { AuthContext } from '@/contexts/AuthContext'
+import { ThemeProvider } from '@/contexts/ThemeContext'
+import { Sidebar } from './Sidebar'
 
 const mockSession = {
   user: { id: 'u1', nome_completo: 'Operador Teste', email: 'op@hotel.com' },
-  hotel: { id: 'h1', nome_fantasia: 'Hotel Luxo', nome_hotel: 'Hotel Luxo LTDA' },
+  hotel: {
+    id: 'h1',
+    nome_fantasia: 'Hotel Luxo',
+    nome_hotel: 'Hotel Luxo LTDA',
+  },
   rotas: [
     {
       id: 'r1',
@@ -50,7 +54,7 @@ function renderSidebar(isOpen = true, onClose = vi.fn()) {
           </MemoryRouter>
         </AuthContext.Provider>
       </ThemeProvider>
-    </QueryClientProvider>,
+    </QueryClientProvider>
   )
 }
 

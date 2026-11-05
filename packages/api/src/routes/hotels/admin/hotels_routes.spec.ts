@@ -1,17 +1,17 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { fastify, type FastifyInstance } from 'fastify'
+import fastifyCookie from '@fastify/cookie'
+import { fastifyJwt } from '@fastify/jwt'
+import { type FastifyInstance, fastify } from 'fastify'
 import {
   serializerCompiler,
   validatorCompiler,
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod'
-import { fastifyJwt } from '@fastify/jwt'
-import fastifyCookie from '@fastify/cookie'
-import adminAuthPlugin from '@/plugins/admin_auth_plugin'
-import { admin_hotels_routes } from '@/routes/hotels/admin/hotels_routes'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { InMemoryHotelRepository } from '@/core/repositories/hotels/in-memory/in_memory_hotel_repository'
 import { InMemoryRouteRepository } from '@/core/repositories/routes/in-memory/in_memory_route_repository'
 import { InMemoryUserRepository } from '@/core/repositories/users/in-memory/in_memory_user_repository'
+import adminAuthPlugin from '@/plugins/admin_auth_plugin'
+import { admin_hotels_routes } from '@/routes/hotels/admin/hotels_routes'
 
 const ADMIN_ID = 'admin-001'
 const TEST_SECRET = 'test-jwt-secret'
@@ -22,30 +22,45 @@ let userRepo: InMemoryUserRepository
 
 vi.mock('@/lib/prisma', () => ({ db: {} }))
 
-vi.mock('@/core/repositories/hotels/implementation/postgres_hotel_repository', () => ({
-  PostgresHotelRepository: vi.fn(function () {
-    return hotelRepo
-  }),
-}))
+vi.mock(
+  '@/core/repositories/hotels/implementation/postgres_hotel_repository',
+  () => ({
+    // biome-ignore lint/complexity/useArrowFunction: constructor function
+    PostgresHotelRepository: vi.fn().mockImplementation(function () {
+      return hotelRepo
+    }),
+  })
+)
 
-vi.mock('@/core/repositories/routes/implementation/postgres_route_repository', () => ({
-  PostgresRouteRepository: vi.fn(function () {
-    return routeRepo
-  }),
-}))
+vi.mock(
+  '@/core/repositories/routes/implementation/postgres_route_repository',
+  () => ({
+    // biome-ignore lint/complexity/useArrowFunction: constructor function
+    PostgresRouteRepository: vi.fn().mockImplementation(function () {
+      return routeRepo
+    }),
+  })
+)
 
-vi.mock('@/core/repositories/users/implementation/postgres_user_repository', () => ({
-  PostgresUserRepository: vi.fn(function () {
-    return userRepo
-  }),
-}))
+vi.mock(
+  '@/core/repositories/users/implementation/postgres_user_repository',
+  () => ({
+    // biome-ignore lint/complexity/useArrowFunction: constructor function
+    PostgresUserRepository: vi.fn().mockImplementation(function () {
+      return userRepo
+    }),
+  })
+)
 
 async function build_app(): Promise<FastifyInstance> {
   const app = fastify().withTypeProvider<ZodTypeProvider>()
   app.setValidatorCompiler(validatorCompiler)
   app.setSerializerCompiler(serializerCompiler)
   await app.register(fastifyCookie)
-  await app.register(fastifyJwt, { secret: TEST_SECRET, cookie: { cookieName: 'admin_token', signed: false } })
+  await app.register(fastifyJwt, {
+    secret: TEST_SECRET,
+    cookie: { cookieName: 'admin_token', signed: false },
+  })
   await app.register(adminAuthPlugin)
   await app.register(admin_hotels_routes)
   await app.ready()
@@ -54,8 +69,12 @@ async function build_app(): Promise<FastifyInstance> {
 
 function make_token(app: FastifyInstance) {
   return app.jwt.sign(
-    { sub: ADMIN_ID, role: 'admin', admin: { nomecompleto: 'Super Admin', email: 'super@test.com' } },
-    { expiresIn: '1h' },
+    {
+      sub: ADMIN_ID,
+      role: 'admin',
+      admin: { nomecompleto: 'Super Admin', email: 'super@test.com' },
+    },
+    { expiresIn: '1h' }
   )
 }
 
@@ -82,7 +101,11 @@ describe('hotels_routes (admin)', () => {
 
   describe('GET /admin/hoteis', () => {
     it('returns 200 with paginated list', async () => {
-      const res = await app.inject({ method: 'GET', url: '/admin/hoteis', cookies: { admin_token: token } })
+      const res = await app.inject({
+        method: 'GET',
+        url: '/admin/hoteis',
+        cookies: { admin_token: token },
+      })
       expect(res.statusCode).toBe(200)
       expect(res.json().data).toEqual([])
     })
@@ -93,8 +116,18 @@ describe('hotels_routes (admin)', () => {
     })
 
     it('filters by status=S, excluding inactive hotels', async () => {
-      await hotelRepo.create({ ...BASE_HOTEL, cnpj: '11111111111111', email_comercial: 'ativo@hotelmind.com.br', status: 'S' })
-      await hotelRepo.create({ ...BASE_HOTEL, cnpj: '22222222222222', email_comercial: 'inativo@hotelmind.com.br', status: 'N' })
+      await hotelRepo.create({
+        ...BASE_HOTEL,
+        cnpj: '11111111111111',
+        email_comercial: 'ativo@hotelmind.com.br',
+        status: 'S',
+      })
+      await hotelRepo.create({
+        ...BASE_HOTEL,
+        cnpj: '22222222222222',
+        email_comercial: 'inativo@hotelmind.com.br',
+        status: 'N',
+      })
 
       const res = await app.inject({
         method: 'GET',
@@ -244,7 +277,11 @@ describe('hotels_routes (admin)', () => {
 
     it('sets hotel routes and returns 204', async () => {
       const hotel = await hotelRepo.create(BASE_HOTEL)
-      const rota = await routeRepo.create({ modulo: 'M', recurso: 'R', rota: '/r' })
+      const rota = await routeRepo.create({
+        modulo: 'M',
+        recurso: 'R',
+        rota: '/r',
+      })
       const res = await app.inject({
         method: 'PUT',
         url: `/admin/hoteis/${hotel.id}/rotas`,

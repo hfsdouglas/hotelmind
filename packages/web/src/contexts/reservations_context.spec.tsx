@@ -1,10 +1,10 @@
 import { renderHook } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
 import type { ReactNode } from 'react'
+import { describe, expect, it } from 'vitest'
 import {
+  type Reservation,
   ReservationsProvider,
   useReservations,
-  type Reservation,
 } from './reservations_context'
 
 const mockReservations: Reservation[] = [
@@ -51,7 +51,7 @@ const mockReservations: Reservation[] = [
 describe('reservations_context', () => {
   it('throws error when useReservations is used outside provider', () => {
     expect(() => renderHook(() => useReservations())).toThrow(
-      'useReservations must be used within ReservationsProvider',
+      'useReservations must be used within ReservationsProvider'
     )
   })
 
@@ -66,7 +66,9 @@ describe('reservations_context', () => {
 
     expect(result.current.reservations).toHaveLength(2)
     expect(result.current.getReservationsByRoom('room-101')).toHaveLength(1)
-    expect(result.current.getReservationsByRoom('room-101')[0]?.id).toBe('res-1')
+    expect(result.current.getReservationsByRoom('room-101')[0]?.id).toBe(
+      'res-1'
+    )
     expect(result.current.getReservationsByRoom('room-999')).toHaveLength(0)
   })
 
@@ -79,7 +81,9 @@ describe('reservations_context', () => {
 
     const { result } = renderHook(() => useReservations(), { wrapper })
 
-    expect(result.current.getReservationById('res-2')?.hospede.nome).toBe('Maria Souza')
+    expect(result.current.getReservationById('res-2')?.hospede.nome).toBe(
+      'Maria Souza'
+    )
     expect(result.current.getReservationById('non-existent')).toBeUndefined()
   })
 })

@@ -1,6 +1,6 @@
-import { createRef } from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { createRef } from 'react'
 import { describe, expect, it } from 'vitest'
 import { Textarea } from './textarea'
 
@@ -8,7 +8,7 @@ describe('Textarea', () => {
   it('renders a textarea element', () => {
     render(<Textarea aria-label="Descrição" />)
     expect(screen.getByLabelText('Descrição')).toBeInstanceOf(
-      HTMLTextAreaElement,
+      HTMLTextAreaElement
     )
   })
 

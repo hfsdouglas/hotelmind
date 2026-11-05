@@ -1,9 +1,9 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { describe, expect, it, vi } from 'vitest'
-import { LoginPage } from './login'
 import { AuthContext } from '@/contexts/AuthContext'
+import { LoginPage } from './login'
 
 function renderPage(isAuthenticated = false) {
   const queryClient = new QueryClient({
@@ -16,8 +16,16 @@ function renderPage(isAuthenticated = false) {
         value={{
           session: isAuthenticated
             ? {
-                user: { id: '1', nome_completo: 'Test', email: 'test@hotel.com' },
-                hotel: { id: 'h1', nome_fantasia: 'Hotel Test', nome_hotel: 'Hotel LTDA' },
+                user: {
+                  id: '1',
+                  nome_completo: 'Test',
+                  email: 'test@hotel.com',
+                },
+                hotel: {
+                  id: 'h1',
+                  nome_fantasia: 'Hotel Test',
+                  nome_hotel: 'Hotel LTDA',
+                },
                 rotas: [],
               }
             : null,
@@ -30,7 +38,7 @@ function renderPage(isAuthenticated = false) {
           <LoginPage />
         </MemoryRouter>
       </AuthContext.Provider>
-    </QueryClientProvider>,
+    </QueryClientProvider>
   )
 }
 
@@ -43,6 +51,8 @@ describe('LoginPage', () => {
 
   it('redirects when user is already authenticated', () => {
     renderPage(true)
-    expect(screen.queryByRole('button', { name: 'Entrar' })).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Entrar' })
+    ).not.toBeInTheDocument()
   })
 })

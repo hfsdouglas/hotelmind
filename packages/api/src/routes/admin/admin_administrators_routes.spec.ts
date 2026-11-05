@@ -1,17 +1,17 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import fastifyCookie from '@fastify/cookie'
+import { fastifyJwt } from '@fastify/jwt'
 import bcrypt from 'bcryptjs'
-import { fastify, type FastifyInstance } from 'fastify'
+import { type FastifyInstance, fastify } from 'fastify'
 import {
   serializerCompiler,
   validatorCompiler,
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod'
-import { fastifyJwt } from '@fastify/jwt'
-import fastifyCookie from '@fastify/cookie'
-import adminAuthPlugin from '@/plugins/admin_auth_plugin'
-import { admin_administrators_routes } from '@/routes/admin/admin_administrators_routes'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Administrator } from '@/core/entities/administrator'
 import { InMemoryAdministratorRepository } from '@/core/repositories/administrators/in-memory/in_memory_administrator_repository'
+import adminAuthPlugin from '@/plugins/admin_auth_plugin'
+import { admin_administrators_routes } from '@/routes/admin/admin_administrators_routes'
 
 const ADMIN_ID = 'admin-001'
 const TEST_SECRET = 'test-jwt-secret'
@@ -20,18 +20,25 @@ let adminRepo: InMemoryAdministratorRepository
 
 vi.mock('@/lib/prisma', () => ({ db: {} }))
 
-vi.mock('@/core/repositories/administrators/implementation/postgres_administrator_repository', () => ({
-  PostgresAdministratorRepository: vi.fn(function () {
-    return adminRepo
-  }),
-}))
+vi.mock(
+  '@/core/repositories/administrators/implementation/postgres_administrator_repository',
+  () => ({
+    // biome-ignore lint/complexity/useArrowFunction: constructor function
+    PostgresAdministratorRepository: vi.fn().mockImplementation(function () {
+      return adminRepo
+    }),
+  })
+)
 
 async function build_app(): Promise<FastifyInstance> {
   const app = fastify().withTypeProvider<ZodTypeProvider>()
   app.setValidatorCompiler(validatorCompiler)
   app.setSerializerCompiler(serializerCompiler)
   await app.register(fastifyCookie)
-  await app.register(fastifyJwt, { secret: TEST_SECRET, cookie: { cookieName: 'admin_token', signed: false } })
+  await app.register(fastifyJwt, {
+    secret: TEST_SECRET,
+    cookie: { cookieName: 'admin_token', signed: false },
+  })
   await app.register(adminAuthPlugin)
   await app.register(admin_administrators_routes)
   await app.ready()
@@ -40,8 +47,12 @@ async function build_app(): Promise<FastifyInstance> {
 
 function make_token(app: FastifyInstance) {
   return app.jwt.sign(
-    { sub: ADMIN_ID, role: 'admin', admin: { nomecompleto: 'Super Admin', email: 'super@test.com' } },
-    { expiresIn: '1h' },
+    {
+      sub: ADMIN_ID,
+      role: 'admin',
+      admin: { nomecompleto: 'Super Admin', email: 'super@test.com' },
+    },
+    { expiresIn: '1h' }
   )
 }
 
@@ -67,7 +78,10 @@ describe('admin_administrators_routes', () => {
     })
 
     it('returns 401 without token', async () => {
-      const res = await app.inject({ method: 'GET', url: '/admin/administradores' })
+      const res = await app.inject({
+        method: 'GET',
+        url: '/admin/administradores',
+      })
       expect(res.statusCode).toBe(401)
     })
   })
@@ -102,7 +116,12 @@ describe('admin_administrators_routes', () => {
     it('returns the administrator when found', async () => {
       const hashed = await bcrypt.hash('senha123', 1)
       adminRepo.seed(
-        new Administrator({ id: 'a-1', nome_completo: 'Admin Teste', email: 'a@b.com', senha: hashed }),
+        new Administrator({
+          id: 'a-1',
+          nome_completo: 'Admin Teste',
+          email: 'a@b.com',
+          senha: hashed,
+        })
       )
       const res = await app.inject({
         method: 'GET',
@@ -128,7 +147,12 @@ describe('admin_administrators_routes', () => {
     it('updates and returns 200', async () => {
       const hashed = await bcrypt.hash('senha123', 1)
       adminRepo.seed(
-        new Administrator({ id: 'a-1', nome_completo: 'Admin Velho', email: 'a@b.com', senha: hashed }),
+        new Administrator({
+          id: 'a-1',
+          nome_completo: 'Admin Velho',
+          email: 'a@b.com',
+          senha: hashed,
+        })
       )
       const res = await app.inject({
         method: 'PUT',
@@ -154,7 +178,12 @@ describe('admin_administrators_routes', () => {
     it('deletes and returns 204', async () => {
       const hashed = await bcrypt.hash('senha123', 1)
       adminRepo.seed(
-        new Administrator({ id: 'a-1', nome_completo: 'Admin', email: 'a@b.com', senha: hashed }),
+        new Administrator({
+          id: 'a-1',
+          nome_completo: 'Admin',
+          email: 'a@b.com',
+          senha: hashed,
+        })
       )
       const res = await app.inject({
         method: 'DELETE',

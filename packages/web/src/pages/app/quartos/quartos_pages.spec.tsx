@@ -2,11 +2,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { categoriasQuartosService } from '@/api/categorias_quartos.service'
 import { quartosService } from '@/api/quartos.service'
-import { NovoQuartoPage } from './novo'
 import { EditarQuartoPage } from './[id]/editar'
+import { NovoQuartoPage } from './novo'
 
 vi.mock('@/api/categorias_quartos.service', () => ({
   categoriasQuartosService: {
@@ -67,10 +67,12 @@ describe('Quartos Pages', () => {
         <MemoryRouter initialEntries={['/quartos/novo']}>
           <NovoQuartoPage />
         </MemoryRouter>
-      </QueryClientProvider>,
+      </QueryClientProvider>
     )
 
-    expect(await screen.findByRole('heading', { name: 'Novo quarto' })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { name: 'Novo quarto' })
+    ).toBeInTheDocument()
 
     // Fill form
     const idInput = screen.getByLabelText('Identificação *')
@@ -98,7 +100,7 @@ describe('Quartos Pages', () => {
           categoria_id: 'cat-1',
           identificacao: '202',
           limite_hospedes: 2,
-        }),
+        })
       )
     })
   })
@@ -142,7 +144,7 @@ describe('Quartos Pages', () => {
             <Route path="/quartos/:id/editar" element={<EditarQuartoPage />} />
           </Routes>
         </MemoryRouter>
-      </QueryClientProvider>,
+      </QueryClientProvider>
     )
 
     expect(await screen.findByDisplayValue('101')).toBeInTheDocument()
@@ -160,7 +162,7 @@ describe('Quartos Pages', () => {
         'q-101',
         expect.objectContaining({
           descricao: 'Quarto reformado',
-        }),
+        })
       )
     })
   })

@@ -1,15 +1,13 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { DataTable, type Column } from './data_table'
+import { type Column, DataTable } from './data_table'
 
 interface Row {
   id: string
   nome: string
 }
 
-const columns: Column<Row>[] = [
-  { key: 'nome', header: 'Nome' },
-]
+const columns: Column<Row>[] = [{ key: 'nome', header: 'Nome' }]
 
 describe('DataTable', () => {
   it('keeps the configured column count in its loading row', () => {
@@ -20,7 +18,9 @@ describe('DataTable', () => {
   })
 
   it('renders the empty state after loading ends', () => {
-    render(<DataTable columns={columns} data={[]} emptyMessage="Sem quartos." />)
+    render(
+      <DataTable columns={columns} data={[]} emptyMessage="Sem quartos." />
+    )
 
     expect(screen.getByText('Sem quartos.')).toBeInTheDocument()
   })

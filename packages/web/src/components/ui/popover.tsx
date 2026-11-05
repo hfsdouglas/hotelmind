@@ -1,5 +1,5 @@
-import * as React from 'react'
 import { Slot } from '@radix-ui/react-slot'
+import * as React from 'react'
 import { cn } from '@/lib/utils'
 
 interface PopoverContextValue {
@@ -9,7 +9,15 @@ interface PopoverContextValue {
 
 const PopoverContext = React.createContext<PopoverContextValue | null>(null)
 
-const Popover = ({ open: controlled_open, onOpenChange, children }: { open?: boolean; onOpenChange?: (open: boolean) => void; children: React.ReactNode }) => {
+const Popover = ({
+  open: controlled_open,
+  onOpenChange,
+  children,
+}: {
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  children: React.ReactNode
+}) => {
   const [uncontrolled_open, setUncontrolledOpen] = React.useState(false)
   const container_ref = React.useRef<HTMLDivElement>(null)
   const open = controlled_open ?? uncontrolled_open
@@ -24,7 +32,7 @@ const Popover = ({ open: controlled_open, onOpenChange, children }: { open?: boo
     const handle_pointer_down = (event: PointerEvent) => {
       const target = event.target as Element | null
       const is_radix_portal = target?.closest(
-        '[data-radix-popper-content-wrapper], [data-radix-select-content], [role="listbox"], [role="option"]',
+        '[data-radix-popper-content-wrapper], [data-radix-select-content], [role="listbox"], [role="option"]'
       )
       if (
         !container_ref.current?.contains(event.target as Node) &&
@@ -45,14 +53,33 @@ const Popover = ({ open: controlled_open, onOpenChange, children }: { open?: boo
     }
   }, [open])
 
-  return <PopoverContext.Provider value={{ open, setOpen }}><div ref={container_ref} className="relative inline-block">{children}</div></PopoverContext.Provider>
+  return (
+    <PopoverContext.Provider value={{ open, setOpen }}>
+      <div ref={container_ref} className="relative inline-block">
+        {children}
+      </div>
+    </PopoverContext.Provider>
+  )
 }
 
-const PopoverTrigger = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement> & { asChild?: boolean }>(({ asChild = false, onClick, ...props }, ref) => {
+const PopoverTrigger = React.forwardRef<
+  HTMLButtonElement,
+  React.ButtonHTMLAttributes<HTMLButtonElement> & { asChild?: boolean }
+>(({ asChild = false, onClick, ...props }, ref) => {
   const context = React.useContext(PopoverContext)
   if (!context) throw new Error('PopoverTrigger must be used inside Popover')
   const Comp = asChild ? Slot : 'button'
-  return <Comp ref={ref} type={asChild ? undefined : 'button'} onClick={event => { onClick?.(event); if (!event.defaultPrevented) context.setOpen(!context.open) }} {...props} />
+  return (
+    <Comp
+      ref={ref}
+      type={asChild ? undefined : 'button'}
+      onClick={event => {
+        onClick?.(event)
+        if (!event.defaultPrevented) context.setOpen(!context.open)
+      }}
+      {...props}
+    />
+  )
 })
 PopoverTrigger.displayName = 'PopoverTrigger'
 
@@ -61,19 +88,50 @@ export interface PopoverContentProps
   align?: 'start' | 'center' | 'end' | 'left' | 'right'
 }
 
-const PopoverContent = React.forwardRef<HTMLDivElement, PopoverContentProps>(({ className, align, ...props }, ref) => {
-  const context = React.useContext(PopoverContext)
-  if (!context?.open) return null
-  const alignClass = align === 'start' ? 'left-0' : align === 'center' ? 'left-1/2 -translate-x-1/2' : 'right-0'
-  return <div ref={ref} role="dialog" className={cn('absolute top-full z-50 mt-2 min-w-[240px] rounded-md border bg-card p-4 text-card-foreground shadow-md outline-none', alignClass, className)} {...props} />
-})
+const PopoverContent = React.forwardRef<HTMLDivElement, PopoverContentProps>(
+  ({ className, align, ...props }, ref) => {
+    const context = React.useContext(PopoverContext)
+    if (!context?.open) return null
+    const alignClass =
+      align === 'start'
+        ? 'left-0'
+        : align === 'center'
+          ? 'left-1/2 -translate-x-1/2'
+          : 'right-0'
+    return (
+      <div
+        ref={ref}
+        role="dialog"
+        className={cn(
+          'absolute top-full z-50 mt-2 min-w-[240px] rounded-md border bg-card p-4 text-card-foreground shadow-md outline-none',
+          alignClass,
+          className
+        )}
+        {...props}
+      />
+    )
+  }
+)
 PopoverContent.displayName = 'PopoverContent'
 
-const PopoverClose = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>(({ onClick, ...props }, ref) => {
+const PopoverClose = React.forwardRef<
+  HTMLButtonElement,
+  React.ButtonHTMLAttributes<HTMLButtonElement>
+>(({ onClick, ...props }, ref) => {
   const context = React.useContext(PopoverContext)
   if (!context) throw new Error('PopoverClose must be used inside Popover')
-  return <button ref={ref} type="button" onClick={event => { onClick?.(event); if (!event.defaultPrevented) context.setOpen(false) }} {...props} />
+  return (
+    <button
+      ref={ref}
+      type="button"
+      onClick={event => {
+        onClick?.(event)
+        if (!event.defaultPrevented) context.setOpen(false)
+      }}
+      {...props}
+    />
+  )
 })
 PopoverClose.displayName = 'PopoverClose'
 
-export { Popover, PopoverTrigger, PopoverContent, PopoverClose }
+export { Popover, PopoverClose, PopoverContent, PopoverTrigger }

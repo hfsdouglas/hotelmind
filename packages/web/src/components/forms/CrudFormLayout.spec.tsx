@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { CrudFormLayout } from './CrudFormLayout'
 
 function renderLayout(
-  props: Partial<React.ComponentProps<typeof CrudFormLayout>> = {},
+  props: Partial<React.ComponentProps<typeof CrudFormLayout>> = {}
 ) {
   return render(
     <MemoryRouter>
@@ -17,7 +17,7 @@ function renderLayout(
       >
         <p>form fields</p>
       </CrudFormLayout>
-    </MemoryRouter>,
+    </MemoryRouter>
   )
 }
 
@@ -25,7 +25,7 @@ describe('CrudFormLayout', () => {
   it('renders the title as a heading', () => {
     renderLayout()
     expect(
-      screen.getByRole('heading', { name: 'Novo grupo' }),
+      screen.getByRole('heading', { name: 'Novo grupo' })
     ).toBeInTheDocument()
   })
 
@@ -65,17 +65,21 @@ describe('CrudFormLayout', () => {
       'md:max-w-[720px]',
       'lg:max-w-[960px]',
       'xl:max-w-[1140px]',
-      '2xl:max-w-[1320px]',
+      '2xl:max-w-[1320px]'
     )
   })
 
   it('renders default SaveButton with floppy disk icon when actions prop is omitted', () => {
     render(
       <MemoryRouter>
-        <CrudFormLayout title="Novo registro" backTo="/registros" onSubmit={vi.fn()}>
+        <CrudFormLayout
+          title="Novo registro"
+          backTo="/registros"
+          onSubmit={vi.fn()}
+        >
           <p>campos</p>
         </CrudFormLayout>
-      </MemoryRouter>,
+      </MemoryRouter>
     )
 
     const defaultBtn = screen.getByRole('button', { name: /Salvar/i })

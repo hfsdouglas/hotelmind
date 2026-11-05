@@ -28,7 +28,6 @@ import { tarifariosService } from '@/api/tarifarios.service'
 import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
 import { OrcamentoAcoesCompartilhamento } from '@/components/orcamentos/orcamento_acoes_compartilhamento'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DatePicker } from '@/components/ui/date_picker'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -318,427 +317,417 @@ export function EditarOrcamentoPage() {
       <input type="hidden" {...register('regime_alimentacao_id')} />
       <input type="hidden" {...register('categoria_quarto_id')} />
 
-      <div className="grid gap-6">
+      <div className="space-y-8">
         {/* SITUAÇÃO DO ORÇAMENTO E RESUMO */}
-        <Card className="border-primary/20 bg-primary/5">
-          <CardContent className="grid gap-4 p-4 sm:grid-cols-3 items-center">
-            <div>
-              <span className="text-xs text-muted-foreground uppercase font-semibold">
-                Lead / Primeiro Contato
-              </span>
-              <p className="mt-1 font-bold text-slate-800">
-                {orcamento.lead?.nome}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {mask_phone(orcamento.lead?.telefone ?? '')} •{' '}
-                {orcamento.lead?.email}
-              </p>
-            </div>
+        <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 grid gap-4 sm:grid-cols-3 items-center">
+          <div>
+            <span className="text-xs text-muted-foreground uppercase font-semibold">
+              Lead / Primeiro Contato
+            </span>
+            <p className="mt-1 font-bold text-slate-800">
+              {orcamento.lead?.nome}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {mask_phone(orcamento.lead?.telefone ?? '')} •{' '}
+              {orcamento.lead?.email}
+            </p>
+          </div>
 
-            <div>
-              <span className="text-xs text-muted-foreground uppercase font-semibold">
-                Investimento Total
-              </span>
-              <p className="mt-1 text-2xl font-extrabold text-primary">
-                {selectedSuite
-                  ? formatarMoeda(selectedSuite.valorTotal)
-                  : formatarMoeda(orcamento.valor_total)}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {nights.length} {nights.length === 1 ? 'diária' : 'diárias'}
-              </p>
-            </div>
+          <div>
+            <span className="text-xs text-muted-foreground uppercase font-semibold">
+              Investimento Total
+            </span>
+            <p className="mt-1 text-2xl font-extrabold text-primary">
+              {selectedSuite
+                ? formatarMoeda(selectedSuite.valorTotal)
+                : formatarMoeda(orcamento.valor_total)}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {nights.length} {nights.length === 1 ? 'diária' : 'diárias'}
+            </p>
+          </div>
 
-            <div>
-              <Label htmlFor="status">Situação do Orçamento *</Label>
-              <Controller
-                control={control}
-                name="status"
-                render={({ field }) => (
-                  <Select
-                    value={field.value || 'pendente'}
-                    onValueChange={field.onChange}
-                  >
-                    <SelectTrigger className="mt-1 bg-white">
-                      <SelectValue placeholder="Selecione o status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pendente">Pendente</SelectItem>
-                      <SelectItem value="aprovado">Aprovado</SelectItem>
-                      <SelectItem value="cancelado">Cancelado</SelectItem>
-                      <SelectItem value="expirado">Expirado</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </div>
-          </CardContent>
-        </Card>
+          <div>
+            <Label htmlFor="status">Situação do Orçamento *</Label>
+            <Controller
+              control={control}
+              name="status"
+              render={({ field }) => (
+                <Select
+                  value={field.value || 'pendente'}
+                  onValueChange={field.onChange}
+                >
+                  <SelectTrigger className="mt-1 bg-white">
+                    <SelectValue placeholder="Selecione o status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pendente">Pendente</SelectItem>
+                    <SelectItem value="aprovado">Aprovado</SelectItem>
+                    <SelectItem value="cancelado">Cancelado</SelectItem>
+                    <SelectItem value="expirado">Expirado</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </div>
+        </div>
 
         {/* PASSO 1: PERÍODO E OCUPAÇÃO */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Calendar className="h-5 w-5 text-primary" />
+        <section className="space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b">
+            <Calendar className="h-5 w-5 text-primary" />
+            <h2 className="text-lg font-semibold text-foreground">
               Passo 1: Período e Hóspedes
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-              <div className="space-y-1.5">
-                <Label htmlFor="check_in">Data de Check-in *</Label>
-                <Controller
-                  control={control}
-                  name="check_in"
-                  render={({ field }) => (
-                    <DatePicker
-                      id="check_in"
-                      value={field.value}
-                      onChange={val => {
-                        field.onChange(val)
-                        setValue('categoria_quarto_id', '')
-                      }}
-                      placeholder="dd/mm/aaaa"
-                    />
-                  )}
-                />
-                {errors.check_in && (
-                  <span className="block text-xs text-destructive">
-                    {errors.check_in.message}
-                  </span>
-                )}
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="check_out">Data de Check-out *</Label>
-                <Controller
-                  control={control}
-                  name="check_out"
-                  render={({ field }) => (
-                    <DatePicker
-                      id="check_out"
-                      value={field.value}
-                      onChange={val => {
-                        field.onChange(val)
-                        setValue('categoria_quarto_id', '')
-                      }}
-                      placeholder="dd/mm/aaaa"
-                    />
-                  )}
-                />
-                {errors.check_out && (
-                  <span className="block text-xs text-destructive">
-                    {errors.check_out.message}
-                  </span>
-                )}
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="quantidade_adultos">Adultos *</Label>
-                <div className="relative">
-                  <Users className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="quantidade_adultos"
-                    type="number"
-                    min={1}
-                    className="pl-9 h-9"
-                    {...register('quantidade_adultos')}
+            </h2>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="space-y-1.5">
+              <Label htmlFor="check_in">Data de Check-in *</Label>
+              <Controller
+                control={control}
+                name="check_in"
+                render={({ field }) => (
+                  <DatePicker
+                    id="check_in"
+                    value={field.value}
+                    onChange={val => {
+                      field.onChange(val)
+                      setValue('categoria_quarto_id', '')
+                    }}
+                    placeholder="dd/mm/aaaa"
                   />
-                </div>
-                {errors.quantidade_adultos && (
-                  <span className="block text-xs text-destructive">
-                    {errors.quantidade_adultos.message}
-                  </span>
                 )}
-              </div>
+              />
+              {errors.check_in && (
+                <span className="block text-xs text-destructive">
+                  {errors.check_in.message}
+                </span>
+              )}
+            </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="quantidade_criancas">Crianças</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="check_out">Data de Check-out *</Label>
+              <Controller
+                control={control}
+                name="check_out"
+                render={({ field }) => (
+                  <DatePicker
+                    id="check_out"
+                    value={field.value}
+                    onChange={val => {
+                      field.onChange(val)
+                      setValue('categoria_quarto_id', '')
+                    }}
+                    placeholder="dd/mm/aaaa"
+                  />
+                )}
+              />
+              {errors.check_out && (
+                <span className="block text-xs text-destructive">
+                  {errors.check_out.message}
+                </span>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="quantidade_adultos">Adultos *</Label>
+              <div className="relative">
+                <Users className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  id="quantidade_criancas"
+                  id="quantidade_adultos"
+                  type="number"
+                  min={1}
+                  className="pl-9 h-9"
+                  {...register('quantidade_adultos')}
+                />
+              </div>
+              {errors.quantidade_adultos && (
+                <span className="block text-xs text-destructive">
+                  {errors.quantidade_adultos.message}
+                </span>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="quantidade_criancas">Crianças</Label>
+              <Input
+                id="quantidade_criancas"
+                type="number"
+                min={0}
+                className="h-9"
+                {...register('quantidade_criancas')}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="quantidade_pets">Pets (opcional)</Label>
+              <div className="relative">
+                <PawPrint className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="quantidade_pets"
                   type="number"
                   min={0}
-                  className="h-9"
-                  {...register('quantidade_criancas')}
+                  className="pl-9 h-9"
+                  {...register('quantidade_pets')}
                 />
               </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="quantidade_pets">Pets (opcional)</Label>
-                <div className="relative">
-                  <PawPrint className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="quantidade_pets"
-                    type="number"
-                    min={0}
-                    className="pl-9 h-9"
-                    {...register('quantidade_pets')}
-                  />
-                </div>
-              </div>
             </div>
+          </div>
 
-            {nights.length > 0 && (
-              <div className="flex items-center gap-2 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-xs font-medium text-primary">
-                <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
-                <span>
-                  Período selecionado: {nights.length}{' '}
-                  {nights.length === 1 ? 'diária' : 'diárias'} (
-                  {formatarDataBR(watch_check_in)} até{' '}
-                  {formatarDataBR(watch_check_out)})
-                </span>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+          {nights.length > 0 && (
+            <div className="flex items-center gap-2 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-xs font-medium text-primary">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
+              <span>
+                Período selecionado: {nights.length}{' '}
+                {nights.length === 1 ? 'diária' : 'diárias'} (
+                {formatarDataBR(watch_check_in)} até{' '}
+                {formatarDataBR(watch_check_out)})
+              </span>
+            </div>
+          )}
+        </section>
 
         {/* PASSO 2: REGIME DE ALIMENTAÇÃO */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Utensils className="h-5 w-5 text-primary" />
+        <section className="space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b">
+            <Utensils className="h-5 w-5 text-primary" />
+            <h2 className="text-lg font-semibold text-foreground">
               Passo 2: Regime de Alimentação
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {nights.length === 0 ? (
-              <div className="flex items-center gap-2.5 rounded-lg border border-dashed border-muted-foreground/30 bg-muted/30 p-4 text-sm text-muted-foreground">
-                <Info className="h-5 w-5 shrink-0 text-muted-foreground" />
-                <p>
-                  Preencha as datas de check-in e check-out no{' '}
-                  <strong>Passo 1</strong> para visualizar e selecionar os
-                  regimes de alimentação com tarifas ativas.
-                </p>
-              </div>
-            ) : (
-              <div>
-                <p className="mb-3 text-sm text-muted-foreground">
-                  Selecione o plano de refeições desejado para carregar as
-                  acomodações com tarifários vigentes para este período:
-                </p>
+            </h2>
+          </div>
+          {nights.length === 0 ? (
+            <div className="flex items-center gap-2.5 rounded-lg border border-dashed border-muted-foreground/30 bg-muted/30 p-4 text-sm text-muted-foreground">
+              <Info className="h-5 w-5 shrink-0 text-muted-foreground" />
+              <p>
+                Preencha as datas de check-in e check-out no{' '}
+                <strong>Passo 1</strong> para visualizar e selecionar os regimes
+                de alimentação com tarifas ativas.
+              </p>
+            </div>
+          ) : (
+            <div>
+              <p className="mb-3 text-sm text-muted-foreground">
+                Selecione o plano de refeições desejado para carregar as
+                acomodações com tarifários vigentes para este período:
+              </p>
 
-                <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-                  {regimesWithStatus.map(regime => {
-                    const isSelected = watch_regime_id === regime.id
-                    return (
-                      <button
-                        key={regime.id}
-                        type="button"
-                        onClick={() => {
-                          setValue('regime_alimentacao_id', regime.id, {
-                            shouldValidate: true,
-                          })
-                          setValue('categoria_quarto_id', '', {
-                            shouldValidate: true,
-                          })
-                        }}
-                        className={`flex flex-col items-start rounded-lg border p-4 text-left transition-all ${
-                          isSelected
-                            ? 'border-primary ring-2 ring-primary/20 bg-primary/5'
-                            : 'border-border hover:border-muted-foreground/40 bg-card'
-                        }`}
-                      >
-                        <div className="flex w-full items-center justify-between">
-                          <span className="font-semibold text-foreground">
-                            {regime.titulo}
-                          </span>
-                          <span
-                            className="h-3.5 w-3.5 shrink-0 rounded-full border border-black/10"
-                            style={{ backgroundColor: regime.cor_pulseira }}
-                            title={`Cor pulseira: ${regime.cor_pulseira}`}
-                          />
-                        </div>
+              <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+                {regimesWithStatus.map(regime => {
+                  const isSelected = watch_regime_id === regime.id
+                  return (
+                    <button
+                      key={regime.id}
+                      type="button"
+                      onClick={() => {
+                        setValue('regime_alimentacao_id', regime.id, {
+                          shouldValidate: true,
+                        })
+                        setValue('categoria_quarto_id', '', {
+                          shouldValidate: true,
+                        })
+                      }}
+                      className={`flex flex-col items-start rounded-lg border p-4 text-left transition-all ${
+                        isSelected
+                          ? 'border-primary ring-2 ring-primary/20 bg-primary/5'
+                          : 'border-border hover:border-muted-foreground/40 bg-card'
+                      }`}
+                    >
+                      <div className="flex w-full items-center justify-between">
+                        <span className="font-semibold text-foreground">
+                          {regime.titulo}
+                        </span>
+                        <span
+                          className="h-3.5 w-3.5 shrink-0 rounded-full border border-black/10"
+                          style={{ backgroundColor: regime.cor_pulseira }}
+                          title={`Cor pulseira: ${regime.cor_pulseira}`}
+                        />
+                      </div>
 
-                        {regime.descricao && (
-                          <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                            {regime.descricao}
-                          </p>
+                      {regime.descricao && (
+                        <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                          {regime.descricao}
+                        </p>
+                      )}
+
+                      <div className="mt-3 flex w-full items-center justify-between">
+                        {regime.temCobertura ? (
+                          <Badge
+                            variant="outline"
+                            className="border-primary/40 bg-primary/10 text-xs text-primary"
+                          >
+                            {regime.suitesDisponiveis}{' '}
+                            {regime.suitesDisponiveis === 1
+                              ? 'suíte disponível'
+                              : 'suítes disponíveis'}
+                          </Badge>
+                        ) : (
+                          <Badge
+                            variant="secondary"
+                            className="text-xs text-muted-foreground"
+                          >
+                            Sem tarifas no período
+                          </Badge>
                         )}
 
-                        <div className="mt-3 flex w-full items-center justify-between">
-                          {regime.temCobertura ? (
-                            <Badge
-                              variant="outline"
-                              className="border-primary/40 bg-primary/10 text-xs text-primary"
-                            >
-                              {regime.suitesDisponiveis}{' '}
-                              {regime.suitesDisponiveis === 1
-                                ? 'suíte disponível'
-                                : 'suítes disponíveis'}
-                            </Badge>
-                          ) : (
-                            <Badge
-                              variant="secondary"
-                              className="text-xs text-muted-foreground"
-                            >
-                              Sem tarifas no período
-                            </Badge>
-                          )}
-
-                          {isSelected && (
-                            <span className="text-xs font-semibold text-primary">
-                              Selecionado ✓
-                            </span>
-                          )}
-                        </div>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
-
-            {errors.regime_alimentacao_id && (
-              <span className="mt-2 block text-xs text-destructive">
-                {errors.regime_alimentacao_id.message}
-              </span>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* CUPOM DE DESCONTO */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Tag className="h-5 w-5 text-primary" />
-              Cupom de Desconto
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="max-w-sm space-y-1.5">
-              <Label htmlFor="cupom_desconto">Código do cupom (opcional)</Label>
-              <div className="relative">
-                <Tag className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="cupom_desconto"
-                  placeholder="Ex.: PROMO10"
-                  className="h-9 pl-9 uppercase"
-                  {...register('cupom_desconto')}
-                />
+                        {isSelected && (
+                          <span className="text-xs font-semibold text-primary">
+                            Selecionado ✓
+                          </span>
+                        )}
+                      </div>
+                    </button>
+                  )
+                })}
               </div>
             </div>
-          </CardContent>
-        </Card>
+          )}
+
+          {errors.regime_alimentacao_id && (
+            <span className="mt-2 block text-xs text-destructive">
+              {errors.regime_alimentacao_id.message}
+            </span>
+          )}
+        </section>
+
+        {/* CUPOM DE DESCONTO */}
+        <section className="space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b">
+            <Tag className="h-5 w-5 text-primary" />
+            <h2 className="text-lg font-semibold text-foreground">
+              Cupom de Desconto
+            </h2>
+          </div>
+          <div className="max-w-sm space-y-1.5">
+            <Label htmlFor="cupom_desconto">Código do cupom (opcional)</Label>
+            <div className="relative">
+              <Tag className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="cupom_desconto"
+                placeholder="Ex.: PROMO10"
+                className="h-9 pl-9 uppercase"
+                {...register('cupom_desconto')}
+              />
+            </div>
+          </div>
+        </section>
 
         {/* PASSO 3: CARREGAMENTO DE SUÍTES DE ACORDO COM O TARIFÁRIO */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <BedDouble className="h-5 w-5 text-primary" />
+        <section className="space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b">
+            <BedDouble className="h-5 w-5 text-primary" />
+            <h2 className="text-lg font-semibold text-foreground">
               Passo 3: Acomodação (Suítes Disponíveis pelo Tarifário)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {nights.length === 0 || !watch_regime_id ? (
-              <div className="flex items-center gap-2.5 rounded-lg border border-dashed border-muted-foreground/30 bg-muted/30 p-4 text-sm text-muted-foreground">
-                <Info className="h-5 w-5 shrink-0 text-muted-foreground" />
-                <p>
-                  Preencha o período (<strong>Passo 1</strong>) e selecione o
-                  regime de alimentação (<strong>Passo 2</strong>) para carregar
-                  as suítes disponíveis com base nos tarifários cadastrados.
-                </p>
-              </div>
-            ) : suitesCalculadas.length === 0 ? (
-              <p className="text-sm italic text-muted-foreground">
-                Nenhuma categoria de quarto cadastrada no hotel.
+            </h2>
+          </div>
+          {nights.length === 0 || !watch_regime_id ? (
+            <div className="flex items-center gap-2.5 rounded-lg border border-dashed border-muted-foreground/30 bg-muted/30 p-4 text-sm text-muted-foreground">
+              <Info className="h-5 w-5 shrink-0 text-muted-foreground" />
+              <p>
+                Preencha o período (<strong>Passo 1</strong>) e selecione o
+                regime de alimentação (<strong>Passo 2</strong>) para carregar
+                as suítes disponíveis com base nos tarifários cadastrados.
               </p>
-            ) : (
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Suítes carregadas de acordo com as tarifas vigentes para o
-                  regime <strong>{selectedRegime?.titulo}</strong>:
-                </p>
+            </div>
+          ) : suitesCalculadas.length === 0 ? (
+            <p className="text-sm italic text-muted-foreground">
+              Nenhuma categoria de quarto cadastrada no hotel.
+            </p>
+          ) : (
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Suítes carregadas de acordo com as tarifas vigentes para o
+                regime <strong>{selectedRegime?.titulo}</strong>:
+              </p>
 
-                <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-                  {suitesCalculadas.map(suite => {
-                    const isSelected = watch_categoria_id === suite.id
-                    const isClickable = suite.coberto
+              <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+                {suitesCalculadas.map(suite => {
+                  const isSelected = watch_categoria_id === suite.id
+                  const isClickable = suite.coberto
 
-                    return (
-                      <button
-                        key={suite.id}
-                        type="button"
-                        disabled={!isClickable}
-                        onClick={() => {
-                          if (isClickable) {
-                            setValue('categoria_quarto_id', suite.id, {
-                              shouldValidate: true,
-                            })
-                          }
-                        }}
-                        className={`flex flex-col rounded-lg border p-4 text-left transition-all ${
-                          !isClickable
-                            ? 'cursor-not-allowed border-border/50 bg-muted/40 opacity-60'
-                            : isSelected
-                              ? 'border-primary ring-2 ring-primary/20 bg-primary/5 cursor-pointer'
-                              : 'border-border hover:border-primary/50 bg-card cursor-pointer'
-                        }`}
-                      >
-                        <div className="flex w-full items-center justify-between">
-                          <span className="font-semibold text-foreground">
-                            {suite.nome}
-                          </span>
-                          {suite.coberto ? (
-                            <Badge
-                              variant="outline"
-                              className="border-emerald-500/40 bg-emerald-50 text-xs text-emerald-700"
-                            >
-                              Tarifário Ativo
-                            </Badge>
-                          ) : (
-                            <Badge
-                              variant="secondary"
-                              className="text-xs text-muted-foreground"
-                            >
-                              Sem Tarifa
-                            </Badge>
-                          )}
-                        </div>
-
+                  return (
+                    <button
+                      key={suite.id}
+                      type="button"
+                      disabled={!isClickable}
+                      onClick={() => {
+                        if (isClickable) {
+                          setValue('categoria_quarto_id', suite.id, {
+                            shouldValidate: true,
+                          })
+                        }
+                      }}
+                      className={`flex flex-col rounded-lg border p-4 text-left transition-all ${
+                        !isClickable
+                          ? 'cursor-not-allowed border-border/50 bg-muted/40 opacity-60'
+                          : isSelected
+                            ? 'border-primary ring-2 ring-primary/20 bg-primary/5 cursor-pointer'
+                            : 'border-border hover:border-primary/50 bg-card cursor-pointer'
+                      }`}
+                    >
+                      <div className="flex w-full items-center justify-between">
+                        <span className="font-semibold text-foreground">
+                          {suite.nome}
+                        </span>
                         {suite.coberto ? (
-                          <div className="mt-3 space-y-1">
-                            <div className="flex items-baseline gap-1 text-primary">
-                              <span className="text-lg font-bold">
-                                {formatarMoeda(suite.valorTotal)}
-                              </span>
-                              <span className="text-xs text-muted-foreground">
-                                / total ({nights.length}{' '}
-                                {nights.length === 1 ? 'diária' : 'diárias'})
-                              </span>
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                              Média de{' '}
-                              {formatarMoeda(suite.valorTotal / nights.length)}{' '}
-                              / noite
-                            </p>
-                          </div>
+                          <Badge
+                            variant="outline"
+                            className="border-emerald-500/40 bg-emerald-50 text-xs text-emerald-700"
+                          >
+                            Tarifário Ativo
+                          </Badge>
                         ) : (
-                          <p className="mt-3 text-xs text-muted-foreground">
-                            Sem cobertura de tarifário para as datas
-                            selecionadas neste regime.
-                          </p>
+                          <Badge
+                            variant="secondary"
+                            className="text-xs text-muted-foreground"
+                          >
+                            Sem Tarifa
+                          </Badge>
                         )}
+                      </div>
 
-                        {isSelected && isClickable && (
-                          <div className="mt-3 flex items-center gap-1 text-xs font-semibold text-primary">
-                            <CheckCircle2 className="h-3.5 w-3.5" />
-                            Acomodação selecionada
+                      {suite.coberto ? (
+                        <div className="mt-3 space-y-1">
+                          <div className="flex items-baseline gap-1 text-primary">
+                            <span className="text-lg font-bold">
+                              {formatarMoeda(suite.valorTotal)}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              / total ({nights.length}{' '}
+                              {nights.length === 1 ? 'diária' : 'diárias'})
+                            </span>
                           </div>
-                        )}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
+                          <p className="text-xs text-muted-foreground">
+                            Média de{' '}
+                            {formatarMoeda(suite.valorTotal / nights.length)} /
+                            noite
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="mt-3 text-xs text-muted-foreground">
+                          Sem cobertura de tarifário para as datas selecionadas
+                          neste regime.
+                        </p>
+                      )}
 
-            {errors.categoria_quarto_id && (
-              <span className="mt-2 block text-xs text-destructive">
-                {errors.categoria_quarto_id.message}
-              </span>
-            )}
-          </CardContent>
-        </Card>
+                      {isSelected && isClickable && (
+                        <div className="mt-3 flex items-center gap-1 text-xs font-semibold text-primary">
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                          Acomodação selecionada
+                        </div>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {errors.categoria_quarto_id && (
+            <span className="mt-2 block text-xs text-destructive">
+              {errors.categoria_quarto_id.message}
+            </span>
+          )}
+        </section>
 
         {/* RESUMO PROVISÓRIO SE SELECIONADO */}
         {selectedSuite && selectedRegime && nights.length > 0 && (
@@ -769,14 +758,14 @@ export function EditarOrcamentoPage() {
         )}
 
         {/* PASSO 4: PRIMEIRO CONTATO (LEAD) */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <User className="h-5 w-5 text-primary" />
+        <section className="space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b">
+            <User className="h-5 w-5 text-primary" />
+            <h2 className="text-lg font-semibold text-foreground">
               Passo 4: Dados do Primeiro Contato (Lead)
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-4 sm:grid-cols-3">
+            </h2>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-3">
             <div>
               <Label htmlFor="lead_nome">Nome Completo *</Label>
               <div className="relative mt-1">
@@ -852,36 +841,34 @@ export function EditarOrcamentoPage() {
                 {...register('observacoes')}
               />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </section>
 
         {/* DETALHAMENTO DAS DIÁRIAS ATUAIS */}
         {orcamento.detalhamento_noites &&
           orcamento.detalhamento_noites.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">
+            <section className="space-y-4">
+              <div className="pb-2 border-b">
+                <h2 className="text-base font-semibold">
                   Detalhamento das Diárias
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {orcamento.detalhamento_noites.map(noite => (
-                    <div
-                      key={noite.data}
-                      className="flex items-center justify-between rounded-md border p-2 text-xs"
-                    >
-                      <span className="font-medium">
-                        {formatarDataBR(noite.data)} - {noite.tarifario_nome}
-                      </span>
-                      <span className="font-bold text-slate-800">
-                        {formatarMoeda(noite.valor_diaria)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                </h2>
+              </div>
+              <div className="space-y-2">
+                {orcamento.detalhamento_noites.map(noite => (
+                  <div
+                    key={noite.data}
+                    className="flex items-center justify-between rounded-md border p-2 text-xs"
+                  >
+                    <span className="font-medium">
+                      {formatarDataBR(noite.data)} - {noite.tarifario_nome}
+                    </span>
+                    <span className="font-bold text-slate-800">
+                      {formatarMoeda(noite.valor_diaria)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </section>
           )}
       </div>
     </CrudFormLayout>

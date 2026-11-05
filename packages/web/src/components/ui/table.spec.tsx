@@ -2,11 +2,11 @@ import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import {
   Table,
-  TableHeader,
   TableBody,
-  TableRow,
-  TableHead,
   TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from './table'
 
 describe('Table', () => {
@@ -25,7 +25,7 @@ describe('Table', () => {
             <TableCell>Disponível</TableCell>
           </TableRow>
         </TableBody>
-      </Table>,
+      </Table>
     )
 
     expect(screen.getByText('Nome')).toBeInTheDocument()

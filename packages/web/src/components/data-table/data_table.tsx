@@ -1,5 +1,4 @@
-import { ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 import {
   Table,
   TableBody,
@@ -8,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { cn } from '@/lib/utils'
 
 export interface Column<T> {
   key: string
@@ -39,7 +39,8 @@ export function DataTable<T extends { id?: string }>({
 }: DataTableProps<T>) {
   function SortIcon({ campo }: { campo: string }) {
     if (!onSort) return null
-    if (ordenar_por !== campo) return <ArrowUpDown className="ml-1 h-3 w-3 opacity-50" />
+    if (ordenar_por !== campo)
+      return <ArrowUpDown className="ml-1 h-3 w-3 opacity-50" />
     return direcao === 'asc' ? (
       <ArrowUp className="ml-1 h-3 w-3" />
     ) : (
@@ -48,14 +49,21 @@ export function DataTable<T extends { id?: string }>({
   }
 
   return (
-    <div className={cn('flex flex-1 min-h-0 flex-col rounded-md border overflow-hidden', className)}>
+    <div
+      className={cn(
+        'flex flex-1 min-h-0 flex-col rounded-md border overflow-hidden',
+        className
+      )}
+    >
       <Table containerClassName="h-full">
         <TableHeader>
           <TableRow>
             {columns.map(col => (
               <TableHead
                 key={col.key}
-                className={col.sortable && onSort ? 'cursor-pointer select-none' : ''}
+                className={
+                  col.sortable && onSort ? 'cursor-pointer select-none' : ''
+                }
                 onClick={() => col.sortable && onSort?.(col.key)}
               >
                 <span className="flex items-center">
@@ -69,13 +77,19 @@ export function DataTable<T extends { id?: string }>({
         <TableBody>
           {isLoading ? (
             <TableRow>
-              <TableCell colSpan={columns.length} className="text-center text-muted-foreground py-8">
+              <TableCell
+                colSpan={columns.length}
+                className="text-center text-muted-foreground py-8"
+              >
                 Carregando...
               </TableCell>
             </TableRow>
           ) : data.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={columns.length} className="text-center text-muted-foreground py-8">
+              <TableCell
+                colSpan={columns.length}
+                className="text-center text-muted-foreground py-8"
+              >
                 {emptyMessage}
               </TableCell>
             </TableRow>

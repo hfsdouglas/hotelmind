@@ -1,24 +1,38 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { HttpResponse, http } from 'msw'
 import { MemoryRouter } from 'react-router-dom'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'sonner'
-import { http, HttpResponse } from 'msw'
+import { describe, expect, it } from 'vitest'
 import { server } from '@/mocks/server'
 import { NovoGrupoPage } from './novo'
 
 const BASE_URL = 'http://localhost:3000'
 
 const rotas = [
-  { id: 'rota-1', modulo: 'Administração', recurso: 'Usuários', rota: '/usuarios', icone: null, ordem: 1, ativo: true },
-  { id: 'rota-2', modulo: 'Administração', recurso: 'Grupos', rota: '/grupos', icone: null, ordem: 2, ativo: true },
+  {
+    id: 'rota-1',
+    modulo: 'Administração',
+    recurso: 'Usuários',
+    rota: '/usuarios',
+    icone: null,
+    ordem: 1,
+    ativo: true,
+  },
+  {
+    id: 'rota-2',
+    modulo: 'Administração',
+    recurso: 'Grupos',
+    rota: '/grupos',
+    icone: null,
+    ordem: 2,
+    ativo: true,
+  },
 ]
 
 function mockRotas() {
-  server.use(
-    http.get(`${BASE_URL}/rotas`, () => HttpResponse.json(rotas)),
-  )
+  server.use(http.get(`${BASE_URL}/rotas`, () => HttpResponse.json(rotas)))
 }
 
 function renderPage() {
@@ -31,7 +45,7 @@ function renderPage() {
         <Toaster />
         <NovoGrupoPage />
       </QueryClientProvider>
-    </MemoryRouter>,
+    </MemoryRouter>
   )
 }
 
@@ -56,13 +70,18 @@ describe('NovoGrupoPage', () => {
 
     server.use(
       http.post(`${BASE_URL}/grupos`, () =>
-        HttpResponse.json({ id: 'grupo-1', grupo: 'Recepção', descricao: null, status: 'S' }),
+        HttpResponse.json({
+          id: 'grupo-1',
+          grupo: 'Recepção',
+          descricao: null,
+          status: 'S',
+        })
       ),
       http.put(`${BASE_URL}/grupos/grupo-1/rotas`, async ({ request }) => {
-        const body = await request.json() as { rota_ids: string[] }
+        const body = (await request.json()) as { rota_ids: string[] }
         syncedIds = body.rota_ids
         return HttpResponse.json(rotas)
-      }),
+      })
     )
 
     const user = userEvent.setup()
@@ -85,14 +104,19 @@ describe('NovoGrupoPage', () => {
     server.use(
       http.post(`${BASE_URL}/grupos`, () => {
         createCalled = true
-        return HttpResponse.json({ id: 'grupo-2', grupo: 'Sem rotas', descricao: null, status: 'S' })
+        return HttpResponse.json({
+          id: 'grupo-2',
+          grupo: 'Sem rotas',
+          descricao: null,
+          status: 'S',
+        })
       }),
       http.put(`${BASE_URL}/grupos/grupo-2/rotas`, async ({ request }) => {
-        const body = await request.json() as { rota_ids: string[] }
+        const body = (await request.json()) as { rota_ids: string[] }
         syncCalled = true
         expect(body.rota_ids).toEqual([])
         return HttpResponse.json([])
-      }),
+      })
     )
 
     const user = userEvent.setup()

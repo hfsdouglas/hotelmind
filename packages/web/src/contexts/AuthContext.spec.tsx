@@ -1,9 +1,9 @@
-import { render, screen, act, waitFor } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { http, HttpResponse } from 'msw'
-import { server } from '@/mocks/server'
-import { AuthProvider, AuthContext } from './AuthContext'
+import { act, render, screen, waitFor } from '@testing-library/react'
+import { HttpResponse, http } from 'msw'
 import { useContext } from 'react'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { server } from '@/mocks/server'
+import { AuthContext, AuthProvider } from './AuthContext'
 
 const STORAGE_KEY = 'hotelmind:session'
 
@@ -30,8 +30,12 @@ function AuthConsumer() {
   return (
     <div>
       <span data-testid="authenticated">{String(ctx.isAuthenticated)}</span>
-      <span data-testid="user">{ctx.session?.user.nome_completo ?? 'none'}</span>
-      <span data-testid="suporte">{ctx.session?.suporte?.administrador_nome ?? 'none'}</span>
+      <span data-testid="user">
+        {ctx.session?.user.nome_completo ?? 'none'}
+      </span>
+      <span data-testid="suporte">
+        {ctx.session?.suporte?.administrador_nome ?? 'none'}
+      </span>
       <button onClick={() => ctx.setSession(mockSession)}>set session</button>
       <button onClick={() => ctx.clearSession()}>clear session</button>
     </div>
@@ -46,7 +50,7 @@ describe('AuthProvider', () => {
     render(
       <AuthProvider>
         <AuthConsumer />
-      </AuthProvider>,
+      </AuthProvider>
     )
     expect(screen.getByTestId('authenticated')).toHaveTextContent('false')
     expect(screen.getByTestId('user')).toHaveTextContent('none')
@@ -57,7 +61,7 @@ describe('AuthProvider', () => {
     render(
       <AuthProvider>
         <AuthConsumer />
-      </AuthProvider>,
+      </AuthProvider>
     )
     expect(screen.getByTestId('authenticated')).toHaveTextContent('true')
     expect(screen.getByTestId('user')).toHaveTextContent('Test User')
@@ -67,7 +71,7 @@ describe('AuthProvider', () => {
     render(
       <AuthProvider>
         <AuthConsumer />
-      </AuthProvider>,
+      </AuthProvider>
     )
     await act(async () => {
       screen.getByText('set session').click()
@@ -82,7 +86,7 @@ describe('AuthProvider', () => {
     render(
       <AuthProvider>
         <AuthConsumer />
-      </AuthProvider>,
+      </AuthProvider>
     )
     await act(async () => {
       screen.getByText('clear session').click()
@@ -96,7 +100,7 @@ describe('AuthProvider', () => {
     render(
       <AuthProvider>
         <AuthConsumer />
-      </AuthProvider>,
+      </AuthProvider>
     )
     await act(async () => {
       window.dispatchEvent(new CustomEvent('auth:session-expired'))
@@ -123,14 +127,14 @@ describe('AuthProvider', () => {
           },
           rotas: [],
           suporte: { administrador_nome: 'Super Admin' },
-        }),
-      ),
+        })
+      )
     )
 
     render(
       <AuthProvider>
         <AuthConsumer />
-      </AuthProvider>,
+      </AuthProvider>
     )
 
     expect(screen.getByTestId('authenticated')).toHaveTextContent('false')
@@ -145,14 +149,14 @@ describe('AuthProvider', () => {
   it('stays unauthenticated when GET /auth/me returns 401', async () => {
     server.use(
       http.get('http://localhost:3000/auth/me', () =>
-        HttpResponse.json({ message: 'Token inválido!' }, { status: 401 }),
-      ),
+        HttpResponse.json({ message: 'Token inválido!' }, { status: 401 })
+      )
     )
 
     render(
       <AuthProvider>
         <AuthConsumer />
-      </AuthProvider>,
+      </AuthProvider>
     )
 
     await waitFor(() => {
@@ -166,15 +170,18 @@ describe('AuthProvider', () => {
     server.use(
       http.get('http://localhost:3000/auth/me', () => {
         called = true
-        return HttpResponse.json({ message: 'should not be called' }, { status: 401 })
-      }),
+        return HttpResponse.json(
+          { message: 'should not be called' },
+          { status: 401 }
+        )
+      })
     )
     localStorage.setItem(STORAGE_KEY, JSON.stringify(mockSession))
 
     render(
       <AuthProvider>
         <AuthConsumer />
-      </AuthProvider>,
+      </AuthProvider>
     )
 
     expect(screen.getByTestId('authenticated')).toHaveTextContent('true')

@@ -1,15 +1,15 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { fastify, type FastifyInstance } from 'fastify'
+import fastifyCookie from '@fastify/cookie'
+import { fastifyJwt } from '@fastify/jwt'
+import { type FastifyInstance, fastify } from 'fastify'
 import {
   serializerCompiler,
   validatorCompiler,
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod'
-import { fastifyJwt } from '@fastify/jwt'
-import fastifyCookie from '@fastify/cookie'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { InMemoryGroupRepository } from '@/core/repositories/groups/in-memory/in_memory_group_repository'
 import authPlugin from '@/plugins/auth_plugin'
 import { groups_routes } from '@/routes/groups/groups_routes'
-import { InMemoryGroupRepository } from '@/core/repositories/groups/in-memory/in_memory_group_repository'
 
 const HOTEL_ID = 'hotel-001'
 const USER_ID = 'user-001'
@@ -19,11 +19,15 @@ let groupRepo: InMemoryGroupRepository
 
 vi.mock('@/lib/prisma', () => ({ db: {} }))
 
-vi.mock('@/core/repositories/groups/implementation/postgres_group_repository', () => ({
-  PostgresGroupRepository: vi.fn(function () {
-    return groupRepo
-  }),
-}))
+vi.mock(
+  '@/core/repositories/groups/implementation/postgres_group_repository',
+  () => ({
+    // biome-ignore lint/complexity/useArrowFunction: constructor function
+    PostgresGroupRepository: vi.fn().mockImplementation(function () {
+      return groupRepo
+    }),
+  })
+)
 
 async function build_app(): Promise<FastifyInstance> {
   const app = fastify().withTypeProvider<ZodTypeProvider>()
@@ -44,8 +48,11 @@ async function build_app(): Promise<FastifyInstance> {
 
 function make_token(app: FastifyInstance) {
   return app.jwt.sign(
-    { sub: USER_ID, user: { hotelId: HOTEL_ID, nomecompleto: 'Admin', email: 'a@b.com' } },
-    { expiresIn: '1h' },
+    {
+      sub: USER_ID,
+      user: { hotelId: HOTEL_ID, nomecompleto: 'Admin', email: 'a@b.com' },
+    },
+    { expiresIn: '1h' }
   )
 }
 
@@ -84,7 +91,11 @@ describe('groups_routes', () => {
         method: 'POST',
         url: '/grupos',
         cookies: { token },
-        payload: { grupo: 'Recepcionista', descricao: 'Acesso à recepção', status: 'S' },
+        payload: {
+          grupo: 'Recepcionista',
+          descricao: 'Acesso à recepção',
+          status: 'S',
+        },
       })
       expect(res.statusCode).toBe(201)
       const body = res.json()

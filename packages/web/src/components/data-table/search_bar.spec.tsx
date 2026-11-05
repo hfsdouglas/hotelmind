@@ -5,7 +5,9 @@ import { SearchBar } from './search_bar'
 
 describe('SearchBar', () => {
   it('renders an input with the given placeholder', () => {
-    render(<SearchBar value="" onSearch={vi.fn()} placeholder="Buscar grupos..." />)
+    render(
+      <SearchBar value="" onSearch={vi.fn()} placeholder="Buscar grupos..." />
+    )
     expect(screen.getByPlaceholderText('Buscar grupos...')).toBeInTheDocument()
   })
 

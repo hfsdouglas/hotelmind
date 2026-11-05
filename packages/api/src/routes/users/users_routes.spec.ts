@@ -1,15 +1,15 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { fastify, type FastifyInstance } from 'fastify'
+import fastifyCookie from '@fastify/cookie'
+import { fastifyJwt } from '@fastify/jwt'
+import { type FastifyInstance, fastify } from 'fastify'
 import {
   serializerCompiler,
   validatorCompiler,
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod'
-import { fastifyJwt } from '@fastify/jwt'
-import fastifyCookie from '@fastify/cookie'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { InMemoryUserRepository } from '@/core/repositories/users/in-memory/in_memory_user_repository'
 import authPlugin from '@/plugins/auth_plugin'
 import { users_routes } from '@/routes/users/users_routes'
-import { InMemoryUserRepository } from '@/core/repositories/users/in-memory/in_memory_user_repository'
 
 const HOTEL_ID = 'hotel-001'
 const USER_ID = 'user-001'
@@ -19,11 +19,15 @@ let userRepo: InMemoryUserRepository
 
 vi.mock('@/lib/prisma', () => ({ db: {} }))
 
-vi.mock('@/core/repositories/users/implementation/postgres_user_repository', () => ({
-  PostgresUserRepository: vi.fn(function () {
-    return userRepo
-  }),
-}))
+vi.mock(
+  '@/core/repositories/users/implementation/postgres_user_repository',
+  () => ({
+    // biome-ignore lint/complexity/useArrowFunction: constructor function
+    PostgresUserRepository: vi.fn().mockImplementation(function () {
+      return userRepo
+    }),
+  })
+)
 
 async function build_app(): Promise<FastifyInstance> {
   const app = fastify().withTypeProvider<ZodTypeProvider>()
@@ -42,8 +46,11 @@ async function build_app(): Promise<FastifyInstance> {
 
 function make_token(app: FastifyInstance) {
   return app.jwt.sign(
-    { sub: USER_ID, user: { hotelId: HOTEL_ID, nomecompleto: 'Test', email: 't@t.com' } },
-    { expiresIn: '1h' },
+    {
+      sub: USER_ID,
+      user: { hotelId: HOTEL_ID, nomecompleto: 'Test', email: 't@t.com' },
+    },
+    { expiresIn: '1h' }
   )
 }
 
@@ -69,7 +76,11 @@ describe('users_routes', () => {
 
   describe('GET /usuarios', () => {
     it('returns 200 with paginated empty list', async () => {
-      const res = await app.inject({ method: 'GET', url: '/usuarios', cookies: { token } })
+      const res = await app.inject({
+        method: 'GET',
+        url: '/usuarios',
+        cookies: { token },
+      })
       expect(res.statusCode).toBe(200)
       expect(res.json().data).toEqual([])
       expect(res.json().meta.total).toBe(0)
@@ -95,7 +106,11 @@ describe('users_routes', () => {
     })
 
     it('returns 401 without auth', async () => {
-      const res = await app.inject({ method: 'POST', url: '/usuarios', payload: BASE_PAYLOAD })
+      const res = await app.inject({
+        method: 'POST',
+        url: '/usuarios',
+        payload: BASE_PAYLOAD,
+      })
       expect(res.statusCode).toBe(401)
     })
   })
@@ -111,7 +126,11 @@ describe('users_routes', () => {
     })
 
     it('returns the user when found', async () => {
-      const user = await userRepo.create({ ...BASE_PAYLOAD, hotel_id: HOTEL_ID, nascimento: new Date('1990-01-01') })
+      const user = await userRepo.create({
+        ...BASE_PAYLOAD,
+        hotel_id: HOTEL_ID,
+        nascimento: new Date('1990-01-01'),
+      })
       const res = await app.inject({
         method: 'GET',
         url: `/usuarios/${user.id}`,
@@ -134,7 +153,11 @@ describe('users_routes', () => {
     })
 
     it('updates the user and returns 200', async () => {
-      const user = await userRepo.create({ ...BASE_PAYLOAD, hotel_id: HOTEL_ID, nascimento: new Date('1990-01-01') })
+      const user = await userRepo.create({
+        ...BASE_PAYLOAD,
+        hotel_id: HOTEL_ID,
+        nascimento: new Date('1990-01-01'),
+      })
       const res = await app.inject({
         method: 'PUT',
         url: `/usuarios/${user.id}`,
