@@ -187,6 +187,10 @@ src/
 
 Responsible for application pages and layout wrappers.
 
+- **Component Location Rule (RED FLAG)**: **NEVER** create a `components` directory inside `src/pages/**`.
+  - All reusable components, forms, modals, dialogs, sections, and domain components MUST be placed under `src/components/` (e.g., `src/components/hoteis/`, `src/components/usuarios/`).
+  - `src/pages/**` is strictly reserved for page route entrypoints (e.g., `index.tsx`, `novo.tsx`, `[id]/editar.tsx`) and their page tests. Zero subcomponent folders in `pages/`.
+
 * `_layouts/` — layout components registered as route elements; render `<Outlet />` for child pages. Each layout owns its shell (Sidebar, Navbar) and any mount-time side effects (e.g. session verification).
 * `app/` — protected administrative pages.
 * `auth/` — authentication pages.

@@ -4,11 +4,11 @@ import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { parceirosComerciaisService } from '@/api/parceiros_comerciais.service'
 import { SaveButton } from '@/components/forms/save_button'
-import { Button } from '@/components/ui/button'
 import {
   ParceiroForm,
   type ParceiroFormState,
-} from './components/parceiro_form'
+} from '@/components/parceiros/parceiro_form'
+import { Button } from '@/components/ui/button'
 
 export function NovoParceiroPage() {
   const navigate = useNavigate()

@@ -87,8 +87,8 @@ backend/
 
 frontend/
 ├── src/
-│   ├── components/
-│   ├── pages/
+│   ├── components/       # ALL reusable, modal, and domain components MUST live here. NEVER inside pages/
+│   ├── pages/            # STRICTLY route entrypoints (index.tsx, [id]/editar.tsx). Zero components folders!
 │   └── services/
 └── tests/
 

@@ -26,6 +26,32 @@ Contains shared TypeScript interfaces and types consumed by microservices and fr
 - All packages that share a contract must import from here instead of duplicating type definitions
 - When an interface changes, update it here first, then update all consumers
 
+### Front-end Applications (`packages/web` and `packages/admin`)
+
+- **Component Location Rule (RED FLAG)**: **NEVER** create a `components` directory inside `pages/**` in any front-end package (`packages/web/src/pages/**` or `packages/admin/src/pages/**`).
+  - All reusable components, forms, modals, dialogs, sections, and domain components MUST be placed under `src/components/` of the corresponding package (e.g., `packages/web/src/components/parceiros/`, `packages/web/src/components/orcamentos/`, `packages/admin/src/components/hoteis/`, etc.).
+  - `src/pages/**` is strictly reserved for page route entrypoints (e.g., `index.tsx`, `novo.tsx`, `[id]/editar.tsx`) and their page tests. Zero subcomponent folders in `pages/`.
+
+### Package-Specific Rules & Agent Sensitization
+
+This repository is a monorepo where each package under `packages/` has its own authoritative `AGENTS.md` guide:
+
+- **`packages/web/AGENTS.md`** — Frontend Web Application
+  - **Component Location Rule (RED FLAG)**: **NEVER** create a `components` directory inside `src/pages/**`. All components MUST live under `src/components/`.
+  - Guidelines on layouts (`_layouts/`), TanStack Query, suspense boundaries, form hooks, and testing.
+- **`packages/admin/AGENTS.md`** — Admin Web Application
+  - **Component Location Rule (RED FLAG)**: **NEVER** create a `components` directory inside `src/pages/**`. All components MUST live under `src/components/`.
+  - Administrative scoping, multi-hotel context, table filters, and UI conventions.
+- **`packages/api/AGENTS.md`** — Backend API
+  - Clean Architecture layers (`core/entities`, `core/repositories`, `core/usecases`, `schemas`, `routes`).
+  - Business logic strictly isolated in use cases, never in route handlers or controllers.
+- **`packages/.contracts/`** — Shared TypeScript Contracts
+  - Contracts first! Types only, no runtime code, no Zod schemas.
+
+> [!IMPORTANT]
+> **MANDATORY SENSITIZATION FOR ALL AGENTS**:
+> Whenever an agent creates, inspects, edits, or reviews files in any package (`packages/web`, `packages/admin`, `packages/api`), the agent **MUST ALWAYS read and adhere to that package's local `AGENTS.md` file**. The root rules set the baseline, but package-specific `AGENTS.md` files contain the mandatory architecture, component location rules, and patterns for each domain.
+
 ## Architecture
 
 The system is designed around microservices. Each service is an independent package under `packages/` with its own responsibilities and deployment lifecycle. Services communicate over the network rather than sharing in-process code.
@@ -142,5 +168,5 @@ The agent must always use the Git repository's configured identity when creating
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan
-at specs/022-meal-plans-management/plan.md
+at specs/025-reservations-management/plan.md
 <!-- SPECKIT END -->
