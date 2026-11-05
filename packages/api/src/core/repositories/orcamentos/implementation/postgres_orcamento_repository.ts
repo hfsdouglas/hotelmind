@@ -46,6 +46,27 @@ function map_row(row: any): Orcamento {
           email: row.lead.email,
         }
       : undefined,
+    hotel: row.hotel
+      ? {
+          id: row.hotel.id,
+          nome_fantasia: row.hotel.nome_fantasia,
+          nome_hotel: row.hotel.nome_hotel,
+          telefone_comercial: row.hotel.telefone_comercial,
+          celular: row.hotel.celular,
+          email_comercial: row.hotel.email_comercial,
+          endereco: row.hotel.enderecos?.[0]
+            ? {
+                rua: row.hotel.enderecos[0].rua,
+                numero: row.hotel.enderecos[0].numero,
+                bairro: row.hotel.enderecos[0].bairro,
+                complemento: row.hotel.enderecos[0].complemento,
+                cep: row.hotel.enderecos[0].cep,
+                cidade: row.hotel.enderecos[0].cidade,
+                estado: row.hotel.enderecos[0].estado,
+              }
+            : null,
+        }
+      : undefined,
     regime_alimentacao: row.regime_alimentacao
       ? {
           id: row.regime_alimentacao.id,
@@ -172,7 +193,9 @@ export class PostgresOrcamentoRepository implements IOrcamentoRepository {
         lead: true,
         regime_alimentacao: true,
         categoria_quarto: true,
-        hotel: true,
+        hotel: {
+          include: { enderecos: { take: 1, orderBy: { created_at: 'asc' } } },
+        },
       },
     })
 

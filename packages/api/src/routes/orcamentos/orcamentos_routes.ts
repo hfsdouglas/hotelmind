@@ -86,7 +86,8 @@ export async function orcamentos_routes(app: FastifyTypedInstance) {
     orcamentos_repo,
     regimes_repo,
     categorias_repo,
-    tarifarios_repo
+    tarifarios_repo,
+    leads_repo
   )
   const excluir_use_case = new ExcluirOrcamentoUseCase(orcamentos_repo)
 

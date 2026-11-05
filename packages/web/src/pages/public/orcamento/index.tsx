@@ -6,7 +6,10 @@ import {
   CheckCircle2,
   Hotel,
   Loader2,
+  Mail,
+  MapPin,
   PawPrint,
+  Phone,
   Tag,
   Users,
   Utensils,
@@ -19,6 +22,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import { mask_phone } from '@/hooks/use_phone_mask'
 
 function formatarDataBR(dataIso: string) {
   if (!dataIso) return ''
@@ -74,6 +78,16 @@ export function VisualizarOrcamentoPublicoPage() {
       </div>
     )
   }
+
+  const end = orcamento.hotel_endereco
+  const endereco = end
+    ? [
+        `${end.rua}, ${end.numero}${end.complemento ? ` - ${end.complemento}` : ''}`,
+        end.bairro,
+        `${end.cidade}/${end.estado}`,
+        `CEP ${end.cep.replace(/^(\d{5})(\d{3})$/, '$1-$2')}`,
+      ].join(' • ')
+    : ''
 
   return (
     <div className="min-h-screen bg-slate-50 pb-24 text-slate-900 antialiased">
@@ -288,6 +302,84 @@ export function VisualizarOrcamentoPublicoPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Rodapé com Dados do Hotel */}
+        <footer className="mt-8 mb-6 rounded-xl border border-border/60 bg-white p-5 shadow-xs">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Hotel className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold leading-tight text-slate-800">
+                {orcamento.hotel_nome_fantasia || orcamento.hotel_nome}
+              </h3>
+            </div>
+          </div>
+
+          <Separator className="my-3.5" />
+
+          <ul className="space-y-2 text-xs text-muted-foreground">
+            {orcamento.hotel_email && (
+              <li className="flex items-center gap-2">
+                <Mail className="h-3.5 w-3.5 shrink-0 text-primary/70" />
+                <span>
+                  <strong className="font-medium text-slate-700">
+                    E-mail comercial:
+                  </strong>{' '}
+                  <a
+                    href={`mailto:${orcamento.hotel_email}`}
+                    className="hover:underline text-primary"
+                  >
+                    {orcamento.hotel_email}
+                  </a>
+                </span>
+              </li>
+            )}
+            {orcamento.hotel_telefone && (
+              <li className="flex items-center gap-2">
+                <Phone className="h-3.5 w-3.5 shrink-0 text-primary/70" />
+                <span>
+                  <strong className="font-medium text-slate-700">
+                    Telefone comercial:
+                  </strong>{' '}
+                  <a
+                    href={`tel:${orcamento.hotel_telefone}`}
+                    className="hover:underline text-primary"
+                  >
+                    {mask_phone(orcamento.hotel_telefone)}
+                  </a>
+                </span>
+              </li>
+            )}
+            {orcamento.hotel_celular && (
+              <li className="flex items-center gap-2">
+                <Phone className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                <span>
+                  <strong className="font-medium text-slate-700">
+                    Celular:
+                  </strong>{' '}
+                  <a
+                    href={`tel:${orcamento.hotel_celular}`}
+                    className="hover:underline text-emerald-700"
+                  >
+                    {mask_phone(orcamento.hotel_celular)}
+                  </a>
+                </span>
+              </li>
+            )}
+            {endereco && (
+              <li className="flex items-start gap-2">
+                <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary/70" />
+                <span>
+                  <strong className="font-medium text-slate-700">
+                    Endereço:
+                  </strong>{' '}
+                  {endereco}
+                </span>
+              </li>
+            )}
+          </ul>
+        </footer>
       </main>
 
       {/* Barra Fixa no Rodapé com Ação Fictícia de Reservar */}

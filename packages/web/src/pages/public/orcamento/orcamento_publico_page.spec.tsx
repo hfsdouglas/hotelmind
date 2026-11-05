@@ -80,7 +80,9 @@ describe('VisualizarOrcamentoPublicoPage', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Olá, Renata Vasconcellos!')).toBeInTheDocument()
-      expect(screen.getByText('Hotel Fazenda Paraíso')).toBeInTheDocument()
+      expect(
+        screen.getAllByText('Hotel Fazenda Paraíso').length
+      ).toBeGreaterThanOrEqual(1)
       expect(screen.getByText('Chalé Família')).toBeInTheDocument()
       expect(screen.getByText('Pensão Completa')).toBeInTheDocument()
       expect(screen.getByText('2 Adultos')).toBeInTheDocument()

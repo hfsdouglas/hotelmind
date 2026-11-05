@@ -166,9 +166,9 @@ export function OrcamentosPage() {
     },
     {
       key: 'acoes',
-      header: 'Ações',
+      header: '',
       render: row => (
-        <div className="flex items-center gap-1">
+        <div className="flex items-center justify-end gap-1">
           <OrcamentoAcoesCompartilhamento
             token_publico={row.token_publico}
             lead_nome={row.lead?.nome}

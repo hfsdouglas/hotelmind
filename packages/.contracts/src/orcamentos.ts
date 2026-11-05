@@ -49,7 +49,19 @@ export interface Orcamento {
 export interface OrcamentoPublicoVisualizacao {
   token_publico: string
   hotel_nome: string
+  hotel_nome_fantasia?: string
   hotel_telefone?: string
+  hotel_celular?: string
+  hotel_email?: string
+  hotel_endereco?: {
+    rua: string
+    numero: string
+    bairro: string
+    complemento?: string | null
+    cep: string
+    cidade: string
+    estado: string
+  } | null
   check_in: string
   check_out: string
   total_noites: number
@@ -97,6 +109,11 @@ export interface UpdateOrcamentoPayload {
   observacoes?: string
   cupom_desconto?: string | null
   status?: OrcamentoStatus
+  lead?: {
+    nome?: string
+    telefone?: string
+    email?: string
+  }
 }
 
 export interface OrcamentoListParams {

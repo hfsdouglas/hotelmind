@@ -74,6 +74,13 @@ export const update_orcamento_body_schema = z.object({
   observacoes: z.string().trim().max(2000).nullable().optional(),
   cupom_desconto: z.string().trim().max(50).nullable().optional(),
   status: z.enum(['pendente', 'aprovado', 'cancelado', 'expirado']).optional(),
+  lead: z
+    .object({
+      nome: z.string().trim().min(1).optional(),
+      telefone: z.string().trim().min(8).optional(),
+      email: z.string().trim().email().optional(),
+    })
+    .optional(),
 })
 
 export const noite_calculada_schema = z.object({
@@ -138,7 +145,22 @@ export const list_orcamentos_response_schema = z.object({
 export const orcamento_publico_response_schema = z.object({
   token_publico: z.string(),
   hotel_nome: z.string(),
+  hotel_nome_fantasia: z.string().optional(),
   hotel_telefone: z.string().optional(),
+  hotel_celular: z.string().optional(),
+  hotel_email: z.string().optional(),
+  hotel_endereco: z
+    .object({
+      rua: z.string(),
+      numero: z.string(),
+      bairro: z.string(),
+      complemento: z.string().nullable().optional(),
+      cep: z.string(),
+      cidade: z.string(),
+      estado: z.string(),
+    })
+    .nullable()
+    .optional(),
   check_in: z.string(),
   check_out: z.string(),
   total_noites: z.number(),

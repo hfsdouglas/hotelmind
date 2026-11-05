@@ -36,6 +36,17 @@ export interface OrcamentoProps {
     nome_fantasia?: string | null
     nome_hotel?: string | null
     telefone_comercial?: string | null
+    celular?: string | null
+    email_comercial?: string | null
+    endereco?: {
+      rua: string
+      numero: string
+      bairro: string
+      complemento?: string | null
+      cep: string
+      cidade: string
+      estado: string
+    } | null
   }
   regime_alimentacao?: {
     id: string

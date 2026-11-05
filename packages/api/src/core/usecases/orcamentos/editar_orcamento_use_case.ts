@@ -11,6 +11,7 @@ import {
 import { CategoriaQuartoInativaError } from '@/core/errors/quarto_errors'
 import { RegimeAlimentacaoNotFoundError } from '@/core/errors/regime_alimentacao_errors'
 import type { ICategoriaQuartoRepository } from '@/core/repositories/categorias_quartos/categoria_quarto.repository'
+import type { ILeadRepository } from '@/core/repositories/leads/lead_repository'
 import type { IOrcamentoRepository } from '@/core/repositories/orcamentos/orcamento_repository'
 import type { IRegimeAlimentacaoRepository } from '@/core/repositories/regimes_alimentacao/regime_alimentacao.repository'
 import type { ITarifarioRepository } from '@/core/repositories/tarifarios/tarifario.repository'
@@ -29,6 +30,11 @@ export interface EditarOrcamentoInput {
   observacoes?: string | null
   cupom_desconto?: string | null
   status?: OrcamentoStatus
+  lead?: {
+    nome?: string
+    telefone?: string
+    email?: string
+  }
 }
 
 export class EditarOrcamentoUseCase {
@@ -37,6 +43,7 @@ export class EditarOrcamentoUseCase {
     private readonly regimes_alimentacao: IRegimeAlimentacaoRepository,
     private readonly categorias: ICategoriaQuartoRepository,
     private readonly tarifarios: ITarifarioRepository,
+    private readonly leads?: ILeadRepository,
     private readonly pricing_service: TarifarioPricingService = new TarifarioPricingService()
   ) {}
 
@@ -102,6 +109,16 @@ export class EditarOrcamentoUseCase {
 
       valor_total = calculo.valor_total
       detalhamento_noites = calculo.noites as NoiteCalculadaOrcamento[]
+    }
+
+    if (input.lead && this.leads && existing.lead_id) {
+      await this.leads.update({
+        id: existing.lead_id,
+        hotel_id: input.hotel_id,
+        nome: input.lead.nome,
+        telefone: input.lead.telefone,
+        email: input.lead.email,
+      })
     }
 
     return this.orcamentos.update({

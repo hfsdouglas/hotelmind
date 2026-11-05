@@ -25,7 +25,11 @@ export class BuscarOrcamentoPublicoUseCase {
     return {
       token_publico: orcamento.token_publico,
       hotel_nome: hotel?.nome_fantasia || hotel?.nome_hotel || 'Hotel',
+      hotel_nome_fantasia: hotel?.nome_fantasia ?? undefined,
       hotel_telefone: hotel?.telefone_comercial ?? undefined,
+      hotel_celular: hotel?.celular ?? undefined,
+      hotel_email: hotel?.email_comercial ?? undefined,
+      hotel_endereco: hotel?.endereco ?? null,
       check_in: orcamento.check_in,
       check_out: orcamento.check_out,
       total_noites,
