@@ -95,6 +95,14 @@ Every create and edit page MUST use `CrudFormLayout` (`src/components/forms/Crud
 
 ---
 
+## DataTable & List Page Standards
+
+### Table Action Column Standard
+- **No "Ações" Title**: The table column reserved for row action buttons must NEVER display the title `"Ações"` in its header (use an empty string or omit header title).
+- **Right-Aligned & Centered**: Action buttons inside the cell must always be aligned to the right and vertically centered (e.g. `className="flex items-center justify-end gap-1"`).
+
+---
+
 ## Searchable List Suspense Standard
 
 Every page that searches or filters tabular results must wrap the list in `SearchResultsSuspense` (`src/components/data-table/search_results_suspense.tsx`):

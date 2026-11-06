@@ -19,6 +19,7 @@ import { EditarRegimeAlimentacaoPage } from '@/pages/app/regimes_alimentacao/[id
 import { NovoRegimeAlimentacaoPage } from '@/pages/app/regimes_alimentacao/novo'
 import { ReservasPage } from '@/pages/app/reservas'
 import { DetalheReservaPage } from '@/pages/app/reservas/[id]'
+import { EditarReservaPage } from '@/pages/app/reservas/[id]/editar'
 import { Calendario } from '@/pages/app/reservas/calendario'
 import { NovaReservaPage } from '@/pages/app/reservas/nova'
 import { EditarOrcamentoPage } from '@/pages/app/reservas/orcamentos/[id]/editar'
@@ -99,6 +100,7 @@ export const router = createBrowserRouter([
       { path: '/reservas/novo', element: <NovaReservaPage /> },
       { path: '/reservas/calendario', element: <Calendario /> },
       { path: '/reservas/:id', element: <DetalheReservaPage /> },
+      { path: '/reservas/:id/editar', element: <EditarReservaPage /> },
       { path: '/reservas/orcamentos', element: <OrcamentosPage /> },
       { path: '/reservas/orcamentos/novo', element: <NovoOrcamentoPage /> },
       {

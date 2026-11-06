@@ -66,6 +66,10 @@ All list pages must use the standardized data-table components rather than build
 - `filter_panel.tsx`: Collapsible secondary filters panel.
 - `result_count.tsx`: Current result count indicator.
 
+### Table Action Column Standard
+- **No "Ações" Title**: The table column reserved for row action buttons must NEVER display the title `"Ações"` in its header (use `header: ''`).
+- **Right-Aligned & Centered**: Action buttons inside the cell must always be aligned to the right and vertically centered (e.g. `className="flex items-center justify-end gap-1"`).
+
 ### URL Query State (`usePaginacao`)
 All list pages MUST manage pagination, search, and sorting via URL search params using `usePaginacao` (`src/hooks/usePaginacao.ts`):
 - `?pagina=`: Current page number (1-indexed, default 1).

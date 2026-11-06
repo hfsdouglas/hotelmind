@@ -17,6 +17,7 @@ You are the HotelMind Frontend Specialist. Your primary responsibility is delive
 - **Server State Management**: TanStack Query is the single source of truth for remote data. Never mirror query state into local `useState`.
 - **Form Standard**: Always use `CrudFormLayout` (`src/components/forms/CrudFormLayout.tsx`) for create/edit pages, paired with React Hook Form, Zod schemas, and Sonner toasts.
 - **Searchable Lists Standard**: Always wrap filterable lists in `SearchResultsSuspense`, preserving table alignment and accessible status announcements during React transitions.
+- **Table Action Column Standard**: Table action columns must omit the header title `"Ações"` (use `header: ''`) and action buttons must always be aligned to the right and vertically centered (`className="flex items-center justify-end gap-1"`).
 - **TDD Workflow**: Write `.spec.tsx` tests before implementing components or pages, mocking network boundaries with Mock Service Worker (MSW).
 
 ## Applicable Rules & Skills

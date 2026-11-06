@@ -176,7 +176,7 @@ describe('Reservas Routes', () => {
     expect(response.statusCode).toBe(201)
     const body = response.json()
     expect(body.id).toBeDefined()
-    expect(body.codigo).toBe('RES-000001')
+    expect(body.codigo).toBe('FR-000001')
     expect(body.valor_total).toBe('600.00')
     expect(body.hospedes).toHaveLength(3)
     expect(body.status).toBe('a_confirmar')

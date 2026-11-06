@@ -60,6 +60,7 @@ function reserva_to_response(r: Reserva) {
     valor_total: r.valor_total,
     detalhamento_diarias: r.detalhamento_diarias,
     status: r.status,
+    token_fnrh: r.token_fnrh,
     token_fnrh_ativo: r.token_fnrh_ativo,
     fnrh_enviada_em: r.fnrh_enviada_em ? r.fnrh_enviada_em.toISOString() : null,
     fichas_preenchidas: r.fichas_preenchidas,

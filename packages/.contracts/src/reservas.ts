@@ -66,10 +66,13 @@ export interface Reserva {
   valor_total: string
   detalhamento_diarias: DiariaReserva[]
   status: ReservaStatus
+  token_fnrh: string
   token_fnrh_ativo: boolean
   fnrh_enviada_em: string | null
   fichas_preenchidas: number
   total_hospedes: number
+  quantidade_pets?: number
+  cupom_desconto?: string | null
   observacoes: string | null
   quarto?: { id: string; identificacao: string; categoria_nome: string }
   regime_alimentacao?: { id: string; titulo: string; cor_pulseira: string }
@@ -90,10 +93,14 @@ export interface CreateReservaPayload {
   check_out: string
   quantidade_adultos: number
   quantidade_criancas?: number
+  quantidade_pets?: number
+  cupom_desconto?: string | null
   observacoes?: string | null
 }
 
-export type UpdateReservaPayload = Partial<CreateReservaPayload>
+export type UpdateReservaPayload = Partial<CreateReservaPayload> & {
+  status?: ReservaStatus
+}
 
 export interface ReservaListParams {
   pagina?: number
@@ -125,6 +132,7 @@ export interface ChangeReservaStatusPayload {
 export interface QuartoDisponivel {
   quarto_id: string
   identificacao: string
+  categoria_id?: string
   categoria_nome: string
   limite_hospedes: number
   valor_total: string

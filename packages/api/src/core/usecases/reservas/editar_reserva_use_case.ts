@@ -13,6 +13,7 @@ import type {
   IReservaRepository,
 } from '@/core/repositories/reservas/reserva_repository'
 import type { ITarifarioRepository } from '@/core/repositories/tarifarios/tarifario.repository'
+import { ReservaStatusService } from '@/core/services/reserva_status_service'
 import { TarifarioPricingService } from '@/core/services/tarifario_pricing_service'
 import { ConsultarDisponibilidadeUseCase } from '@/core/usecases/reservas/consultar_disponibilidade_use_case'
 
@@ -32,6 +33,7 @@ export class EditarReservaUseCase {
     private readonly tarifarios_repo: ITarifarioRepository,
     private readonly parceiros_repo?: IParceiroComercialRepository,
     private readonly pricing_service: TarifarioPricingService = new TarifarioPricingService(),
+    private readonly status_service: ReservaStatusService = new ReservaStatusService(),
     private readonly disponibilidade_use_case: ConsultarDisponibilidadeUseCase = new ConsultarDisponibilidadeUseCase(
       reservas_repo,
       quartos_repo,
@@ -189,6 +191,18 @@ export class EditarReservaUseCase {
       await this.hospedes_repo.adjust_positions(reserva.id, total_pessoas)
     }
 
+    let status_final = reserva.status
+    if (dados.status && dados.status !== reserva.status) {
+      this.status_service.validar_transicao(reserva.status, dados.status)
+      status_final = dados.status
+      await this.reservas_repo.create_status_historico(
+        reserva.id,
+        reserva.status,
+        dados.status,
+        input.user_id
+      )
+    }
+
     const updated = await this.reservas_repo.update(reserva.id, hotel_id, {
       titular_nome: dados.titular_nome ?? reserva.titular_nome,
       titular_telefone:
@@ -208,6 +222,7 @@ export class EditarReservaUseCase {
       quantidade_criancas,
       valor_total,
       detalhamento_diarias,
+      status: status_final,
       observacoes:
         dados.observacoes !== undefined
           ? dados.observacoes

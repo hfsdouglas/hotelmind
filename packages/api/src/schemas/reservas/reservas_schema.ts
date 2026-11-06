@@ -87,6 +87,8 @@ export const create_reserva_body_schema = z.object({
     .int()
     .min(1, 'Informe pelo menos 1 adulto.'),
   quantidade_criancas: z.coerce.number().int().min(0).default(0),
+  quantidade_pets: z.coerce.number().int().min(0).optional(),
+  cupom_desconto: z.string().trim().max(50).nullable().optional(),
   observacoes: z.string().trim().max(2000).nullable().optional(),
 })
 
@@ -114,6 +116,18 @@ export const update_reserva_body_schema = z.object({
     .optional(),
   quantidade_adultos: z.coerce.number().int().min(1).optional(),
   quantidade_criancas: z.coerce.number().int().min(0).optional(),
+  quantidade_pets: z.coerce.number().int().min(0).optional(),
+  cupom_desconto: z.string().trim().max(50).nullable().optional(),
+  status: z
+    .enum([
+      'a_confirmar',
+      'confirmada',
+      'check_in',
+      'check_out',
+      'no_show',
+      'cancelada',
+    ])
+    .optional(),
   observacoes: z.string().trim().max(2000).nullable().optional(),
 })
 
@@ -229,6 +243,7 @@ export const reserva_response_schema = z.object({
     'no_show',
     'cancelada',
   ]),
+  token_fnrh: z.string(),
   token_fnrh_ativo: z.boolean(),
   fnrh_enviada_em: z.string().nullable(),
   fichas_preenchidas: z.number(),
@@ -274,6 +289,7 @@ export const reserva_list_response_schema = z.object({
 export const quarto_disponivel_schema = z.object({
   quarto_id: z.string(),
   identificacao: z.string(),
+  categoria_id: z.string().optional(),
   categoria_nome: z.string(),
   limite_hospedes: z.number(),
   valor_total: z.string(),

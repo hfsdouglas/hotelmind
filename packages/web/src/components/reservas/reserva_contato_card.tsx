@@ -15,33 +15,45 @@ export function ReservaContatoCard({
   observacoes,
 }: ReservaContatoCardProps) {
   return (
-    <Card>
+    <Card className="border-border bg-card">
       <CardHeader className="pb-3">
-        <CardTitle className="text-base font-semibold">
+        <CardTitle className="text-base font-semibold text-foreground">
           Contato do Titular
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-2 text-xs">
+      <CardContent className="space-y-3 text-xs">
         <div>
-          <span className="text-zinc-400 block">Nome</span>
-          <span className="font-semibold text-sm">{titularNome}</span>
+          <span className="text-muted-foreground block text-[11px]">Nome</span>
+          <span className="font-semibold text-sm text-foreground">
+            {titularNome}
+          </span>
         </div>
         {titularTelefone && (
           <div>
-            <span className="text-zinc-400 block">Telefone</span>
-            <span>{mask_phone(titularTelefone)}</span>
+            <span className="text-muted-foreground block text-[11px]">
+              Telefone
+            </span>
+            <span className="text-foreground">
+              {mask_phone(titularTelefone)}
+            </span>
           </div>
         )}
         {titularEmail && (
           <div>
-            <span className="text-zinc-400 block">E-mail</span>
-            <span>{titularEmail}</span>
+            <span className="text-muted-foreground block text-[11px]">
+              E-mail
+            </span>
+            <span className="text-foreground">{titularEmail}</span>
           </div>
         )}
         {observacoes && (
-          <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800">
-            <span className="text-zinc-400 block">Observações</span>
-            <p className="text-zinc-600 mt-1">{observacoes}</p>
+          <div className="pt-2.5 border-t border-border">
+            <span className="text-muted-foreground block text-[11px]">
+              Observações
+            </span>
+            <p className="text-foreground/90 mt-1 whitespace-pre-wrap">
+              {observacoes}
+            </p>
           </div>
         )}
       </CardContent>

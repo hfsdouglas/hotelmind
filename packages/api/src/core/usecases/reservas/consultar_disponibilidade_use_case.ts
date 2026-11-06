@@ -95,6 +95,7 @@ export class ConsultarDisponibilidadeUseCase {
         resultado.push({
           quarto_id: quarto.id,
           identificacao: quarto.identificacao,
+          categoria_id: quarto.categoria_id,
           categoria_nome: quarto.categoria?.nome ?? '',
           limite_hospedes: quarto.limite_hospedes,
           valor_total,

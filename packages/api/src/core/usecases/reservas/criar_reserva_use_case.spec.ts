@@ -113,7 +113,7 @@ describe('CriarReservaUseCase & ConsultarDisponibilidadeUseCase', () => {
     })
 
     expect(reserva.id).toBeDefined()
-    expect(reserva.codigo).toMatch(/^RES-\d{6}$/)
+    expect(reserva.codigo).toBe('FR-000001')
     expect(reserva.status).toBe('a_confirmar')
     expect(reserva.valor_total).toBe('750.00') // 3 x 250
     expect(reserva.detalhamento_diarias).toHaveLength(3)

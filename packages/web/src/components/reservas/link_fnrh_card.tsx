@@ -7,7 +7,7 @@ import {
   RefreshCw,
   Smartphone,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { reservasService } from '@/api/reservas.service'
 import { Badge } from '@/components/ui/badge'
@@ -43,9 +43,22 @@ export function LinkFnrhCard({
   const [currentToken, setCurrentToken] = useState(tokenFnrh)
   const [isAtivo, setIsAtivo] = useState(tokenAtivo)
 
-  const publicUrl = `${window.location.origin}/fnrh/${currentToken}`
+  useEffect(() => {
+    if (tokenFnrh) {
+      setCurrentToken(tokenFnrh)
+    }
+  }, [tokenFnrh])
+
+  useEffect(() => {
+    setIsAtivo(tokenAtivo)
+  }, [tokenAtivo])
+
+  const publicUrl = currentToken
+    ? `${window.location.origin}/fnrh/${currentToken}`
+    : ''
 
   const copyMutation = async () => {
+    if (!publicUrl) return
     try {
       await navigator.clipboard.writeText(publicUrl)
       toast.success('Link da FNRH copiado para a área de transferência!')
@@ -82,55 +95,65 @@ export function LinkFnrhCard({
   })
 
   return (
-    <Card className="border-indigo-100 dark:border-indigo-950/40 bg-gradient-to-br from-indigo-50/50 via-white to-sky-50/30 dark:from-indigo-950/20 dark:via-zinc-900 dark:to-zinc-900">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Smartphone className="size-5 text-indigo-600 dark:text-indigo-400" />
-            <CardTitle className="text-base font-semibold">
-              Ficha Nacional de Hóspedes (FNRH)
-            </CardTitle>
-          </div>
-          <div className="flex items-center gap-2">
-            {isAtivo ? (
-              <Badge
-                variant="outline"
-                className="bg-emerald-50 text-emerald-700 border-emerald-200"
-              >
-                Link Ativo
-              </Badge>
-            ) : (
-              <Badge
-                variant="outline"
-                className="bg-zinc-100 text-zinc-600 border-zinc-200"
-              >
-                Link Inativo
-              </Badge>
-            )}
-          </div>
+    <Card className="border-border bg-card">
+      <CardHeader className="pb-3 space-y-1.5">
+        <div className="flex items-center gap-2">
+          <Smartphone className="size-5 text-primary shrink-0" />
+          <CardTitle className="text-base font-semibold leading-snug">
+            Ficha Nacional de Hóspedes (FNRH)
+          </CardTitle>
         </div>
-        <CardDescription>
-          Envie este link mobile-first ao cliente para preenchimento dos dados
-          obrigatórios de todos os hóspedes antes do check-in.
+
+        <CardDescription className="text-xs text-muted-foreground leading-relaxed">
+          Envie este link ao cliente para preenchimento dos dados obrigatórios
+          de todos os hóspedes antes do check-in.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex items-center justify-between bg-white dark:bg-zinc-950/60 p-3 rounded-lg border border-indigo-100 dark:border-zinc-800 text-sm">
-          <span className="font-mono text-xs truncate max-w-[280px] sm:max-w-md text-zinc-600 dark:text-zinc-400">
-            {publicUrl}
+        {/* Status do Link substituindo a exibição direta da URL */}
+        <div className="flex items-center justify-between bg-muted/40 px-3.5 py-2.5 rounded-lg border border-border">
+          <span className="text-xs text-muted-foreground font-medium">
+            Status do Link
           </span>
-          <div className="flex items-center gap-1.5 ml-2">
-            <Button
-              type="button"
+          {isAtivo ? (
+            <Badge
               variant="outline"
-              size="sm"
-              onClick={copyMutation}
-              className="gap-1.5"
+              className="bg-emerald-500/10 text-emerald-700 border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-800 text-xs"
             >
-              <Copy className="size-3.5" />
-              Copiar
-            </Button>
-            <Button type="button" variant="ghost" size="sm" asChild>
+              Link Ativo
+            </Badge>
+          ) : (
+            <Badge
+              variant="outline"
+              className="bg-muted text-muted-foreground border-border text-xs"
+            >
+              Link Inativo
+            </Badge>
+          )}
+        </div>
+
+        {/* Botões ocupando todo o espaço disponível em 2 colunas de mesmo tamanho */}
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={copyMutation}
+            disabled={!publicUrl || disabled}
+            className="w-full gap-1.5 h-8 text-xs"
+          >
+            <Copy className="size-3.5" />
+            Copiar Link
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={!publicUrl || disabled}
+            className="w-full gap-1.5 h-8 text-xs"
+            asChild={Boolean(publicUrl)}
+          >
+            {publicUrl ? (
               <a
                 href={publicUrl}
                 target="_blank"
@@ -138,54 +161,80 @@ export function LinkFnrhCard({
                 title="Abrir ficha"
               >
                 <ExternalLink className="size-3.5" />
+                Abrir Ficha
               </a>
-            </Button>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs">
-          <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
-            <span>Progresso das fichas:</span>
-            <Badge variant="secondary">
-              {fichasPreenchidas} de {totalHospedes} preenchidas
-            </Badge>
-            {fnrhEnviadaEm && (
-              <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
-                <CheckCircle2 className="size-3.5" />
-                Dados enviados pelo cliente em{' '}
-                {new Date(fnrhEnviadaEm).toLocaleString('pt-BR')}
+            ) : (
+              <span>
+                <ExternalLink className="size-3.5" />
+                Abrir Ficha
               </span>
             )}
+          </Button>
+        </div>
+
+        {/* Indicador de progresso centralizado entre as linhas divisórias */}
+        <div className="py-2.5 border-y border-border flex flex-col items-center justify-center gap-1 text-xs text-center">
+          <div className="flex items-center justify-center gap-1.5">
+            <span className="text-muted-foreground">
+              Progresso do preenchimento:
+            </span>
+            <span className="font-semibold text-foreground">
+              {fichasPreenchidas} de {totalHospedes} preenchida(s)
+            </span>
           </div>
 
-          <div className="flex items-center gap-2">
-            {isAtivo && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                disabled={disabled || desativarMutation.isPending}
-                onClick={() => desativarMutation.mutate()}
-                className="text-amber-700 hover:text-amber-800 hover:bg-amber-50 h-8 gap-1"
-              >
-                <PowerOff className="size-3" />
-                Desativar link
-              </Button>
-            )}
+          {fnrhEnviadaEm && (
+            <div className="flex items-center justify-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+              <CheckCircle2 className="size-3.5 shrink-0" />
+              <span>FNRH enviada pelo cliente à recepção</span>
+            </div>
+          )}
+        </div>
+
+        {/* Ações de Gestão do Link em 2 colunas com o mesmo tamanho */}
+        <div className="grid grid-cols-2 gap-2">
+          {isAtivo ? (
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="sm"
-              disabled={disabled || regenerarMutation.isPending}
-              onClick={() => regenerarMutation.mutate()}
-              className="text-zinc-600 hover:text-zinc-900 h-8 gap-1"
+              onClick={() => desativarMutation.mutate()}
+              disabled={desativarMutation.isPending || disabled}
+              className="text-xs text-destructive hover:text-destructive h-8 w-full"
             >
-              <RefreshCw
-                className={`size-3 ${regenerarMutation.isPending ? 'animate-spin' : ''}`}
-              />
-              Regenerar link
+              <PowerOff className="size-3.5 mr-1" />
+              Desativar Link
             </Button>
-          </div>
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => regenerarMutation.mutate()}
+              disabled={regenerarMutation.isPending || disabled}
+              className="text-xs h-8 w-full"
+            >
+              <RefreshCw className="size-3.5 mr-1" />
+              Reativar / Novo Link
+            </Button>
+          )}
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => regenerarMutation.mutate()}
+            disabled={regenerarMutation.isPending || disabled}
+            className="text-xs text-muted-foreground hover:text-foreground h-8 w-full"
+            title="Invalida o link atual e gera uma nova URL"
+          >
+            <RefreshCw
+              className={`size-3.5 mr-1 ${
+                regenerarMutation.isPending ? 'animate-spin' : ''
+              }`}
+            />
+            Regenerar
+          </Button>
         </div>
       </CardContent>
     </Card>

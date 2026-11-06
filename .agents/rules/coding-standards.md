@@ -23,3 +23,8 @@
 - Always write in TypeScript strict mode.
 - Avoid `any`. Prefer `unknown` or specific domain types/unions.
 - Shared contracts between packages must be imported from `@hotelmind/contracts` (in `packages/.contracts`), never duplicated locally.
+
+## DataTable & Action Column Standards
+
+- **No "Ações" Title**: The table column reserved for row action buttons must NEVER display the title `"Ações"` in its header (use `header: ''` or omit).
+- **Right-Aligned & Centered**: Action buttons inside the cell must always be aligned to the right and vertically centered (`className="flex items-center justify-end gap-1"`).

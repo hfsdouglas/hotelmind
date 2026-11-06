@@ -13,6 +13,7 @@ import {
   ReservaValidationError,
 } from '@/core/errors/reserva_errors'
 import type { PaginatedResult } from '@/core/repositories/pagination'
+import { extract_hotel_prefix } from '@/core/utils/hotel_code'
 import type { DB } from '@/lib/prisma'
 import type {
   CreateReservaData,
@@ -222,7 +223,10 @@ export class PostgresReservaRepository implements IReservaRepository {
 
   async find_by_id(id: string, hotel_id: string): Promise<Reserva | null> {
     const row = await this.prisma.reserva.findFirst({
-      where: { id, hotel_id },
+      where: {
+        hotel_id,
+        OR: [{ id }, { codigo: id }],
+      },
       include: RESERVA_DEFAULT_INCLUDE,
     })
     return row ? map_reserva_row(row) : null
@@ -351,10 +355,17 @@ export class PostgresReservaRepository implements IReservaRepository {
   }
 
   async gerar_proximo_codigo(hotel_id: string): Promise<string> {
+    const hotel = await this.prisma.hotel.findUnique({
+      where: { id: hotel_id },
+      select: { nome_fantasia: true, nome_hotel: true },
+    })
+    const name =
+      hotel?.nome_fantasia || hotel?.nome_hotel || 'Furnaspark Resort'
+    const prefix = extract_hotel_prefix(name)
     const total = await this.prisma.reserva.count({
       where: { hotel_id },
     })
-    return `RES-${String(total + 1).padStart(6, '0')}`
+    return `${prefix}-${String(total + 1).padStart(6, '0')}`
   }
 
   async create_status_historico(

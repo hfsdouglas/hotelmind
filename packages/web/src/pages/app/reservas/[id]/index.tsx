@@ -4,13 +4,12 @@ import type {
   SaveFichaPayload,
 } from '@hotelmind/contracts'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Edit } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { reservasService } from '@/api/reservas.service'
 import { LinkFnrhCard } from '@/components/reservas/link_fnrh_card'
-import { ModalAlterarStatusReserva } from '@/components/reservas/modal_alterar_status_reserva'
 import { ModalEditarFichaFnrh } from '@/components/reservas/modal_editar_ficha_fnrh'
 import { ReservaContatoCard } from '@/components/reservas/reserva_contato_card'
 import { ReservaDetalhesHospedagem } from '@/components/reservas/reserva_detalhes_hospedagem'
@@ -24,7 +23,7 @@ function getStatusBadge(status: ReservaStatus) {
       return (
         <Badge
           variant="outline"
-          className="bg-amber-50 text-amber-700 border-amber-200"
+          className="bg-amber-500/10 text-amber-700 border-amber-300 dark:bg-amber-500/15 dark:text-amber-400 dark:border-amber-800"
         >
           A Confirmar
         </Badge>
@@ -33,7 +32,7 @@ function getStatusBadge(status: ReservaStatus) {
       return (
         <Badge
           variant="outline"
-          className="bg-sky-50 text-sky-700 border-sky-200"
+          className="bg-sky-500/10 text-sky-700 border-sky-300 dark:bg-sky-500/15 dark:text-sky-400 dark:border-sky-800"
         >
           Confirmada
         </Badge>
@@ -42,7 +41,7 @@ function getStatusBadge(status: ReservaStatus) {
       return (
         <Badge
           variant="outline"
-          className="bg-emerald-50 text-emerald-700 border-emerald-200"
+          className="bg-emerald-500/10 text-emerald-700 border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-800"
         >
           Check-in
         </Badge>
@@ -51,7 +50,7 @@ function getStatusBadge(status: ReservaStatus) {
       return (
         <Badge
           variant="outline"
-          className="bg-zinc-100 text-zinc-700 border-zinc-200"
+          className="bg-muted text-muted-foreground border-border"
         >
           Check-out
         </Badge>
@@ -60,7 +59,7 @@ function getStatusBadge(status: ReservaStatus) {
       return (
         <Badge
           variant="outline"
-          className="bg-purple-50 text-purple-700 border-purple-200"
+          className="bg-purple-500/10 text-purple-700 border-purple-300 dark:bg-purple-500/15 dark:text-purple-400 dark:border-purple-800"
         >
           No-show
         </Badge>
@@ -69,7 +68,7 @@ function getStatusBadge(status: ReservaStatus) {
       return (
         <Badge
           variant="outline"
-          className="bg-rose-50 text-rose-700 border-rose-200"
+          className="bg-destructive/10 text-destructive border-destructive/30"
         >
           Cancelada
         </Badge>
@@ -87,10 +86,6 @@ export function DetalheReservaPage() {
   const [hospedeEmEdicao, setHospedeEmEdicao] = useState<ReservaHospede | null>(
     null
   )
-  const [statusModal, setStatusModal] = useState<{
-    open: boolean
-    novoStatus: ReservaStatus | null
-  }>({ open: false, novoStatus: null })
 
   const reservaId = id ?? ''
 
@@ -98,22 +93,6 @@ export function DetalheReservaPage() {
     queryKey: ['reserva', reservaId],
     queryFn: () => reservasService.get(reservaId),
     enabled: Boolean(reservaId),
-  })
-
-  // Transição de status
-  const statusMutation = useMutation({
-    mutationFn: (status: ReservaStatus) =>
-      reservasService.changeStatus(reservaId, status),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reserva', reservaId] })
-      queryClient.invalidateQueries({ queryKey: ['reservas'] })
-      toast.success('Status da reserva atualizado com sucesso!')
-      setStatusModal({ open: false, novoStatus: null })
-    },
-    onError: (err: { response?: { data?: { message?: string } } }) => {
-      const msg = err.response?.data?.message || 'Erro ao alterar status.'
-      toast.error(msg)
-    },
   })
 
   // Salvar ficha do hóspede pela recepção
@@ -138,7 +117,7 @@ export function DetalheReservaPage() {
 
   if (isLoading) {
     return (
-      <div className="p-8 text-center text-sm text-zinc-500 animate-pulse">
+      <div className="p-8 text-center text-sm text-muted-foreground animate-pulse">
         Carregando detalhes da reserva...
       </div>
     )
@@ -147,7 +126,7 @@ export function DetalheReservaPage() {
   if (!reserva) {
     return (
       <div className="p-8 text-center space-y-3">
-        <p className="text-zinc-600">Reserva não encontrada.</p>
+        <p className="text-muted-foreground">Reserva não encontrada.</p>
         <Button onClick={() => navigate('/reservas')}>
           Voltar para Reservas
         </Button>
@@ -155,22 +134,10 @@ export function DetalheReservaPage() {
     )
   }
 
-  // Transições de status permitidas
-  const transicoesPossiveis: Record<ReservaStatus, ReservaStatus[]> = {
-    a_confirmar: ['confirmada', 'cancelada'],
-    confirmada: ['check_in', 'no_show', 'cancelada'],
-    check_in: ['check_out'],
-    check_out: [],
-    no_show: [],
-    cancelada: [],
-  }
-
-  const opcoesStatus = transicoesPossiveis[reserva.status] || []
-
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
       {/* Cabeçalho */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-200 dark:border-zinc-800">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-border">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
@@ -182,12 +149,12 @@ export function DetalheReservaPage() {
           </Button>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold font-mono tracking-tight text-zinc-900 dark:text-zinc-100">
+              <h1 className="text-xl font-bold font-mono tracking-tight text-foreground">
                 {reserva.codigo}
               </h1>
               {getStatusBadge(reserva.status)}
             </div>
-            <p className="text-xs text-zinc-500 mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5">
               Criada em{' '}
               {new Date(reserva.criado_em).toLocaleDateString('pt-BR')} •
               Titular: {reserva.titular_nome}
@@ -195,42 +162,15 @@ export function DetalheReservaPage() {
           </div>
         </div>
 
-        {/* Transições de Status */}
-        {opcoesStatus.length > 0 && (
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-zinc-500">Mudar status:</span>
-            {opcoesStatus.map(st => (
-              <Button
-                key={st}
-                size="sm"
-                variant={
-                  st === 'cancelada' || st === 'no_show' ? 'outline' : 'default'
-                }
-                className={
-                  st === 'check_in'
-                    ? 'bg-emerald-600 hover:bg-emerald-700'
-                    : st === 'confirmada'
-                      ? 'bg-sky-600 hover:bg-sky-700'
-                      : ''
-                }
-                onClick={() => {
-                  if (st === 'cancelada' || st === 'no_show') {
-                    setStatusModal({ open: true, novoStatus: st })
-                  } else {
-                    statusMutation.mutate(st)
-                  }
-                }}
-                disabled={statusMutation.isPending}
-              >
-                {st === 'confirmada' && 'Confirmar Reserva'}
-                {st === 'check_in' && 'Realizar Check-in'}
-                {st === 'check_out' && 'Finalizar Check-out'}
-                {st === 'no_show' && 'Marcar No-show'}
-                {st === 'cancelada' && 'Cancelar Reserva'}
-              </Button>
-            ))}
-          </div>
-        )}
+        {/* Botão de Edição (status é modificado na tela de edição) */}
+        <div className="flex items-center gap-2">
+          <Button asChild>
+            <Link to={`/reservas/${reserva.id}/editar`}>
+              <Edit className="mr-2 size-4" />
+              Editar Reserva
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Grid Principal */}
@@ -272,21 +212,10 @@ export function DetalheReservaPage() {
       <ModalEditarFichaFnrh
         open={Boolean(hospedeEmEdicao)}
         hospede={hospedeEmEdicao}
+        hospedePrincipal={reserva.hospedes?.find(h => h.posicao === 1) || null}
         onOpenChange={open => !open && setHospedeEmEdicao(null)}
         onSubmit={payload => fichaMutation.mutate(payload)}
         isPending={fichaMutation.isPending}
-      />
-
-      {/* Diálogo de Confirmação para Cancelar ou No-show */}
-      <ModalAlterarStatusReserva
-        open={statusModal.open}
-        novoStatus={statusModal.novoStatus}
-        onOpenChange={open => setStatusModal(prev => ({ ...prev, open }))}
-        onConfirm={() => {
-          if (statusModal.novoStatus) {
-            statusMutation.mutate(statusModal.novoStatus)
-          }
-        }}
       />
     </div>
   )

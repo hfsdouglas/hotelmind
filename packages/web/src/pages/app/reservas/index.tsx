@@ -1,6 +1,14 @@
 import type { Reserva, ReservaStatus } from '@hotelmind/contracts'
 import { useQuery } from '@tanstack/react-query'
-import { CheckCircle2, Eye, Handshake, Plus } from 'lucide-react'
+import {
+  CheckCircle2,
+  Edit,
+  Eye,
+  Filter,
+  Handshake,
+  Plus,
+  X,
+} from 'lucide-react'
 import { useMemo } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { parceirosComerciaisService } from '@/api/parceiros_comerciais.service'
@@ -11,6 +19,19 @@ import { PagedDataTable } from '@/components/data-table/paged_data_table'
 import { SearchBar } from '@/components/data-table/search_bar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { mask_phone } from '@/hooks/use_phone_mask'
 import { usePaginacao } from '@/hooks/usePaginacao'
 
@@ -36,7 +57,7 @@ function getStatusBadge(status: ReservaStatus) {
       return (
         <Badge
           variant="outline"
-          className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300"
+          className="bg-amber-500/10 text-amber-700 border-amber-300 dark:bg-amber-500/15 dark:text-amber-400 dark:border-amber-800"
         >
           A Confirmar
         </Badge>
@@ -45,7 +66,7 @@ function getStatusBadge(status: ReservaStatus) {
       return (
         <Badge
           variant="outline"
-          className="bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/40 dark:text-sky-300"
+          className="bg-sky-500/10 text-sky-700 border-sky-300 dark:bg-sky-500/15 dark:text-sky-400 dark:border-sky-800"
         >
           Confirmada
         </Badge>
@@ -54,7 +75,7 @@ function getStatusBadge(status: ReservaStatus) {
       return (
         <Badge
           variant="outline"
-          className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300"
+          className="bg-emerald-500/10 text-emerald-700 border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-800"
         >
           Check-in
         </Badge>
@@ -63,7 +84,7 @@ function getStatusBadge(status: ReservaStatus) {
       return (
         <Badge
           variant="outline"
-          className="bg-zinc-100 text-zinc-700 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-300"
+          className="bg-muted text-muted-foreground border-border"
         >
           Check-out
         </Badge>
@@ -72,7 +93,7 @@ function getStatusBadge(status: ReservaStatus) {
       return (
         <Badge
           variant="outline"
-          className="bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/40 dark:text-purple-300"
+          className="bg-purple-500/10 text-purple-700 border-purple-300 dark:bg-purple-500/15 dark:text-purple-400 dark:border-purple-800"
         >
           No-show
         </Badge>
@@ -81,7 +102,7 @@ function getStatusBadge(status: ReservaStatus) {
       return (
         <Badge
           variant="outline"
-          className="bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300"
+          className="bg-destructive/10 text-destructive border-destructive/30"
         >
           Cancelada
         </Badge>
@@ -106,6 +127,10 @@ export function ReservasPage() {
     (searchParams.get('status') as ReservaStatus) || undefined
   const parceiroFiltro = searchParams.get('parceiro_id') || undefined
 
+  const activeFiltersCount = [statusFiltro, parceiroFiltro].filter(
+    Boolean
+  ).length
+
   const colunas: Column<Reserva>[] = useMemo(
     () => [
       {
@@ -115,11 +140,11 @@ export function ReservasPage() {
           <div className="flex flex-col">
             <Link
               to={`/reservas/${r.id}`}
-              className="font-mono font-semibold text-indigo-600 hover:text-indigo-800 hover:underline"
+              className="font-mono font-semibold text-primary hover:underline"
             >
               {r.codigo}
             </Link>
-            <span className="text-[11px] text-zinc-400">
+            <span className="text-[11px] text-muted-foreground">
               {formatarDataBR(r.criado_em)}
             </span>
           </div>
@@ -130,15 +155,15 @@ export function ReservasPage() {
         header: 'Titular / Hóspedes',
         render: r => (
           <div className="flex flex-col">
-            <span className="font-medium text-zinc-900 dark:text-zinc-100">
+            <span className="font-medium text-foreground">
               {r.titular_nome}
             </span>
-            <div className="flex items-center gap-2 text-xs text-zinc-500">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
               {r.titular_telefone && (
                 <span>{mask_phone(r.titular_telefone)}</span>
               )}
               {r.parceiro_comercial && (
-                <span className="flex items-center gap-1 text-indigo-600 font-medium">
+                <span className="flex items-center gap-1 text-primary font-medium">
                   <Handshake className="size-3" />
                   {r.parceiro_comercial.razao_social}
                 </span>
@@ -153,14 +178,14 @@ export function ReservasPage() {
         render: r => (
           <div className="text-xs space-y-0.5">
             <div>
-              <span className="text-zinc-400">In:</span>{' '}
-              <span className="font-medium text-zinc-800 dark:text-zinc-200">
+              <span className="text-muted-foreground">In:</span>{' '}
+              <span className="font-medium text-foreground">
                 {formatarDataBR(r.check_in)}
               </span>
             </div>
             <div>
-              <span className="text-zinc-400">Out:</span>{' '}
-              <span className="font-medium text-zinc-800 dark:text-zinc-200">
+              <span className="text-muted-foreground">Out:</span>{' '}
+              <span className="font-medium text-foreground">
                 {formatarDataBR(r.check_out)}
               </span>
             </div>
@@ -172,17 +197,17 @@ export function ReservasPage() {
         header: 'Acomodação',
         render: r => (
           <div className="text-xs space-y-0.5">
-            <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+            <span className="font-semibold text-foreground">
               Suíte {r.quarto?.identificacao || '-'}
             </span>
             <div className="flex items-center gap-1.5">
               <span
-                className="size-2 rounded-full shrink-0"
+                className="size-2 rounded-full shrink-0 border border-black/10 dark:border-white/10"
                 style={{
                   backgroundColor: r.regime_alimentacao?.cor_pulseira || '#999',
                 }}
               />
-              <span className="text-zinc-500 truncate max-w-[120px]">
+              <span className="text-muted-foreground truncate max-w-[120px]">
                 {r.regime_alimentacao?.titulo}
               </span>
             </div>
@@ -200,14 +225,14 @@ export function ReservasPage() {
                 variant="outline"
                 className={`text-xs ${
                   completa
-                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                    : 'bg-amber-50 text-amber-700 border-amber-200'
+                    ? 'bg-emerald-500/10 text-emerald-700 border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-800'
+                    : 'bg-amber-500/10 text-amber-700 border-amber-300 dark:bg-amber-500/15 dark:text-amber-400 dark:border-amber-800'
                 }`}
               >
                 {r.fichas_preenchidas} de {r.total_hospedes} preenchida(s)
               </Badge>
               {r.fnrh_enviada_em && (
-                <span className="text-[10px] text-emerald-600 font-medium flex items-center gap-0.5">
+                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-0.5">
                   <CheckCircle2 className="size-2.5" />
                   Enviada pelo cliente
                 </span>
@@ -220,7 +245,7 @@ export function ReservasPage() {
         key: 'valor_total',
         header: 'Valor Total',
         render: r => (
-          <span className="font-semibold text-sm text-zinc-900 dark:text-zinc-100">
+          <span className="font-semibold text-sm text-foreground">
             {formatarMoeda(r.valor_total)}
           </span>
         ),
@@ -232,18 +257,29 @@ export function ReservasPage() {
       },
       {
         key: 'acoes',
-        header: 'Ações',
+        header: '',
         render: r => (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center justify-end gap-1">
             <Button
               variant="ghost"
-              size="sm"
+              size="icon"
               asChild
-              className="h-8 w-8 p-0"
-              title="Ver detalhes da reserva"
+              className="h-8 w-8 text-muted-foreground hover:text-primary"
+              title="Visualizar reserva"
             >
               <Link to={`/reservas/${r.id}`}>
-                <Eye className="size-4 text-zinc-600 hover:text-zinc-900" />
+                <Eye className="h-4 w-4" />
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              asChild
+              className="h-8 w-8 text-muted-foreground hover:text-primary"
+              title="Editar reserva"
+            >
+              <Link to={`/reservas/${r.id}/editar`}>
+                <Edit className="h-4 w-4" />
               </Link>
             </Button>
           </div>
@@ -257,9 +293,9 @@ export function ReservasPage() {
     <ListPageLayout
       title="Gestão de Reservas"
       action={
-        <Button asChild className="gap-2">
+        <Button asChild>
           <Link to="/reservas/nova">
-            <Plus className="size-4" />
+            <Plus className="mr-2 h-4 w-4" />
             Nova Reserva
           </Link>
         </Button>
@@ -275,44 +311,99 @@ export function ReservasPage() {
         />
       }
       filters={
-        <div className="flex items-center gap-2 flex-wrap">
-          {/* Filtro de Status */}
-          <select
-            value={statusFiltro || ''}
-            onChange={e => {
-              setParam('status', e.target.value)
-              setPagina(1)
-            }}
-            aria-label="Filtrar por status"
-            className="text-xs px-2.5 py-2 border rounded-md bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800"
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              data-testid="more-filters-trigger"
+              className="shrink-0 h-9"
+            >
+              <Filter className="mr-2 h-4 w-4" />
+              Mais filtros
+              {activeFiltersCount > 0 && (
+                <Badge
+                  variant="secondary"
+                  className="ml-1.5 h-5 px-1.5 text-[10px]"
+                >
+                  {activeFiltersCount}
+                </Badge>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent
+            data-testid="more-filters-content"
+            className="w-80 space-y-4 p-4"
+            align="end"
           >
-            <option value="">Todos os status</option>
-            <option value="a_confirmar">A Confirmar</option>
-            <option value="confirmada">Confirmada</option>
-            <option value="check_in">Check-in</option>
-            <option value="check_out">Check-out</option>
-            <option value="no_show">No-show</option>
-            <option value="cancelada">Cancelada</option>
-          </select>
+            {/* Filtro de Status */}
+            <div className="space-y-1.5">
+              <Label htmlFor="filtro-status">Status da Reserva</Label>
+              <Select
+                value={statusFiltro || 'all'}
+                onValueChange={v => {
+                  setParam('status', v === 'all' ? '' : v)
+                  setPagina(1)
+                }}
+              >
+                <SelectTrigger id="filtro-status" className="h-9 text-xs">
+                  <SelectValue placeholder="Todos os status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os status</SelectItem>
+                  <SelectItem value="a_confirmar">A Confirmar</SelectItem>
+                  <SelectItem value="confirmada">Confirmada</SelectItem>
+                  <SelectItem value="check_in">Check-in</SelectItem>
+                  <SelectItem value="check_out">Check-out</SelectItem>
+                  <SelectItem value="no_show">No-show</SelectItem>
+                  <SelectItem value="cancelada">Cancelada</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-          {/* Filtro de Parceiro */}
-          <select
-            value={parceiroFiltro || ''}
-            onChange={e => {
-              setParam('parceiro_id', e.target.value)
-              setPagina(1)
-            }}
-            aria-label="Filtrar por parceiro"
-            className="text-xs px-2.5 py-2 border rounded-md bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800"
-          >
-            <option value="">Todos os parceiros</option>
-            {parceiros.map(p => (
-              <option key={p.id} value={p.id}>
-                {p.razao_social}
-              </option>
-            ))}
-          </select>
-        </div>
+            {/* Filtro de Parceiro */}
+            <div className="space-y-1.5">
+              <Label htmlFor="filtro-parceiro">Parceiro Comercial</Label>
+              <Select
+                value={parceiroFiltro || 'all'}
+                onValueChange={v => {
+                  setParam('parceiro_id', v === 'all' ? '' : v)
+                  setPagina(1)
+                }}
+              >
+                <SelectTrigger id="filtro-parceiro" className="h-9 text-xs">
+                  <SelectValue placeholder="Todos os parceiros" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os parceiros</SelectItem>
+                  {parceiros.map(p => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.razao_social}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {activeFiltersCount > 0 && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                data-testid="clear-more-filters"
+                className="h-8 w-full text-xs text-muted-foreground hover:text-foreground"
+                onClick={() => {
+                  setParam('status', '')
+                  setParam('parceiro_id', '')
+                  setPagina(1)
+                }}
+              >
+                Limpar filtros
+                <X className="ml-1.5 h-3.5 w-3.5" />
+              </Button>
+            )}
+          </PopoverContent>
+        </Popover>
       }
     >
       <PagedDataTable
@@ -322,7 +413,7 @@ export function ReservasPage() {
           {
             pagina,
             limite,
-            busca,
+            busca: busca || undefined,
             status: statusFiltro,
             parceiro_comercial_id: parceiroFiltro,
           },

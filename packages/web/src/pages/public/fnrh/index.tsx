@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   ChevronDown,
   ChevronUp,
+  Copy,
   FileCheck2,
   Hotel,
   Info,
@@ -90,7 +91,6 @@ export function FnrhPublicaPage() {
     data: fnrhView,
     isLoading,
     isError,
-    refetch,
   } = useQuery<FnrhPublicaView>({
     queryKey: ['fnrh_publica', publicToken],
     queryFn: () => reservasService.getFnrhPublica(publicToken),
@@ -132,6 +132,31 @@ export function FnrhPublicaPage() {
     }
   }, [fnrhView])
 
+  const copiarEnderecoDoTitular = (posicaoDestino: number) => {
+    const titular = formDataMap[1]
+    if (!titular) {
+      toast.error('Dados do hóspede principal não disponíveis.')
+      return
+    }
+    setFormDataMap(prev => ({
+      ...prev,
+      [posicaoDestino]: {
+        ...prev[posicaoDestino],
+        cep: titular.cep || prev[posicaoDestino]?.cep,
+        logradouro: titular.logradouro || prev[posicaoDestino]?.logradouro,
+        numero_endereco:
+          titular.numero_endereco || prev[posicaoDestino]?.numero_endereco,
+        complemento: titular.complemento || prev[posicaoDestino]?.complemento,
+        bairro: titular.bairro || prev[posicaoDestino]?.bairro,
+        cidade: titular.cidade || prev[posicaoDestino]?.cidade,
+        estado: titular.estado || prev[posicaoDestino]?.estado,
+        pais_residencia:
+          titular.pais_residencia || prev[posicaoDestino]?.pais_residencia,
+      },
+    }))
+    toast.success('Endereço do hóspede principal copiado com sucesso!')
+  }
+
   const salvarFichaMutation = useMutation({
     mutationFn: async ({
       posicao,
@@ -150,28 +175,39 @@ export function FnrhPublicaPage() {
     onSuccess: (hospedeAtualizado, variables) => {
       queryClient.setQueryData<FnrhPublicaView>(
         ['fnrh_publica', publicToken],
-        old => {
-          if (!old) return old
-          const novosHospedes = old.hospedes.map(h =>
-            h.posicao === hospedeAtualizado.posicao ? hospedeAtualizado : h
-          )
+        velha => {
+          if (!velha) return velha
           return {
-            ...old,
-            hospedes: novosHospedes,
+            ...velha,
+            hospedes: velha.hospedes.map(h =>
+              h.posicao === hospedeAtualizado.posicao ? hospedeAtualizado : h
+            ),
           }
         }
       )
-      toast.success(
-        variables.concluir
-          ? `Ficha do hóspede ${variables.posicao} validada e salva!`
-          : `Rascunho do hóspede ${variables.posicao} salvo com sucesso!`
-      )
+
+      if (variables.concluir) {
+        toast.success(
+          `Ficha do hóspede ${variables.posicao} concluída com sucesso!`
+        )
+        // Auto expandir próxima ficha pendente se houver
+        if (fnrhView) {
+          const proxima = fnrhView.hospedes.find(
+            h =>
+              h.posicao > variables.posicao && h.ficha_status !== 'preenchida'
+          )
+          if (proxima) {
+            setExpandedPosicao(proxima.posicao)
+          }
+        }
+      } else {
+        toast.info(
+          `Rascunho do hóspede ${variables.posicao} salvo com sucesso.`
+        )
+      }
     },
-    onError: (err: unknown) => {
-      const msg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ||
-        'Não foi possível salvar os dados deste hóspede. Verifique os campos informados.'
+    onError: (err: { response?: { data?: { message?: string } } }) => {
+      const msg = err.response?.data?.message || 'Erro ao salvar ficha.'
       toast.error(msg)
     },
   })
@@ -180,26 +216,42 @@ export function FnrhPublicaPage() {
     mutationFn: async () => {
       return reservasService.enviarFnrhAoHotel(publicToken)
     },
-    onSuccess: () => {
+    onSuccess: data => {
       setEnvioSucesso(true)
-      toast.success('Fichas enviadas ao hotel com sucesso!')
-      refetch()
+      queryClient.setQueryData<FnrhPublicaView>(
+        ['fnrh_publica', publicToken],
+        velha => {
+          if (!velha) return velha
+          return {
+            ...velha,
+            fnrh_enviada_em: data.fnrh_enviada_em,
+          }
+        }
+      )
+      toast.success(
+        'Fichas enviadas ao hotel com sucesso! Seu pré-check-in está garantido.'
+      )
     },
-    onError: (err: unknown) => {
+    onError: (err: { response?: { data?: { message?: string } } }) => {
       const msg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ||
-        'Não foi possível enviar as fichas. Certifique-se de que todos os hóspedes tenham suas fichas devidamente preenchidas.'
+        err.response?.data?.message || 'Erro ao enviar as fichas ao hotel.'
       toast.error(msg)
     },
   })
 
+  // Quantidade de fichas já concluídas
   const totalPreenchidas = useMemo(() => {
     return (
-      fnrhView?.hospedes?.filter(h => h.ficha_status === 'preenchida').length ||
+      fnrhView?.hospedes.filter(h => h.ficha_status === 'preenchida').length ||
       0
     )
   }, [fnrhView?.hospedes])
+
+  const todasConcluidas = Boolean(
+    fnrhView &&
+      fnrhView.total_hospedes > 0 &&
+      totalPreenchidas === fnrhView.total_hospedes
+  )
 
   const handleFieldChange = (
     posicao: number,
@@ -217,12 +269,12 @@ export function FnrhPublicaPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 p-4 text-center">
-        <Loader2 className="h-10 w-10 animate-spin text-indigo-600" />
-        <h2 className="mt-4 text-base font-semibold text-slate-800">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4 text-center">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <h2 className="mt-4 text-base font-semibold text-foreground">
           Carregando Ficha Nacional de Registro de Hóspedes (FNRH)...
         </h2>
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-1 text-xs text-muted-foreground">
           Por favor, aguarde um momento.
         </p>
       </div>
@@ -231,14 +283,14 @@ export function FnrhPublicaPage() {
 
   if (isError || !fnrhView) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 p-6 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-rose-100 text-rose-600">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background p-6 text-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10 text-destructive">
           <AlertCircle className="h-8 w-8" />
         </div>
-        <h1 className="mt-4 text-xl font-bold text-slate-900">
+        <h1 className="mt-4 text-xl font-bold text-foreground">
           Ficha não disponível
         </h1>
-        <p className="mt-2 max-w-sm text-sm text-slate-600">
+        <p className="mt-2 max-w-sm text-sm text-muted-foreground">
           Este link de ficha pode ter expirado, ter sido desativado ou o
           endereço digitado está incorreto. Em caso de dúvidas, entre em contato
           diretamente com o hotel.
@@ -248,26 +300,23 @@ export function FnrhPublicaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24 text-slate-900 antialiased">
+    <div className="min-h-screen bg-background pb-24 text-foreground antialiased">
       {/* Top Banner do Hotel */}
-      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 px-4 py-3 shadow-xs backdrop-blur-md">
+      <header className="sticky top-0 z-20 border-b border-border bg-background/95 px-4 py-3 shadow-xs backdrop-blur-md">
         <div className="mx-auto flex max-w-xl items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <Hotel className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-sm font-bold text-slate-900 leading-tight">
+              <h1 className="text-sm font-bold text-foreground leading-tight">
                 {fnrhView.hotel_nome}
               </h1>
-              <p className="text-[11px] font-medium text-slate-500">
-                FNRH • Pré-check-in Digital
-              </p>
             </div>
           </div>
           <Badge
             variant="outline"
-            className="text-[11px] border-indigo-200 bg-indigo-50 text-indigo-700 font-semibold"
+            className="text-[11px] border-primary/20 bg-primary/10 text-primary font-semibold"
           >
             {totalPreenchidas}/{fnrhView.total_hospedes} preenchida(s)
           </Badge>
@@ -277,13 +326,13 @@ export function FnrhPublicaPage() {
       <main className="mx-auto max-w-xl px-4 py-4 space-y-4">
         {/* Banner de Envio Concluído */}
         {(fnrhView.fnrh_enviada_em || envioSucesso) && (
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50/90 p-4 text-emerald-900 shadow-xs flex items-start gap-3">
-            <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+          <div className="rounded-xl border border-emerald-300 dark:border-emerald-800 bg-emerald-500/10 p-4 text-foreground shadow-xs flex items-start gap-3">
+            <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
             <div className="text-xs space-y-1">
-              <p className="font-bold text-sm text-emerald-800">
+              <p className="font-bold text-sm text-emerald-700 dark:text-emerald-400">
                 Dados enviados ao hotel com sucesso!
               </p>
-              <p className="text-emerald-700">
+              <p className="text-muted-foreground">
                 {fnrhView.fnrh_enviada_em
                   ? `Envio registrado em ${formatarDataHoraBR(fnrhView.fnrh_enviada_em)}.`
                   : 'Seus dados foram recebidos pela recepção.'}{' '}
@@ -295,13 +344,13 @@ export function FnrhPublicaPage() {
         )}
 
         {/* Resumo da Reserva */}
-        <Card className="border-slate-200 shadow-xs overflow-hidden">
-          <CardHeader className="bg-slate-50/60 pb-3 border-b border-slate-100">
-            <CardTitle className="text-sm font-bold text-slate-800 flex items-center justify-between">
+        <Card className="border-border shadow-xs overflow-hidden">
+          <CardHeader className="bg-muted/30 pb-3 border-b border-border">
+            <CardTitle className="text-sm font-bold text-foreground flex items-center justify-between">
               <span>Dados da Hospedagem</span>
-              <span className="text-xs font-normal text-slate-500">
+              <span className="text-xs font-normal text-muted-foreground">
                 Titular:{' '}
-                <strong className="text-slate-800">
+                <strong className="text-foreground">
                   {fnrhView.titular_nome}
                 </strong>
               </span>
@@ -309,47 +358,52 @@ export function FnrhPublicaPage() {
           </CardHeader>
           <CardContent className="pt-3 pb-3 text-xs grid grid-cols-2 gap-3">
             <div>
-              <span className="text-slate-400 block text-[11px]">Período</span>
-              <span className="font-semibold text-slate-800 flex items-center gap-1 mt-0.5">
-                <Calendar className="h-3.5 w-3.5 text-indigo-500" />
+              <span className="text-muted-foreground block text-[11px]">
+                Período
+              </span>
+              <span className="font-semibold text-foreground flex items-center gap-1 mt-0.5">
+                <Calendar className="h-3.5 w-3.5 text-primary" />
                 {formatarDataBR(fnrhView.check_in)} a{' '}
                 {formatarDataBR(fnrhView.check_out)}
               </span>
             </div>
             <div>
-              <span className="text-slate-400 block text-[11px]">
+              <span className="text-muted-foreground block text-[11px]">
                 Acomodação
               </span>
-              <span className="font-semibold text-slate-800 flex items-center gap-1 mt-0.5">
-                <Building className="h-3.5 w-3.5 text-indigo-500" />
+              <span className="font-semibold text-foreground flex items-center gap-1 mt-0.5">
+                <Building className="h-3.5 w-3.5 text-primary" />
                 {fnrhView.quarto_identificacao}
               </span>
             </div>
-            <div className="col-span-2 pt-1 border-t border-slate-100 flex items-center justify-between text-slate-500 text-[11px]">
+            <div className="col-span-2 pt-1 border-t border-border flex items-center justify-between text-muted-foreground text-[11px]">
               <span className="flex items-center gap-1.5">
-                <Users className="h-3.5 w-3.5 text-slate-400" />
+                <Users className="h-3.5 w-3.5 text-muted-foreground" />
                 Capacidade da reserva:{' '}
-                <strong>{fnrhView.total_hospedes} hóspede(s)</strong>
+                <strong className="text-foreground">
+                  {fnrhView.total_hospedes} hóspede(s)
+                </strong>
               </span>
-              <span className="flex items-center gap-1 text-slate-400">
+              <span className="flex items-center gap-1 text-muted-foreground">
                 <Lock className="h-3 w-3" /> Quantidade definida na reserva
               </span>
             </div>
           </CardContent>
         </Card>
 
-        {/* Instruções */}
-        <div className="rounded-lg bg-indigo-50/70 p-3 text-xs text-indigo-900 border border-indigo-100/80 flex items-start gap-2.5">
-          <Info className="h-4 w-4 text-indigo-600 shrink-0 mt-0.5" />
-          <div className="space-y-0.5">
-            <p className="font-semibold">
-              Preenchimento obrigatório para todos os hóspedes
+        {/* Informativo Pré-check-in Digital (Abaixo de Dados da Hospedagem) */}
+        <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-xs text-foreground/90 flex items-start gap-3">
+          <Info className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <p className="font-semibold text-sm text-foreground">
+              FNRH • Pré-check-in Digital
             </p>
-            <p className="text-[11px] text-indigo-800/90 leading-relaxed">
+            <p className="text-muted-foreground text-xs leading-relaxed">
               De acordo com a regulamentação do Ministério do Turismo, cada
               pessoa que se hospedar deve ter sua Ficha Nacional (FNRH)
-              individual. Você pode salvar rascunhos e, ao final, tocar em{' '}
-              <strong>"Enviar ao hotel"</strong>.
+              individual. Preencha os dados dos hóspedes para agilizar seu
+              atendimento na recepção e desfrutar da sua estadia com total
+              comodidade.
             </p>
           </div>
         </div>
@@ -367,33 +421,33 @@ export function FnrhPublicaPage() {
                 key={h.posicao}
                 className={`border transition-all duration-200 overflow-hidden ${
                   h.ficha_status === 'preenchida'
-                    ? 'border-emerald-200 shadow-xs'
+                    ? 'border-emerald-300 dark:border-emerald-800 shadow-xs'
                     : h.ficha_status === 'rascunho'
-                      ? 'border-sky-200 shadow-xs'
-                      : 'border-slate-200 shadow-xs'
+                      ? 'border-sky-300 dark:border-sky-800 shadow-xs'
+                      : 'border-border shadow-xs'
                 }`}
               >
                 {/* Header do Card (Clicável para expandir/recolher) */}
                 <button
                   type="button"
                   onClick={() => setExpandedPosicao(isExpanded ? 0 : h.posicao)}
-                  className="w-full text-left p-4 bg-white flex items-center justify-between hover:bg-slate-50/80 transition-colors"
+                  className="w-full text-left p-4 bg-card flex items-center justify-between hover:bg-muted/30 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <div
                       className={`h-8 w-8 rounded-full flex items-center justify-center font-bold text-xs ${
                         h.ficha_status === 'preenchida'
-                          ? 'bg-emerald-100 text-emerald-800'
+                          ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300'
                           : h.ficha_status === 'rascunho'
-                            ? 'bg-sky-100 text-sky-800'
-                            : 'bg-slate-100 text-slate-700'
+                            ? 'bg-sky-500/20 text-sky-700 dark:text-sky-300'
+                            : 'bg-muted text-muted-foreground'
                       }`}
                     >
                       {h.posicao}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-slate-900">
+                        <span className="font-bold text-sm text-foreground">
                           {dados.nome_completo ||
                             (h.posicao === 1
                               ? 'Titular da Reserva'
@@ -408,7 +462,7 @@ export function FnrhPublicaPage() {
                           </Badge>
                         )}
                       </div>
-                      <p className="text-[11px] text-slate-500">
+                      <p className="text-[11px] text-muted-foreground">
                         {dados.numero_documento
                           ? `${dados.tipo_documento?.toUpperCase()}: ${dados.numero_documento}`
                           : 'Documento não informado'}
@@ -421,10 +475,10 @@ export function FnrhPublicaPage() {
                       variant="outline"
                       className={`text-[11px] ${
                         h.ficha_status === 'preenchida'
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                          ? 'bg-emerald-500/10 text-emerald-700 border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-800'
                           : h.ficha_status === 'rascunho'
-                            ? 'bg-sky-50 text-sky-700 border-sky-300'
-                            : 'bg-amber-50 text-amber-700 border-amber-300'
+                            ? 'bg-sky-500/10 text-sky-700 border-sky-300 dark:bg-sky-500/15 dark:text-sky-400 dark:border-sky-800'
+                            : 'bg-amber-500/10 text-amber-700 border-amber-300 dark:bg-amber-500/15 dark:text-amber-400 dark:border-amber-800'
                       }`}
                     >
                       {h.ficha_status === 'preenchida'
@@ -434,26 +488,27 @@ export function FnrhPublicaPage() {
                           : 'Pendente'}
                     </Badge>
                     {isExpanded ? (
-                      <ChevronUp className="h-4 w-4 text-slate-400" />
+                      <ChevronUp className="h-4 w-4 text-muted-foreground" />
                     ) : (
-                      <ChevronDown className="h-4 w-4 text-slate-400" />
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
                     )}
                   </div>
                 </button>
 
                 {/* Corpo do Formulário do Hóspede */}
                 {isExpanded && (
-                  <CardContent className="p-4 pt-2 border-t border-slate-100 bg-white space-y-4">
+                  <CardContent className="p-4 pt-2 border-t border-border bg-card space-y-4">
                     {/* Seção 1: Identificação */}
                     <div className="space-y-3">
-                      <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                        <User className="h-3.5 w-3.5 text-indigo-600" />
+                      <h3 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                        <User className="h-3.5 w-3.5 text-primary" />
                         Identificação Pessoal
                       </h3>
 
                       <div className="space-y-1">
                         <Label className="text-xs">
-                          Nome Completo <span className="text-rose-500">*</span>
+                          Nome Completo{' '}
+                          <span className="text-destructive">*</span>
                         </Label>
                         <Input
                           placeholder="Nome igual ao documento oficial"
@@ -473,7 +528,7 @@ export function FnrhPublicaPage() {
                         <div className="space-y-1">
                           <Label className="text-xs">
                             Data de Nascimento{' '}
-                            <span className="text-rose-500">*</span>
+                            <span className="text-destructive">*</span>
                           </Label>
                           <Input
                             type="date"
@@ -547,7 +602,7 @@ export function FnrhPublicaPage() {
                         <div className="space-y-1">
                           <Label className="text-xs">
                             Tipo de Documento{' '}
-                            <span className="text-rose-500">*</span>
+                            <span className="text-destructive">*</span>
                           </Label>
                           <Select
                             value={dados.tipo_documento || 'cpf'}
@@ -572,7 +627,7 @@ export function FnrhPublicaPage() {
                         <div className="space-y-1">
                           <Label className="text-xs">
                             Número do Documento{' '}
-                            <span className="text-rose-500">*</span>
+                            <span className="text-destructive">*</span>
                           </Label>
                           <Input
                             placeholder="Somente números ou código"
@@ -591,12 +646,12 @@ export function FnrhPublicaPage() {
 
                       {/* Regra de menor de idade */}
                       {isMenor && (
-                        <div className="rounded-lg bg-amber-50 p-2.5 border border-amber-200 text-xs text-amber-900 space-y-1">
-                          <p className="font-bold flex items-center gap-1 text-[11px]">
-                            <Info className="h-3.5 w-3.5 text-amber-600" />
+                        <div className="rounded-lg bg-amber-500/10 p-2.5 border border-amber-300 dark:border-amber-800 text-xs text-foreground space-y-1">
+                          <p className="font-bold flex items-center gap-1 text-[11px] text-amber-700 dark:text-amber-400">
+                            <Info className="h-3.5 w-3.5" />
                             Hóspede menor de 18 anos
                           </p>
-                          <p className="text-[11px] text-amber-800">
+                          <p className="text-[11px] text-muted-foreground">
                             Indique qual dos outros hóspedes da reserva é o
                             responsável legal:
                           </p>
@@ -614,7 +669,7 @@ export function FnrhPublicaPage() {
                               )
                             }
                           >
-                            <SelectTrigger className="h-8 text-xs bg-white">
+                            <SelectTrigger className="h-8 text-xs bg-background">
                               <SelectValue placeholder="Selecione o responsável" />
                             </SelectTrigger>
                             <SelectContent>
@@ -640,11 +695,25 @@ export function FnrhPublicaPage() {
                     </div>
 
                     {/* Seção 2: Contato e Endereço */}
-                    <div className="space-y-3 pt-3 border-t border-slate-100">
-                      <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                        <FileCheck2 className="h-3.5 w-3.5 text-indigo-600" />
-                        Contato e Residência
-                      </h3>
+                    <div className="space-y-3 pt-3 border-t border-border">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                          <FileCheck2 className="h-3.5 w-3.5 text-primary" />
+                          Contato e Residência
+                        </h3>
+                        {h.posicao > 1 && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => copiarEnderecoDoTitular(h.posicao)}
+                            className="h-7 text-xs gap-1.5"
+                          >
+                            <Copy className="size-3" />
+                            Copiar do titular
+                          </Button>
+                        )}
+                      </div>
 
                       <div className="grid grid-cols-2 gap-2">
                         <div className="space-y-1">
@@ -802,9 +871,9 @@ export function FnrhPublicaPage() {
                     </div>
 
                     {/* Seção 3: Dados da Viagem */}
-                    <div className="space-y-3 pt-3 border-t border-slate-100">
-                      <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5 text-indigo-600" />
+                    <div className="space-y-3 pt-3 border-t border-border">
+                      <h3 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                        <Calendar className="h-3.5 w-3.5 text-primary" />
                         Informações da Viagem
                       </h3>
 
@@ -902,14 +971,12 @@ export function FnrhPublicaPage() {
                       </div>
                     </div>
 
-                    {/* Ações do Hóspede */}
-                    <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center gap-2">
+                    {/* Botões de Ação do Hóspede */}
+                    <div className="flex items-center justify-between pt-3 border-t border-border">
                       <Button
                         type="button"
-                        variant="outline"
+                        variant="ghost"
                         size="sm"
-                        className="w-full sm:w-auto text-xs gap-1.5 h-9"
-                        disabled={salvarFichaMutation.isPending}
                         onClick={() =>
                           salvarFichaMutation.mutate({
                             posicao: h.posicao,
@@ -917,16 +984,16 @@ export function FnrhPublicaPage() {
                             concluir: false,
                           })
                         }
+                        disabled={salvarFichaMutation.isPending}
+                        className="text-xs text-muted-foreground hover:text-foreground h-8"
                       >
-                        <Save className="h-3.5 w-3.5" />
+                        <Save className="h-3.5 w-3.5 mr-1" />
                         Salvar Rascunho
                       </Button>
 
                       <Button
                         type="button"
                         size="sm"
-                        className="w-full sm:w-auto text-xs gap-1.5 h-9 bg-indigo-600 hover:bg-indigo-700 text-white ml-auto"
-                        disabled={salvarFichaMutation.isPending}
                         onClick={() =>
                           salvarFichaMutation.mutate({
                             posicao: h.posicao,
@@ -934,9 +1001,11 @@ export function FnrhPublicaPage() {
                             concluir: true,
                           })
                         }
+                        disabled={salvarFichaMutation.isPending}
+                        className="text-xs h-8"
                       >
-                        <Check className="h-3.5 w-3.5" />
-                        Concluir Ficha deste Hóspede
+                        <Check className="h-3.5 w-3.5 mr-1" />
+                        Concluir Ficha
                       </Button>
                     </div>
                   </CardContent>
@@ -946,58 +1015,49 @@ export function FnrhPublicaPage() {
           })}
         </div>
 
-        {/* Aviso LGPD */}
-        <div className="rounded-lg border border-slate-200 bg-white p-3.5 text-[11px] text-slate-500 space-y-1.5 shadow-2xs">
-          <div className="flex items-center gap-1.5 font-semibold text-slate-700">
-            <ShieldCheck className="h-4 w-4 text-emerald-600" />
-            Privacidade e Proteção de Dados (LGPD)
-          </div>
-          <p className="leading-relaxed">
-            Seus dados são coletados exclusivamente para a emissão da Ficha
-            Nacional de Registro de Hóspedes (FNRH), conforme determinação legal
-            do Ministério do Turismo (Lei nº 11.771/2008), tratados com sigilo e
-            segurança nos termos da LGPD (Lei nº 13.709/2018).
-          </p>
+        {/* Botão Flutuante / Fixo para Enviar Fichas ao Hotel */}
+        <div className="pt-2">
+          <Card className="border-border bg-card shadow-md">
+            <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <ShieldCheck
+                  className={`h-5 w-5 shrink-0 ${
+                    todasConcluidas
+                      ? 'text-emerald-600'
+                      : 'text-muted-foreground'
+                  }`}
+                />
+                <div>
+                  <p className="text-xs font-semibold text-foreground">
+                    {todasConcluidas
+                      ? 'Todas as fichas foram preenchidas!'
+                      : `${totalPreenchidas} de ${fnrhView.total_hospedes} fichas preenchidas`}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">
+                    Envie os dados concluídos para finalizar seu pré-check-in.
+                  </p>
+                </div>
+              </div>
+
+              <Button
+                type="button"
+                onClick={() => enviarAoHotelMutation.mutate()}
+                disabled={enviarAoHotelMutation.isPending || !todasConcluidas}
+                className="w-full sm:w-auto h-9 text-xs"
+              >
+                {enviarAoHotelMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+                ) : (
+                  <Send className="h-3.5 w-3.5 mr-1.5" />
+                )}
+                Enviar ao Hotel
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </main>
-
-      {/* Barra Fixa Inferior de Envio */}
-      <footer className="fixed bottom-0 left-0 right-0 z-20 border-t border-slate-200 bg-white/95 px-4 py-3 shadow-lg backdrop-blur-md">
-        <div className="mx-auto flex max-w-xl items-center justify-between gap-3">
-          <div className="text-xs">
-            <p className="font-bold text-slate-800">
-              {totalPreenchidas} de {fnrhView.total_hospedes} preenchida(s)
-            </p>
-            <p className="text-[11px] text-slate-500">
-              {totalPreenchidas === fnrhView.total_hospedes
-                ? 'Todas as fichas prontas para envio!'
-                : 'Conclua todas as fichas para enviar'}
-            </p>
-          </div>
-
-          <Button
-            type="button"
-            className="h-10 text-xs font-bold gap-2 bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs px-5"
-            disabled={
-              totalPreenchidas < fnrhView.total_hospedes ||
-              enviarAoHotelMutation.isPending
-            }
-            onClick={() => enviarAoHotelMutation.mutate()}
-          >
-            {enviarAoHotelMutation.isPending ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Enviando...
-              </>
-            ) : (
-              <>
-                <Send className="h-4 w-4" />
-                Enviar ao Hotel
-              </>
-            )}
-          </Button>
-        </div>
-      </footer>
     </div>
   )
 }
+
+export default FnrhPublicaPage

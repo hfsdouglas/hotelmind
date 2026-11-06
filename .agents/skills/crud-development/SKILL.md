@@ -80,6 +80,7 @@ Phase 1: Contracts → Phase 2: Database & Model → Phase 3: Backend API (TDD) 
    - Place route entrypoint at `src/pages/app/<domain>/index.tsx`.
    - Use `usePaginacao` for query params (`pagina`, `limite`, `busca`, `ordenar_por`, `direcao`).
    - Wrap table results in `SearchResultsSuspense`.
+   - Table action columns must omit the header title `"Ações"` (use `header: ''`) and action buttons must always be aligned to the right and vertically centered (`className="flex items-center justify-end gap-1"`).
 4. **Create / Edit Form Pages**:
    - Route entrypoints at `novo.tsx` and `[id]/editar.tsx`.
    - Build form using `CrudFormLayout` (`src/components/forms/CrudFormLayout.tsx`).

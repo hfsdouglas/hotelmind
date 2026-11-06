@@ -27,38 +27,46 @@ export function ReservaDetalhesHospedagem({
 }: ReservaDetalhesHospedagemProps) {
   return (
     <>
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base font-semibold">
+      <Card className="border-border bg-card">
+        <CardHeader className="pb-3.5">
+          <CardTitle className="text-base font-semibold text-foreground">
             Dados da Hospedagem
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
             <div>
-              <span className="text-zinc-400 block">Check-in</span>
-              <span className="font-semibold text-sm text-zinc-800 dark:text-zinc-200">
+              <span className="text-muted-foreground block text-[11px]">
+                Check-in
+              </span>
+              <span className="font-semibold text-sm text-foreground">
                 {formatarDataBR(reserva.check_in)}
               </span>
             </div>
             <div>
-              <span className="text-zinc-400 block">Check-out</span>
-              <span className="font-semibold text-sm text-zinc-800 dark:text-zinc-200">
+              <span className="text-muted-foreground block text-[11px]">
+                Check-out
+              </span>
+              <span className="font-semibold text-sm text-foreground">
                 {formatarDataBR(reserva.check_out)}
               </span>
             </div>
             <div>
-              <span className="text-zinc-400 block">Suíte</span>
-              <span className="font-semibold text-sm text-zinc-800 dark:text-zinc-200">
+              <span className="text-muted-foreground block text-[11px]">
+                Suíte
+              </span>
+              <span className="font-semibold text-sm text-foreground">
                 {reserva.quarto?.identificacao || '-'} (
                 {reserva.quarto?.categoria_nome || '-'})
               </span>
             </div>
             <div>
-              <span className="text-zinc-400 block">Regime</span>
-              <span className="font-semibold text-sm flex items-center gap-1.5 mt-0.5">
+              <span className="text-muted-foreground block text-[11px]">
+                Regime
+              </span>
+              <span className="font-semibold text-sm flex items-center gap-1.5 mt-0.5 text-foreground">
                 <span
-                  className="size-2 rounded-full shrink-0"
+                  className="size-2 rounded-full shrink-0 border border-black/10 dark:border-white/10"
                   style={{
                     backgroundColor:
                       reserva.regime_alimentacao?.cor_pulseira || '#999',
@@ -70,12 +78,12 @@ export function ReservaDetalhesHospedagem({
           </div>
 
           {reserva.parceiro_comercial && (
-            <div className="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center gap-2 text-xs">
-              <Handshake className="size-4 text-indigo-600" />
-              <span className="text-zinc-500">
+            <div className="mt-4 pt-3.5 border-t border-border flex items-center gap-2 text-xs">
+              <Handshake className="size-4 text-primary" />
+              <span className="text-muted-foreground">
                 Parceiro Comercial Vinculado:
               </span>
-              <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+              <span className="font-semibold text-foreground">
                 {reserva.parceiro_comercial.razao_social}
               </span>
             </div>
@@ -84,41 +92,46 @@ export function ReservaDetalhesHospedagem({
       </Card>
 
       {/* Diárias Congeladas na Criação */}
-      <Card>
-        <CardHeader className="pb-3">
+      <Card className="border-border bg-card">
+        <CardHeader className="pb-3.5">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-base font-semibold">
+            <CardTitle className="text-base font-semibold text-foreground">
               Tarifas Aplicadas por Diária
             </CardTitle>
-            <span className="text-xs text-zinc-400">Valores congelados</span>
+            <span className="text-xs text-muted-foreground">
+              Valores congelados
+            </span>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
+          <div className="divide-y divide-border">
             {reserva.detalhamento_diarias?.map(diaria => (
               <div
                 key={diaria.data}
                 className="py-2.5 flex items-center justify-between text-xs"
               >
                 <div>
-                  <span className="font-semibold text-zinc-800 dark:text-zinc-200">
-                    {formatarDataBR(diaria.data)}
+                  <span className="font-medium text-foreground">
+                    Diária {formatarDataBR(diaria.data)}
                   </span>
-                  <span className="text-zinc-400 ml-2">
-                    ({diaria.tarifario_nome})
+                  <span className="text-muted-foreground text-[11px] block">
+                    {diaria.tarifario_nome}
                   </span>
                 </div>
-                <span className="font-bold text-zinc-900 dark:text-zinc-100">
+                <span className="font-semibold text-foreground">
                   {formatarMoeda(diaria.valor_diaria)}
                 </span>
               </div>
             ))}
-            <div className="pt-3 flex items-center justify-between text-sm font-bold">
-              <span>Valor Total da Reserva</span>
-              <span className="text-indigo-700 dark:text-indigo-400 text-lg">
-                {formatarMoeda(reserva.valor_total)}
-              </span>
-            </div>
+          </div>
+
+          <div className="mt-4 pt-3 border-t border-border flex items-center justify-between">
+            <span className="text-xs font-medium text-muted-foreground">
+              Valor Total da Hospedagem:
+            </span>
+            <span className="text-lg font-bold text-primary">
+              {formatarMoeda(reserva.valor_total)}
+            </span>
           </div>
         </CardContent>
       </Card>

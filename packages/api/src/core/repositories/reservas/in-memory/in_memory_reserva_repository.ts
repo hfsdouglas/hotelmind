@@ -12,6 +12,7 @@ import type {
   UpdateFichaHospedeData,
   UpdateReservaData,
 } from '@/core/repositories/reservas/reserva_repository'
+import { extract_hotel_prefix } from '@/core/utils/hotel_code'
 
 export class InMemoryReservaHospedeRepository
   implements IReservaHospedeRepository
@@ -181,6 +182,11 @@ export class InMemoryReservaRepository implements IReservaRepository {
     user_id: string | null
     created_at: Date
   }> = []
+  private hotel_names = new Map<string, string>()
+
+  set_hotel_name(hotel_id: string, name: string) {
+    this.hotel_names.set(hotel_id, name)
+  }
 
   constructor(
     private readonly hospedes_repo?: InMemoryReservaHospedeRepository
@@ -289,7 +295,9 @@ export class InMemoryReservaRepository implements IReservaRepository {
   }
 
   async find_by_id(id: string, hotel_id: string): Promise<Reserva | null> {
-    const item = this.items.find(r => r.id === id && r.hotel_id === hotel_id)
+    const item = this.items.find(
+      r => (r.id === id || r.codigo === id) && r.hotel_id === hotel_id
+    )
     if (!item) return null
 
     if (this.hospedes_repo) {
@@ -433,7 +441,9 @@ export class InMemoryReservaRepository implements IReservaRepository {
   async gerar_proximo_codigo(hotel_id: string): Promise<string> {
     const do_hotel = this.items.filter(r => r.hotel_id === hotel_id)
     const proximo = do_hotel.length + 1
-    return `RES-${String(proximo).padStart(6, '0')}`
+    const name = this.hotel_names.get(hotel_id) || 'Furnaspark Resort'
+    const prefix = extract_hotel_prefix(name)
+    return `${prefix}-${String(proximo).padStart(6, '0')}`
   }
 
   async create_status_historico(

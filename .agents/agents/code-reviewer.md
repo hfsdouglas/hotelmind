@@ -25,6 +25,7 @@ You are the HotelMind Code Reviewer. Your responsibility is auditing pull reques
    - Are use cases tested with in-memory repository fakes rather than Prisma mocks?
 4. **Tooling & Standards**:
    - Does all code pass `biome check`?
+   - Do data tables follow the action column standard (no "Ações" title in header, action buttons right-aligned and vertically centered)?
    - Are commit guidelines respected (explicit approval required before committing)?
 
 ## Applicable Rules

@@ -45,6 +45,7 @@ Step-by-step workflow for developing user interface features in `packages/web` a
   - Skeleton rows match loaded column count and current `limite`.
   - Use `usePaginacao` to manage URL query params (`pagina`, `limite`, `busca`, `ordenar_por`, `direcao`).
   - Search and filter updates run in a React transition (`useTransition`).
+  - Table action columns must omit the header title `"Ações"` (use `header: ''`) and action buttons must always be aligned to the right and vertically centered (`className="flex items-center justify-end gap-1"`).
 
 ### 5. Writing Tests (TDD)
 - Create `.spec.tsx` co-located with the page or component.
