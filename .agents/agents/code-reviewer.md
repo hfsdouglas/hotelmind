@@ -14,7 +14,7 @@ You are the HotelMind Code Reviewer. Your responsibility is auditing pull reques
 
 1. **Architecture & Boundaries**:
    - Backend: Are domain entities and use cases isolated from framework code (Prisma, Fastify)?
-   - Frontend: Are all components located under `src/components/` and **never** inside `src/pages/**`?
+   - Frontend: Are all components located under `src/components/` and **never** inside `src/pages/**`? Do generated UI components follow established HotelMind design patterns and leverage shadcn primitives?
    - Shared contracts: Are types placed in `packages/.contracts` without runtime code or Zod schemas?
 2. **Multi-Tenancy & Security**:
    - Is `hotel_id` present and indexed on every business table?

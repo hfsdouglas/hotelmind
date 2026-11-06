@@ -22,5 +22,6 @@
 - **Component Location Rule (RED FLAG)**: **NEVER** create a `components` directory inside `src/pages/**`.
   - All reusable components, forms, modals, dialogs, sections, and domain widgets MUST reside under `src/components/<domain>/`.
   - `src/pages/**` is strictly reserved for route entrypoints (`index.tsx`, `novo.tsx`, `[id]/editar.tsx`) and page tests.
+- **UI Components & Design System (shadcn MCP)**: Use available shadcn MCP tools to inspect, search, and scaffold components and primitives before manually writing component JSX or styles. Ensure all generated UI components follow established HotelMind design patterns and reside strictly under `src/components/`, never in `src/pages/**`.
 - **Separation of Concerns**: Components display data. Hooks encapsulate logic and state. Services/api clients handle external HTTP communication.
 - **Server State vs Client State**: TanStack Query is the single source of truth for remote server data. Never mirror query results into local `useState` unless editing a detached local copy.

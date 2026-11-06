@@ -28,3 +28,8 @@
 
 - **No "Ações" Title**: The table column reserved for row action buttons must NEVER display the title `"Ações"` in its header (use `header: ''` or omit).
 - **Right-Aligned & Centered**: Action buttons inside the cell must always be aligned to the right and vertically centered (`className="flex items-center justify-end gap-1"`).
+
+## UI Components & Design System (shadcn MCP)
+
+- Use available shadcn MCP tools to inspect, search, and scaffold components and primitives before manually writing component JSX or styles.
+- Ensure all generated UI components follow established HotelMind design patterns and reside strictly under `src/components/`, never in `src/pages/**`.

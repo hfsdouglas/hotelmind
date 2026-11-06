@@ -56,6 +56,13 @@ src/
 
 ---
 
+## UI Components & Design System (shadcn MCP)
+
+- Use the available shadcn MCP tools to inspect, search, and scaffold components and primitives before manually writing component JSX or styles.
+- Ensure all generated UI components follow the established HotelMind design patterns and reside strictly under `src/components/`, never in `src/pages/**`.
+
+---
+
 ## DataTable & List Page Standards
 
 ### DataTable Shared Primitives (`src/components/data-table/`)

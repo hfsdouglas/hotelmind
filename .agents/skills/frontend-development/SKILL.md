@@ -15,6 +15,7 @@ Step-by-step workflow for developing user interface features in `packages/web` a
 - **Component Location Rule (RED FLAG)**: **NEVER** create a `components` directory inside `src/pages/**`.
   - All reusable components, forms, modals, dialogs, sections, and domain widgets MUST reside under `src/components/<modulo>/`.
   - `src/pages/**` is strictly reserved for page route entrypoints (`index.tsx`, `novo.tsx`, `[id]/editar.tsx`) and page tests.
+- **UI Components & Design System (shadcn MCP)**: Use available shadcn MCP tools to inspect, search, and scaffold components and primitives before manually writing component JSX or styles. Ensure all generated UI components follow established HotelMind design patterns and reside strictly under `src/components/`, never in `src/pages/**`.
 - **Server State**: Always use TanStack Query for remote data fetching and mutations. Never duplicate query data into local state.
 - **TDD**: Write tests before implementation (`.spec.tsx`).
 
@@ -29,6 +30,7 @@ Step-by-step workflow for developing user interface features in `packages/web` a
   - Primitives: `src/components/ui/` (shadcn/ui).
   - Shared layouts/forms: `src/components/forms/`, `src/components/data-table/`.
   - Domain components: `src/components/<domain>/` (e.g. `src/components/reservas/`, `src/components/hoteis/`).
+- Use available shadcn MCP tools to inspect, search, and scaffold components and primitives before manually writing component JSX or styles.
 - Follow separation of concerns: components display data; hooks manage state and mutations.
 
 ### 3. Forms & Layouts Standard

@@ -16,30 +16,32 @@ const SOURCE_TARGET_MAP = {
   'CLAUDE.md': {
     rules: ['architecture.md', 'coding-standards.md', 'git-commits.md'],
     skills: ['crud-development', 'speckit'],
-    agents: ['code-reviewer.md']
+    agents: ['code-reviewer.md'],
   },
   'packages/api/CLAUDE.md': {
     rules: ['architecture.md', 'database.md', 'multi-tenancy.md', 'testing.md'],
     skills: ['api-development', 'database-management', 'crud-development'],
-    agents: ['backend-specialist.md', 'code-reviewer.md']
+    agents: ['fullstack-specialist.md', 'code-reviewer.md'],
   },
   'packages/admin/CLAUDE.md': {
     rules: ['architecture.md', 'multi-tenancy.md', 'testing.md'],
     skills: ['frontend-development', 'crud-development'],
-    agents: ['frontend-specialist.md', 'code-reviewer.md']
+    agents: ['fullstack-specialist.md', 'code-reviewer.md'],
   },
   'packages/web/CLAUDE.md': {
     rules: ['architecture.md', 'multi-tenancy.md', 'testing.md'],
     skills: ['frontend-development', 'crud-development'],
-    agents: ['frontend-specialist.md', 'code-reviewer.md']
-  }
+    agents: ['fullstack-specialist.md', 'code-reviewer.md'],
+  },
 }
 
 function getChangedFiles() {
   const changed = new Set()
 
   try {
-    const statusOutput = execSync('git status --porcelain', { encoding: 'utf-8' })
+    const statusOutput = execSync('git status --porcelain', {
+      encoding: 'utf-8',
+    })
     const lines = statusOutput.split('\n')
     for (const line of lines) {
       if (!line) continue
@@ -48,7 +50,7 @@ function getChangedFiles() {
         changed.add(filePath)
       }
     }
-  } catch (err) {
+  } catch (_err) {
     // Git not available or not in a git repo
   }
 
@@ -72,13 +74,15 @@ function main() {
   let filesToAnalyze = []
 
   if (args.length > 0) {
-    filesToAnalyze = args.filter((f) => f in SOURCE_TARGET_MAP)
+    filesToAnalyze = args.filter(f => f in SOURCE_TARGET_MAP)
   } else {
     filesToAnalyze = getChangedFiles()
   }
 
   // If no files changed via git, check all known CLAUDE.md files existence
-  const allKnown = Object.keys(SOURCE_TARGET_MAP).filter((f) => fs.existsSync(path.join(ROOT_DIR, f)))
+  const allKnown = Object.keys(SOURCE_TARGET_MAP).filter(f =>
+    fs.existsSync(path.join(ROOT_DIR, f))
+  )
 
   const report = {
     analyzed_sources: filesToAnalyze.length > 0 ? filesToAnalyze : allKnown,
@@ -86,18 +90,18 @@ function main() {
     affected_targets: {
       rules: new Set(),
       skills: new Set(),
-      agents: new Set()
+      agents: new Set(),
     },
-    diffs: {}
+    diffs: {},
   }
 
   const sources = filesToAnalyze.length > 0 ? filesToAnalyze : allKnown
   for (const src of sources) {
     const mapping = SOURCE_TARGET_MAP[src]
     if (mapping) {
-      mapping.rules.forEach((r) => report.affected_targets.rules.add(r))
-      mapping.skills.forEach((s) => report.affected_targets.skills.add(s))
-      mapping.agents.forEach((a) => report.affected_targets.agents.add(a))
+      for (const r of mapping.rules) report.affected_targets.rules.add(r)
+      for (const s of mapping.skills) report.affected_targets.skills.add(s)
+      for (const a of mapping.agents) report.affected_targets.agents.add(a)
     }
 
     if (filesToAnalyze.includes(src)) {

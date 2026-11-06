@@ -65,6 +65,13 @@ src/
 
 ---
 
+## UI Components & Design System (shadcn MCP)
+
+- Use the available shadcn MCP tools to inspect, search, and scaffold components and primitives before manually writing component JSX or styles.
+- Ensure all generated UI components follow the established HotelMind design patterns and reside strictly under `src/components/`, never in `src/pages/**`.
+
+---
+
 ## Form Standard (`CrudFormLayout`)
 
 Every create and edit page MUST use `CrudFormLayout` (`src/components/forms/CrudFormLayout.tsx`):

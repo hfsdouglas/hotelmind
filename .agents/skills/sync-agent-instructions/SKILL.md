@@ -21,7 +21,7 @@ This skill synchronizes Antigravity rules, skills, and agents with updates made 
 ### Antigravity Targets
 - `.agents/rules/`: Permanent constraints and standards (`architecture.md`, `coding-standards.md`, `database.md`, `multi-tenancy.md`, `testing.md`, `git-commits.md`).
 - `.agents/skills/`: On-demand execution procedures (`api-development`, `frontend-development`, `database-management`, `crud-development`, `speckit`, `sync-agent-instructions`).
-- `.agents/agents/`: Specialized subagent personas (`backend-specialist.md`, `frontend-specialist.md`, `code-reviewer.md`).
+- `.agents/agents/`: Specialized subagent personas (`fullstack-specialist.md`, `code-reviewer.md`).
 
 ---
 
