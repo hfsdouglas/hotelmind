@@ -39,11 +39,11 @@ export class CriarReservaUseCase {
   ) {}
 
   async execute(input: CriarReservaInput): Promise<Reserva> {
+    const final_parceiro_id = input.parceiro_id ?? input.parceiro_comercial_id
     const {
       hotel_id,
       quarto_id,
       regime_alimentacao_id,
-      parceiro_comercial_id,
       check_in,
       check_out,
       quantidade_adultos,
@@ -93,9 +93,9 @@ export class CriarReservaUseCase {
     }
 
     // 4. Validar parceiro comercial (se informado)
-    if (parceiro_comercial_id && this.parceiros_repo) {
+    if (final_parceiro_id && this.parceiros_repo) {
       const parceiro = await this.parceiros_repo.find_by_id(
-        parceiro_comercial_id,
+        final_parceiro_id,
         hotel_id
       )
       if (!parceiro) {
@@ -121,6 +121,7 @@ export class CriarReservaUseCase {
         check_out,
         regime_alimentacao_id,
         pessoas: total_pessoas,
+        parceiro_id: final_parceiro_id,
       })
       throw new ReservaConflitoError(
         'A suíte selecionada já possui reserva no período informado.',
@@ -132,6 +133,7 @@ export class CriarReservaUseCase {
     const tarifarios_ativos = await this.tarifarios_repo.find_active_for_range({
       hotel_id,
       categoria_quarto_id: quarto.categoria_id,
+      parceiro_id: final_parceiro_id,
       data_inicio: check_in,
       data_fim: check_out,
     })
@@ -143,6 +145,7 @@ export class CriarReservaUseCase {
     const calculo = this.pricing_service.calcular_reserva({
       hotel_id,
       categoria_quarto_id: quarto.categoria_id,
+      parceiro_id: final_parceiro_id,
       check_in,
       check_out,
       tarifarios: do_regime,
@@ -161,7 +164,8 @@ export class CriarReservaUseCase {
       titular_email,
       quarto_id,
       regime_alimentacao_id,
-      parceiro_comercial_id: parceiro_comercial_id || null,
+      parceiro_id: final_parceiro_id || null,
+      parceiro_comercial_id: final_parceiro_id || null,
       check_in,
       check_out,
       quantidade_adultos,

@@ -102,10 +102,16 @@ export class EditarReservaUseCase {
       )
     }
 
-    const parceiro_id =
-      dados.parceiro_comercial_id !== undefined
-        ? dados.parceiro_comercial_id
+    const input_parceiro =
+      dados.parceiro_id !== undefined
+        ? dados.parceiro_id
+        : dados.parceiro_comercial_id
+    const reserva_parceiro =
+      reserva.parceiro_id !== undefined
+        ? reserva.parceiro_id
         : reserva.parceiro_comercial_id
+    const parceiro_id =
+      input_parceiro !== undefined ? input_parceiro : reserva_parceiro
 
     if (parceiro_id && this.parceiros_repo) {
       const parceiro = await this.parceiros_repo.find_by_id(
@@ -115,10 +121,7 @@ export class EditarReservaUseCase {
       if (!parceiro) {
         throw new ReservaValidationError('Parceiro comercial não encontrado.')
       }
-      if (
-        parceiro_id !== reserva.parceiro_comercial_id &&
-        parceiro.status !== 'ativo'
-      ) {
+      if (parceiro_id !== reserva_parceiro && parceiro.status !== 'ativo') {
         throw new ReservaValidationError(
           'O parceiro comercial selecionado está inativo.'
         )
@@ -129,6 +132,7 @@ export class EditarReservaUseCase {
     const datas_mudaram =
       check_in !== reserva.check_in || check_out !== reserva.check_out
     const quarto_mudou = quarto_id !== reserva.quarto_id
+    const parceiro_mudou = parceiro_id !== reserva_parceiro
 
     if (datas_mudaram || quarto_mudou) {
       const conflito = await this.reservas_repo.find_conflito(
@@ -144,6 +148,7 @@ export class EditarReservaUseCase {
           check_out,
           regime_alimentacao_id,
           pessoas: total_pessoas,
+          parceiro_id,
           ignorar_reserva_id: reserva.id,
         })
         throw new ReservaConflitoError(
@@ -153,19 +158,21 @@ export class EditarReservaUseCase {
       }
     }
 
-    // Recalcular tarifas se datas, quarto ou regime mudaram
+    // Recalcular tarifas se datas, quarto, regime ou parceiro mudaram
     let valor_total = reserva.valor_total
     let detalhamento_diarias = reserva.detalhamento_diarias
 
     if (
       datas_mudaram ||
       quarto_mudou ||
-      regime_alimentacao_id !== reserva.regime_alimentacao_id
+      regime_alimentacao_id !== reserva.regime_alimentacao_id ||
+      parceiro_mudou
     ) {
       const tarifarios_ativos =
         await this.tarifarios_repo.find_active_for_range({
           hotel_id,
           categoria_quarto_id: quarto.categoria_id,
+          parceiro_id,
           data_inicio: check_in,
           data_fim: check_out,
         })
@@ -177,6 +184,7 @@ export class EditarReservaUseCase {
       const calculo = this.pricing_service.calcular_reserva({
         hotel_id,
         categoria_quarto_id: quarto.categoria_id,
+        parceiro_id,
         check_in,
         check_out,
         tarifarios: do_regime,
@@ -215,6 +223,7 @@ export class EditarReservaUseCase {
           : reserva.titular_email,
       quarto_id,
       regime_alimentacao_id,
+      parceiro_id,
       parceiro_comercial_id: parceiro_id,
       check_in,
       check_out,

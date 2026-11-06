@@ -34,6 +34,7 @@ export const list_reservas_query_schema = z.object({
     .optional(),
   quarto_id: z.string().uuid().optional(),
   regime_alimentacao_id: z.string().uuid().optional(),
+  parceiro_id: z.string().uuid().optional(),
   parceiro_comercial_id: z.string().uuid().optional(),
   check_in_de: z
     .string()
@@ -54,6 +55,8 @@ export const consultar_disponibilidade_query_schema = z.object({
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'Formato de check-out deve ser YYYY-MM-DD.'),
   regime_alimentacao_id: z.string().uuid('Regime de alimentação inválido.'),
   pessoas: z.coerce.number().int().min(1, 'Informe pelo menos 1 pessoa.'),
+  parceiro_id: z.string().uuid().nullable().optional(),
+  parceiro_comercial_id: z.string().uuid().nullable().optional(),
 })
 
 export const create_reserva_body_schema = z.object({
@@ -75,6 +78,7 @@ export const create_reserva_body_schema = z.object({
   regime_alimentacao_id: z
     .string()
     .uuid('Selecione um regime de alimentação válido.'),
+  parceiro_id: z.string().uuid().nullable().optional(),
   parceiro_comercial_id: z.string().uuid().nullable().optional(),
   check_in: z
     .string()
@@ -105,6 +109,7 @@ export const update_reserva_body_schema = z.object({
     .or(z.literal('')),
   quarto_id: z.string().uuid().optional(),
   regime_alimentacao_id: z.string().uuid().optional(),
+  parceiro_id: z.string().uuid().nullable().optional(),
   parceiro_comercial_id: z.string().uuid().nullable().optional(),
   check_in: z
     .string()
@@ -177,8 +182,6 @@ export const save_ficha_body_schema = z.object({
     .or(z.literal('')),
   motivo_viagem: z.string().trim().max(30).nullable().optional(),
   meio_transporte: z.string().trim().max(30).nullable().optional(),
-  procedencia: z.string().trim().max(100).nullable().optional(),
-  proximo_destino: z.string().trim().max(100).nullable().optional(),
   responsavel_posicao: z.coerce.number().int().min(1).nullable().optional(),
 })
 
@@ -207,8 +210,6 @@ export const hospede_response_schema = z.object({
   email: z.string().nullable(),
   motivo_viagem: z.string().nullable(),
   meio_transporte: z.string().nullable(),
-  procedencia: z.string().nullable(),
-  proximo_destino: z.string().nullable(),
   responsavel_posicao: z.number().nullable(),
 })
 
@@ -221,7 +222,8 @@ export const reserva_response_schema = z.object({
   titular_email: z.string().nullable(),
   quarto_id: z.string(),
   regime_alimentacao_id: z.string(),
-  parceiro_comercial_id: z.string().nullable(),
+  parceiro_id: z.string().nullable().optional(),
+  parceiro_comercial_id: z.string().nullable().optional(),
   check_in: z.string(),
   check_out: z.string(),
   quantidade_adultos: z.number(),
@@ -262,6 +264,13 @@ export const reserva_response_schema = z.object({
       titulo: z.string(),
       cor_pulseira: z.string(),
     })
+    .optional(),
+  parceiro: z
+    .object({
+      id: z.string(),
+      razao_social: z.string(),
+    })
+    .nullable()
     .optional(),
   parceiro_comercial: z
     .object({

@@ -109,14 +109,6 @@ export class FnrhValidationService {
       erros.push('Meio de transporte é obrigatório.')
     }
 
-    if (!dados.procedencia || dados.procedencia.trim().length === 0) {
-      erros.push('Cidade/local de procedência é obrigatório.')
-    }
-
-    if (!dados.proximo_destino || dados.proximo_destino.trim().length === 0) {
-      erros.push('Próximo destino é obrigatório.')
-    }
-
     return {
       valida: erros.length === 0,
       erros,

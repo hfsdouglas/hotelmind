@@ -18,6 +18,7 @@ export interface CreateReservaData {
   titular_email?: string | null
   quarto_id: string
   regime_alimentacao_id: string
+  parceiro_id?: string | null
   parceiro_comercial_id?: string | null
   check_in: string
   check_out: string
@@ -37,6 +38,7 @@ export interface UpdateReservaData {
   titular_email?: string | null
   quarto_id?: string
   regime_alimentacao_id?: string
+  parceiro_id?: string | null
   parceiro_comercial_id?: string | null
   check_in?: string
   check_out?: string
@@ -77,6 +79,12 @@ export interface IReservaRepository {
     params: ReservaListParams
   ): Promise<PaginatedResult<Reserva>>
   gerar_proximo_codigo(hotel_id: string): Promise<string>
+  create_log(
+    reserva_id: string,
+    hotel_id: string,
+    dados_reserva: Record<string, unknown>,
+    user_id?: string | null
+  ): Promise<void>
   create_status_historico(
     reserva_id: string,
     status_anterior: string | null,

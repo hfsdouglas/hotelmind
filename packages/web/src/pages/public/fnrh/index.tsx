@@ -123,8 +123,6 @@ export function FnrhPublicaPage() {
           email: h.email || '',
           motivo_viagem: h.motivo_viagem || 'Lazer / Férias',
           meio_transporte: h.meio_transporte || 'Automóvel',
-          procedencia: h.procedencia || '',
-          proximo_destino: h.proximo_destino || '',
           responsavel_posicao: h.responsavel_posicao ?? null,
         }
       }
@@ -931,42 +929,6 @@ export function FnrhPublicaPage() {
                               <SelectItem value="Outro">Outro</SelectItem>
                             </SelectContent>
                           </Select>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="space-y-1">
-                          <Label className="text-xs">
-                            Cidade de Procedência
-                          </Label>
-                          <Input
-                            placeholder="De onde veio?"
-                            value={dados.procedencia || ''}
-                            onChange={e =>
-                              handleFieldChange(
-                                h.posicao,
-                                'procedencia',
-                                e.target.value
-                              )
-                            }
-                            className="h-9 text-xs"
-                          />
-                        </div>
-
-                        <div className="space-y-1">
-                          <Label className="text-xs">Próximo Destino</Label>
-                          <Input
-                            placeholder="Para onde vai após a estadia?"
-                            value={dados.proximo_destino || ''}
-                            onChange={e =>
-                              handleFieldChange(
-                                h.posicao,
-                                'proximo_destino',
-                                e.target.value
-                              )
-                            }
-                            className="h-9 text-xs"
-                          />
                         </div>
                       </div>
                     </div>

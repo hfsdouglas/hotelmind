@@ -15,6 +15,7 @@ export interface ReservaProps {
   titular_email?: string | null
   quarto_id: string
   regime_alimentacao_id: string
+  parceiro_id?: string | null
   parceiro_comercial_id?: string | null
   check_in: string
   check_out: string
@@ -37,6 +38,10 @@ export interface ReservaProps {
     titulo: string
     cor_pulseira: string
   }
+  parceiro?: {
+    id: string
+    razao_social: string
+  } | null
   parceiro_comercial?: {
     id: string
     razao_social: string
@@ -55,6 +60,7 @@ export class Reserva {
   readonly titular_email: string | null
   readonly quarto_id: string
   readonly regime_alimentacao_id: string
+  readonly parceiro_id: string | null
   readonly parceiro_comercial_id: string | null
   readonly check_in: string
   readonly check_out: string
@@ -69,6 +75,7 @@ export class Reserva {
   readonly observacoes: string | null
   readonly quarto?: ReservaProps['quarto']
   readonly regime_alimentacao?: ReservaProps['regime_alimentacao']
+  readonly parceiro?: ReservaProps['parceiro']
   readonly parceiro_comercial?: ReservaProps['parceiro_comercial']
   readonly hospedes?: ReservaHospede[]
   readonly created_at: Date
@@ -136,7 +143,9 @@ export class Reserva {
     this.titular_email = props.titular_email?.trim() || null
     this.quarto_id = props.quarto_id
     this.regime_alimentacao_id = props.regime_alimentacao_id
-    this.parceiro_comercial_id = props.parceiro_comercial_id || null
+    const pId = props.parceiro_id ?? props.parceiro_comercial_id ?? null
+    this.parceiro_id = pId
+    this.parceiro_comercial_id = pId
     this.check_in = props.check_in
     this.check_out = props.check_out
     this.quantidade_adultos = props.quantidade_adultos
@@ -152,7 +161,9 @@ export class Reserva {
     this.observacoes = props.observacoes?.trim() || null
     this.quarto = props.quarto
     this.regime_alimentacao = props.regime_alimentacao
-    this.parceiro_comercial = props.parceiro_comercial
+    const pObj = props.parceiro ?? props.parceiro_comercial ?? null
+    this.parceiro = pObj
+    this.parceiro_comercial = pObj
     this.hospedes = props.hospedes
     this.created_at = props.created_at
     this.updated_at = props.updated_at

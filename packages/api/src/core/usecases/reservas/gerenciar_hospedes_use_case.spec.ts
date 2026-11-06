@@ -141,8 +141,6 @@ describe('Gerenciar Hospedes, Status e Edição da Reserva', () => {
         telefone: '11999998888',
         motivo_viagem: 'Lazer',
         meio_transporte: 'Avião',
-        procedencia: 'Rio de Janeiro',
-        proximo_destino: 'Curitiba',
       },
     })
     expect(preenchida.ficha_status).toBe('preenchida')

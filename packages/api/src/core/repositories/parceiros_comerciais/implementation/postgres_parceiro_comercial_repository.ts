@@ -19,6 +19,7 @@ import type {
 
 const DEFAULT_INCLUDE = {
   contatos: true,
+  endereco: true,
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: Prisma relations mapping
@@ -37,14 +38,14 @@ function map_row(row: any): ParceiroComercial {
     codigo_iata: row.codigo_iata,
     registro_embratur: row.registro_embratur,
 
-    logradouro: row.logradouro,
-    numero: row.numero,
-    complemento: row.complemento,
-    bairro: row.bairro,
-    cidade: row.cidade,
-    estado: row.estado,
-    cep: row.cep,
-    pais: row.pais,
+    logradouro: row.endereco?.logradouro ?? row.logradouro ?? null,
+    numero: row.endereco?.numero ?? row.numero ?? null,
+    complemento: row.endereco?.complemento ?? row.complemento ?? null,
+    bairro: row.endereco?.bairro ?? row.bairro ?? null,
+    cidade: row.endereco?.cidade ?? row.cidade ?? null,
+    estado: row.endereco?.estado ?? row.estado ?? null,
+    cep: row.endereco?.cep ?? row.cep ?? null,
+    pais: row.endereco?.pais ?? row.pais ?? 'Brasil',
 
     modelo_tarifario: row.modelo_tarifario as ModeloTarifario,
     comissao_padrao: Number(row.comissao_padrao ?? 0),
@@ -86,7 +87,7 @@ export class PostgresParceiroComercialRepository
   constructor(private readonly db: DB) {}
 
   async create(data: CreateParceiroComercialData): Promise<ParceiroComercial> {
-    const row = await this.db.parceiroComercial.create({
+    const row = await this.db.parceiro.create({
       data: {
         hotel_id: data.hotel_id,
         tipo_parceiro: data.tipo_parceiro,
@@ -100,15 +101,6 @@ export class PostgresParceiroComercialRepository
         codigo_iata: data.codigo_iata,
         registro_embratur: data.registro_embratur,
 
-        logradouro: data.logradouro,
-        numero: data.numero,
-        complemento: data.complemento,
-        bairro: data.bairro,
-        cidade: data.cidade,
-        estado: data.estado,
-        cep: data.cep,
-        pais: data.pais ?? 'Brasil',
-
         modelo_tarifario: data.modelo_tarifario,
         comissao_padrao: data.comissao_padrao ?? 0.0,
         politica_faturamento: data.politica_faturamento,
@@ -119,6 +111,19 @@ export class PostgresParceiroComercialRepository
         status: data.status ?? 'ativo',
         motivo_bloqueio: data.motivo_bloqueio,
         observacoes: data.observacoes,
+
+        endereco: {
+          create: {
+            logradouro: data.logradouro,
+            numero: data.numero,
+            complemento: data.complemento,
+            bairro: data.bairro,
+            cidade: data.cidade,
+            estado: data.estado,
+            cep: data.cep,
+            pais: data.pais ?? 'Brasil',
+          },
+        },
 
         contatos: data.contatos?.length
           ? {
@@ -139,7 +144,17 @@ export class PostgresParceiroComercialRepository
   }
 
   async update(data: UpdateParceiroComercialData): Promise<ParceiroComercial> {
-    const updateData: Prisma.ParceiroComercialUncheckedUpdateInput = {
+    const hasEnderecoUpdates =
+      data.logradouro !== undefined ||
+      data.numero !== undefined ||
+      data.complemento !== undefined ||
+      data.bairro !== undefined ||
+      data.cidade !== undefined ||
+      data.estado !== undefined ||
+      data.cep !== undefined ||
+      data.pais !== undefined
+
+    const updateData: Prisma.ParceiroUncheckedUpdateInput = {
       ...(data.tipo_parceiro !== undefined
         ? { tipo_parceiro: data.tipo_parceiro }
         : {}),
@@ -166,17 +181,6 @@ export class PostgresParceiroComercialRepository
       ...(data.registro_embratur !== undefined
         ? { registro_embratur: data.registro_embratur }
         : {}),
-
-      ...(data.logradouro !== undefined ? { logradouro: data.logradouro } : {}),
-      ...(data.numero !== undefined ? { numero: data.numero } : {}),
-      ...(data.complemento !== undefined
-        ? { complemento: data.complemento }
-        : {}),
-      ...(data.bairro !== undefined ? { bairro: data.bairro } : {}),
-      ...(data.cidade !== undefined ? { cidade: data.cidade } : {}),
-      ...(data.estado !== undefined ? { estado: data.estado } : {}),
-      ...(data.cep !== undefined ? { cep: data.cep } : {}),
-      ...(data.pais !== undefined ? { pais: data.pais } : {}),
 
       ...(data.modelo_tarifario !== undefined
         ? { modelo_tarifario: data.modelo_tarifario }
@@ -206,12 +210,43 @@ export class PostgresParceiroComercialRepository
         : {}),
     }
 
+    if (hasEnderecoUpdates) {
+      await this.db.parceiroEndereco.upsert({
+        where: { parceiro_id: data.id },
+        create: {
+          parceiro_id: data.id,
+          logradouro: data.logradouro,
+          numero: data.numero,
+          complemento: data.complemento,
+          bairro: data.bairro,
+          cidade: data.cidade,
+          estado: data.estado,
+          cep: data.cep,
+          pais: data.pais ?? 'Brasil',
+        },
+        update: {
+          ...(data.logradouro !== undefined
+            ? { logradouro: data.logradouro }
+            : {}),
+          ...(data.numero !== undefined ? { numero: data.numero } : {}),
+          ...(data.complemento !== undefined
+            ? { complemento: data.complemento }
+            : {}),
+          ...(data.bairro !== undefined ? { bairro: data.bairro } : {}),
+          ...(data.cidade !== undefined ? { cidade: data.cidade } : {}),
+          ...(data.estado !== undefined ? { estado: data.estado } : {}),
+          ...(data.cep !== undefined ? { cep: data.cep } : {}),
+          ...(data.pais !== undefined ? { pais: data.pais } : {}),
+        },
+      })
+    }
+
     if (data.contatos !== undefined) {
       await this.db.$transaction([
         this.db.parceiroContato.deleteMany({
           where: { parceiro_id: data.id },
         }),
-        this.db.parceiroComercial.update({
+        this.db.parceiro.update({
           where: { id: data.id },
           data: {
             ...updateData,
@@ -228,13 +263,13 @@ export class PostgresParceiroComercialRepository
         }),
       ])
     } else {
-      await this.db.parceiroComercial.update({
+      await this.db.parceiro.update({
         where: { id: data.id },
         data: updateData,
       })
     }
 
-    const updated = await this.db.parceiroComercial.findFirstOrThrow({
+    const updated = await this.db.parceiro.findFirstOrThrow({
       where: { id: data.id, hotel_id: data.hotel_id },
       include: DEFAULT_INCLUDE,
     })
@@ -243,7 +278,7 @@ export class PostgresParceiroComercialRepository
   }
 
   async delete(id: string, hotel_id: string): Promise<void> {
-    await this.db.parceiroComercial.deleteMany({
+    await this.db.parceiro.deleteMany({
       where: { id, hotel_id },
     })
   }
@@ -252,7 +287,7 @@ export class PostgresParceiroComercialRepository
     id: string,
     hotel_id: string
   ): Promise<ParceiroComercial | null> {
-    const row = await this.db.parceiroComercial.findFirst({
+    const row = await this.db.parceiro.findFirst({
       where: { id, hotel_id },
       include: DEFAULT_INCLUDE,
     })
@@ -264,7 +299,7 @@ export class PostgresParceiroComercialRepository
     documento: string,
     hotel_id: string
   ): Promise<ParceiroComercial | null> {
-    const row = await this.db.parceiroComercial.findFirst({
+    const row = await this.db.parceiro.findFirst({
       where: {
         hotel_id,
         documento,
@@ -279,19 +314,29 @@ export class PostgresParceiroComercialRepository
     hotel_id: string,
     filter: ParceiroComercialListFilter
   ): Promise<PaginatedResult<ParceiroComercial>> {
-    const where: Prisma.ParceiroComercialWhereInput = {
+    const where: Prisma.ParceiroWhereInput = {
       hotel_id,
       ...(filter.tipo_parceiro ? { tipo_parceiro: filter.tipo_parceiro } : {}),
       ...(filter.status ? { status: filter.status } : {}),
-      ...(filter.cidade
+      ...(filter.cidade || filter.estado
         ? {
-            cidade: {
-              contains: filter.cidade,
-              mode: 'insensitive' as Prisma.QueryMode,
+            endereco: {
+              is: {
+                ...(filter.cidade
+                  ? {
+                      cidade: {
+                        contains: filter.cidade,
+                        mode: 'insensitive' as Prisma.QueryMode,
+                      },
+                    }
+                  : {}),
+                ...(filter.estado
+                  ? { estado: filter.estado.toUpperCase() }
+                  : {}),
+              },
             },
           }
         : {}),
-      ...(filter.estado ? { estado: filter.estado.toUpperCase() } : {}),
       ...(filter.busca
         ? {
             OR: [
@@ -331,8 +376,8 @@ export class PostgresParceiroComercialRepository
     }
 
     const [total, rows] = await this.db.$transaction([
-      this.db.parceiroComercial.count({ where }),
-      this.db.parceiroComercial.findMany({
+      this.db.parceiro.count({ where }),
+      this.db.parceiro.findMany({
         where,
         include: DEFAULT_INCLUDE,
         orderBy: { criado_em: 'desc' },

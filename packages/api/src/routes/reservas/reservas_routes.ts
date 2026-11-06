@@ -52,6 +52,7 @@ function reserva_to_response(r: Reserva) {
     titular_email: r.titular_email,
     quarto_id: r.quarto_id,
     regime_alimentacao_id: r.regime_alimentacao_id,
+    parceiro_id: r.parceiro_id ?? r.parceiro_comercial_id,
     parceiro_comercial_id: r.parceiro_comercial_id,
     check_in: r.check_in,
     check_out: r.check_out,
@@ -68,7 +69,8 @@ function reserva_to_response(r: Reserva) {
     observacoes: r.observacoes,
     quarto: r.quarto,
     regime_alimentacao: r.regime_alimentacao,
-    parceiro_comercial: r.parceiro_comercial,
+    parceiro: r.parceiro ?? r.parceiro_comercial,
+    parceiro_comercial: r.parceiro ?? r.parceiro_comercial,
     hospedes: r.hospedes?.map(h => ({
       id: h.id,
       posicao: h.posicao,
@@ -94,8 +96,6 @@ function reserva_to_response(r: Reserva) {
       email: h.email,
       motivo_viagem: h.motivo_viagem,
       meio_transporte: h.meio_transporte,
-      procedencia: h.procedencia,
-      proximo_destino: h.proximo_destino,
       responsavel_posicao: h.responsavel_posicao,
     })),
     criado_em: r.created_at.toISOString(),
@@ -164,9 +164,15 @@ export async function reservas_routes(app: FastifyTypedInstance) {
     },
     async (request, reply) => {
       try {
+        const final_parceiro_id =
+          request.query.parceiro_id ??
+          request.query.parceiro_comercial_id ??
+          null
+
         const resultado = await disponibilidade_use_case.execute({
           hotel_id: request.user.hotelId,
           ...request.query,
+          parceiro_id: final_parceiro_id,
         })
         return reply.status(200).send(resultado)
       } catch (err) {
@@ -428,8 +434,6 @@ export async function reservas_routes(app: FastifyTypedInstance) {
           email: hospede.email,
           motivo_viagem: hospede.motivo_viagem,
           meio_transporte: hospede.meio_transporte,
-          procedencia: hospede.procedencia,
-          proximo_destino: hospede.proximo_destino,
           responsavel_posicao: hospede.responsavel_posicao,
         })
       } catch (err) {

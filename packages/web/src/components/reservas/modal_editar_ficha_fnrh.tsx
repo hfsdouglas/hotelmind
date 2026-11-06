@@ -67,8 +67,6 @@ export function ModalEditarFichaFnrh({
         email: hospede.email || '',
         motivo_viagem: hospede.motivo_viagem || 'Lazer',
         meio_transporte: hospede.meio_transporte || 'Automóvel',
-        procedencia: hospede.procedencia || '',
-        proximo_destino: hospede.proximo_destino || '',
         responsavel_posicao: hospede.responsavel_posicao || null,
       })
     } else {
@@ -496,40 +494,6 @@ export function ModalEditarFichaFnrh({
                     <SelectItem value="Outro">Outro</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="fnrh_procedencia">
-                  Cidade / Estado de Origem *
-                </Label>
-                <Input
-                  id="fnrh_procedencia"
-                  value={formDataFicha.procedencia || ''}
-                  onChange={e =>
-                    setFormDataFicha(p => ({
-                      ...p,
-                      procedencia: e.target.value,
-                    }))
-                  }
-                  placeholder="Ex.: Belo Horizonte/MG"
-                  className="h-9"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="fnrh_destino">Próximo Destino *</Label>
-                <Input
-                  id="fnrh_destino"
-                  value={formDataFicha.proximo_destino || ''}
-                  onChange={e =>
-                    setFormDataFicha(p => ({
-                      ...p,
-                      proximo_destino: e.target.value,
-                    }))
-                  }
-                  placeholder="Ex.: Capitólio/MG ou Retorno"
-                  className="h-9"
-                />
               </div>
             </div>
           </section>

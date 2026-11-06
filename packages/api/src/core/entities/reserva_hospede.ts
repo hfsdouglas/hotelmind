@@ -28,8 +28,6 @@ export interface ReservaHospedeProps {
   email?: string | null
   motivo_viagem?: string | null
   meio_transporte?: string | null
-  procedencia?: string | null
-  proximo_destino?: string | null
   responsavel_posicao?: number | null
 }
 
@@ -60,8 +58,6 @@ export class ReservaHospede {
   readonly email: string | null
   readonly motivo_viagem: string | null
   readonly meio_transporte: string | null
-  readonly procedencia: string | null
-  readonly proximo_destino: string | null
   readonly responsavel_posicao: number | null
 
   constructor(props: ReservaHospedeProps) {
@@ -111,8 +107,6 @@ export class ReservaHospede {
     this.email = props.email?.trim() || null
     this.motivo_viagem = props.motivo_viagem?.trim() || null
     this.meio_transporte = props.meio_transporte?.trim() || null
-    this.procedencia = props.procedencia?.trim() || null
-    this.proximo_destino = props.proximo_destino?.trim() || null
     this.responsavel_posicao = props.responsavel_posicao ?? null
   }
 

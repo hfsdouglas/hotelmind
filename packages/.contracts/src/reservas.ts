@@ -29,12 +29,10 @@ export interface FichaFnrh {
   email: string | null
   motivo_viagem: string | null
   meio_transporte: string | null
-  procedencia: string | null
-  proximo_destino: string | null
   responsavel_posicao: number | null
 }
 
-export interface ReservaHospede extends FichaFnrh {
+export interface Hospede extends FichaFnrh {
   id: string
   posicao: number
   ficha_status: FichaStatus
@@ -42,11 +40,23 @@ export interface ReservaHospede extends FichaFnrh {
   preenchido_em: string | null
 }
 
+export type ReservaHospede = Hospede
+
 export interface DiariaReserva {
   data: string
   tarifario_id: string
   tarifario_nome: string
   valor_diaria: string
+}
+
+export interface ReservaLog {
+  id: string
+  reserva_id: string
+  hotel_id: string
+  user_id: string | null
+  dados_hash: string
+  dados_reserva: Record<string, unknown>
+  created_at: string
 }
 
 export interface Reserva {
@@ -58,7 +68,8 @@ export interface Reserva {
   titular_email: string | null
   quarto_id: string
   regime_alimentacao_id: string
-  parceiro_comercial_id: string | null
+  parceiro_id: string | null
+  parceiro_comercial_id?: string | null // Alias de compatibilidade
   check_in: string
   check_out: string
   quantidade_adultos: number
@@ -76,8 +87,10 @@ export interface Reserva {
   observacoes: string | null
   quarto?: { id: string; identificacao: string; categoria_nome: string }
   regime_alimentacao?: { id: string; titulo: string; cor_pulseira: string }
+  parceiro?: { id: string; razao_social: string } | null
   parceiro_comercial?: { id: string; razao_social: string } | null
-  hospedes?: ReservaHospede[]
+  hospedes?: Hospede[]
+  logs?: ReservaLog[]
   criado_em: string
   atualizado_em: string
 }
@@ -88,7 +101,8 @@ export interface CreateReservaPayload {
   titular_email?: string | null
   quarto_id: string
   regime_alimentacao_id: string
-  parceiro_comercial_id?: string | null
+  parceiro_id?: string | null
+  parceiro_comercial_id?: string | null // Alias
   check_in: string
   check_out: string
   quantidade_adultos: number
@@ -105,12 +119,13 @@ export type UpdateReservaPayload = Partial<CreateReservaPayload> & {
 export interface ReservaListParams {
   pagina?: number
   limite?: number
-  busca?: string // código ou nome do titular/hóspede
+  busca?: string
   status?: ReservaStatus
   check_in_de?: string
   check_in_ate?: string
   quarto_id?: string
   regime_alimentacao_id?: string
+  parceiro_id?: string
   parceiro_comercial_id?: string
 }
 
@@ -127,6 +142,16 @@ export interface ReservaListResponse {
 
 export interface ChangeReservaStatusPayload {
   status: ReservaStatus
+}
+
+export interface ConsultarDisponibilidadeParams {
+  check_in: string
+  check_out: string
+  regime_alimentacao_id: string
+  pessoas: number
+  parceiro_id?: string | null
+  parceiro_comercial_id?: string | null
+  ignorar_reserva_id?: string
 }
 
 export interface QuartoDisponivel {
@@ -148,7 +173,6 @@ export interface FnrhLinkInfo {
   ativo: boolean
 }
 
-// Página pública (token)
 export interface FnrhPublicaView {
   hotel_nome: string
   titular_nome: string
@@ -157,7 +181,7 @@ export interface FnrhPublicaView {
   quarto_identificacao: string
   total_hospedes: number
   fnrh_enviada_em: string | null
-  hospedes: ReservaHospede[]
+  hospedes: Hospede[]
 }
 
 export type SaveFichaPayload = Partial<FichaFnrh> & { concluir?: boolean }

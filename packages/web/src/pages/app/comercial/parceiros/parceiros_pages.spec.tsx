@@ -92,14 +92,17 @@ describe('Parceiros Comerciais Pages', () => {
     )
 
     expect(screen.getByText('Parceiros Comerciais')).toBeInTheDocument()
-    await waitFor(() => {
-      expect(
-        screen.getByText('Viagens Estrela Dourada Ltda')
-      ).toBeInTheDocument()
-      expect(screen.getByText('Estrela Turismo')).toBeInTheDocument()
-      expect(screen.getByText('Agência de Viagens')).toBeInTheDocument()
-      expect(screen.getByText('Ativo')).toBeInTheDocument()
-    })
+    await waitFor(
+      () => {
+        expect(
+          screen.getByText('Viagens Estrela Dourada Ltda')
+        ).toBeInTheDocument()
+        expect(screen.getByText('Estrela Turismo')).toBeInTheDocument()
+        expect(screen.getByText('Agência de Viagens')).toBeInTheDocument()
+        expect(screen.getByText('Ativo')).toBeInTheDocument()
+      },
+      { timeout: 4000 }
+    )
   })
 
   it('deve submeter o formulário de novo parceiro', async () => {

@@ -13,6 +13,7 @@ import {
   ReservaValidationError,
 } from '@/core/errors/reserva_errors'
 import type { PaginatedResult } from '@/core/repositories/pagination'
+import { computeObjectSha256 } from '@/core/utils/canonical_hash'
 import { extract_hotel_prefix } from '@/core/utils/hotel_code'
 import type { DB } from '@/lib/prisma'
 import type {
@@ -46,26 +47,29 @@ function map_hospede_row(row: any): ReservaHospede {
     profissao: row.profissao,
     tipo_documento: row.tipo_documento,
     numero_documento: row.numero_documento,
-    logradouro: row.logradouro,
-    numero_endereco: row.numero_endereco,
-    complemento: row.complemento,
-    bairro: row.bairro,
-    cidade: row.cidade,
-    estado: row.estado,
-    cep: row.cep,
-    pais_residencia: row.pais_residencia,
+    logradouro: row.endereco?.logradouro ?? row.logradouro ?? null,
+    numero_endereco:
+      row.endereco?.numero_endereco ?? row.numero_endereco ?? null,
+    complemento: row.endereco?.complemento ?? row.complemento ?? null,
+    bairro: row.endereco?.bairro ?? row.bairro ?? null,
+    cidade: row.endereco?.cidade ?? row.cidade ?? null,
+    estado: row.endereco?.estado ?? row.estado ?? null,
+    cep: row.endereco?.cep ?? row.cep ?? null,
+    pais_residencia:
+      row.endereco?.pais_residencia ?? row.pais_residencia ?? null,
     telefone: row.telefone,
     email: row.email,
     motivo_viagem: row.motivo_viagem,
     meio_transporte: row.meio_transporte,
-    procedencia: row.procedencia,
-    proximo_destino: row.proximo_destino,
     responsavel_posicao: row.responsavel_posicao,
   })
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: Prisma mapping
 function map_reserva_row(row: any): Reserva {
+  const parceiroObj = row.parceiro ?? row.parceiro_comercial ?? null
+  const parceiroId = row.parceiro_id ?? row.parceiro_comercial_id ?? null
+
   return new Reserva({
     id: row.id,
     hotel_id: row.hotel_id,
@@ -75,7 +79,8 @@ function map_reserva_row(row: any): Reserva {
     titular_email: row.titular_email,
     quarto_id: row.quarto_id,
     regime_alimentacao_id: row.regime_alimentacao_id,
-    parceiro_comercial_id: row.parceiro_comercial_id,
+    parceiro_id: parceiroId,
+    parceiro_comercial_id: parceiroId,
     check_in: to_iso_date(row.check_in)!,
     check_out: to_iso_date(row.check_out)!,
     quantidade_adultos: row.quantidade_adultos,
@@ -101,10 +106,16 @@ function map_reserva_row(row: any): Reserva {
           cor_pulseira: row.regime_alimentacao.cor_pulseira,
         }
       : undefined,
-    parceiro_comercial: row.parceiro_comercial
+    parceiro: parceiroObj
       ? {
-          id: row.parceiro_comercial.id,
-          razao_social: row.parceiro_comercial.razao_social,
+          id: parceiroObj.id,
+          razao_social: parceiroObj.razao_social,
+        }
+      : null,
+    parceiro_comercial: parceiroObj
+      ? {
+          id: parceiroObj.id,
+          razao_social: parceiroObj.razao_social,
         }
       : null,
     hospedes: row.hospedes ? row.hospedes.map(map_hospede_row) : undefined,
@@ -120,10 +131,18 @@ const RESERVA_DEFAULT_INCLUDE = {
     },
   },
   regime_alimentacao: true,
-  parceiro_comercial: true,
+  parceiro: true,
   hospedes: {
+    include: {
+      endereco: true,
+    },
     orderBy: {
       posicao: 'asc' as const,
+    },
+  },
+  logs: {
+    orderBy: {
+      created_at: 'desc' as const,
     },
   },
 }
@@ -150,7 +169,7 @@ export class PostgresReservaRepository implements IReservaRepository {
           titular_email: data.titular_email,
           quarto_id: data.quarto_id,
           regime_alimentacao_id: data.regime_alimentacao_id,
-          parceiro_comercial_id: data.parceiro_comercial_id,
+          parceiro_id: data.parceiro_id ?? data.parceiro_comercial_id,
           check_in: new Date(`${data.check_in}T00:00:00.000Z`),
           check_out: new Date(`${data.check_out}T00:00:00.000Z`),
           quantidade_adultos: data.quantidade_adultos,
@@ -191,7 +210,10 @@ export class PostgresReservaRepository implements IReservaRepository {
           titular_email: data.titular_email,
           quarto_id: data.quarto_id,
           regime_alimentacao_id: data.regime_alimentacao_id,
-          parceiro_comercial_id: data.parceiro_comercial_id,
+          parceiro_id:
+            data.parceiro_id !== undefined
+              ? data.parceiro_id
+              : data.parceiro_comercial_id,
           check_in: data.check_in
             ? new Date(`${data.check_in}T00:00:00.000Z`)
             : undefined,
@@ -301,8 +323,9 @@ export class PostgresReservaRepository implements IReservaRepository {
     if (params.regime_alimentacao_id) {
       where.regime_alimentacao_id = params.regime_alimentacao_id
     }
-    if (params.parceiro_comercial_id) {
-      where.parceiro_comercial_id = params.parceiro_comercial_id
+    const parceiroIdFilter = params.parceiro_id ?? params.parceiro_comercial_id
+    if (parceiroIdFilter) {
+      where.parceiro_id = parceiroIdFilter
     }
     if (params.check_in_de) {
       where.check_in = {
@@ -368,20 +391,54 @@ export class PostgresReservaRepository implements IReservaRepository {
     return `${prefix}-${String(total + 1).padStart(6, '0')}`
   }
 
+  async create_log(
+    reserva_id: string,
+    hotel_id: string,
+    dados_reserva: Record<string, unknown>,
+    user_id?: string | null
+  ): Promise<void> {
+    const hash = computeObjectSha256(dados_reserva)
+
+    // Verifica se o último log possui o mesmo hash para economizar armazenamento
+    const ultimoLog = await this.prisma.reservaLog.findFirst({
+      where: { reserva_id },
+      orderBy: { created_at: 'desc' },
+      select: { dados_hash: true },
+    })
+
+    if (ultimoLog && ultimoLog.dados_hash === hash) {
+      return
+    }
+
+    await this.prisma.reservaLog.create({
+      data: {
+        reserva_id,
+        hotel_id,
+        user_id: user_id ?? null,
+        dados_hash: hash,
+        dados_reserva: dados_reserva as Prisma.InputJsonValue,
+      },
+    })
+  }
+
   async create_status_historico(
     reserva_id: string,
     status_anterior: string | null,
     status_novo: string,
     user_id?: string | null
   ): Promise<void> {
-    await this.prisma.reservaStatusHistorico.create({
-      data: {
-        reserva_id,
-        status_anterior,
-        status_novo,
-        user_id: user_id ?? null,
-      },
+    const reserva = await this.prisma.reserva.findUnique({
+      where: { id: reserva_id },
+      select: { hotel_id: true },
     })
+    if (reserva) {
+      await this.create_log(
+        reserva_id,
+        reserva.hotel_id,
+        { status_anterior, status: status_novo },
+        user_id
+      )
+    }
   }
 }
 
@@ -393,7 +450,7 @@ export class PostgresReservaHospedeRepository
   async create_many(hospedes: CreateReservaHospedeData[]): Promise<void> {
     if (hospedes.length === 0) return
 
-    await this.prisma.reservaHospede.createMany({
+    await this.prisma.hospede.createMany({
       data: hospedes.map(h => ({
         reserva_id: h.reserva_id,
         posicao: h.posicao,
@@ -404,8 +461,9 @@ export class PostgresReservaHospedeRepository
   }
 
   async find_by_reserva_id(reserva_id: string): Promise<ReservaHospede[]> {
-    const rows = await this.prisma.reservaHospede.findMany({
+    const rows = await this.prisma.hospede.findMany({
       where: { reserva_id },
+      include: { endereco: true },
       orderBy: { posicao: 'asc' },
     })
     return rows.map(map_hospede_row)
@@ -415,13 +473,14 @@ export class PostgresReservaHospedeRepository
     reserva_id: string,
     posicao: number
   ): Promise<ReservaHospede | null> {
-    const row = await this.prisma.reservaHospede.findUnique({
+    const row = await this.prisma.hospede.findUnique({
       where: {
         reserva_id_posicao: {
           reserva_id,
           posicao,
         },
       },
+      include: { endereco: true },
     })
     return row ? map_hospede_row(row) : null
   }
@@ -434,7 +493,17 @@ export class PostgresReservaHospedeRepository
     const existing = await this.find_by_reserva_and_posicao(reserva_id, posicao)
     if (!existing) return null
 
-    const updated = await this.prisma.reservaHospede.update({
+    const hasEnderecoUpdates =
+      data.logradouro !== undefined ||
+      data.numero_endereco !== undefined ||
+      data.complemento !== undefined ||
+      data.bairro !== undefined ||
+      data.cidade !== undefined ||
+      data.estado !== undefined ||
+      data.cep !== undefined ||
+      data.pais_residencia !== undefined
+
+    const updated = await this.prisma.hospede.update({
       where: {
         reserva_id_posicao: {
           reserva_id,
@@ -456,22 +525,47 @@ export class PostgresReservaHospedeRepository
         profissao: data.profissao,
         tipo_documento: data.tipo_documento,
         numero_documento: data.numero_documento,
-        logradouro: data.logradouro,
-        numero_endereco: data.numero_endereco,
-        complemento: data.complemento,
-        bairro: data.bairro,
-        cidade: data.cidade,
-        estado: data.estado,
-        cep: data.cep,
-        pais_residencia: data.pais_residencia,
         telefone: data.telefone,
         email: data.email,
         motivo_viagem: data.motivo_viagem,
         meio_transporte: data.meio_transporte,
-        procedencia: data.procedencia,
-        proximo_destino: data.proximo_destino,
         responsavel_posicao: data.responsavel_posicao,
+        endereco: hasEnderecoUpdates
+          ? {
+              upsert: {
+                create: {
+                  logradouro: data.logradouro,
+                  numero_endereco: data.numero_endereco,
+                  complemento: data.complemento,
+                  bairro: data.bairro,
+                  cidade: data.cidade,
+                  estado: data.estado,
+                  cep: data.cep,
+                  pais_residencia: data.pais_residencia,
+                },
+                update: {
+                  ...(data.logradouro !== undefined
+                    ? { logradouro: data.logradouro }
+                    : {}),
+                  ...(data.numero_endereco !== undefined
+                    ? { numero_endereco: data.numero_endereco }
+                    : {}),
+                  ...(data.complemento !== undefined
+                    ? { complemento: data.complemento }
+                    : {}),
+                  ...(data.bairro !== undefined ? { bairro: data.bairro } : {}),
+                  ...(data.cidade !== undefined ? { cidade: data.cidade } : {}),
+                  ...(data.estado !== undefined ? { estado: data.estado } : {}),
+                  ...(data.cep !== undefined ? { cep: data.cep } : {}),
+                  ...(data.pais_residencia !== undefined
+                    ? { pais_residencia: data.pais_residencia }
+                    : {}),
+                },
+              },
+            }
+          : undefined,
       },
+      include: { endereco: true },
     })
 
     return map_hospede_row(updated)
@@ -505,7 +599,7 @@ export class PostgresReservaHospedeRepository
         )
       }
 
-      await this.prisma.reservaHospede.deleteMany({
+      await this.prisma.hospede.deleteMany({
         where: {
           reserva_id,
           posicao: { gt: nova_quantidade },

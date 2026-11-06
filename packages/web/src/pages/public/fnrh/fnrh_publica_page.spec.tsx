@@ -61,8 +61,6 @@ describe('FnrhPublicaPage', () => {
           email: 'mariana@example.com',
           motivo_viagem: 'Lazer / Férias',
           meio_transporte: 'Avião',
-          procedencia: 'Rio de Janeiro - RJ',
-          proximo_destino: 'São Paulo - SP',
           responsavel_posicao: null,
         },
         {
@@ -90,8 +88,6 @@ describe('FnrhPublicaPage', () => {
           email: null,
           motivo_viagem: null,
           meio_transporte: null,
-          procedencia: null,
-          proximo_destino: null,
           responsavel_posicao: null,
         },
       ],

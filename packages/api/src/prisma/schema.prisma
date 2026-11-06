@@ -34,7 +34,7 @@ model Hotel {
   regimes_alimentacao RegimeAlimentacao[]
   leads              Lead[]
   orcamentos         Orcamento[]
-  parceiros_comerciais ParceiroComercial[]
+  parceiros          Parceiro[]
   reservas           Reserva[]
 
   @@map("hoteis")
@@ -305,7 +305,10 @@ model Orcamento {
   @@map("orcamentos")
 }
 
-model ParceiroComercial {
+// -------------------------------------------------------------
+// 1. PARCEIROS & PARCEIROS_ENDERECOS
+// -------------------------------------------------------------
+model Parceiro {
   id                    String             @id @default(uuid())
   hotel_id              String
   tipo_parceiro         String             @db.VarChar(30)
@@ -318,16 +321,6 @@ model ParceiroComercial {
   cadastur              String?            @db.VarChar(30)
   codigo_iata           String?            @db.VarChar(20)
   registro_embratur     String?            @db.VarChar(30)
-
-  // Endereço
-  logradouro            String?            @db.VarChar(120)
-  numero                String?            @db.VarChar(20)
-  complemento           String?            @db.VarChar(50)
-  bairro                String?            @db.VarChar(60)
-  cidade                String?            @db.VarChar(60)
-  estado                String?            @db.VarChar(2)
-  cep                   String?            @db.VarChar(10)
-  pais                  String             @default("Brasil") @db.VarChar(50)
 
   // Regras Comerciais
   modelo_tarifario      String             @default("comissionada") @db.VarChar(20)
@@ -345,6 +338,7 @@ model ParceiroComercial {
   atualizado_em         DateTime           @updatedAt
 
   hotel                 Hotel              @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+  endereco              ParceiroEndereco?
   contatos              ParceiroContato[]
   reservas              Reserva[]
 
@@ -353,26 +347,49 @@ model ParceiroComercial {
   @@index([hotel_id, tipo_parceiro])
   @@index([hotel_id, status])
   @@index([hotel_id, razao_social])
-  @@map("parceiros_comerciais")
+  @@map("parceiros")
+}
+
+model ParceiroEndereco {
+  id          String   @id @default(uuid())
+  parceiro_id String   @unique
+  logradouro  String?  @db.VarChar(120)
+  numero      String?  @db.VarChar(20)
+  complemento String?  @db.VarChar(50)
+  bairro      String?  @db.VarChar(60)
+  cidade      String?  @db.VarChar(60)
+  estado      String?  @db.VarChar(2)
+  cep         String?  @db.VarChar(10)
+  pais        String   @default("Brasil") @db.VarChar(50)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  parceiro    Parceiro @relation(fields: [parceiro_id], references: [id], onDelete: Cascade)
+
+  @@index([parceiro_id])
+  @@map("parceiros_enderecos")
 }
 
 model ParceiroContato {
-  id           String            @id @default(uuid())
+  id           String   @id @default(uuid())
   parceiro_id  String
-  tipo_contato String            @db.VarChar(20)
-  nome         String            @db.VarChar(100)
-  email        String            @db.VarChar(150)
-  telefone     String            @db.VarChar(30)
-  cargo        String?           @db.VarChar(50)
-  criado_em    DateTime          @default(now())
+  tipo_contato String   @db.VarChar(20)
+  nome         String   @db.VarChar(100)
+  email        String   @db.VarChar(150)
+  telefone     String   @db.VarChar(30)
+  cargo        String?  @db.VarChar(50)
+  criado_em    DateTime @default(now())
 
-  parceiro     ParceiroComercial @relation(fields: [parceiro_id], references: [id], onDelete: Cascade)
+  parceiro     Parceiro @relation(fields: [parceiro_id], references: [id], onDelete: Cascade)
 
   @@index([parceiro_id])
   @@index([parceiro_id, tipo_contato])
   @@map("parceiros_contatos")
 }
 
+// -------------------------------------------------------------
+// RESERVA (ATUALIZADA)
+// -------------------------------------------------------------
 model Reserva {
   id                    String             @id @default(uuid())
   hotel_id              String
@@ -382,7 +399,7 @@ model Reserva {
   titular_email         String?            @db.VarChar(150)
   quarto_id             String
   regime_alimentacao_id String
-  parceiro_comercial_id String?
+  parceiro_id           String?
   check_in              DateTime           @db.Date
   check_out             DateTime           @db.Date
   quantidade_adultos    Int
@@ -400,67 +417,88 @@ model Reserva {
   hotel                 Hotel              @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
   quarto                Quarto             @relation(fields: [quarto_id], references: [id], onDelete: Restrict)
   regime_alimentacao    RegimeAlimentacao  @relation(fields: [regime_alimentacao_id], references: [id], onDelete: Restrict)
-  parceiro_comercial    ParceiroComercial? @relation(fields: [parceiro_comercial_id], references: [id], onDelete: SetNull)
-  hospedes              ReservaHospede[]
-  historico_status      ReservaStatusHistorico[]
+  parceiro              Parceiro?          @relation(fields: [parceiro_id], references: [id], onDelete: SetNull)
+  hospedes              Hospede[]
+  logs                  ReservaLog[]
 
   @@unique([hotel_id, codigo])
   @@index([hotel_id])
   @@index([hotel_id, status])
   @@index([hotel_id, check_in])
   @@index([quarto_id, check_in, check_out])
-  @@index([parceiro_comercial_id])
+  @@index([parceiro_id])
   @@map("reservas")
 }
 
-model ReservaHospede {
-  id                  String    @id @default(uuid())
+// -------------------------------------------------------------
+// 2. HOSPEDE & HOSPEDE_ENDERECO (SEM procedencia / proximo_destino)
+// -------------------------------------------------------------
+model Hospede {
+  id                  String           @id @default(uuid())
   reserva_id          String
   posicao             Int
-  ficha_status        String    @default("pendente") @db.VarChar(12)
-  preenchido_por      String?   @db.VarChar(10)
+  ficha_status        String           @default("pendente") @db.VarChar(12)
+  preenchido_por      String?          @db.VarChar(10)
   preenchido_em       DateTime?
 
   // FNRH
-  nome_completo       String?   @db.VarChar(150)
-  nacionalidade       String?   @db.VarChar(60)
-  data_nascimento     DateTime? @db.Date
-  sexo                String?   @db.VarChar(15)
-  profissao           String?   @db.VarChar(80)
-  tipo_documento      String?   @db.VarChar(15)
-  numero_documento    String?   @db.VarChar(30)
-  logradouro          String?   @db.VarChar(120)
-  numero_endereco     String?   @db.VarChar(20)
-  complemento         String?   @db.VarChar(50)
-  bairro              String?   @db.VarChar(60)
-  cidade              String?   @db.VarChar(60)
-  estado              String?   @db.VarChar(2)
-  cep                 String?   @db.VarChar(10)
-  pais_residencia     String?   @db.VarChar(60)
-  telefone            String?   @db.VarChar(30)
-  email               String?   @db.VarChar(150)
-  motivo_viagem       String?   @db.VarChar(30)
-  meio_transporte     String?   @db.VarChar(30)
-  procedencia         String?   @db.VarChar(100)
-  proximo_destino     String?   @db.VarChar(100)
+  nome_completo       String?          @db.VarChar(150)
+  nacionalidade       String?          @db.VarChar(60)
+  data_nascimento     DateTime?        @db.Date
+  sexo                String?          @db.VarChar(15)
+  profissao           String?          @db.VarChar(80)
+  tipo_documento      String?          @db.VarChar(15)
+  numero_documento    String?          @db.VarChar(30)
+  telefone            String?          @db.VarChar(30)
+  email               String?          @db.VarChar(150)
+  motivo_viagem       String?          @db.VarChar(30)
+  meio_transporte     String?          @db.VarChar(30)
   responsavel_posicao Int?
 
-  reserva             Reserva   @relation(fields: [reserva_id], references: [id], onDelete: Cascade)
+  reserva             Reserva          @relation(fields: [reserva_id], references: [id], onDelete: Cascade)
+  endereco            HospedeEndereco?
 
   @@unique([reserva_id, posicao])
-  @@map("reserva_hospedes")
+  @@index([reserva_id])
+  @@map("hospedes")
 }
 
-model ReservaStatusHistorico {
+model HospedeEndereco {
   id              String   @id @default(uuid())
-  reserva_id      String
-  status_anterior String?  @db.VarChar(20)
-  status_novo     String   @db.VarChar(20)
-  user_id         String?
+  hospede_id      String   @unique
+  logradouro      String?  @db.VarChar(120)
+  numero_endereco String?  @db.VarChar(20)
+  complemento     String?  @db.VarChar(50)
+  bairro          String?  @db.VarChar(60)
+  cidade          String?  @db.VarChar(60)
+  estado          String?  @db.VarChar(2)
+  cep             String?  @db.VarChar(10)
+  pais_residencia String?  @db.VarChar(60)
   created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
 
-  reserva         Reserva  @relation(fields: [reserva_id], references: [id], onDelete: Cascade)
+  hospede         Hospede  @relation(fields: [hospede_id], references: [id], onDelete: Cascade)
+
+  @@index([hospede_id])
+  @@map("hospedes_enderecos")
+}
+
+// -------------------------------------------------------------
+// 3. RESERVAS_LOGS (SHA-256 VERSIONAMENTO)
+// -------------------------------------------------------------
+model ReservaLog {
+  id            String   @id @default(uuid())
+  reserva_id    String
+  hotel_id      String
+  user_id       String?
+  dados_hash    String   @db.Char(64)
+  dados_reserva Json
+  created_at    DateTime @default(now())
+
+  reserva       Reserva  @relation(fields: [reserva_id], references: [id], onDelete: Cascade)
 
   @@index([reserva_id])
-  @@map("reserva_status_historico")
+  @@index([hotel_id])
+  @@index([reserva_id, created_at])
+  @@map("reservas_logs")
 }

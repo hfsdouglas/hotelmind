@@ -12,6 +12,7 @@ import type {
   UpdateFichaHospedeData,
   UpdateReservaData,
 } from '@/core/repositories/reservas/reserva_repository'
+import { computeObjectSha256 } from '@/core/utils/canonical_hash'
 import { extract_hotel_prefix } from '@/core/utils/hotel_code'
 
 export class InMemoryReservaHospedeRepository
@@ -121,12 +122,6 @@ export class InMemoryReservaHospedeRepository
         data.meio_transporte !== undefined
           ? data.meio_transporte
           : current.meio_transporte,
-      procedencia:
-        data.procedencia !== undefined ? data.procedencia : current.procedencia,
-      proximo_destino:
-        data.proximo_destino !== undefined
-          ? data.proximo_destino
-          : current.proximo_destino,
       responsavel_posicao:
         data.responsavel_posicao !== undefined
           ? data.responsavel_posicao
@@ -180,6 +175,15 @@ export class InMemoryReservaRepository implements IReservaRepository {
     status_anterior: string | null
     status_novo: string
     user_id: string | null
+    created_at: Date
+  }> = []
+  public logs: Array<{
+    id: string
+    reserva_id: string
+    hotel_id: string
+    user_id: string | null
+    dados_hash: string
+    dados_reserva: Record<string, unknown>
     created_at: Date
   }> = []
   private hotel_names = new Map<string, string>()
@@ -446,6 +450,29 @@ export class InMemoryReservaRepository implements IReservaRepository {
     return `${prefix}-${String(proximo).padStart(6, '0')}`
   }
 
+  async create_log(
+    reserva_id: string,
+    hotel_id: string,
+    dados_reserva: Record<string, unknown>,
+    user_id?: string | null
+  ): Promise<void> {
+    const hash = computeObjectSha256(dados_reserva)
+    const logsReserva = this.logs.filter(l => l.reserva_id === reserva_id)
+    const ultimoLog = logsReserva[logsReserva.length - 1]
+    if (ultimoLog && ultimoLog.dados_hash === hash) {
+      return
+    }
+    this.logs.push({
+      id: randomUUID(),
+      reserva_id,
+      hotel_id,
+      user_id: user_id ?? null,
+      dados_hash: hash,
+      dados_reserva,
+      created_at: new Date(),
+    })
+  }
+
   async create_status_historico(
     reserva_id: string,
     status_anterior: string | null,
@@ -460,5 +487,14 @@ export class InMemoryReservaRepository implements IReservaRepository {
       user_id: user_id ?? null,
       created_at: new Date(),
     })
+    const reserva = this.items.find(r => r.id === reserva_id)
+    if (reserva) {
+      await this.create_log(
+        reserva_id,
+        reserva.hotel_id,
+        { status_anterior, status: status_novo },
+        user_id
+      )
+    }
   }
 }

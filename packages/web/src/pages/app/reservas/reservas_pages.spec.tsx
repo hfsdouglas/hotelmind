@@ -186,8 +186,6 @@ describe('ReservasPages', () => {
             email: null,
             motivo_viagem: null,
             meio_transporte: null,
-            procedencia: null,
-            proximo_destino: null,
             responsavel_posicao: null,
           },
         ],

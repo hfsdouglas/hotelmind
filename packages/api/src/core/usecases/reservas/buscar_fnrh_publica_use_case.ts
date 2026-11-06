@@ -69,8 +69,6 @@ export class BuscarFnrhPublicaUseCase {
         email: h.email,
         motivo_viagem: h.motivo_viagem,
         meio_transporte: h.meio_transporte,
-        procedencia: h.procedencia,
-        proximo_destino: h.proximo_destino,
         responsavel_posicao: h.responsavel_posicao,
       })),
     }

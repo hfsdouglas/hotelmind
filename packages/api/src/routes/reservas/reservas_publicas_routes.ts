@@ -127,8 +127,6 @@ export async function reservas_publicas_routes(app: FastifyTypedInstance) {
           email: hospede.email,
           motivo_viagem: hospede.motivo_viagem,
           meio_transporte: hospede.meio_transporte,
-          procedencia: hospede.procedencia,
-          proximo_destino: hospede.proximo_destino,
           responsavel_posicao: hospede.responsavel_posicao,
         })
       } catch (err) {
