@@ -36,20 +36,29 @@ export function ReservationCell({
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
+          {/* biome-ignore lint/a11y/useSemanticElements: interactive reservation cell */}
           <div
+            role="button"
+            tabIndex={0}
             className={cn(
               'absolute h-8 flex items-center justify-center cursor-pointer',
               // Check-in apenas: metade direita
-              isCheckIn && !isCheckOut && 'w-1/3 right-0 rounded-l z-30',
+              isCheckIn && !isCheckOut && 'w-1/3 right-0 rounded-l z-[3]',
               // Check-out apenas: metade esquerda
-              isCheckOut && !isCheckIn && 'w-1/3 left-0 rounded-r z-20',
+              isCheckOut && !isCheckIn && 'w-1/3 left-0 rounded-r z-[2]',
               // Dias intermediários: largura total sem bordas arredondadas
-              !isCheckIn && !isCheckOut && 'w-full left-0 rounded-none z-10',
+              !isCheckIn && !isCheckOut && 'w-full left-0 rounded-none z-[1]',
               // Apenas duas cores baseadas no status (check-in feito ou não)
               hasCheckedIn && 'bg-primary',
               !hasCheckedIn && 'bg-primary/50'
             )}
             onClick={() => onSelect(reservation)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                onSelect(reservation)
+              }
+            }}
           />
         </TooltipTrigger>
         {reservation.observacoes && (

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import type { Reservation } from '@/contexts/reservations_context'
@@ -45,7 +45,7 @@ describe('ReservationCell', () => {
     expect(onSelect).toHaveBeenCalledWith(mockReservation)
   })
 
-  it('renders check-in position styling', () => {
+  it('renders check-in position styling with z-[3]', () => {
     const { container } = render(
       <ReservationCell
         reservation={mockReservation}
@@ -56,5 +56,34 @@ describe('ReservationCell', () => {
 
     const cell = container.querySelector('.right-0')
     expect(cell).toBeInTheDocument()
+    expect(cell).toHaveClass('z-[3]')
+  })
+
+  it('renders check-out position styling with z-[2]', () => {
+    const { container } = render(
+      <ReservationCell
+        reservation={mockReservation}
+        day={new Date('2026-11-15T00:00:00')}
+        onSelect={vi.fn()}
+      />
+    )
+
+    const cell = container.querySelector('.left-0')
+    expect(cell).toBeInTheDocument()
+    expect(cell).toHaveClass('z-[2]')
+  })
+
+  it('renders intermediate day styling with z-[1]', () => {
+    const { container } = render(
+      <ReservationCell
+        reservation={mockReservation}
+        day={new Date('2026-11-12T00:00:00')}
+        onSelect={vi.fn()}
+      />
+    )
+
+    const cell = container.querySelector('.w-full')
+    expect(cell).toBeInTheDocument()
+    expect(cell).toHaveClass('z-[1]')
   })
 })

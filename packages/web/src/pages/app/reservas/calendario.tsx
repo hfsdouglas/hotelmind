@@ -416,7 +416,7 @@ function CalendarioContent() {
                 <th
                   key={index}
                   className={cn(
-                    'p-2 text-center font-semibold border-r border-border last:border-r-0',
+                    'p-2 text-center font-semibold border-r border-border last:border-r-0 bg-muted',
                     isSameDay(day, today) && 'bg-primary/10'
                   )}
                 >
@@ -445,7 +445,7 @@ function CalendarioContent() {
                       : 'bg-muted/20 even:bg-muted/10'
                   )}
                 >
-                  <td className="p-2 sticky left-0 bg-background z-20 w-[120px] border-r border-border">
+                  <td className="p-2 sticky left-0 bg-background z-10 w-[120px] border-r border-border">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -535,7 +535,7 @@ function CalendarioContent() {
                           hasReservations && 'cursor-pointer'
                         )}
                       >
-                        <div className="relative w-full h-8">
+                        <div className="relative w-full h-8 isolate">
                           {/* Renderiza reservas intermediárias (largura total) */}
                           {reservationsIntermediate.map(reservation => (
                             <ReservationCell
