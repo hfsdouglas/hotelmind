@@ -36,5 +36,8 @@
 - **Roomio Theme Tokens (OKLCH)**:
   - Base border radius: `--radius: 0.5rem` (8px), with `--radius-sm` (4px), `--radius-md` (6px), `--radius-lg` (8px), `--radius-xl` (12px).
   - Extended Primary Scale (depth/sidebar): `--primary-deep`, `--primary-deeper`, `--primary-darkest`, `--primary-shadow`, `--primary-void`.
+  - Secondary Palette: Cool Slate-Blue (`--secondary`).
+  - Semantic Status Tokens: `--destructive`, `--success`, `--warning`, `--info`.
   - Room Status Tokens: `--status-available` (Disponível), `--status-blocked` (Bloqueado), `--status-maintenance` (Manutenção), `--status-cleaning` (Limpeza), `--status-occupied` (Ocupado).
   - Never hardcode raw hex codes or ad-hoc colors for domain statuses or thematic elements; always consume semantic tokens.
+  - Page Titles: Always set page title using `usePageTitle('Título')` (which automatically appends ` | HotelMind` or ` | HotelMind Admin`).
