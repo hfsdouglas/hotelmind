@@ -16,22 +16,34 @@ const SOURCE_TARGET_MAP = {
   'CLAUDE.md': {
     rules: ['architecture.md', 'coding-standards.md', 'git-commits.md'],
     skills: ['crud-development', 'speckit'],
-    agents: ['code-reviewer.md'],
+    agents: ['code-reviewer.md', 'software-project-specialist.md'],
   },
   'packages/api/CLAUDE.md': {
     rules: ['architecture.md', 'database.md', 'multi-tenancy.md', 'testing.md'],
     skills: ['api-development', 'database-management', 'crud-development'],
-    agents: ['fullstack-specialist.md', 'code-reviewer.md'],
+    agents: [
+      'fullstack-specialist.md',
+      'code-reviewer.md',
+      'software-project-specialist.md',
+    ],
   },
   'packages/admin/CLAUDE.md': {
     rules: ['architecture.md', 'multi-tenancy.md', 'testing.md'],
     skills: ['frontend-development', 'crud-development'],
-    agents: ['fullstack-specialist.md', 'code-reviewer.md'],
+    agents: [
+      'fullstack-specialist.md',
+      'code-reviewer.md',
+      'software-project-specialist.md',
+    ],
   },
   'packages/web/CLAUDE.md': {
     rules: ['architecture.md', 'multi-tenancy.md', 'testing.md'],
     skills: ['frontend-development', 'crud-development'],
-    agents: ['fullstack-specialist.md', 'code-reviewer.md'],
+    agents: [
+      'fullstack-specialist.md',
+      'code-reviewer.md',
+      'software-project-specialist.md',
+    ],
   },
 }
 
