@@ -29,7 +29,12 @@
 - **No "Ações" Title**: The table column reserved for row action buttons must NEVER display the title `"Ações"` in its header (use `header: ''` or omit).
 - **Right-Aligned & Centered**: Action buttons inside the cell must always be aligned to the right and vertically centered (`className="flex items-center justify-end gap-1"`).
 
-## UI Components & Design System (shadcn MCP)
+## UI Components & Design System (shadcn MCP & Roomio Theme)
 
 - Use available shadcn MCP tools to inspect, search, and scaffold components and primitives before manually writing component JSX or styles.
 - Ensure all generated UI components follow established HotelMind design patterns and reside strictly under `src/components/`, never in `src/pages/**`.
+- **Roomio Theme Tokens (OKLCH)**:
+  - Base border radius: `--radius: 0.5rem` (8px), with `--radius-sm` (4px), `--radius-md` (6px), `--radius-lg` (8px), `--radius-xl` (12px).
+  - Extended Primary Scale (depth/sidebar): `--primary-deep`, `--primary-deeper`, `--primary-darkest`, `--primary-shadow`, `--primary-void`.
+  - Room Status Tokens: `--status-available` (Disponível), `--status-blocked` (Bloqueado), `--status-maintenance` (Manutenção), `--status-cleaning` (Limpeza), `--status-occupied` (Ocupado).
+  - Never hardcode raw hex codes or ad-hoc colors for domain statuses or thematic elements; always consume semantic tokens.

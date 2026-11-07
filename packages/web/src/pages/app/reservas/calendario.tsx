@@ -452,11 +452,16 @@ function CalendarioContent() {
                             <div
                               className={cn(
                                 'size-2 rounded-full shrink-0',
-                                room.status === 'disponivel' && 'bg-green-500',
-                                room.status === 'bloqueado' && 'bg-red-500',
-                                room.status === 'manutencao' && 'bg-orange-500',
-                                room.status === 'limpeza' && 'bg-blue-500',
-                                room.status === 'ocupado' && 'bg-purple-500'
+                                room.status === 'disponivel' &&
+                                  'bg-status-available',
+                                room.status === 'bloqueado' &&
+                                  'bg-status-blocked',
+                                room.status === 'manutencao' &&
+                                  'bg-status-maintenance',
+                                room.status === 'limpeza' &&
+                                  'bg-status-cleaning',
+                                room.status === 'ocupado' &&
+                                  'bg-status-occupied'
                               )}
                             />
                             <div className="flex flex-col min-w-0">

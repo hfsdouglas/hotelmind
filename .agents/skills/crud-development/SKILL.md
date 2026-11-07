@@ -70,11 +70,12 @@ Phase 1: Contracts → Phase 2: Database & Model → Phase 3: Backend API (TDD) 
 
 ## Phase 4: Frontend Implementation (TDD in `web` or `admin`)
 
-1. **Component Placement & Design System (shadcn MCP)**:
+1. **Component Placement & Design System (shadcn MCP & Roomio Theme)**:
    - Use available shadcn MCP tools to inspect, search, and scaffold components and primitives before manually writing component JSX or styles.
    - Ensure all generated UI components follow established HotelMind design patterns.
    - Place all domain components under `src/components/<domain>/`.
    - NEVER create a `components/` folder inside `src/pages/**`.
+   - Apply Roomio OKLCH semantic tokens (including `--status-*` for room statuses and extended primary scale for layout depth); never hardcode hex colors.
 2. **API & Hooks**:
    - Create TanStack Query hooks in `src/hooks/use<Domain>.ts` using the API client.
    - Invalidate query caches on mutations.

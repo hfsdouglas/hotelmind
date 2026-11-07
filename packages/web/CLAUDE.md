@@ -63,6 +63,78 @@ src/
 
 ---
 
+## Design System & Theme Tokens (Roomio Theme)
+
+The application utilizes an OKLCH perceptual color space design system compatible with Tailwind CSS and shadcn/ui (new-york style with Radix UI primitives).
+
+### Theme Configuration & Lifecycle
+- **Global CSS Configuration**: `src/index.css`.
+- **Color Space**: OKLCH (perceptually uniform across light and dark modes).
+- **Dark Mode Strategy**: Class-based via `.dark` on `document.documentElement`.
+- **Base Border Radius**: `--radius: 0.5rem` (8px), with `--radius-sm` (4px), `--radius-md` (6px), `--radius-lg` (8px), and `--radius-xl` (12px).
+- **Context & Persistence**: `src/contexts/ThemeContext.tsx` with hook `src/hooks/useTheme.ts`, persisted in `localStorage` under key `'theme'` (defaults to system preference or `'light'`).
+- **Toaster Integration**: `App.tsx` synchronizes Sonner's `theme` prop (`theme={theme}`) with the active theme.
+
+### Core Semantic Tokens
+
+| Semantic Token | CSS Variable | Light Mode (`:root`) | Dark Mode (`.dark`) | Description & Application |
+| :--- | :--- | :--- | :--- | :--- |
+| **Background** | `--background` | `oklch(0.95 0.002 250)` | `oklch(0.18 0.03 250)` | General application background |
+| **Foreground** | `--foreground` | `oklch(0.15 0.01 250)` | `oklch(0.95 0.01 240)` | Primary body text |
+| **Card** | `--card` | `oklch(0.97 0.001 250)` | `oklch(0.22 0.04 250)` | Elevated surfaces for cards and containers |
+| **Card Foreground** | `--card-foreground` | `oklch(0.15 0.01 250)` | `oklch(0.95 0.01 240)` | Text inside cards |
+| **Popover** | `--popover` | `oklch(0.97 0.001 250)` | `oklch(0.22 0.04 250)` | Modals, tooltips, and floating menus |
+| **Popover Foreground** | `--popover-foreground` | `oklch(0.15 0.01 250)` | `oklch(0.95 0.01 240)` | Text inside popovers |
+| **Primary** | `--primary` | `oklch(0.4 0.16 255)` | `oklch(0.35 0.12 255)` | Royal Blue - Primary buttons, headers, selections |
+| **Primary Foreground** | `--primary-foreground` | `oklch(0.99 0 0)` | `oklch(0.99 0 0)` | Contrast text on primary surfaces (White) |
+| **Secondary** | `--secondary` | `oklch(0.65 0.15 80)` | `oklch(0.7 0.16 80)` | Elegant Gold (hospitality brand identity) |
+| **Secondary Foreground** | `--secondary-foreground` | `oklch(0.15 0.01 250)` | `oklch(0.15 0.01 250)` | Text on secondary color |
+| **Tertiary** | `--tertiary` | `oklch(0.55 0.12 180)` | `oklch(0.6 0.16 180)` | Complementary Turquoise |
+| **Tertiary Foreground** | `--tertiary-foreground` | `oklch(0.99 0 0)` | `oklch(0.99 0 0)` | Text on tertiary surfaces |
+| **Muted** | `--muted` | `oklch(0.96 0.005 250)` | `oklch(0.25 0.04 250)` | Subtle neutral background (e.g. table headers) |
+| **Muted Foreground** | `--muted-foreground` | `oklch(0.5 0.02 250)` | `oklch(0.7 0.02 240)` | Captions, helpers, and secondary text |
+| **Accent** | `--accent` | `oklch(0.5 0.18 255)` | `oklch(0.3 0.08 255)` | Interactive highlights and hover states |
+| **Accent Foreground** | `--accent-foreground` | `oklch(0.99 0 0)` | `oklch(0.85 0.15 255)` | Contrast text on accent surfaces |
+| **Destructive** | `--destructive` | `oklch(0.55 0.22 25)` | `oklch(0.58 0.2 25)` | Destructive actions, alerts, and errors |
+| **Destructive Foreground** | `--destructive-foreground` | `oklch(0.99 0 0)` | `oklch(0.99 0 0)` | Text on destructive surfaces |
+| **Border** | `--border` | `oklch(0.88 0.01 250)` | `oklch(0.32 0.06 250)` | Structural borders and dividers |
+| **Input** | `--input` | `oklch(0.88 0.01 250)` | `oklch(0.35 0.07 250)` | Form input borders and background |
+| **Ring** | `--ring` | `oklch(0.4 0.16 255)` | `oklch(0.55 0.18 255)` | Accessible focus rings (`focus-visible`) |
+
+### Extended Primary Scale (Navbar, Sidebar & Depth)
+
+| Token Semântico | Variável CSS | Modo Claro (`:root`) | Modo Escuro (`.dark`) | Utilização Típica |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Deep** | `--primary-deep` | `oklch(0.32 0.14 255)` | `oklch(0.28 0.1 255)` | Fundo principal da Sidebar |
+| **Primary Deeper** | `--primary-deeper` | `oklch(0.25 0.12 255)` | `oklch(0.22 0.08 255)` | Card do Perfil e itens de menu ativos |
+| **Primary Darkest** | `--primary-darkest` | `oklch(0.18 0.1 255)` | `oklch(0.18 0.06 255)` | Submenus da Sidebar e hovers internos |
+| **Primary Shadow** | `--primary-shadow` | `oklch(0.12 0.08 255)` | `oklch(0.15 0.05 255)` | Sombreamentos ou separadores escuros |
+| **Primary Void** | `--primary-void` | `oklch(0.08 0.06 255)` | `oklch(0.12 0.04 255)` | Base mais escura de profundidade |
+
+### Analytics & Chart Tokens (`--chart-*`)
+
+| Gráfico | Variável CSS | Modo Claro (`:root`) | Modo Escuro (`.dark`) | Identificação Visual |
+| :--- | :--- | :--- | :--- | :--- |
+| **Chart 1** | `--chart-1` | `oklch(0.4 0.16 255)` | `oklch(0.55 0.18 255)` | Azul Royal (cor principal da marca) |
+| **Chart 2** | `--chart-2` | `oklch(0.65 0.15 80)` | `oklch(0.7 0.16 80)` | Dourado vibrante |
+| **Chart 3** | `--chart-3` | `oklch(0.55 0.12 180)` | `oklch(0.6 0.16 180)` | Turquesa / Ciano |
+| **Chart 4** | `--chart-4` | `oklch(0.6 0.1 280)` | `oklch(0.65 0.14 280)` | Roxo suave / luminoso |
+| **Chart 5** | `--chart-5` | `oklch(0.5 0.08 150)` | `oklch(0.58 0.13 150)` | Verde azulado |
+
+### Room Status Semantic Tokens (`--status-*`)
+
+Used in hospitality schedules, calendar status pills, and room state badges:
+
+| Status | Variável CSS | Modo Claro (`:root`) | Modo Escuro (`.dark`) | Significado |
+| :--- | :--- | :--- | :--- | :--- |
+| **Disponível** | `--status-available` | `oklch(0.65 0.18 145)` | `oklch(0.7 0.18 145)` | Quarto vago / disponível para reserva |
+| **Bloqueado** | `--status-blocked` | `oklch(0.55 0.22 25)` | `oklch(0.6 0.2 25)` | Quarto bloqueado administrativamente |
+| **Manutenção** | `--status-maintenance` | `oklch(0.65 0.18 55)` | `oklch(0.7 0.18 55)` | Quarto sob intervenção de manutenção |
+| **Limpeza** | `--status-cleaning` | `oklch(0.6 0.15 230)` | `oklch(0.65 0.15 230)` | Governança / Quarto em higienização |
+| **Ocupado** | `--status-occupied` | `oklch(0.55 0.18 300)` | `oklch(0.65 0.18 300)` | Quarto com hóspede / hospedagem ativa |
+
+---
+
 ## DataTable & List Page Standards
 
 ### DataTable Shared Primitives (`src/components/data-table/`)

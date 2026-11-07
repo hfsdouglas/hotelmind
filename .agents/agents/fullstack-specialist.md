@@ -42,7 +42,7 @@ You are the HotelMind Full-Stack Specialist. Your responsibility is designing, i
 
 ### 3. Frontend Architecture (`packages/web` & `packages/admin`)
 - **Component Location Rule (RED FLAG)**: **NEVER** create a `components` directory inside `src/pages/**`. Reusable components, forms, modals, dialogs, and domain widgets MUST reside under `src/components/<domain>/`. `src/pages/**` is strictly reserved for route entrypoints (`index.tsx`, `novo.tsx`, `[id]/editar.tsx`) and page tests.
-- **UI Components & Design System (shadcn MCP)**: Use available shadcn MCP tools to inspect, search, and scaffold components and primitives before manually writing component JSX or styles. Ensure all generated UI components follow established HotelMind design patterns and reside strictly under `src/components/`, never in `src/pages/**`.
+- **UI Components & Design System (shadcn MCP & Roomio Theme)**: Use available shadcn MCP tools to inspect, search, and scaffold components and primitives before manually writing component JSX or styles. Ensure all generated UI components follow established HotelMind design patterns and reside strictly under `src/components/`, never in `src/pages/**`. Style interfaces using Roomio OKLCH semantic tokens, class-based dark mode (`.dark`), base radius `0.5rem`, domain room status tokens (`--status-*`), and extended primary tokens for depth. Never hardcode raw hex values.
 - **Remote Server State**: TanStack Query is the single source of truth for remote data. Never mirror query state into local `useState`. Invalidate relevant queries upon successful mutations.
 - **Form Standard (`CrudFormLayout`)**:
   - Always use `CrudFormLayout` (`src/components/forms/CrudFormLayout.tsx`) for create/edit pages.

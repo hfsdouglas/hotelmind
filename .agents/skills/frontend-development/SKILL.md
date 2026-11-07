@@ -16,6 +16,19 @@ Step-by-step workflow for developing user interface features in `packages/web` a
   - All reusable components, forms, modals, dialogs, sections, and domain widgets MUST reside under `src/components/<modulo>/`.
   - `src/pages/**` is strictly reserved for page route entrypoints (`index.tsx`, `novo.tsx`, `[id]/editar.tsx`) and page tests.
 - **UI Components & Design System (shadcn MCP)**: Use available shadcn MCP tools to inspect, search, and scaffold components and primitives before manually writing component JSX or styles. Ensure all generated UI components follow established HotelMind design patterns and reside strictly under `src/components/`, never in `src/pages/**`.
+- **Theme & Semantic Color Tokens (Roomio Theme)**:
+  - Global CSS: `src/index.css`.
+  - Color space: OKLCH with class-based dark mode (`.dark` on `document.documentElement`).
+  - Base radius: `--radius: 0.5rem` (8px), with `--radius-sm` (4px), `--radius-md` (6px), `--radius-lg` (8px), and `--radius-xl` (12px).
+  - Context & hook: `ThemeContext` (`src/contexts/ThemeContext.tsx`) and `useTheme` (`src/hooks/useTheme.ts`), persisted in `localStorage` under key `'theme'`. Sonner toaster is synced via `theme={theme}` in `App.tsx`.
+  - Extended Primary Scale (depth/sidebar): `--primary-deep`, `--primary-deeper`, `--primary-darkest`, `--primary-shadow`, `--primary-void`.
+  - Hospitality Room Status Tokens:
+    - `--status-available`: Quarto vago / disponível para reserva.
+    - `--status-blocked`: Quarto bloqueado administrativamente.
+    - `--status-maintenance`: Quarto sob intervenção de manutenção.
+    - `--status-cleaning`: Governança / Quarto em higienização.
+    - `--status-occupied`: Quarto com hóspede / hospedagem ativa.
+  - Never hardcode fixed hex or utility colors for thematic elements and status indicators.
 - **Server State**: Always use TanStack Query for remote data fetching and mutations. Never duplicate query data into local state.
 - **TDD**: Write tests before implementation (`.spec.tsx`).
 
