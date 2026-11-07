@@ -1,7 +1,6 @@
 import type React from 'react'
 import { useRef } from 'react'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 
 export interface ColorPickerProps {
@@ -11,21 +10,7 @@ export interface ColorPickerProps {
   disabled?: boolean
   className?: string
   showWristbandBadge?: boolean
-  presetLabel?: string
 }
-
-const PRESET_COLORS = [
-  { label: 'Azul', hex: '#2563EB' },
-  { label: 'Verde', hex: '#16A34A' },
-  { label: 'Amarelo', hex: '#EAB308' },
-  { label: 'Vermelho', hex: '#DC2626' },
-  { label: 'Roxo', hex: '#7C3AED' },
-  { label: 'Laranja', hex: '#EA580C' },
-  { label: 'Rosa', hex: '#DB2777' },
-  { label: 'Ciano', hex: '#0891B2' },
-  { label: 'Dourado', hex: '#D97706' },
-  { label: 'Cinza', hex: '#64748B' },
-]
 
 export function ColorPicker({
   id = 'cor_picker',
@@ -34,7 +19,6 @@ export function ColorPicker({
   disabled = false,
   className,
   showWristbandBadge = false,
-  presetLabel = 'Cores sugeridas:',
 }: ColorPickerProps) {
   const inputColorRef = useRef<HTMLInputElement>(null)
   const currentHex = value || '#2563EB'
@@ -46,13 +30,6 @@ export function ColorPicker({
     }
     onChange(text.toUpperCase())
   }
-
-  const effectivePresetLabel =
-    presetLabel !== 'Cores sugeridas:'
-      ? presetLabel
-      : showWristbandBadge
-        ? 'Cores sugeridas para pulseiras:'
-        : 'Cores sugeridas:'
 
   return (
     <div className={cn('flex flex-col gap-3', className)}>
@@ -123,34 +100,6 @@ export function ColorPicker({
             </span>
           </div>
         )}
-      </div>
-
-      {/* Cores predefinidas para seleção rápida */}
-      <div className="flex flex-col gap-1.5">
-        <Label className="text-xs text-muted-foreground">
-          {effectivePresetLabel}
-        </Label>
-        <div className="flex flex-wrap gap-2">
-          {PRESET_COLORS.map(preset => {
-            const isSelected = value.toUpperCase() === preset.hex.toUpperCase()
-            return (
-              <button
-                key={preset.hex}
-                type="button"
-                onClick={() => onChange(preset.hex)}
-                disabled={disabled}
-                className={cn(
-                  'flex h-7 w-7 items-center justify-center rounded-md border text-xs shadow-xs transition hover:scale-110 focus:outline-none focus:ring-2 focus:ring-ring',
-                  isSelected &&
-                    'ring-2 ring-primary ring-offset-2 font-bold scale-105'
-                )}
-                style={{ backgroundColor: preset.hex }}
-                title={`${preset.label} (${preset.hex})`}
-                aria-label={`Escolher cor ${preset.label}`}
-              />
-            )
-          })}
-        </div>
       </div>
     </div>
   )

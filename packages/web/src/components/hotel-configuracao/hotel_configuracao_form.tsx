@@ -1,16 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
 import { Form } from '@/components/ui/form'
 import { Separator } from '@/components/ui/separator'
 import {
@@ -30,12 +21,16 @@ interface HotelConfiguracaoFormProps {
   initialData?: Partial<HotelConfiguracaoFormData>
   onSubmit: (data: HotelConfiguracaoFormData) => Promise<void>
   isSubmitting?: boolean
+  title?: string
+  backTo?: string
 }
 
 export function HotelConfiguracaoForm({
   initialData,
   onSubmit,
   isSubmitting = false,
+  title = 'Configurações do Hotel',
+  backTo = '/',
 }: HotelConfiguracaoFormProps) {
   const [modalPreviewAberto, setModalPreviewAberto] = useState(false)
 
@@ -102,6 +97,7 @@ export function HotelConfiguracaoForm({
   const form = useForm<HotelConfiguracaoFormData>({
     resolver: zodResolver(hotelConfiguracaoFormSchema),
     defaultValues,
+    values: defaultValues,
   })
 
   const formTema = form.watch('tema')
@@ -109,75 +105,46 @@ export function HotelConfiguracaoForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <Card className="shadow-sm">
-          <CardHeader>
-            <CardTitle>Configurações Gerais do Hotel</CardTitle>
-            <CardDescription>
-              Gerencie a identidade visual, dados cadastrais, regras de cobrança
-              infantil, horários e serviços operacionais do estabelecimento.
-            </CardDescription>
-          </CardHeader>
+      <CrudFormLayout
+        title={title}
+        backTo={backTo}
+        cardTitle="Configurações Gerais do Hotel"
+        onSubmit={form.handleSubmit(onSubmit)}
+        actions={<SaveButton isPending={isSubmitting} label="Salvar" />}
+      >
+        <div className="space-y-8">
+          <SecaoDadosCadastrais form={form} />
+          <Separator />
+          <SecaoApresentacao form={form} />
+          <Separator />
+          <SecaoIdentidadeVisual
+            form={form}
+            onOpenPreview={() => setModalPreviewAberto(true)}
+          />
+          <Separator />
+          <SecaoCriancasHospedes form={form} />
+          <Separator />
+          <SecaoHorariosOperacao form={form} />
+          <Separator />
+          <SecaoRegrasCasa form={form} />
+          <Separator />
+          <SecaoEstacionamentoWifi form={form} />
+        </div>
+      </CrudFormLayout>
 
-          <CardContent className="space-y-8">
-            <SecaoDadosCadastrais form={form} />
-            <Separator />
-            <SecaoApresentacao form={form} />
-            <Separator />
-            <SecaoIdentidadeVisual
-              form={form}
-              onOpenPreview={() => setModalPreviewAberto(true)}
-            />
-            <Separator />
-            <SecaoCriancasHospedes form={form} />
-            <Separator />
-            <SecaoHorariosOperacao form={form} />
-            <Separator />
-            <SecaoRegrasCasa form={form} />
-            <Separator />
-            <SecaoEstacionamentoWifi form={form} />
-          </CardContent>
-
-          <CardFooter className="flex justify-end gap-3 pt-6 border-t bg-muted/10">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => form.reset(defaultValues)}
-              disabled={isSubmitting}
-            >
-              Descartar alterações
-            </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="min-w-[160px]"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Salvando...
-                </>
-              ) : (
-                'Salvar alterações'
-              )}
-            </Button>
-          </CardFooter>
-        </Card>
-
-        <ModalPreviewTema
-          open={modalPreviewAberto}
-          onOpenChange={setModalPreviewAberto}
-          nomeHotel={nomeFantasia || 'Seu Hotel'}
-          corPrimaria={formTema.cor_primaria}
-          corSecundaria={formTema.cor_secundaria}
-          corFundo={formTema.cor_fundo}
-          corSuperficie={formTema.cor_superficie}
-          corTextoPrincipal={formTema.cor_texto_principal}
-          corTextoSecundario={formTema.cor_texto_secundario}
-          corDestaque={formTema.cor_destaque}
-          logoUrl={formTema.logo_principal}
-        />
-      </form>
+      <ModalPreviewTema
+        open={modalPreviewAberto}
+        onOpenChange={setModalPreviewAberto}
+        nomeHotel={nomeFantasia || 'Seu Hotel'}
+        corPrimaria={formTema.cor_primaria}
+        corSecundaria={formTema.cor_secundaria}
+        corFundo={formTema.cor_fundo}
+        corSuperficie={formTema.cor_superficie}
+        corTextoPrincipal={formTema.cor_texto_principal}
+        corTextoSecundario={formTema.cor_texto_secundario}
+        corDestaque={formTema.cor_destaque}
+        logoUrl={formTema.logo_principal}
+      />
     </Form>
   )
 }

@@ -1,19 +1,22 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { ColorPicker } from './color_picker'
 
 describe('ColorPicker', () => {
-  it('renders presets and selects preset color on click', async () => {
-    const user = userEvent.setup()
+  it('renders color swatch button and triggers native input on change', () => {
     const onChange = vi.fn()
-
     render(<ColorPicker value="#2563EB" onChange={onChange} />)
 
-    const verdeBtn = screen.getByRole('button', { name: /escolher cor verde/i })
-    await user.click(verdeBtn)
+    const swatchBtn = screen.getByRole('button', {
+      name: /cor selecionada: #2563EB/i,
+    })
+    expect(swatchBtn).toBeInTheDocument()
+    expect(swatchBtn).toHaveStyle({ backgroundColor: '#2563EB' })
 
-    expect(onChange).toHaveBeenCalledWith('#16A34A')
+    const nativeInput = screen.getByLabelText(/selecionar cor/i)
+    fireEvent.change(nativeInput, { target: { value: '#10B981' } })
+    expect(onChange).toHaveBeenCalledWith('#10B981')
   })
 
   it('updates value when hex text input changes', async () => {
@@ -29,10 +32,10 @@ describe('ColorPicker', () => {
     expect(onChange).toHaveBeenCalled()
   })
 
-  it('does not render wristband badge by default', () => {
+  it('does not render suggested colors or wristband badge by default', () => {
     render(<ColorPicker value="#2563EB" onChange={() => {}} />)
     expect(screen.queryByTestId('wristband-preview')).not.toBeInTheDocument()
-    expect(screen.getByText('Cores sugeridas:')).toBeInTheDocument()
+    expect(screen.queryByText(/cores sugeridas/i)).not.toBeInTheDocument()
   })
 
   it('renders wristband badge when showWristbandBadge is true', () => {
@@ -44,8 +47,6 @@ describe('ColorPicker', () => {
       />
     )
     expect(screen.getByTestId('wristband-preview')).toBeInTheDocument()
-    expect(
-      screen.getByText('Cores sugeridas para pulseiras:')
-    ).toBeInTheDocument()
+    expect(screen.queryByText(/cores sugeridas/i)).not.toBeInTheDocument()
   })
 })

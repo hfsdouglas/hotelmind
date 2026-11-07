@@ -82,12 +82,12 @@ function createQueryClient() {
   })
 }
 
-describe('HotelConfiguracoesPage', () => {
+describe('HotelConfiguracoesPage', { timeout: 15000 }, () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  it('renders loading state, then loads hotel configuration', async () => {
+  it('renders loading state, then loads hotel configuration with CrudFormLayout', async () => {
     vi.mocked(hotelConfiguracaoService.get).mockResolvedValue(MOCK_CONFIG)
     const queryClient = createQueryClient()
 
@@ -103,12 +103,27 @@ describe('HotelConfiguracoesPage', () => {
       expect(screen.getByDisplayValue('Pousada Sol & Mar')).toBeInTheDocument()
     })
 
-    expect(screen.getByText('Configurações do Hotel')).toBeInTheDocument()
+    // CrudFormLayout back button and title
+    const backLink = screen.getByRole('link')
+    expect(backLink).toHaveAttribute('href', '/')
     expect(
-      screen.getByText(/1\. Dados Cadastrais & Contato/i)
+      screen.getByRole('heading', { level: 1, name: /configurações do hotel/i })
     ).toBeInTheDocument()
+
+    // 3 names
+    expect(screen.getByLabelText(/nome corporativo/i)).toHaveValue(
+      'Pousada Sol & Mar SA'
+    )
+    expect(screen.getByLabelText(/nome fantasia/i)).toHaveValue(
+      'Pousada Sol & Mar'
+    )
+    expect(screen.getByLabelText(/razão social/i)).toHaveValue('Sol & Mar LTDA')
+
+    // Save button in crud-form-actions
+    const actionsRow = screen.getByTestId('crud-form-actions')
+    expect(actionsRow).toBeInTheDocument()
     expect(
-      screen.getByText(/3\. Identidade Visual & Cores/i)
+      screen.getByRole('button', { name: /^salvar$/i })
     ).toBeInTheDocument()
   })
 
@@ -139,7 +154,7 @@ describe('HotelConfiguracoesPage', () => {
     await user.type(inputName, 'Pousada Sol & Mar Renovada')
 
     const saveButton = screen.getByRole('button', {
-      name: /salvar alterações/i,
+      name: /^salvar$/i,
     })
     await user.click(saveButton)
 

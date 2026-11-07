@@ -1,6 +1,5 @@
 import { toast } from 'sonner'
 import { HotelConfiguracaoForm } from '@/components/hotel-configuracao/hotel_configuracao_form'
-import { PageHeader } from '@/components/page_header'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
   useHotelConfiguracao,
@@ -26,34 +25,34 @@ export function HotelConfiguracoesPage() {
     }
   }
 
-  return (
-    <div className="flex flex-col gap-6 p-6 max-w-7xl mx-auto">
-      <PageHeader
-        title="Configurações do Hotel"
-        description="Gerencie a identidade visual, temas, regras operacionais e comodidades da propriedade"
-      />
-
-      {isLoading && (
-        <div className="flex flex-col gap-4">
-          <Skeleton className="h-11 w-full rounded-lg" />
-          <Skeleton className="h-96 w-full rounded-lg" />
+  if (isLoading) {
+    return (
+      <div className="mx-auto flex w-full flex-col gap-6 sm:max-w-[540px] md:max-w-[720px] lg:max-w-[960px] xl:max-w-[1140px] 2xl:max-w-[1320px]">
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-10 w-10 rounded-md" />
+          <Skeleton className="h-8 w-64 rounded-md" />
         </div>
-      )}
+        <Skeleton className="h-[600px] w-full rounded-lg" />
+      </div>
+    )
+  }
 
-      {isError && (
+  if (isError || !config) {
+    return (
+      <div className="mx-auto flex w-full flex-col gap-6 sm:max-w-[540px] md:max-w-[720px] lg:max-w-[960px] xl:max-w-[1140px] 2xl:max-w-[1320px]">
         <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive">
           Não foi possível carregar as configurações do hotel. Tente recarregar
           a página.
         </div>
-      )}
+      </div>
+    )
+  }
 
-      {!isLoading && config && (
-        <HotelConfiguracaoForm
-          initialData={config}
-          onSubmit={handleSubmit}
-          isSubmitting={isUpdating}
-        />
-      )}
-    </div>
+  return (
+    <HotelConfiguracaoForm
+      initialData={config}
+      onSubmit={handleSubmit}
+      isSubmitting={isUpdating}
+    />
   )
 }

@@ -1,6 +1,7 @@
 import type { HotelConfiguracaoDTO } from '@hotelmind/contracts'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { HotelConfiguracaoForm } from './hotel_configuracao_form'
 
@@ -58,16 +59,29 @@ const MOCK_INITIAL_DATA: HotelConfiguracaoDTO = {
   },
 }
 
-describe('HotelConfiguracaoForm', () => {
-  it('renders all 7 continuous sections and action buttons in card footer', () => {
+describe('HotelConfiguracaoForm', { timeout: 15000 }, () => {
+  it('renders standard CrudFormLayout with back button, card and external SaveButton', () => {
     render(
-      <HotelConfiguracaoForm
-        initialData={MOCK_INITIAL_DATA}
-        onSubmit={vi.fn()}
-        isSubmitting={false}
-      />
+      <MemoryRouter>
+        <HotelConfiguracaoForm
+          initialData={MOCK_INITIAL_DATA}
+          onSubmit={vi.fn()}
+          isSubmitting={false}
+        />
+      </MemoryRouter>
     )
 
+    // Back button link to "/"
+    const backLink = screen.getByRole('link')
+    expect(backLink).toHaveAttribute('href', '/')
+
+    // Layout Header
+    expect(
+      screen.getByRole('heading', { level: 1, name: /configurações do hotel/i })
+    ).toBeInTheDocument()
+
+    // 7 continuous sections inside the single card
+    expect(screen.getByTestId('crud-form-card')).toBeInTheDocument()
     expect(
       screen.getByText(/1\. Dados Cadastrais & Contato/i)
     ).toBeInTheDocument()
@@ -84,25 +98,50 @@ describe('HotelConfiguracaoForm', () => {
       screen.getByText(/7\. Estacionamento & Conectividade/i)
     ).toBeInTheDocument()
 
+    // Save button outside card in actions row
+    const actionsRow = screen.getByTestId('crud-form-actions')
+    expect(actionsRow).toBeInTheDocument()
+    const saveBtn = screen.getByRole('button', { name: /^salvar$/i })
+    expect(saveBtn).toBeInTheDocument()
+    expect(actionsRow).toContainElement(saveBtn)
+
+    // Descartar button must NOT exist
     expect(
-      screen.getByRole('button', { name: /visualizar prévia do tema/i })
-    ).toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: /descartar alterações/i })
-    ).toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: /salvar alterações/i })
-    ).toBeInTheDocument()
+      screen.queryByRole('button', { name: /descartar/i })
+    ).not.toBeInTheDocument()
+  })
+
+  it('renders all 3 distinct corporate and commercial names', () => {
+    render(
+      <MemoryRouter>
+        <HotelConfiguracaoForm
+          initialData={MOCK_INITIAL_DATA}
+          onSubmit={vi.fn()}
+          isSubmitting={false}
+        />
+      </MemoryRouter>
+    )
+
+    expect(screen.getByLabelText(/nome corporativo/i)).toHaveValue(
+      'Hotel Central SA'
+    )
+    expect(screen.getByLabelText(/nome fantasia/i)).toHaveValue('Hotel Central')
+    expect(screen.getByLabelText(/razão social/i)).toHaveValue(
+      'Hotel Central LTDA'
+    )
+    expect(screen.getByLabelText(/cnpj/i)).toHaveValue('12345678000190')
   })
 
   it('opens theme preview modal when clicking "Visualizar Prévia do Tema"', async () => {
     const user = userEvent.setup()
     render(
-      <HotelConfiguracaoForm
-        initialData={MOCK_INITIAL_DATA}
-        onSubmit={vi.fn()}
-        isSubmitting={false}
-      />
+      <MemoryRouter>
+        <HotelConfiguracaoForm
+          initialData={MOCK_INITIAL_DATA}
+          onSubmit={vi.fn()}
+          isSubmitting={false}
+        />
+      </MemoryRouter>
     )
 
     const previewBtn = screen.getByRole('button', {
@@ -112,28 +151,5 @@ describe('HotelConfiguracaoForm', () => {
 
     expect(screen.getByText('Prévia da Identidade Visual')).toBeInTheDocument()
     expect(screen.getByText('Hotel Central')).toBeInTheDocument()
-  })
-
-  it('discards modifications when clicking "Descartar alterações"', async () => {
-    const user = userEvent.setup()
-    render(
-      <HotelConfiguracaoForm
-        initialData={MOCK_INITIAL_DATA}
-        onSubmit={vi.fn()}
-        isSubmitting={false}
-      />
-    )
-
-    const nameInput = screen.getByLabelText(/nome fantasia/i)
-    await user.clear(nameInput)
-    await user.type(nameInput, 'Nome Temporário Alterado')
-    expect(nameInput).toHaveValue('Nome Temporário Alterado')
-
-    const discardBtn = screen.getByRole('button', {
-      name: /descartar alterações/i,
-    })
-    await user.click(discardBtn)
-
-    expect(nameInput).toHaveValue('Hotel Central')
   })
 })

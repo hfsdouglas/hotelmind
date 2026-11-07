@@ -52,7 +52,7 @@ export function SecaoDadosCadastrais({ form }: SecaoDadosCadastraisProps) {
           name="nome_fantasia"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nome Fantasia / Exibição *</FormLabel>
+              <FormLabel>Nome Fantasia *</FormLabel>
               <FormControl>
                 <Input placeholder="Ex: Paradiso Resort & Spa" {...field} />
               </FormControl>
