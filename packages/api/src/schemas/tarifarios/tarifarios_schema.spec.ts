@@ -19,12 +19,28 @@ describe('tarifarios_schema', () => {
     })
     expect(parsed).toEqual({
       categoria_quarto_id: 'cat-1',
+      categoria_quarto_ids: ['cat-1'],
       regime_alimentacao_id: VALID_REGIME_ID,
       nome: 'Baixa temporada',
       datas: ['2027-03-01', '2027-03-05'],
       valor_diaria: '200.50',
+      minimo_diarias: 1,
       ativo: true,
     })
+  })
+
+  it('validates create_tarifario_body_schema with multi-category and minimo_diarias', () => {
+    const parsed = create_tarifario_body_schema.parse({
+      categoria_quarto_ids: ['cat-1', 'cat-2', 'cat-1'],
+      regime_alimentacao_id: VALID_REGIME_ID,
+      nome: 'Fim de semana luxo',
+      datas: ['2027-03-01'],
+      valor_diaria: '300.00',
+      minimo_diarias: 2,
+    })
+    expect(parsed.categoria_quarto_ids).toEqual(['cat-1', 'cat-2'])
+    expect(parsed.categoria_quarto_id).toBe('cat-1')
+    expect(parsed.minimo_diarias).toBe(2)
   })
 
   it('validates create_tarifario_body_schema with parceiro_id', () => {
@@ -89,6 +105,27 @@ describe('tarifarios_schema', () => {
         valor_diaria: '200.999',
       }).success
     ).toBe(false)
+
+    expect(
+      create_tarifario_body_schema.safeParse({
+        categoria_quarto_ids: [],
+        regime_alimentacao_id: VALID_REGIME_ID,
+        nome: 'Tarifa',
+        datas: ['2027-03-01'],
+        valor_diaria: '200.00',
+      }).success
+    ).toBe(false)
+
+    expect(
+      create_tarifario_body_schema.safeParse({
+        categoria_quarto_ids: ['cat-1'],
+        regime_alimentacao_id: VALID_REGIME_ID,
+        nome: 'Tarifa',
+        datas: ['2027-03-01'],
+        valor_diaria: '200.00',
+        minimo_diarias: 0,
+      }).success
+    ).toBe(false)
   })
 
   it('validates list_tarifarios_query_schema and calendario_tarifarios_query_schema', () => {
@@ -118,5 +155,12 @@ describe('tarifarios_schema', () => {
         datas: [],
       }).success
     ).toBe(false)
+
+    const updated = update_tarifario_body_schema.parse({
+      categoria_quarto_ids: ['cat-2', 'cat-3'],
+      minimo_diarias: 3,
+    })
+    expect(updated.categoria_quarto_ids).toEqual(['cat-2', 'cat-3'])
+    expect(updated.minimo_diarias).toBe(3)
   })
 })

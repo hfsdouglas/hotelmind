@@ -67,8 +67,28 @@ export function TarifariosPage() {
     },
     {
       key: 'categoria_quarto',
-      header: 'Categoria de quarto',
-      render: row => row.categoria_quarto.nome,
+      header: 'Categorias de quarto',
+      render: row => {
+        const cats = row.categorias?.length
+          ? row.categorias
+          : row.categoria_quarto
+            ? [row.categoria_quarto]
+            : []
+        if (cats.length === 0)
+          return <span className="text-muted-foreground">—</span>
+        if (cats.length === 1) return <span>{cats[0].nome}</span>
+        return (
+          <div
+            className="flex flex-wrap items-center gap-1"
+            title={cats.map(c => c.nome).join(', ')}
+          >
+            <span className="font-medium text-foreground">{cats[0].nome}</span>
+            <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+              +{cats.length - 1}
+            </span>
+          </div>
+        )
+      },
     },
     {
       key: 'regime_alimentacao',
@@ -101,7 +121,16 @@ export function TarifariosPage() {
     {
       key: 'valor_diaria',
       header: 'Valor da diária',
-      render: row => `R$ ${row.valor_diaria}`,
+      render: row => (
+        <div>
+          <span>R$ {row.valor_diaria}</span>
+          {row.minimo_diarias > 1 && (
+            <span className="block text-[11px] text-muted-foreground">
+              Mín. {row.minimo_diarias} diárias
+            </span>
+          )}
+        </div>
+      ),
     },
     {
       key: 'ativo',

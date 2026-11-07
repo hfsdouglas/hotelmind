@@ -60,16 +60,31 @@ export class TarifarioPricingService {
       input.parceiro_id !== undefined ? input.parceiro_id : undefined
 
     for (const night of nights) {
-      const elegiveis = input.tarifarios.filter(
-        t =>
-          t.ativo &&
-          t.hotel_id === input.hotel_id &&
-          t.categoria_quarto_id === input.categoria_quarto_id &&
-          (target_parceiro !== undefined
-            ? t.parceiro_id === target_parceiro
-            : true) &&
-          t.datas.includes(night)
-      )
+      const elegiveis = input.tarifarios.filter(t => {
+        if (!t.ativo) return false
+        if (t.hotel_id !== input.hotel_id) return false
+
+        const matches_category =
+          t.categoria_quarto_ids?.length > 0
+            ? t.categoria_quarto_ids.includes(input.categoria_quarto_id)
+            : t.categoria_quarto_id === input.categoria_quarto_id
+        if (!matches_category) return false
+
+        if (
+          target_parceiro !== undefined &&
+          t.parceiro_id !== target_parceiro
+        ) {
+          return false
+        }
+
+        if (!t.datas.includes(night)) return false
+
+        // Validação de estadia mínima
+        const minimo_diarias = t.minimo_diarias ?? 1
+        if (nights.length < minimo_diarias) return false
+
+        return true
+      })
 
       if (elegiveis.length === 0) {
         throw new TarifarioSemCoberturaError(night)

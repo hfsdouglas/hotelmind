@@ -50,12 +50,20 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
     hotel_id: string,
     input: TarifarioListFilter
   ): Promise<PaginatedResult<Tarifario>> {
+    const filter_category_ids = input.categoria_quarto_id
+      ? Array.isArray(input.categoria_quarto_id)
+        ? input.categoria_quarto_id
+        : [input.categoria_quarto_id]
+      : []
+
     const filtered = this.items
       .filter(item => {
         if (item.hotel_id !== hotel_id) return false
         if (
-          input.categoria_quarto_id?.length &&
-          !input.categoria_quarto_id.includes(item.categoria_quarto_id)
+          filter_category_ids.length > 0 &&
+          !item.categoria_quarto_ids.some(cat_id =>
+            filter_category_ids.includes(cat_id)
+          )
         ) {
           return false
         }
@@ -78,9 +86,9 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
         if (input.busca) {
           const term = input.busca.toLowerCase()
           const matches_name = item.nome.toLowerCase().includes(term)
-          const matches_cat = item.categoria_quarto.nome
-            .toLowerCase()
-            .includes(term)
+          const matches_cat = item.categorias.some(c =>
+            c.nome.toLowerCase().includes(term)
+          )
           const matches_parceiro = item.parceiro?.razao_social
             .toLowerCase()
             .includes(term)
@@ -115,7 +123,8 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
     return this.items
       .filter(item => {
         if (item.hotel_id !== input.hotel_id) return false
-        if (item.categoria_quarto_id !== input.categoria_quarto_id) return false
+        if (!item.categoria_quarto_ids.includes(input.categoria_quarto_id))
+          return false
         if (input.parceiro_id !== undefined) {
           const target_parceiro =
             input.parceiro_id === 'publico' ? null : input.parceiro_id
@@ -131,11 +140,13 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
       .sort((a, b) => (a.datas[0] ?? '').localeCompare(b.datas[0] ?? ''))
       .map(item => ({
         id: item.id,
-        categoria_quarto_id: item.categoria_quarto_id,
+        categoria_quarto_id: input.categoria_quarto_id,
+        categoria_quarto_ids: item.categoria_quarto_ids,
         parceiro_id: item.parceiro_id,
         nome: item.nome,
         datas: item.datas,
         valor_diaria: item.valor_diaria,
+        minimo_diarias: item.minimo_diarias,
         ativo: item.ativo,
       }))
   }
@@ -145,17 +156,23 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
   ): Tarifario | null {
     const requested = new Set(normalize_datas(input.datas))
     const expected_parceiro = input.parceiro_id ?? null
+    const target_cats =
+      input.categoria_quarto_ids ??
+      (input.categoria_quarto_id ? [input.categoria_quarto_id] : [])
 
     return (
       this.items.find(
         item =>
           item.hotel_id === input.hotel_id &&
-          item.categoria_quarto_id === input.categoria_quarto_id &&
           item.ativo &&
           (!input.exclude_id || item.id !== input.exclude_id) &&
           item.parceiro_id === expected_parceiro &&
           (!input.regime_alimentacao_id ||
             item.regime_alimentacao_id === input.regime_alimentacao_id) &&
+          (target_cats.length === 0 ||
+            item.categoria_quarto_ids.some(c_id =>
+              target_cats.includes(c_id)
+            )) &&
           item.datas.some(d => requested.has(d))
       ) ?? null
     )
@@ -179,7 +196,7 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
     return this.items.filter(
       item =>
         item.hotel_id === input.hotel_id &&
-        item.categoria_quarto_id === input.categoria_quarto_id &&
+        item.categoria_quarto_ids.includes(input.categoria_quarto_id) &&
         item.ativo &&
         item.parceiro_id === target_parceiro &&
         item.datas.some(d => d >= input.data_inicio && d < input.data_fim)
@@ -187,10 +204,14 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
   }
 
   async create(data: CreateTarifarioData): Promise<Tarifario> {
+    const category_ids =
+      data.categoria_quarto_ids ??
+      (data.categoria_quarto_id ? [data.categoria_quarto_id] : [])
+
     if (data.ativo) {
       const conflict = this.find_overlapping_active_sync({
         hotel_id: data.hotel_id,
-        categoria_quarto_id: data.categoria_quarto_id,
+        categoria_quarto_ids: category_ids,
         regime_alimentacao_id: data.regime_alimentacao_id,
         parceiro_id: data.parceiro_id,
         datas: data.datas,
@@ -200,10 +221,18 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
       }
     }
 
-    const cat_meta = this.category_names.get(data.categoria_quarto_id) ?? {
-      nome: 'Categoria',
-      status: 'S' as const,
-    }
+    const categorias = category_ids.map(cat_id => {
+      const meta = this.category_names.get(cat_id) ?? {
+        nome: 'Categoria',
+        status: 'S' as const,
+      }
+      return {
+        id: cat_id,
+        nome: meta.nome,
+        status: meta.status,
+      }
+    })
+
     const regime_meta = this.regime_names.get(data.regime_alimentacao_id) ?? {
       titulo: 'Regime',
       cor_pulseira: '#2563EB',
@@ -218,30 +247,30 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
     const entity = new Tarifario({
       id: crypto.randomUUID(),
       hotel_id: data.hotel_id,
-      categoria_quarto_id: data.categoria_quarto_id,
+      categoria_quarto_ids: category_ids,
+      categoria_quarto_id: category_ids[0],
       regime_alimentacao_id: data.regime_alimentacao_id,
       parceiro_id: data.parceiro_id ?? null,
       nome: data.nome,
       datas: data.datas,
       valor_diaria: data.valor_diaria,
+      minimo_diarias: data.minimo_diarias ?? 1,
       ativo: data.ativo,
-      categoria_quarto: {
-        id: data.categoria_quarto_id,
-        nome: cat_meta.nome,
-        status: cat_meta.status,
-      },
+      categorias,
+      categoria_quarto: categorias[0],
       regime_alimentacao: {
         id: data.regime_alimentacao_id,
         titulo: regime_meta.titulo,
         cor_pulseira: regime_meta.cor_pulseira,
       },
-      parceiro: parceiro_meta
-        ? {
-            id: data.parceiro_id!,
-            razao_social: parceiro_meta.razao_social,
-            nome_fantasia: parceiro_meta.nome_fantasia,
-          }
-        : null,
+      parceiro:
+        parceiro_meta && data.parceiro_id
+          ? {
+              id: data.parceiro_id,
+              razao_social: parceiro_meta.razao_social,
+              nome_fantasia: parceiro_meta.nome_fantasia,
+            }
+          : null,
       criado_em: now,
       atualizado_em: now,
     })
@@ -262,11 +291,16 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
       data.regime_alimentacao_id ?? current.regime_alimentacao_id
     const final_parceiro_id =
       data.parceiro_id !== undefined ? data.parceiro_id : current.parceiro_id
+    const category_ids =
+      data.categoria_quarto_ids ??
+      (data.categoria_quarto_id
+        ? [data.categoria_quarto_id]
+        : current.categoria_quarto_ids)
 
     if (data.ativo) {
       const conflict = this.find_overlapping_active_sync({
         hotel_id: data.hotel_id,
-        categoria_quarto_id: data.categoria_quarto_id,
+        categoria_quarto_ids: category_ids,
         regime_alimentacao_id: regime_id,
         parceiro_id: final_parceiro_id,
         datas: data.datas,
@@ -277,10 +311,25 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
       }
     }
 
-    const cat_meta = this.category_names.get(data.categoria_quarto_id) ?? {
-      nome: current.categoria_quarto.nome,
-      status: current.categoria_quarto.status,
-    }
+    const categorias = category_ids.map(cat_id => {
+      const meta = this.category_names.get(cat_id)
+      if (meta) {
+        return {
+          id: cat_id,
+          nome: meta.nome,
+          status: meta.status,
+        }
+      }
+      const existing = current.categorias.find(c => c.id === cat_id)
+      return (
+        existing ?? {
+          id: cat_id,
+          nome: 'Categoria',
+          status: 'S' as const,
+        }
+      )
+    })
+
     const regime_meta =
       this.regime_names.get(regime_id) ??
       (current.regime_alimentacao?.id === regime_id
@@ -297,30 +346,30 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
     const updated = new Tarifario({
       id: current.id,
       hotel_id: current.hotel_id,
-      categoria_quarto_id: data.categoria_quarto_id,
+      categoria_quarto_ids: category_ids,
+      categoria_quarto_id: category_ids[0],
       regime_alimentacao_id: regime_id,
       parceiro_id: final_parceiro_id,
       nome: data.nome,
       datas: data.datas,
       valor_diaria: data.valor_diaria,
+      minimo_diarias: data.minimo_diarias ?? current.minimo_diarias,
       ativo: data.ativo,
-      categoria_quarto: {
-        id: data.categoria_quarto_id,
-        nome: cat_meta.nome,
-        status: cat_meta.status,
-      },
+      categorias,
+      categoria_quarto: categorias[0],
       regime_alimentacao: {
         id: regime_id,
         titulo: regime_meta.titulo,
         cor_pulseira: regime_meta.cor_pulseira,
       },
-      parceiro: parceiro_meta
-        ? {
-            id: final_parceiro_id!,
-            razao_social: parceiro_meta.razao_social,
-            nome_fantasia: parceiro_meta.nome_fantasia,
-          }
-        : null,
+      parceiro:
+        parceiro_meta && final_parceiro_id
+          ? {
+              id: final_parceiro_id,
+              razao_social: parceiro_meta.razao_social,
+              nome_fantasia: parceiro_meta.nome_fantasia,
+            }
+          : null,
       criado_em: current.criado_em,
       atualizado_em: new Date().toISOString(),
     })

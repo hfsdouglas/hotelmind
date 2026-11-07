@@ -192,4 +192,50 @@ describe('TarifarioPricingService & CalcularTarifaReservaUseCase (CA10 & RN06)',
       })
     ).rejects.toThrow(TarifarioSemCoberturaError)
   })
+
+  it('US2: enforces minimo_diarias restriction during pricing calculation', () => {
+    const t_min_3 = new Tarifario({
+      id: 't-min-3',
+      hotel_id: 'hotel-1',
+      categoria_quarto_ids: ['cat-1', 'cat-2'],
+      regime_alimentacao_id: 'regime-1',
+      nome: 'Feriadão Mínimo 3 Diárias',
+      datas: ['2027-04-10', '2027-04-11', '2027-04-12'],
+      valor_diaria: '150.00',
+      minimo_diarias: 3,
+      ativo: true,
+      categorias: [{ id: 'cat-1', nome: 'Suítes Luxo', status: 'S' }],
+      regime_alimentacao: {
+        id: 'regime-1',
+        titulo: 'Meia Pensão',
+        cor_pulseira: '#2563EB',
+      },
+      criado_em: '2026-11-02T12:00:00.000Z',
+      atualizado_em: '2026-11-02T12:00:00.000Z',
+    })
+
+    // Try booking 2 nights for cat-1 -> rejects because nights.length < 3
+    expect(() =>
+      service.calcular_reserva({
+        hotel_id: 'hotel-1',
+        categoria_quarto_id: 'cat-1',
+        check_in: '2027-04-10',
+        check_out: '2027-04-12', // 2 nights
+        tarifarios: [t_min_3],
+      })
+    ).toThrow(TarifarioSemCoberturaError)
+
+    // Booking 3 nights for cat-2 -> accepts and applies the multi-category rate
+    const resultado = service.calcular_reserva({
+      hotel_id: 'hotel-1',
+      categoria_quarto_id: 'cat-2',
+      check_in: '2027-04-10',
+      check_out: '2027-04-13', // 3 nights
+      tarifarios: [t_min_3],
+    })
+
+    expect(resultado.noites).toHaveLength(3)
+    expect(resultado.valor_total).toBe('450.00')
+    expect(resultado.noites[0].tarifario_id).toBe('t-min-3')
+  })
 })

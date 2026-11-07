@@ -262,26 +262,30 @@ describe('TarifarioCalendar & TarifarioForm (Hospitality Classification, Month/Y
     // Available Saturdays: 06, 13, 20, 27
     fireEvent.click(screen.getByTestId('bulk-select-weekends'))
     expect(on_submit).not.toHaveBeenCalled()
-    expect(screen.getByDisplayValue('380.00')).toBeInTheDocument()
+    expect(screen.getByDisplayValue(/380,00/)).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Salvar tarifário' }))
-    expect(on_submit).toHaveBeenCalledWith({
-      categoria_quarto_id: 'cat-1',
-      regime_alimentacao_id: 'reg-1',
-      parceiro_id: null,
-      nome: 'Fins de Semana Março',
-      datas: [
-        '2027-03-06',
-        '2027-03-12',
-        '2027-03-13',
-        '2027-03-19',
-        '2027-03-20',
-        '2027-03-26',
-        '2027-03-27',
-      ],
-      valor_diaria: '380.00',
-      ativo: true,
-    })
+    expect(on_submit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        categoria_quarto_id: 'cat-1',
+        categoria_quarto_ids: ['cat-1'],
+        regime_alimentacao_id: 'reg-1',
+        parceiro_id: null,
+        nome: 'Fins de Semana Março',
+        datas: [
+          '2027-03-06',
+          '2027-03-12',
+          '2027-03-13',
+          '2027-03-19',
+          '2027-03-20',
+          '2027-03-26',
+          '2027-03-27',
+        ],
+        valor_diaria: '380.00',
+        minimo_diarias: 1,
+        ativo: true,
+      })
+    )
   })
 
   it('automatically expands view mode to 12 months when +200 dates are selected and memorizes user calendar view style choice', () => {

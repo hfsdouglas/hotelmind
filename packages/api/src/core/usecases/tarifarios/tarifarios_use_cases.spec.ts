@@ -385,4 +385,81 @@ describe('Tarifarios Use Cases', () => {
       })
     ).rejects.toThrow(/inativo/)
   })
+
+  it('US1: creates and edits rate plans with multiple categories and minimum stay', async () => {
+    const multi_tarifa = await criar_use_case.execute({
+      hotel_id: 'hotel-1',
+      categoria_quarto_ids: [cat_luxo_id, cat_master_id],
+      regime_alimentacao_id: regime_id,
+      nome: 'Fim de Semana Especial',
+      datas: ['2027-08-20', '2027-08-21'],
+      valor_diaria: '450.00',
+      minimo_diarias: 2,
+    })
+
+    expect(multi_tarifa.categoria_quarto_ids).toEqual([
+      cat_luxo_id,
+      cat_master_id,
+    ])
+    expect(multi_tarifa.minimo_diarias).toBe(2)
+    expect(multi_tarifa.categorias).toHaveLength(2)
+
+    // Conflito ao tentar criar tarifário em qualquer uma das categorias vinculadas
+    await expect(
+      criar_use_case.execute({
+        hotel_id: 'hotel-1',
+        categoria_quarto_id: cat_master_id,
+        regime_alimentacao_id: regime_id,
+        nome: 'Conflito Master',
+        datas: ['2027-08-20'],
+        valor_diaria: '500.00',
+      })
+    ).rejects.toThrow(TarifarioPeriodConflictError)
+
+    // Edição atualizando as categorias e o mínimo de diárias
+    const editado = await editar_use_case.execute({
+      id: multi_tarifa.id,
+      hotel_id: 'hotel-1',
+      categoria_quarto_ids: [cat_luxo_id],
+      minimo_diarias: 3,
+    })
+    expect(editado.categoria_quarto_ids).toEqual([cat_luxo_id])
+    expect(editado.minimo_diarias).toBe(3)
+
+    // Agora cat_master_id está liberada para essa data
+    const nova_master = await criar_use_case.execute({
+      hotel_id: 'hotel-1',
+      categoria_quarto_id: cat_master_id,
+      regime_alimentacao_id: regime_id,
+      nome: 'Liberada Master',
+      datas: ['2027-08-20'],
+      valor_diaria: '500.00',
+    })
+    expect(nova_master.id).toBeTruthy()
+  })
+
+  it('US1: rejects empty categories or invalid minimo_diarias', async () => {
+    await expect(
+      criar_use_case.execute({
+        hotel_id: 'hotel-1',
+        categoria_quarto_ids: [],
+        regime_alimentacao_id: regime_id,
+        nome: 'Sem categorias',
+        datas: ['2027-08-25'],
+        valor_diaria: '100.00',
+      })
+    ).rejects.toThrow(TarifarioValidationError)
+
+    await expect(
+      criar_use_case.execute({
+        hotel_id: 'hotel-1',
+        categoria_quarto_ids: [cat_luxo_id],
+        regime_alimentacao_id: regime_id,
+        nome: 'Diária Zero',
+        datas: ['2027-08-25'],
+        valor_diaria: '100.00',
+        minimo_diarias: 0,
+      })
+    ).rejects.toThrow(TarifarioValidationError)
+  })
 })

@@ -56,21 +56,32 @@ export function EditarTarifarioPage() {
     queryFn: () => parceirosComerciaisService.list({ limite: 250 }),
   })
 
-  const [selected_category_id, setSelectedCategoryId] = useState('')
+  const [selected_category_ids, setSelectedCategoryIds] = useState<string[]>([])
   const [confirm_deactivate_open, setConfirmDeactivateOpen] = useState(false)
   const [pending_submit_payload, setPendingSubmitPayload] =
     useState<TarifarioSubmitPayload | null>(null)
 
   useEffect(() => {
-    if (tarifario?.categoria_quarto_id) {
-      setSelectedCategoryId(tarifario.categoria_quarto_id)
+    if (tarifario?.categoria_quarto_ids?.length) {
+      setSelectedCategoryIds(tarifario.categoria_quarto_ids)
+    } else if (tarifario?.categoria_quarto_id) {
+      setSelectedCategoryIds([tarifario.categoria_quarto_id])
     }
-  }, [tarifario?.categoria_quarto_id])
+  }, [tarifario?.categoria_quarto_ids, tarifario?.categoria_quarto_id])
+
+  const effective_category_ids =
+    selected_category_ids.length > 0
+      ? selected_category_ids
+      : tarifario?.categoria_quarto_ids?.length
+        ? tarifario.categoria_quarto_ids
+        : tarifario?.categoria_quarto_id
+          ? [tarifario.categoria_quarto_id]
+          : []
 
   const { data: calendario_data, isLoading: is_loading_periods } =
     useTarifariosCalendario({
-      categoria_quarto_id:
-        selected_category_id || tarifario?.categoria_quarto_id || '',
+      categoria_quarto_id: effective_category_ids[0] ?? '',
+      categoria_quarto_ids: effective_category_ids,
     })
 
   const update_mutation = useUpdateTarifarioMutation(id)
@@ -129,16 +140,24 @@ export function EditarTarifarioPage() {
     return <p className="text-sm text-destructive">Tarifário não encontrado.</p>
   }
 
-  const selectable_categories = categories.data.some(
-    c => c.id === tarifario.categoria_quarto_id && c.status === 'N'
-  )
-    ? [
-        tarifario.categoria_quarto,
-        ...categories.data.filter(
-          c => c.id !== tarifario.categoria_quarto_id && c.status === 'S'
-        ),
-      ]
-    : categories.data.filter(c => c.status === 'S')
+  const current_cat_ids =
+    tarifario.categoria_quarto_ids ??
+    (tarifario.categoria_quarto_id ? [tarifario.categoria_quarto_id] : [])
+
+  const selectable_categories = [
+    ...categories.data.filter(c => c.status === 'S'),
+  ]
+  const tarifario_cats =
+    tarifario.categorias ??
+    (tarifario.categoria_quarto ? [tarifario.categoria_quarto] : [])
+  for (const cat of tarifario_cats) {
+    if (
+      cat.status === 'N' &&
+      !selectable_categories.some(c => c.id === cat.id)
+    ) {
+      selectable_categories.push(cat)
+    }
+  }
 
   return (
     <>
@@ -148,11 +167,13 @@ export function EditarTarifarioPage() {
         submitLabel="Salvar"
         initialValues={{
           nome: tarifario.nome,
-          categoria_quarto_id: tarifario.categoria_quarto_id,
+          categoria_quarto_ids: current_cat_ids,
+          categoria_quarto_id: current_cat_ids[0],
           regime_alimentacao_id: tarifario.regime_alimentacao_id,
           parceiro_id: tarifario.parceiro_id,
           datas: tarifario.datas,
           valor_diaria: tarifario.valor_diaria,
+          minimo_diarias: tarifario.minimo_diarias ?? 1,
           ativo: tarifario.ativo,
         }}
         categories={selectable_categories}
@@ -162,7 +183,7 @@ export function EditarTarifarioPage() {
         isLoadingPeriods={is_loading_periods}
         excludeTarifarioId={tarifario.id}
         isSubmitting={update_mutation.isPending}
-        onCategoryChange={setSelectedCategoryId}
+        onCategoriesChange={setSelectedCategoryIds}
         onCancel={() => navigate('/tarifarios')}
         onSubmitPayload={handle_submit}
       />

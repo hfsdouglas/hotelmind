@@ -86,25 +86,54 @@ function calculateCategoryTariff(
   regimeId: string,
   nights: string[],
   tarifarios: Tarifario[]
-): { coberto: boolean; valorTotal: number; menorDiaria: number } {
+): {
+  coberto: boolean
+  valorTotal: number
+  menorDiaria: number
+  motivoIncoberto?: string
+} {
   if (nights.length === 0 || !regimeId || !categoriaId) {
     return { coberto: false, valorTotal: 0, menorDiaria: 0 }
   }
 
   let total = 0
   let menorDiaria = Infinity
+  let minStayRequired = 0
 
   for (const night of nights) {
-    const elegiveis = tarifarios.filter(
-      t =>
-        t.ativo &&
-        t.categoria_quarto_id === categoriaId &&
-        t.regime_alimentacao_id === regimeId &&
-        t.datas?.includes(night)
+    const matchingTarifarios = tarifarios.filter(t => {
+      if (!t.ativo) return false
+      const matchesCategory =
+        t.categoria_quarto_ids?.length > 0
+          ? t.categoria_quarto_ids.includes(categoriaId)
+          : t.categoria_quarto_id === categoriaId
+      if (!matchesCategory) return false
+      if (t.regime_alimentacao_id !== regimeId) return false
+      return t.datas?.includes(night)
+    })
+
+    for (const t of matchingTarifarios) {
+      const minNights = t.minimo_diarias ?? 1
+      if (minNights > minStayRequired) {
+        minStayRequired = minNights
+      }
+    }
+
+    const elegiveis = matchingTarifarios.filter(
+      t => nights.length >= (t.minimo_diarias ?? 1)
     )
 
     if (elegiveis.length === 0) {
-      return { coberto: false, valorTotal: 0, menorDiaria: 0 }
+      const motivo =
+        matchingTarifarios.length > 0 && minStayRequired > nights.length
+          ? `Mínimo ${minStayRequired} ${minStayRequired === 1 ? 'diária' : 'diárias'}`
+          : undefined
+      return {
+        coberto: false,
+        valorTotal: 0,
+        menorDiaria: 0,
+        motivoIncoberto: motivo,
+      }
     }
 
     const menor = elegiveis.reduce((min, t) => {
@@ -756,6 +785,13 @@ export function EditarOrcamentoPage() {
                           >
                             Tarifário Ativo
                           </Badge>
+                        ) : suite.motivoIncoberto ? (
+                          <Badge
+                            variant="outline"
+                            className="border-amber-500/40 bg-amber-50 text-xs text-amber-700"
+                          >
+                            {suite.motivoIncoberto}
+                          </Badge>
                         ) : (
                           <Badge
                             variant="secondary"
@@ -785,8 +821,9 @@ export function EditarOrcamentoPage() {
                         </div>
                       ) : (
                         <p className="mt-3 text-xs text-muted-foreground">
-                          Sem cobertura de tarifário para as datas selecionadas
-                          neste regime.
+                          {suite.motivoIncoberto
+                            ? 'Estadia mínima exigida não atingida para o período selecionado.'
+                            : 'Sem cobertura de tarifário para as datas selecionadas neste regime.'}
                         </p>
                       )}
 

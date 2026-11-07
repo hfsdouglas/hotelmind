@@ -3,7 +3,14 @@ import type {
   PeriodoTarifarioCalendario,
   RegimeAlimentacao,
 } from '@hotelmind/contracts'
-import { CalendarCheck2, DollarSign, Handshake, Save, Tag } from 'lucide-react'
+import {
+  BedDouble,
+  CalendarCheck2,
+  DollarSign,
+  Handshake,
+  Save,
+  Tag,
+} from 'lucide-react'
 import { type FormEvent, useEffect, useState } from 'react'
 import { CrudFormLayout } from '@/components/forms/CrudFormLayout'
 import { Button } from '@/components/ui/button'
@@ -16,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { useCurrencyMask } from '@/hooks/use_currency_mask'
 import {
   find_conflicting_periods,
   normalize_currency_string,
@@ -24,15 +32,18 @@ import {
   toggle_date_selection,
 } from '@/schemas/tarifarios/tarifario_schema'
 import { TarifarioCalendar } from './tarifario_calendar'
+import { TarifarioCategoryCards } from './tarifario_category_cards'
 import { TarifarioPeriodSummary } from './tarifario_period_summary'
 
 export interface TarifarioSubmitPayload {
-  categoria_quarto_id: string
+  categoria_quarto_id?: string
+  categoria_quarto_ids: string[]
   regime_alimentacao_id: string
   parceiro_id?: string | null
   nome: string
   datas: string[]
   valor_diaria: string
+  minimo_diarias: number
   ativo: boolean
 }
 
@@ -41,7 +52,10 @@ export interface TarifarioFormProps {
   title: string
   backTo?: string
   submitLabel?: string
-  initialValues?: Partial<TarifarioFormValues>
+  initialValues?: Partial<TarifarioFormValues> & {
+    categoria_quarto_ids?: string[]
+    minimo_diarias?: number
+  }
   categories: CategoriaQuartoResumo[]
   regimes?: RegimeAlimentacao[]
   parceiros?: Array<{
@@ -55,6 +69,7 @@ export interface TarifarioFormProps {
   isSubmitting?: boolean
   initialCalendarMonth?: { year: number; month: number }
   onCategoryChange?: (categoria_quarto_id: string) => void
+  onCategoriesChange?: (categoria_quarto_ids: string[]) => void
   onCancel: () => void
   onSubmitPayload: (payload: TarifarioSubmitPayload) => void
 }
@@ -73,12 +88,21 @@ export function TarifarioForm({
   isSubmitting = false,
   initialCalendarMonth,
   onCategoryChange,
+  onCategoriesChange,
   onCancel,
   onSubmitPayload,
 }: TarifarioFormProps) {
   const [nome, setNome] = useState(initialValues?.nome ?? '')
-  const [categoria_quarto_id, setCategoriaQuartoId] = useState(
-    initialValues?.categoria_quarto_id ?? ''
+  const [categoria_quarto_ids, setCategoriaQuartoIds] = useState<string[]>(
+    () => {
+      if (initialValues?.categoria_quarto_ids?.length) {
+        return initialValues.categoria_quarto_ids
+      }
+      if (initialValues?.categoria_quarto_id) {
+        return [initialValues.categoria_quarto_id]
+      }
+      return []
+    }
   )
   const [regime_alimentacao_id, setRegimeAlimentacaoId] = useState<string>(
     initialValues?.regime_alimentacao_id ?? ''
@@ -88,16 +112,30 @@ export function TarifarioForm({
   )
   const [datas, setDatas] = useState<string[]>(initialValues?.datas ?? [])
   const [valor_diaria, setValorDiaria] = useState(
-    initialValues?.valor_diaria ?? ''
+    initialValues?.valor_diaria ?? '0.00'
+  )
+  const [minimo_diarias, setMinimoDiarias] = useState<number>(
+    initialValues?.minimo_diarias ?? 1
   )
   const [ativo, setAtivo] = useState<boolean>(initialValues?.ativo ?? true)
   const [errors, setErrors] = useState<string[]>([])
 
+  const currencyMask = useCurrencyMask({
+    initialValue: initialValues?.valor_diaria ?? '0.00',
+    onChange: val => {
+      setValorDiaria(val)
+      if (errors.length > 0) setErrors([])
+    },
+  })
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Only re-initialize form state when scalar values or serialized collections change
   useEffect(() => {
     if (!initialValues) return
     if (initialValues.nome !== undefined) setNome(initialValues.nome)
-    if (initialValues.categoria_quarto_id !== undefined) {
-      setCategoriaQuartoId(initialValues.categoria_quarto_id)
+    if (initialValues.categoria_quarto_ids !== undefined) {
+      setCategoriaQuartoIds(initialValues.categoria_quarto_ids)
+    } else if (initialValues.categoria_quarto_id !== undefined) {
+      setCategoriaQuartoIds([initialValues.categoria_quarto_id])
     }
     if (initialValues.regime_alimentacao_id !== undefined) {
       setRegimeAlimentacaoId(initialValues.regime_alimentacao_id ?? '')
@@ -110,11 +148,26 @@ export function TarifarioForm({
     }
     if (initialValues.valor_diaria !== undefined) {
       setValorDiaria(initialValues.valor_diaria)
+      currencyMask.setValue(initialValues.valor_diaria)
+    }
+    if (initialValues.minimo_diarias !== undefined) {
+      setMinimoDiarias(initialValues.minimo_diarias)
     }
     if (initialValues.ativo !== undefined) {
       setAtivo(initialValues.ativo)
     }
-  }, [initialValues])
+  }, [
+    initialValues?.nome,
+    initialValues?.categoria_quarto_id,
+    initialValues?.categoria_quarto_ids?.join(','),
+    initialValues?.regime_alimentacao_id,
+    initialValues?.parceiro_id,
+    initialValues?.valor_diaria,
+    initialValues?.minimo_diarias,
+    initialValues?.ativo,
+    initialValues?.datas?.join(','),
+    currencyMask.setValue,
+  ])
 
   const conflicting_periods =
     ativo && datas.length > 0
@@ -122,13 +175,16 @@ export function TarifarioForm({
           datas,
           occupiedPeriods,
           excludeTarifarioId,
-          parceiro_id
+          parceiro_id,
+          categoria_quarto_ids
         )
       : []
 
-  function handle_category_change(next_category_id: string) {
-    setCategoriaQuartoId(next_category_id)
-    onCategoryChange?.(next_category_id)
+  function handle_categories_change(next_ids: string[]) {
+    setCategoriaQuartoIds(next_ids)
+    onCategoriesChange?.(next_ids)
+    onCategoryChange?.(next_ids[0] ?? '')
+    if (errors.length > 0) setErrors([])
   }
 
   function handle_toggle_date(iso_date: string) {
@@ -152,11 +208,13 @@ export function TarifarioForm({
 
     const parsed = tarifario_form_schema.safeParse({
       nome,
-      categoria_quarto_id,
+      categoria_quarto_ids,
+      categoria_quarto_id: categoria_quarto_ids[0],
       regime_alimentacao_id,
       parceiro_id: parceiro_id || null,
       datas,
       valor_diaria,
+      minimo_diarias,
       ativo,
     })
 
@@ -170,7 +228,7 @@ export function TarifarioForm({
 
     if (ativo && conflicting_periods.length > 0) {
       validation_errors.push(
-        'Uma ou mais datas selecionadas possuem conflito com outro tarifário ativo para esta categoria.'
+        'Uma ou mais datas selecionadas possuem conflito com outro tarifário ativo para as categorias selecionadas.'
       )
     }
 
@@ -178,12 +236,14 @@ export function TarifarioForm({
     if (validation_errors.length > 0 || !parsed.data) return
 
     onSubmitPayload({
-      categoria_quarto_id: parsed.data.categoria_quarto_id,
+      categoria_quarto_id: parsed.data.categoria_quarto_ids[0],
+      categoria_quarto_ids: parsed.data.categoria_quarto_ids,
       regime_alimentacao_id: parsed.data.regime_alimentacao_id,
       parceiro_id: parsed.data.parceiro_id || null,
       nome: parsed.data.nome,
       datas: parsed.data.datas,
       valor_diaria: normalize_currency_string(parsed.data.valor_diaria),
+      minimo_diarias: parsed.data.minimo_diarias,
       ativo: parsed.data.ativo,
     })
   }
@@ -235,38 +295,19 @@ export function TarifarioForm({
               Passo 1: Dados do Tarifário
             </h2>
           </div>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="nome">Nome *</Label>
               <Input
                 id="nome"
                 placeholder="Ex.: Baixa temporada"
                 value={nome}
-                onChange={e => setNome(e.target.value)}
+                onChange={e => {
+                  setNome(e.target.value)
+                  if (errors.length > 0) setErrors([])
+                }}
                 maxLength={100}
               />
-            </div>
-
-            <div className="relative flex flex-col gap-1.5">
-              <Label htmlFor="categoria_quarto_id">Categoria de quarto *</Label>
-              <Select
-                value={categoria_quarto_id || undefined}
-                onValueChange={handle_category_change}
-              >
-                <SelectTrigger
-                  id="categoria_quarto_id"
-                  aria-label="Categoria de quarto"
-                >
-                  <SelectValue placeholder="Selecione uma categoria" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map(category => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
 
             <div className="relative flex flex-col gap-1.5">
@@ -305,12 +346,27 @@ export function TarifarioForm({
           </div>
         </section>
 
-        {/* PASSO 2: PARCEIRO COMERCIAL */}
+        {/* PASSO 2: CATEGORIAS DE QUARTO */}
+        <section className="space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b">
+            <BedDouble className="h-5 w-5 text-primary" />
+            <h2 className="text-lg font-semibold text-foreground">
+              Passo 2: Categorias de Quarto
+            </h2>
+          </div>
+          <TarifarioCategoryCards
+            categorias={categories}
+            selectedIds={categoria_quarto_ids}
+            onChange={handle_categories_change}
+          />
+        </section>
+
+        {/* PASSO 3: PARCEIRO COMERCIAL */}
         <section className="space-y-4">
           <div className="flex items-center gap-2 pb-2 border-b">
             <Handshake className="h-5 w-5 text-primary" />
             <h2 className="text-lg font-semibold text-foreground">
-              Passo 2: Parceiro Comercial
+              Passo 3: Parceiro Comercial
             </h2>
           </div>
           <div className="max-w-md flex flex-col gap-1.5">
@@ -339,13 +395,13 @@ export function TarifarioForm({
           </div>
         </section>
 
-        {/* PASSO 3: CALENDÁRIO DE DATAS */}
+        {/* PASSO 4: CALENDÁRIO DE DATAS */}
         <section className="space-y-4">
           <div className="flex items-center justify-between pb-2 border-b">
             <div className="flex items-center gap-2">
               <CalendarCheck2 className="h-5 w-5 text-primary" />
               <h2 className="text-lg font-semibold text-foreground">
-                Passo 3: Calendário de Datas
+                Passo 4: Calendário de Datas
               </h2>
             </div>
             {isLoadingPeriods && (
@@ -372,25 +428,43 @@ export function TarifarioForm({
           />
         </section>
 
-        {/* PASSO 4: VALOR DA DIÁRIA E SITUAÇÃO */}
+        {/* PASSO 5: VALOR DA DIÁRIA, ESTADIA MÍNIMA E SITUAÇÃO */}
         <section className="space-y-4">
           <div className="flex items-center gap-2 pb-2 border-b">
             <DollarSign className="h-5 w-5 text-primary" />
             <h2 className="text-lg font-semibold text-foreground">
-              Passo 4: Valor da Diária e Situação
+              Passo 5: Valor da Diária, Estadia Mínima e Situação
             </h2>
           </div>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="valor_diaria">Valor da diária (R$) *</Label>
               <Input
                 id="valor_diaria"
+                type="text"
+                inputMode="numeric"
+                placeholder="R$ 0,00"
+                value={currencyMask.formatted}
+                onChange={e => currencyMask.handleInputChange(e.target.value)}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="minimo_diarias">
+                Quantidade mínima de diárias *
+              </Label>
+              <Input
+                id="minimo_diarias"
                 type="number"
-                step="0.01"
-                min="0"
-                placeholder="0.00"
-                value={valor_diaria}
-                onChange={e => setValorDiaria(e.target.value)}
+                min="1"
+                step="1"
+                placeholder="1"
+                value={minimo_diarias}
+                onChange={e => {
+                  const val = parseInt(e.target.value, 10)
+                  setMinimoDiarias(Number.isNaN(val) ? 1 : val)
+                  if (errors.length > 0) setErrors([])
+                }}
               />
             </div>
 

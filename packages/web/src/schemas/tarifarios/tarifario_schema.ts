@@ -34,7 +34,7 @@ export function normalize_currency_string(value: string): string {
   const cleaned = value.trim().replace(',', '.')
   if (!DECIMAL_VALUE_REGEX.test(cleaned)) return cleaned
   const [int_part, frac_part = ''] = cleaned.split('.')
-  return `${Number(int_part)}.${(frac_part + '00').slice(0, 2)}`
+  return `${Number(int_part)}.${(`${frac_part}00`).slice(0, 2)}`
 }
 
 export function format_iso_to_br(iso_date: string): string {
@@ -78,16 +78,30 @@ export function find_conflicting_periods(
   selected_dates: string[],
   periods: PeriodoTarifarioCalendario[],
   exclude_id?: string,
-  parceiro_id?: string | null
+  parceiro_id?: string | null,
+  categoria_quarto_ids?: string[]
 ): PeriodoTarifarioCalendario[] {
   if (!selected_dates.length) return []
   const selected_set = new Set(selected_dates)
   const expected_parceiro = parceiro_id || null
+  const selected_cats = categoria_quarto_ids?.length
+    ? new Set(categoria_quarto_ids)
+    : null
+
   return periods.filter(period => {
     if (!period.ativo) return false
     if (exclude_id && period.id === exclude_id) return false
     const period_parceiro = period.parceiro_id || null
     if (period_parceiro !== expected_parceiro) return false
+
+    if (selected_cats) {
+      const period_cats = period.categoria_quarto_ids?.length
+        ? period.categoria_quarto_ids
+        : [period.categoria_quarto_id]
+      const has_category_match = period_cats.some(cat => selected_cats.has(cat))
+      if (!has_category_match) return false
+    }
+
     return period.datas.some(d => selected_set.has(d))
   })
 }
@@ -220,33 +234,51 @@ export function compute_bulk_selection_dates(input: {
   return Array.from(selected).sort()
 }
 
-export const tarifario_form_schema = z.object({
-  nome: z
-    .string()
-    .trim()
-    .min(1, 'Informe o nome do tarifário.')
-    .max(100, 'O nome deve ter no máximo 100 caracteres.'),
-  categoria_quarto_id: z
-    .string()
-    .trim()
-    .min(1, 'Selecione uma categoria de quarto.'),
-  regime_alimentacao_id: z
-    .string()
-    .trim()
-    .min(1, 'Selecione um regime de alimentação.'),
-  parceiro_id: z.string().trim().nullable().optional(),
-  datas: z
-    .array(z.string().trim().refine(is_valid_date_string, 'Data inválida.'))
-    .min(1, 'Selecione ao menos uma data no calendário.'),
-  valor_diaria: z
-    .string()
-    .trim()
-    .transform(val => val.replace(',', '.'))
-    .refine(
-      val => DECIMAL_VALUE_REGEX.test(val) && Number(val) >= 0,
-      'Informe um valor de diária válido maior ou igual a zero com até duas casas decimais.'
-    ),
-  ativo: z.boolean(),
-})
+export const tarifario_form_schema = z
+  .object({
+    nome: z
+      .string()
+      .trim()
+      .min(1, 'Informe o nome do tarifário.')
+      .max(100, 'O nome deve ter no máximo 100 caracteres.'),
+    categoria_quarto_id: z.string().trim().optional(),
+    categoria_quarto_ids: z
+      .array(z.string().trim().min(1))
+      .min(1, 'Selecione ao menos uma categoria de quarto.')
+      .default([]),
+    regime_alimentacao_id: z
+      .string()
+      .trim()
+      .min(1, 'Selecione um regime de alimentação.'),
+    parceiro_id: z.string().trim().nullable().optional(),
+    datas: z
+      .array(z.string().trim().refine(is_valid_date_string, 'Data inválida.'))
+      .min(1, 'Selecione ao menos uma data no calendário.'),
+    valor_diaria: z
+      .string()
+      .trim()
+      .transform(val => val.replace(',', '.'))
+      .refine(
+        val => DECIMAL_VALUE_REGEX.test(val) && Number(val) >= 0,
+        'Informe um valor de diária válido maior ou igual a zero com até duas casas decimais.'
+      ),
+    minimo_diarias: z.coerce
+      .number()
+      .int('A quantidade mínima de diárias deve ser um número inteiro.')
+      .min(1, 'A quantidade mínima de diárias deve ser no mínimo 1.')
+      .default(1),
+    ativo: z.boolean(),
+  })
+  .refine(
+    data => {
+      const has_array = (data.categoria_quarto_ids?.length ?? 0) > 0
+      const has_single = !!data.categoria_quarto_id
+      return has_array || has_single
+    },
+    {
+      message: 'Selecione ao menos uma categoria de quarto.',
+      path: ['categoria_quarto_ids'],
+    }
+  )
 
 export type TarifarioFormValues = z.infer<typeof tarifario_form_schema>

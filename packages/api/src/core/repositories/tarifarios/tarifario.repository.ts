@@ -7,31 +7,35 @@ export interface TarifarioListFilter {
   limite: number
   busca?: string
   parceiro_id?: string | null
-  categoria_quarto_id?: string[]
+  categoria_quarto_id?: string | string[]
   regime_alimentacao_id?: string
   ativo?: boolean
 }
 
 export interface CreateTarifarioData {
   hotel_id: string
-  categoria_quarto_id: string
+  categoria_quarto_id?: string
+  categoria_quarto_ids: string[]
   regime_alimentacao_id: string
   parceiro_id?: string | null
   nome: string
   datas: string[]
   valor_diaria: string
+  minimo_diarias?: number
   ativo: boolean
 }
 
 export interface UpdateTarifarioData {
   id: string
   hotel_id: string
-  categoria_quarto_id: string
+  categoria_quarto_id?: string
+  categoria_quarto_ids?: string[]
   regime_alimentacao_id?: string
   parceiro_id?: string | null
   nome: string
   datas: string[]
   valor_diaria: string
+  minimo_diarias?: number
   ativo: boolean
 }
 
@@ -45,7 +49,8 @@ export interface FindCalendarioPeriodsInput {
 
 export interface FindOverlappingActiveInput {
   hotel_id: string
-  categoria_quarto_id: string
+  categoria_quarto_id?: string
+  categoria_quarto_ids?: string[]
   regime_alimentacao_id?: string
   parceiro_id?: string | null
   datas: string[]

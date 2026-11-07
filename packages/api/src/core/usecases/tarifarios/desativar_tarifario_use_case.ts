@@ -18,9 +18,13 @@ export class DesativarTarifarioUseCase {
       id: current.id,
       hotel_id,
       categoria_quarto_id: current.categoria_quarto_id,
+      categoria_quarto_ids: current.categoria_quarto_ids,
+      regime_alimentacao_id: current.regime_alimentacao_id,
+      parceiro_id: current.parceiro_id,
       nome: current.nome,
       datas: current.datas,
       valor_diaria: current.valor_diaria,
+      minimo_diarias: current.minimo_diarias,
       ativo: false,
     })
   }

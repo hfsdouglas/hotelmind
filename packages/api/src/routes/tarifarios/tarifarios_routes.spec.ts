@@ -318,4 +318,63 @@ describe('tarifarios_routes', () => {
     expect(list_res.json().data).toHaveLength(1)
     expect(list_res.json().data[0].parceiro_id).toBe(parceiro.id)
   })
+
+  it('US1: creates and updates rate plans with multiple categories and minimum stay', async () => {
+    const cat_2 = await categoria_repo.create({
+      hotel_id: HOTEL_A,
+      nome: 'Suítes Master',
+      status: 'S',
+    })
+    tarifario_repo.register_category(cat_2.id, cat_2.nome, 'S')
+
+    const create_res = await app.inject({
+      method: 'POST',
+      url: '/tarifarios',
+      cookies: { token: token_hotel_a },
+      payload: {
+        categoria_quarto_ids: [cat_a_id, cat_2.id],
+        regime_alimentacao_id: REGIME_ID,
+        nome: 'Fim de Semana Especial',
+        datas: ['2027-10-01', '2027-10-02'],
+        valor_diaria: '350.00',
+        minimo_diarias: 2,
+        ativo: true,
+      },
+    })
+
+    expect(create_res.statusCode).toBe(201)
+    const json = create_res.json()
+    expect(json.categoria_quarto_ids).toEqual([cat_a_id, cat_2.id])
+    expect(json.minimo_diarias).toBe(2)
+    expect(json.categorias).toHaveLength(2)
+
+    // Conflict on cat_2 for the same dates returns 409
+    const conflict_res = await app.inject({
+      method: 'POST',
+      url: '/tarifarios',
+      cookies: { token: token_hotel_a },
+      payload: {
+        categoria_quarto_id: cat_2.id,
+        regime_alimentacao_id: REGIME_ID,
+        nome: 'Conflito Master',
+        datas: ['2027-10-01'],
+        valor_diaria: '400.00',
+      },
+    })
+    expect(conflict_res.statusCode).toBe(409)
+
+    // Update minimo_diarias and remove cat_2
+    const patch_res = await app.inject({
+      method: 'PATCH',
+      url: `/tarifarios/${json.id}`,
+      cookies: { token: token_hotel_a },
+      payload: {
+        categoria_quarto_ids: [cat_a_id],
+        minimo_diarias: 3,
+      },
+    })
+    expect(patch_res.statusCode).toBe(200)
+    expect(patch_res.json().minimo_diarias).toBe(3)
+    expect(patch_res.json().categoria_quarto_ids).toEqual([cat_a_id])
+  })
 })

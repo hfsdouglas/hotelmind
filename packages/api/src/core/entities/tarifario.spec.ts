@@ -32,6 +32,46 @@ describe('Tarifario Entity', () => {
     expect(entity.valor_diaria).toBe('350.50')
     expect(entity.datas).toEqual(['2026-12-20', '2026-12-22', '2026-12-25'])
     expect(entity.parceiro_id).toBeNull()
+    expect(entity.minimo_diarias).toBe(1)
+    expect(entity.categoria_quarto_ids).toEqual(['cat-1'])
+  })
+
+  it('supports multiple categories and minimum stay', () => {
+    const entity = new Tarifario({
+      ...base_props,
+      categoria_quarto_ids: ['cat-1', 'cat-2'],
+      categorias: [
+        { id: 'cat-1', nome: 'Standard', status: 'S' },
+        { id: 'cat-2', nome: 'Luxo', status: 'S' },
+      ],
+      minimo_diarias: 3,
+    })
+    expect(entity.categoria_quarto_ids).toEqual(['cat-1', 'cat-2'])
+    expect(entity.categorias).toHaveLength(2)
+    expect(entity.minimo_diarias).toBe(3)
+  })
+
+  it('rejects invalid minimo_diarias (< 1 or non-integer)', () => {
+    expect(() => new Tarifario({ ...base_props, minimo_diarias: 0 })).toThrow(
+      /mínima de diárias/
+    )
+    expect(() => new Tarifario({ ...base_props, minimo_diarias: -2 })).toThrow(
+      /mínima de diárias/
+    )
+    expect(() => new Tarifario({ ...base_props, minimo_diarias: 1.5 })).toThrow(
+      /mínima de diárias/
+    )
+  })
+
+  it('rejects when no categories are provided', () => {
+    expect(
+      () =>
+        new Tarifario({
+          ...base_props,
+          categoria_quarto_id: undefined,
+          categoria_quarto_ids: [],
+        })
+    ).toThrow(/Selecione ao menos uma categoria/)
   })
 
   it('supports partner association when parceiro_id and parceiro are provided', () => {

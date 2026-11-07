@@ -12,14 +12,17 @@ export interface Tarifario {
   id: string
   hotel_id: string
   parceiro_id: string | null
-  categoria_quarto_id: string
+  categoria_quarto_id?: string // Retrocompatibilidade (primeira categoria)
+  categoria_quarto_ids: string[]
   regime_alimentacao_id: string
   nome: string
   datas: string[]
   valor_diaria: string
+  minimo_diarias: number
   ativo: boolean
   parceiro?: ParceiroResumo | null
-  categoria_quarto: CategoriaQuartoResumo
+  categoria_quarto?: CategoriaQuartoResumo // Retrocompatibilidade
+  categorias: CategoriaQuartoResumo[]
   regime_alimentacao: RegimeAlimentacaoResumo
   criado_em: string
   atualizado_em: string
@@ -35,38 +38,44 @@ export interface TarifarioListParams {
   limite?: number
   busca?: string
   parceiro_id?: string | null
-  categoria_quarto_id?: string
+  categoria_quarto_id?: string | string[]
   regime_alimentacao_id?: string
   ativo?: boolean
 }
 
 export interface CreateTarifarioPayload {
-  categoria_quarto_id: string
+  categoria_quarto_id?: string // Retrocompatibilidade
+  categoria_quarto_ids: string[]
   regime_alimentacao_id: string
   parceiro_id?: string | null
   nome: string
   datas: string[]
   valor_diaria: string
+  minimo_diarias?: number
   ativo?: boolean
 }
 
 export interface UpdateTarifarioPayload {
-  categoria_quarto_id?: string
+  categoria_quarto_id?: string // Retrocompatibilidade
+  categoria_quarto_ids?: string[]
   regime_alimentacao_id?: string
   parceiro_id?: string | null
   nome?: string
   datas?: string[]
   valor_diaria?: string
+  minimo_diarias?: number
   ativo?: boolean
 }
 
 export interface PeriodoTarifarioCalendario {
   id: string
   categoria_quarto_id: string
+  categoria_quarto_ids?: string[]
   parceiro_id?: string | null
   nome: string
   datas: string[]
   valor_diaria: string
+  minimo_diarias?: number
   ativo: boolean
 }
 

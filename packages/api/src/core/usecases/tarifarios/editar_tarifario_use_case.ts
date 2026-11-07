@@ -17,11 +17,13 @@ export interface EditarTarifarioInput {
   id: string
   hotel_id: string
   categoria_quarto_id?: string
+  categoria_quarto_ids?: string[]
   regime_alimentacao_id?: string
   parceiro_id?: string | null
   nome?: string
   datas?: string[]
   valor_diaria?: string
+  minimo_diarias?: number
   ativo?: boolean
 }
 
@@ -38,17 +40,24 @@ export class EditarTarifarioUseCase {
       throw new TarifarioNotFoundError()
     }
 
-    const next_categoria_id =
-      input.categoria_quarto_id ?? current.categoria_quarto_id
-    const keeping_current_category =
-      next_categoria_id === current.categoria_quarto_id
+    const next_categoria_ids =
+      input.categoria_quarto_ids !== undefined
+        ? Array.from(new Set(input.categoria_quarto_ids.filter(Boolean)))
+        : input.categoria_quarto_id !== undefined
+          ? [input.categoria_quarto_id]
+          : current.categoria_quarto_ids
+    if (next_categoria_ids.length === 0) {
+      throw new TarifarioValidationError(
+        'Selecione ao menos uma categoria de quarto.'
+      )
+    }
 
-    const categoria = await this.categorias.find_by_id(
-      next_categoria_id,
-      input.hotel_id
-    )
-    if (!categoria || (!categoria.is_ativa && !keeping_current_category)) {
-      throw new CategoriaQuartoInativaError()
+    for (const cat_id of next_categoria_ids) {
+      const is_current = current.categoria_quarto_ids.includes(cat_id)
+      const categoria = await this.categorias.find_by_id(cat_id, input.hotel_id)
+      if (!categoria || (!categoria.is_ativa && !is_current)) {
+        throw new CategoriaQuartoInativaError()
+      }
     }
 
     const next_nome =
@@ -69,6 +78,16 @@ export class EditarTarifarioUseCase {
         ? normalize_valor_diaria(input.valor_diaria)
         : current.valor_diaria
     const next_ativo = input.ativo ?? current.ativo
+
+    const next_minimo_diarias =
+      input.minimo_diarias !== undefined
+        ? input.minimo_diarias
+        : current.minimo_diarias
+    if (!Number.isInteger(next_minimo_diarias) || next_minimo_diarias < 1) {
+      throw new TarifarioValidationError(
+        'A quantidade mínima de diárias deve ser um número inteiro maior ou igual a 1.'
+      )
+    }
 
     const next_regime_id =
       input.regime_alimentacao_id !== undefined
@@ -103,7 +122,7 @@ export class EditarTarifarioUseCase {
     if (next_ativo) {
       const conflict = await this.tarifarios.find_overlapping_active({
         hotel_id: input.hotel_id,
-        categoria_quarto_id: next_categoria_id,
+        categoria_quarto_ids: next_categoria_ids,
         regime_alimentacao_id: next_regime_id,
         parceiro_id: next_parceiro_id,
         datas: next_datas,
@@ -117,12 +136,14 @@ export class EditarTarifarioUseCase {
     return this.tarifarios.update({
       id: current.id,
       hotel_id: input.hotel_id,
-      categoria_quarto_id: next_categoria_id,
+      categoria_quarto_id: next_categoria_ids[0],
+      categoria_quarto_ids: next_categoria_ids,
       regime_alimentacao_id: next_regime_id,
       parceiro_id: next_parceiro_id,
       nome: next_nome,
       datas: next_datas,
       valor_diaria: next_valor,
+      minimo_diarias: next_minimo_diarias,
       ativo: next_ativo,
     })
   }

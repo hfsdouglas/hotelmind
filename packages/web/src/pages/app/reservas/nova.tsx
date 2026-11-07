@@ -590,7 +590,8 @@ export function NovaReservaPage() {
               <p>
                 Nenhuma suíte disponível com capacidade para {totalPessoas}{' '}
                 pessoa(s) e tarifa vigente no regime selecionado para o período
-                informado.
+                informado (ou quantidade mínima de diárias do tarifário não
+                atingida).
               </p>
             </div>
           ) : (

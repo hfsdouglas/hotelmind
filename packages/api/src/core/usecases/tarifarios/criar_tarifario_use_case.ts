@@ -14,12 +14,14 @@ import type { ITarifarioRepository } from '@/core/repositories/tarifarios/tarifa
 
 export interface CriarTarifarioInput {
   hotel_id: string
-  categoria_quarto_id: string
+  categoria_quarto_id?: string
+  categoria_quarto_ids?: string[]
   regime_alimentacao_id: string
   parceiro_id?: string | null
   nome: string
   datas: string[]
   valor_diaria: string
+  minimo_diarias?: number
   ativo?: boolean
 }
 
@@ -47,6 +49,23 @@ export class CriarTarifarioUseCase {
       )
     }
 
+    const cat_ids =
+      input.categoria_quarto_ids ??
+      (input.categoria_quarto_id ? [input.categoria_quarto_id] : [])
+    const unique_cat_ids = Array.from(new Set(cat_ids.filter(Boolean)))
+    if (unique_cat_ids.length === 0) {
+      throw new TarifarioValidationError(
+        'Selecione ao menos uma categoria de quarto.'
+      )
+    }
+
+    const minimo_diarias = input.minimo_diarias ?? 1
+    if (!Number.isInteger(minimo_diarias) || minimo_diarias < 1) {
+      throw new TarifarioValidationError(
+        'A quantidade mínima de diárias deve ser um número inteiro maior ou igual a 1.'
+      )
+    }
+
     const final_parceiro_id = input.parceiro_id || null
     if (final_parceiro_id && this.parceiros) {
       const parceiro = await this.parceiros.find_by_id(
@@ -67,18 +86,17 @@ export class CriarTarifarioUseCase {
     const valor_diaria = normalize_valor_diaria(input.valor_diaria)
     const ativo = input.ativo ?? true
 
-    const categoria = await this.categorias.find_by_id(
-      input.categoria_quarto_id,
-      input.hotel_id
-    )
-    if (!categoria?.is_ativa) {
-      throw new CategoriaQuartoInativaError()
+    for (const cat_id of unique_cat_ids) {
+      const categoria = await this.categorias.find_by_id(cat_id, input.hotel_id)
+      if (!categoria?.is_ativa) {
+        throw new CategoriaQuartoInativaError()
+      }
     }
 
     if (ativo) {
       const conflict = await this.tarifarios.find_overlapping_active({
         hotel_id: input.hotel_id,
-        categoria_quarto_id: input.categoria_quarto_id,
+        categoria_quarto_ids: unique_cat_ids,
         regime_alimentacao_id: trimmed_regime_id,
         parceiro_id: final_parceiro_id,
         datas,
@@ -90,12 +108,14 @@ export class CriarTarifarioUseCase {
 
     return this.tarifarios.create({
       hotel_id: input.hotel_id,
-      categoria_quarto_id: input.categoria_quarto_id,
+      categoria_quarto_id: unique_cat_ids[0],
+      categoria_quarto_ids: unique_cat_ids,
       regime_alimentacao_id: trimmed_regime_id,
       parceiro_id: final_parceiro_id,
       nome: trimmed_nome,
       datas,
       valor_diaria,
+      minimo_diarias,
       ativo,
     })
   }

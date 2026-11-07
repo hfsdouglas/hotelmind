@@ -17,14 +17,18 @@ import type { DB } from '@/lib/prisma'
 interface TarifarioRow {
   id: string
   hotel_id: string
-  categoria_quarto_id: string
+  categoria_quarto_id: string | null
   regime_alimentacao_id: string
   parceiro_id?: string | null
   nome: string
   valor_diaria: { toFixed(digits: number): string } | number | string
+  minimo_diarias: number
   ativo: boolean
   datas: Array<{ data: Date }>
-  categoria_quarto: { id: string; nome: string; status: string }
+  categoria_quarto?: { id: string; nome: string; status: string } | null
+  categorias?: Array<{
+    categoria_quarto: { id: string; nome: string; status: string }
+  }>
   regime_alimentacao: {
     id: string
     titulo: string
@@ -57,21 +61,43 @@ function format_decimal(
 }
 
 function map_row(row: TarifarioRow): Tarifario {
+  const linked_cats = (row.categorias ?? []).map(c => ({
+    id: c.categoria_quarto.id,
+    nome: c.categoria_quarto.nome,
+    status: (c.categoria_quarto.status === 'N' ? 'N' : 'S') as 'S' | 'N',
+  }))
+
+  const final_cats =
+    linked_cats.length > 0
+      ? linked_cats
+      : row.categoria_quarto
+        ? [
+            {
+              id: row.categoria_quarto.id,
+              nome: row.categoria_quarto.nome,
+              status: (row.categoria_quarto.status === 'N' ? 'N' : 'S') as
+                | 'S'
+                | 'N',
+            },
+          ]
+        : []
+
+  const cat_ids = final_cats.map(c => c.id)
+
   return new Tarifario({
     id: row.id,
     hotel_id: row.hotel_id,
-    categoria_quarto_id: row.categoria_quarto_id,
+    categoria_quarto_id: row.categoria_quarto_id ?? cat_ids[0],
+    categoria_quarto_ids: cat_ids,
     regime_alimentacao_id: row.regime_alimentacao_id,
     parceiro_id: row.parceiro_id ?? null,
     nome: row.nome,
     datas: row.datas.map(d => to_date_only_string(d.data)),
     valor_diaria: format_decimal(row.valor_diaria),
+    minimo_diarias: row.minimo_diarias ?? 1,
     ativo: row.ativo,
-    categoria_quarto: {
-      id: row.categoria_quarto.id,
-      nome: row.categoria_quarto.nome,
-      status: row.categoria_quarto.status === 'N' ? 'N' : 'S',
-    },
+    categorias: final_cats,
+    categoria_quarto: final_cats[0],
     regime_alimentacao: {
       id: row.regime_alimentacao.id,
       titulo: row.regime_alimentacao.titulo,
@@ -87,6 +113,18 @@ function map_row(row: TarifarioRow): Tarifario {
     criado_em: row.criado_em.toISOString(),
     atualizado_em: row.atualizado_em.toISOString(),
   })
+}
+
+const tarifario_include = {
+  categoria_quarto: true,
+  categorias: {
+    include: {
+      categoria_quarto: true,
+    },
+  },
+  regime_alimentacao: true,
+  parceiro: true,
+  datas: { orderBy: { data: 'asc' as const } },
 }
 
 export class PostgresTarifarioRepository implements ITarifarioRepository {
@@ -112,12 +150,30 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
       }
     }
 
+    const filter_cats = categoria_quarto_id
+      ? Array.isArray(categoria_quarto_id)
+        ? categoria_quarto_id
+        : [categoria_quarto_id]
+      : []
+
+    const categoria_filter =
+      filter_cats.length > 0
+        ? {
+            OR: [
+              { categoria_quarto_id: { in: filter_cats } },
+              {
+                categorias: {
+                  some: { categoria_quarto_id: { in: filter_cats } },
+                },
+              },
+            ],
+          }
+        : {}
+
     const where = {
       hotel_id,
       ...parceiro_filter,
-      ...(categoria_quarto_id?.length
-        ? { categoria_quarto_id: { in: categoria_quarto_id } }
-        : {}),
+      ...categoria_filter,
       ...(regime_alimentacao_id ? { regime_alimentacao_id } : {}),
       ...(typeof ativo === 'boolean' ? { ativo } : {}),
       ...(busca
@@ -127,6 +183,15 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
               {
                 categoria_quarto: {
                   nome: { contains: busca, mode: 'insensitive' as const },
+                },
+              },
+              {
+                categorias: {
+                  some: {
+                    categoria_quarto: {
+                      nome: { contains: busca, mode: 'insensitive' as const },
+                    },
+                  },
                 },
               },
               {
@@ -145,12 +210,7 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
     const [rows, total] = await Promise.all([
       this.db.tarifario.findMany({
         where,
-        include: {
-          categoria_quarto: true,
-          regime_alimentacao: true,
-          parceiro: true,
-          datas: { orderBy: { data: 'asc' } },
-        },
+        include: tarifario_include,
         orderBy: [{ nome: 'asc' }, { criado_em: 'desc' }],
         skip: (pagina - 1) * limite,
         take: limite,
@@ -172,12 +232,7 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
   async find_by_id(id: string, hotel_id: string) {
     const row = await this.db.tarifario.findFirst({
       where: { id, hotel_id },
-      include: {
-        categoria_quarto: true,
-        regime_alimentacao: true,
-        parceiro: true,
-        datas: { orderBy: { data: 'asc' } },
-      },
+      include: tarifario_include,
     })
     return row ? map_row(row) : null
   }
@@ -194,7 +249,14 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
 
     const where = {
       hotel_id: input.hotel_id,
-      categoria_quarto_id: input.categoria_quarto_id,
+      OR: [
+        { categoria_quarto_id: input.categoria_quarto_id },
+        {
+          categorias: {
+            some: { categoria_quarto_id: input.categoria_quarto_id },
+          },
+        },
+      ],
       ...parceiro_filter,
       ...(input.data_inicio && input.data_fim
         ? {
@@ -212,17 +274,23 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
 
     const rows = await this.db.tarifario.findMany({
       where,
-      include: { datas: { orderBy: { data: 'asc' } } },
+      include: tarifario_include,
       orderBy: [{ nome: 'asc' }, { criado_em: 'asc' }],
     })
 
     return rows.map(row => ({
       id: row.id,
-      categoria_quarto_id: row.categoria_quarto_id,
+      categoria_quarto_id: input.categoria_quarto_id,
+      categoria_quarto_ids: row.categorias?.length
+        ? row.categorias.map(c => c.categoria_quarto_id)
+        : row.categoria_quarto_id
+          ? [row.categoria_quarto_id]
+          : [],
       parceiro_id: row.parceiro_id,
       nome: row.nome,
       datas: row.datas.map(d => to_date_only_string(d.data)),
       valor_diaria: format_decimal(row.valor_diaria),
+      minimo_diarias: row.minimo_diarias ?? 1,
       ativo: row.ativo,
     }))
   }
@@ -230,11 +298,30 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
   async find_overlapping_active(input: FindOverlappingActiveInput) {
     const normalized_datas = normalize_datas(input.datas)
     const expected_parceiro = input.parceiro_id ?? null
+    const target_cats = input.categoria_quarto_ids?.length
+      ? input.categoria_quarto_ids
+      : input.categoria_quarto_id
+        ? [input.categoria_quarto_id]
+        : []
+
+    const cat_condition =
+      target_cats.length > 0
+        ? {
+            OR: [
+              { categoria_quarto_id: { in: target_cats } },
+              {
+                categorias: {
+                  some: { categoria_quarto_id: { in: target_cats } },
+                },
+              },
+            ],
+          }
+        : {}
 
     const row = await this.db.tarifario.findFirst({
       where: {
         hotel_id: input.hotel_id,
-        categoria_quarto_id: input.categoria_quarto_id,
+        ...cat_condition,
         ativo: true,
         parceiro_id: expected_parceiro,
         ...(input.regime_alimentacao_id
@@ -249,12 +336,7 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
           },
         },
       },
-      include: {
-        categoria_quarto: true,
-        regime_alimentacao: true,
-        parceiro: true,
-        datas: { orderBy: { data: 'asc' } },
-      },
+      include: tarifario_include,
     })
     return row ? map_row(row) : null
   }
@@ -271,7 +353,14 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
     const rows = await this.db.tarifario.findMany({
       where: {
         hotel_id: input.hotel_id,
-        categoria_quarto_id: input.categoria_quarto_id,
+        OR: [
+          { categoria_quarto_id: input.categoria_quarto_id },
+          {
+            categorias: {
+              some: { categoria_quarto_id: input.categoria_quarto_id },
+            },
+          },
+        ],
         ativo: true,
         parceiro_id: expected_parceiro,
         datas: {
@@ -283,12 +372,7 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
           },
         },
       },
-      include: {
-        categoria_quarto: true,
-        regime_alimentacao: true,
-        parceiro: true,
-        datas: { orderBy: { data: 'asc' } },
-      },
+      include: tarifario_include,
       orderBy: [{ valor_diaria: 'asc' }, { nome: 'asc' }],
     })
     return rows.map(map_row)
@@ -296,10 +380,16 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
 
   async create(data: CreateTarifarioData) {
     const normalized_datas = normalize_datas(data.datas)
+    const category_ids = data.categoria_quarto_ids?.length
+      ? data.categoria_quarto_ids
+      : data.categoria_quarto_id
+        ? [data.categoria_quarto_id]
+        : []
+
     if (data.ativo) {
       const conflict = await this.find_overlapping_active({
         hotel_id: data.hotel_id,
-        categoria_quarto_id: data.categoria_quarto_id,
+        categoria_quarto_ids: category_ids,
         regime_alimentacao_id: data.regime_alimentacao_id,
         parceiro_id: data.parceiro_id,
         datas: normalized_datas,
@@ -312,32 +402,39 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
     const row = await this.db.tarifario.create({
       data: {
         hotel_id: data.hotel_id,
-        categoria_quarto_id: data.categoria_quarto_id,
+        categoria_quarto_id: category_ids[0],
         regime_alimentacao_id: data.regime_alimentacao_id,
         parceiro_id: data.parceiro_id ?? null,
         nome: data.nome.trim(),
         valor_diaria: normalize_valor_diaria(data.valor_diaria),
+        minimo_diarias: data.minimo_diarias ?? 1,
         ativo: data.ativo,
         datas: {
           create: normalized_datas.map(iso => ({ data: to_utc_date(iso) })),
         },
+        categorias: {
+          create: category_ids.map(cat_id => ({
+            categoria_quarto_id: cat_id,
+          })),
+        },
       },
-      include: {
-        categoria_quarto: true,
-        regime_alimentacao: true,
-        parceiro: true,
-        datas: { orderBy: { data: 'asc' } },
-      },
+      include: tarifario_include,
     })
     return map_row(row)
   }
 
   async update(data: UpdateTarifarioData) {
     const normalized_datas = normalize_datas(data.datas)
+    const category_ids = data.categoria_quarto_ids?.length
+      ? data.categoria_quarto_ids
+      : data.categoria_quarto_id
+        ? [data.categoria_quarto_id]
+        : undefined
+
     if (data.ativo) {
       const conflict = await this.find_overlapping_active({
         hotel_id: data.hotel_id,
-        categoria_quarto_id: data.categoria_quarto_id,
+        categoria_quarto_ids: category_ids,
         regime_alimentacao_id: data.regime_alimentacao_id,
         parceiro_id: data.parceiro_id,
         datas: normalized_datas,
@@ -351,12 +448,25 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
     const row = await this.db.tarifario.update({
       where: { id: data.id },
       data: {
-        categoria_quarto_id: data.categoria_quarto_id,
+        ...(category_ids
+          ? {
+              categoria_quarto_id: category_ids[0],
+              categorias: {
+                deleteMany: {},
+                create: category_ids.map(cat_id => ({
+                  categoria_quarto_id: cat_id,
+                })),
+              },
+            }
+          : {}),
         ...(data.regime_alimentacao_id !== undefined
           ? { regime_alimentacao_id: data.regime_alimentacao_id }
           : {}),
         ...(data.parceiro_id !== undefined
           ? { parceiro_id: data.parceiro_id }
+          : {}),
+        ...(data.minimo_diarias !== undefined
+          ? { minimo_diarias: data.minimo_diarias }
           : {}),
         nome: data.nome.trim(),
         valor_diaria: normalize_valor_diaria(data.valor_diaria),
@@ -366,12 +476,7 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
           create: normalized_datas.map(iso => ({ data: to_utc_date(iso) })),
         },
       },
-      include: {
-        categoria_quarto: true,
-        regime_alimentacao: true,
-        parceiro: true,
-        datas: { orderBy: { data: 'asc' } },
-      },
+      include: tarifario_include,
     })
     return map_row(row)
   }

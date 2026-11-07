@@ -20,7 +20,7 @@ import {
 export function NovoTarifarioPage() {
   usePageTitle('Novo Tarifário')
   const navigate = useNavigate()
-  const [selected_category_id, setSelectedCategoryId] = useState('')
+  const [selected_category_ids, setSelectedCategoryIds] = useState<string[]>([])
 
   const {
     data: categories,
@@ -44,7 +44,8 @@ export function NovoTarifarioPage() {
 
   const { data: calendario_data, isLoading: is_loading_periods } =
     useTarifariosCalendario({
-      categoria_quarto_id: selected_category_id,
+      categoria_quarto_id: selected_category_ids[0] ?? '',
+      categoria_quarto_ids: selected_category_ids,
     })
 
   const create_mutation = useCreateTarifarioMutation()
@@ -139,7 +140,7 @@ export function NovoTarifarioPage() {
       occupiedPeriods={calendario_data?.data ?? []}
       isLoadingPeriods={is_loading_periods}
       isSubmitting={create_mutation.isPending}
-      onCategoryChange={setSelectedCategoryId}
+      onCategoriesChange={setSelectedCategoryIds}
       onCancel={() => navigate('/tarifarios')}
       onSubmitPayload={handle_submit}
     />

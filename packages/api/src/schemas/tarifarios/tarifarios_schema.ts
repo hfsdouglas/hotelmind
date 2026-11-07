@@ -52,14 +52,17 @@ export const tarifario_response_schema = z.object({
   id: z.string(),
   hotel_id: z.string(),
   parceiro_id: z.string().nullable(),
-  categoria_quarto_id: z.string(),
+  categoria_quarto_id: z.string().optional(),
+  categoria_quarto_ids: z.array(z.string()),
   regime_alimentacao_id: z.string(),
   nome: z.string(),
   datas: z.array(z.string()),
   valor_diaria: z.string(),
+  minimo_diarias: z.number().int().default(1),
   ativo: z.boolean(),
   parceiro: parceiro_resumo_schema.nullable().optional(),
-  categoria_quarto: categoria_resumo_schema,
+  categoria_quarto: categoria_resumo_schema.optional(),
+  categorias: z.array(categoria_resumo_schema),
   regime_alimentacao: regime_alimentacao_resumo_schema,
   criado_em: z.string(),
   atualizado_em: z.string(),
@@ -88,44 +91,99 @@ export const list_tarifarios_query_schema = z.object({
     .optional(),
 })
 
-export const create_tarifario_body_schema = z.object({
-  categoria_quarto_id: z
-    .string()
-    .trim()
-    .min(1, 'A categoria de quarto é obrigatória.'),
-  regime_alimentacao_id: z.string().uuid('Informe o regime de alimentação.'),
-  parceiro_id: z.string().uuid().nullable().optional(),
-  nome: z
-    .string()
-    .trim()
-    .min(1, 'O nome do tarifário é obrigatório.')
-    .max(100, 'O nome do tarifário deve ter no máximo 100 caracteres.'),
-  datas: datas_array_schema,
-  valor_diaria: valor_diaria_schema,
-  ativo: z.boolean().optional().default(true),
-})
+export const create_tarifario_body_schema = z
+  .object({
+    categoria_quarto_id: z.string().trim().min(1).optional(),
+    categoria_quarto_ids: z
+      .array(z.string().trim().min(1))
+      .min(1, 'Selecione ao menos uma categoria de quarto.')
+      .optional(),
+    regime_alimentacao_id: z.string().uuid('Informe o regime de alimentação.'),
+    parceiro_id: z.string().uuid().nullable().optional(),
+    nome: z
+      .string()
+      .trim()
+      .min(1, 'O nome do tarifário é obrigatório.')
+      .max(100, 'O nome do tarifário deve ter no máximo 100 caracteres.'),
+    datas: datas_array_schema,
+    valor_diaria: valor_diaria_schema,
+    minimo_diarias: z.coerce
+      .number()
+      .int('A quantidade mínima de diárias deve ser um número inteiro.')
+      .min(1, 'A quantidade mínima de diárias deve ser no mínimo 1.')
+      .optional()
+      .default(1),
+    ativo: z.boolean().optional().default(true),
+  })
+  .refine(
+    data => {
+      const has_array = (data.categoria_quarto_ids?.length ?? 0) > 0
+      const has_single = !!data.categoria_quarto_id
+      return has_array || has_single
+    },
+    {
+      message: 'Selecione ao menos uma categoria de quarto.',
+      path: ['categoria_quarto_ids'],
+    }
+  )
+  .transform(data => {
+    const ids =
+      data.categoria_quarto_ids ??
+      (data.categoria_quarto_id ? [data.categoria_quarto_id] : [])
+    const unique_ids = Array.from(new Set(ids.filter(Boolean)))
+    return {
+      ...data,
+      categoria_quarto_id: data.categoria_quarto_id ?? unique_ids[0],
+      categoria_quarto_ids: unique_ids,
+    }
+  })
 
-export const update_tarifario_body_schema = z.object({
-  categoria_quarto_id: z
-    .string()
-    .trim()
-    .min(1, 'A categoria de quarto é obrigatória.')
-    .optional(),
-  regime_alimentacao_id: z
-    .string()
-    .uuid('Informe o regime de alimentação.')
-    .optional(),
-  parceiro_id: z.string().uuid().nullable().optional(),
-  nome: z
-    .string()
-    .trim()
-    .min(1, 'O nome do tarifário é obrigatório.')
-    .max(100, 'O nome do tarifário deve ter no máximo 100 caracteres.')
-    .optional(),
-  datas: datas_array_schema.optional(),
-  valor_diaria: valor_diaria_schema.optional(),
-  ativo: z.boolean().optional(),
-})
+export const update_tarifario_body_schema = z
+  .object({
+    categoria_quarto_id: z.string().trim().min(1).optional(),
+    categoria_quarto_ids: z
+      .array(z.string().trim().min(1))
+      .min(1, 'Selecione ao menos uma categoria de quarto.')
+      .optional(),
+    regime_alimentacao_id: z
+      .string()
+      .uuid('Informe o regime de alimentação.')
+      .optional(),
+    parceiro_id: z.string().uuid().nullable().optional(),
+    nome: z
+      .string()
+      .trim()
+      .min(1, 'O nome do tarifário é obrigatório.')
+      .max(100, 'O nome do tarifário deve ter no máximo 100 caracteres.')
+      .optional(),
+    datas: datas_array_schema.optional(),
+    valor_diaria: valor_diaria_schema.optional(),
+    minimo_diarias: z.coerce
+      .number()
+      .int('A quantidade mínima de diárias deve ser um número inteiro.')
+      .min(1, 'A quantidade mínima de diárias deve ser no mínimo 1.')
+      .optional(),
+    ativo: z.boolean().optional(),
+  })
+  .transform(data => {
+    if (data.categoria_quarto_ids) {
+      const unique_ids = Array.from(
+        new Set(data.categoria_quarto_ids.filter(Boolean))
+      )
+      return {
+        ...data,
+        categoria_quarto_ids: unique_ids,
+        categoria_quarto_id: data.categoria_quarto_id ?? unique_ids[0],
+      }
+    }
+    if (data.categoria_quarto_id) {
+      return {
+        ...data,
+        categoria_quarto_ids: [data.categoria_quarto_id],
+      }
+    }
+    return data
+  })
 
 export const calendario_tarifarios_query_schema = z
   .object({
@@ -163,10 +221,12 @@ export const list_tarifarios_response_schema = z.object({
 export const periodo_calendario_schema = z.object({
   id: z.string(),
   categoria_quarto_id: z.string(),
+  categoria_quarto_ids: z.array(z.string()).optional(),
   parceiro_id: z.string().nullable().optional(),
   nome: z.string(),
   datas: z.array(z.string()),
   valor_diaria: z.string(),
+  minimo_diarias: z.number().int().optional(),
   ativo: z.boolean(),
 })
 

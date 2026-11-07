@@ -186,9 +186,10 @@ model CategoriaQuarto {
   hotel      Hotel    @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
   nome       String   @db.VarChar(100)
   status     String      @default("S") @db.Char(1)
-  quartos    Quarto[]
-  tarifarios Tarifario[]
-  orcamentos Orcamento[]
+  quartos              Quarto[]
+  tarifarios           Tarifario[]
+  tarifarios_categorias TarifarioCategoriaQuarto[]
+  orcamentos           Orcamento[]
 
   @@unique([hotel_id, nome])
   @@index([hotel_id])
@@ -229,21 +230,23 @@ model ConfiguracaoCama {
 }
 
 model Tarifario {
-  id                  String             @id @default(uuid())
-  hotel_id            String
-  hotel               Hotel              @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
-  categoria_quarto_id String
-  categoria_quarto    CategoriaQuarto   @relation(fields: [categoria_quarto_id], references: [id], onDelete: Restrict)
+  id                    String                      @id @default(uuid())
+  hotel_id              String
+  hotel                 Hotel                       @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+  categoria_quarto_id   String?
+  categoria_quarto      CategoriaQuarto?            @relation(fields: [categoria_quarto_id], references: [id], onDelete: Restrict)
   regime_alimentacao_id String
-  regime_alimentacao  RegimeAlimentacao @relation(fields: [regime_alimentacao_id], references: [id], onDelete: Restrict)
-  parceiro_id         String?
-  parceiro            Parceiro?          @relation(fields: [parceiro_id], references: [id], onDelete: Cascade)
-  nome                String            @db.VarChar(100)
-  valor_diaria        Decimal            @db.Decimal(12, 2)
-  ativo               Boolean            @default(true)
-  datas               TarifarioData[]
-  criado_em           DateTime           @default(now())
-  atualizado_em       DateTime           @updatedAt
+  regime_alimentacao    RegimeAlimentacao           @relation(fields: [regime_alimentacao_id], references: [id], onDelete: Restrict)
+  parceiro_id           String?
+  parceiro              Parceiro?                   @relation(fields: [parceiro_id], references: [id], onDelete: Cascade)
+  nome                  String                      @db.VarChar(100)
+  valor_diaria          Decimal                     @db.Decimal(12, 2)
+  minimo_diarias        Int                         @default(1)
+  ativo                 Boolean                     @default(true)
+  datas                 TarifarioData[]
+  categorias            TarifarioCategoriaQuarto[]
+  criado_em             DateTime                    @default(now())
+  atualizado_em         DateTime                    @updatedAt
 
   @@index([hotel_id])
   @@index([categoria_quarto_id])
@@ -252,6 +255,19 @@ model Tarifario {
   @@index([hotel_id, categoria_quarto_id, ativo])
   @@index([hotel_id, parceiro_id, ativo])
   @@map("tarifarios")
+}
+
+model TarifarioCategoriaQuarto {
+  id                  String          @id @default(uuid())
+  tarifario_id        String
+  tarifario           Tarifario       @relation(fields: [tarifario_id], references: [id], onDelete: Cascade)
+  categoria_quarto_id String
+  categoria_quarto    CategoriaQuarto @relation(fields: [categoria_quarto_id], references: [id], onDelete: Restrict)
+
+  @@unique([tarifario_id, categoria_quarto_id])
+  @@index([tarifario_id])
+  @@index([categoria_quarto_id])
+  @@map("tarifarios_categorias_quartos")
 }
 
 model TarifarioData {

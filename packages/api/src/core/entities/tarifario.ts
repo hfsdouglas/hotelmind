@@ -43,7 +43,7 @@ export function normalize_valor_diaria(value: string | number): string {
   }
   const [int_part, frac_part = ''] = raw.split('.')
   const normalized_int = String(Number(int_part))
-  const normalized_frac = (frac_part + '00').slice(0, 2)
+  const normalized_frac = `${frac_part}00`.slice(0, 2)
   return `${normalized_int}.${normalized_frac}`
 }
 
@@ -60,17 +60,26 @@ export function cents_to_valor_diaria(cents: number): string {
   return `${int_part}.${frac_part}`
 }
 
+export interface CategoriaResumo {
+  id: string
+  nome: string
+  status: 'S' | 'N'
+}
+
 export interface TarifarioProps {
   id: string
   hotel_id: string
-  categoria_quarto_id: string
+  categoria_quarto_id?: string
+  categoria_quarto_ids?: string[]
   regime_alimentacao_id: string
   parceiro_id?: string | null
   nome: string
   datas: string[]
   valor_diaria: string
+  minimo_diarias?: number
   ativo: boolean
-  categoria_quarto: { id: string; nome: string; status: 'S' | 'N' }
+  categoria_quarto?: CategoriaResumo
+  categorias?: CategoriaResumo[]
   regime_alimentacao: {
     id: string
     titulo: string
@@ -88,21 +97,24 @@ export interface TarifarioProps {
 export class Tarifario {
   readonly id: string
   readonly hotel_id: string
-  readonly categoria_quarto_id: string
+  readonly categoria_quarto_id?: string
+  readonly categoria_quarto_ids: string[]
   readonly regime_alimentacao_id: string
   readonly parceiro_id: string | null
   readonly nome: string
   readonly datas: string[]
   readonly valor_diaria: string
+  readonly minimo_diarias: number
   readonly ativo: boolean
-  readonly categoria_quarto: TarifarioProps['categoria_quarto']
+  readonly categoria_quarto?: CategoriaResumo
+  readonly categorias: CategoriaResumo[]
   readonly regime_alimentacao: TarifarioProps['regime_alimentacao']
   readonly parceiro: TarifarioProps['parceiro'] | null
   readonly criado_em: string
   readonly atualizado_em: string
 
   constructor(props: TarifarioProps) {
-    const trimmed_nome = props.nome.trim()
+    const trimmed_nome = props.nome?.trim()
     if (!trimmed_nome) {
       throw new TarifarioValidationError('O nome do tarifário é obrigatório.')
     }
@@ -116,19 +128,49 @@ export class Tarifario {
         'O regime de alimentação é obrigatório.'
       )
     }
+
+    const category_ids_input =
+      props.categoria_quarto_ids ??
+      (props.categoria_quarto_id ? [props.categoria_quarto_id] : [])
+    const unique_cat_ids = Array.from(
+      new Set(category_ids_input.filter(Boolean))
+    )
+    if (unique_cat_ids.length === 0) {
+      throw new TarifarioValidationError(
+        'Selecione ao menos uma categoria de quarto.'
+      )
+    }
+
+    const minimo_diarias = props.minimo_diarias ?? 1
+    if (!Number.isInteger(minimo_diarias) || minimo_diarias < 1) {
+      throw new TarifarioValidationError(
+        'A quantidade mínima de diárias deve ser um número inteiro maior ou igual a 1.'
+      )
+    }
+
     const normalized_datas = normalize_datas(props.datas)
     const normalized_valor = normalize_valor_diaria(props.valor_diaria)
 
     this.id = props.id
     this.hotel_id = props.hotel_id
-    this.categoria_quarto_id = props.categoria_quarto_id
+    this.categoria_quarto_ids = unique_cat_ids
+    this.categoria_quarto_id = props.categoria_quarto_id ?? unique_cat_ids[0]
     this.regime_alimentacao_id = props.regime_alimentacao_id
     this.parceiro_id = props.parceiro_id ?? null
     this.nome = trimmed_nome
     this.datas = normalized_datas
     this.valor_diaria = normalized_valor
+    this.minimo_diarias = minimo_diarias
     this.ativo = props.ativo
-    this.categoria_quarto = props.categoria_quarto
+
+    const categorias =
+      props.categorias ??
+      (props.categoria_quarto ? [props.categoria_quarto] : [])
+    this.categorias = categorias
+    this.categoria_quarto =
+      props.categoria_quarto ??
+      (categorias.length > 0 ? categorias[0] : undefined)
+
     this.regime_alimentacao = props.regime_alimentacao
     this.parceiro = props.parceiro ?? null
     this.criado_em = props.criado_em
