@@ -86,7 +86,7 @@ export function SecaoHorariosOperacao({ form }: SecaoHorariosOperacaoProps) {
       </div>
 
       {!recepcao24h && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-md bg-amber-50/50">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border border-warning/30 rounded-md bg-warning/10">
           <FormField
             control={form.control}
             name="horario_abertura_recepcao"

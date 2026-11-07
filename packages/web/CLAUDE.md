@@ -79,27 +79,30 @@ The application utilizes an OKLCH perceptual color space design system compatibl
 
 | Semantic Token | CSS Variable | Light Mode (`:root`) | Dark Mode (`.dark`) | Description & Application |
 | :--- | :--- | :--- | :--- | :--- |
-| **Background** | `--background` | `oklch(0.95 0.002 250)` | `oklch(0.18 0.03 250)` | General application background |
+| **Background** | `--background` | `oklch(0.96 0.003 250)` | `oklch(0.18 0.03 250)` | General application background |
 | **Foreground** | `--foreground` | `oklch(0.15 0.01 250)` | `oklch(0.95 0.01 240)` | Primary body text |
-| **Card** | `--card` | `oklch(0.97 0.001 250)` | `oklch(0.22 0.04 250)` | Elevated surfaces for cards and containers |
+| **Card** | `--card` | `oklch(0.99 0.001 250)` | `oklch(0.22 0.04 250)` | Elevated surfaces for cards and containers |
 | **Card Foreground** | `--card-foreground` | `oklch(0.15 0.01 250)` | `oklch(0.95 0.01 240)` | Text inside cards |
-| **Popover** | `--popover` | `oklch(0.97 0.001 250)` | `oklch(0.22 0.04 250)` | Modals, tooltips, and floating menus |
+| **Popover** | `--popover` | `oklch(0.99 0.001 250)` | `oklch(0.22 0.04 250)` | Modals, tooltips, and floating menus |
 | **Popover Foreground** | `--popover-foreground` | `oklch(0.15 0.01 250)` | `oklch(0.95 0.01 240)` | Text inside popovers |
-| **Primary** | `--primary` | `oklch(0.4 0.16 255)` | `oklch(0.35 0.12 255)` | Royal Blue - Primary buttons, headers, selections |
+| **Primary** | `--primary` | `oklch(0.4 0.16 255)` | `oklch(0.56 0.17 255)` | Royal Blue - Primary buttons, headers, selections |
 | **Primary Foreground** | `--primary-foreground` | `oklch(0.99 0 0)` | `oklch(0.99 0 0)` | Contrast text on primary surfaces (White) |
-| **Secondary** | `--secondary` | `oklch(0.65 0.15 80)` | `oklch(0.7 0.16 80)` | Elegant Gold (hospitality brand identity) |
-| **Secondary Foreground** | `--secondary-foreground` | `oklch(0.15 0.01 250)` | `oklch(0.15 0.01 250)` | Text on secondary color |
+| **Secondary** | `--secondary` | `oklch(0.91 0.025 250)` | `oklch(0.28 0.05 250)` | Cool Slate-Blue - Secondary actions, badges, subtle containers |
+| **Secondary Foreground** | `--secondary-foreground` | `oklch(0.25 0.06 255)` | `oklch(0.93 0.015 250)` | Contrast text on secondary surfaces |
 | **Tertiary** | `--tertiary` | `oklch(0.55 0.12 180)` | `oklch(0.6 0.16 180)` | Complementary Turquoise |
 | **Tertiary Foreground** | `--tertiary-foreground` | `oklch(0.99 0 0)` | `oklch(0.99 0 0)` | Text on tertiary surfaces |
-| **Muted** | `--muted` | `oklch(0.96 0.005 250)` | `oklch(0.25 0.04 250)` | Subtle neutral background (e.g. table headers) |
-| **Muted Foreground** | `--muted-foreground` | `oklch(0.5 0.02 250)` | `oklch(0.7 0.02 240)` | Captions, helpers, and secondary text |
-| **Accent** | `--accent` | `oklch(0.5 0.18 255)` | `oklch(0.3 0.08 255)` | Interactive highlights and hover states |
-| **Accent Foreground** | `--accent-foreground` | `oklch(0.99 0 0)` | `oklch(0.85 0.15 255)` | Contrast text on accent surfaces |
+| **Muted** | `--muted` | `oklch(0.935 0.008 250)` | `oklch(0.25 0.04 250)` | Subtle neutral background (e.g. table headers, skeletons) |
+| **Muted Foreground** | `--muted-foreground` | `oklch(0.48 0.025 250)` | `oklch(0.7 0.02 240)` | Captions, helpers, and secondary text |
+| **Accent** | `--accent` | `oklch(0.93 0.02 255)` | `oklch(0.28 0.06 255)` | Interactive highlights and hover states |
+| **Accent Foreground** | `--accent-foreground` | `oklch(0.22 0.06 255)` | `oklch(0.93 0.02 255)` | Contrast text on accent surfaces |
 | **Destructive** | `--destructive` | `oklch(0.55 0.22 25)` | `oklch(0.58 0.2 25)` | Destructive actions, alerts, and errors |
 | **Destructive Foreground** | `--destructive-foreground` | `oklch(0.99 0 0)` | `oklch(0.99 0 0)` | Text on destructive surfaces |
+| **Success** | `--success` | `oklch(0.52 0.16 148)` | `oklch(0.65 0.17 148)` | Positive status badges and confirmations |
+| **Warning** | `--warning` | `oklch(0.68 0.16 65)` | `oklch(0.72 0.15 68)` | Attention callouts and operational warnings |
+| **Info** | `--info` | `oklch(0.55 0.15 235)` | `oklch(0.64 0.15 235)` | Informational indicators |
 | **Border** | `--border` | `oklch(0.88 0.01 250)` | `oklch(0.32 0.06 250)` | Structural borders and dividers |
 | **Input** | `--input` | `oklch(0.88 0.01 250)` | `oklch(0.35 0.07 250)` | Form input borders and background |
-| **Ring** | `--ring` | `oklch(0.4 0.16 255)` | `oklch(0.55 0.18 255)` | Accessible focus rings (`focus-visible`) |
+| **Ring** | `--ring` | `oklch(0.4 0.16 255)` | `oklch(0.56 0.17 255)` | Accessible focus rings (`focus-visible`) |
 
 ### Extended Primary Scale (Navbar, Sidebar & Depth)
 

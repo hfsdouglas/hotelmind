@@ -550,11 +550,11 @@ export function TarifarioCalendar({
               <span className="font-semibold">{inspected_period.nome}</span>
               <TarifarioStatusBadge ativo={inspected_period.ativo} />
               {inspected_period.parceiro_id ? (
-                <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+                <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                   Parceiro Comercial
                 </span>
               ) : (
-                <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+                <span className="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
                   Público
                 </span>
               )}

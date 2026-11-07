@@ -36,6 +36,18 @@ export default {
           DEFAULT: withOpacity('--destructive'),
           foreground: withOpacity('--destructive-foreground'),
         },
+        success: {
+          DEFAULT: withOpacity('--success'),
+          foreground: withOpacity('--success-foreground'),
+        },
+        warning: {
+          DEFAULT: withOpacity('--warning'),
+          foreground: withOpacity('--warning-foreground'),
+        },
+        info: {
+          DEFAULT: withOpacity('--info'),
+          foreground: withOpacity('--info-foreground'),
+        },
         muted: {
           DEFAULT: withOpacity('--muted'),
           foreground: withOpacity('--muted-foreground'),

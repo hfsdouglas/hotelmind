@@ -4,48 +4,85 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
     --radius: 0.5rem;
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --radius-xl: 12px;
+
+    /* Semantic Core Tokens (Roomio / HotelMind OKLCH) */
+    --background: oklch(0.96 0.003 250);
+    --foreground: oklch(0.15 0.01 250);
+    --card: oklch(0.99 0.001 250);
+    --card-foreground: oklch(0.15 0.01 250);
+    --popover: oklch(0.99 0.001 250);
+    --popover-foreground: oklch(0.15 0.01 250);
+    --primary: oklch(0.4 0.16 255);
+    --primary-foreground: oklch(0.99 0 0);
+    --secondary: oklch(0.91 0.025 250);
+    --secondary-foreground: oklch(0.25 0.06 255);
+    --tertiary: oklch(0.55 0.12 180);
+    --tertiary-foreground: oklch(0.99 0 0);
+    --muted: oklch(0.935 0.008 250);
+    --muted-foreground: oklch(0.48 0.025 250);
+    --accent: oklch(0.93 0.02 255);
+    --accent-foreground: oklch(0.22 0.06 255);
+    --destructive: oklch(0.55 0.22 25);
+    --destructive-foreground: oklch(0.99 0 0);
+    --success: oklch(0.52 0.16 148);
+    --success-foreground: oklch(0.99 0 0);
+    --warning: oklch(0.68 0.16 65);
+    --warning-foreground: oklch(0.18 0.04 55);
+    --info: oklch(0.55 0.15 235);
+    --info-foreground: oklch(0.99 0 0);
+    --border: oklch(0.88 0.01 250);
+    --input: oklch(0.88 0.01 250);
+    --ring: oklch(0.4 0.16 255);
+
+    /* Extended Primary Scale (Navbar, Sidebar & Depth) */
+    --primary-deep: oklch(0.32 0.14 255);
+    --primary-deeper: oklch(0.25 0.12 255);
+    --primary-darkest: oklch(0.18 0.1 255);
+    --primary-shadow: oklch(0.12 0.08 255);
+    --primary-void: oklch(0.08 0.06 255);
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    /* Semantic Core Tokens (Roomio / HotelMind OKLCH) */
+    --background: oklch(0.18 0.03 250);
+    --foreground: oklch(0.95 0.01 240);
+    --card: oklch(0.22 0.04 250);
+    --card-foreground: oklch(0.95 0.01 240);
+    --popover: oklch(0.22 0.04 250);
+    --popover-foreground: oklch(0.95 0.01 240);
+    --primary: oklch(0.56 0.17 255);
+    --primary-foreground: oklch(0.99 0 0);
+    --secondary: oklch(0.28 0.05 250);
+    --secondary-foreground: oklch(0.93 0.015 250);
+    --tertiary: oklch(0.6 0.16 180);
+    --tertiary-foreground: oklch(0.99 0 0);
+    --muted: oklch(0.25 0.04 250);
+    --muted-foreground: oklch(0.7 0.02 240);
+    --accent: oklch(0.28 0.06 255);
+    --accent-foreground: oklch(0.93 0.02 255);
+    --destructive: oklch(0.58 0.2 25);
+    --destructive-foreground: oklch(0.99 0 0);
+    --success: oklch(0.65 0.17 148);
+    --success-foreground: oklch(0.14 0.03 148);
+    --warning: oklch(0.72 0.15 68);
+    --warning-foreground: oklch(0.16 0.04 55);
+    --info: oklch(0.64 0.15 235);
+    --info-foreground: oklch(0.14 0.03 235);
+    --border: oklch(0.32 0.06 250);
+    --input: oklch(0.35 0.07 250);
+    --ring: oklch(0.56 0.17 255);
+
+    /* Extended Primary Scale (Navbar, Sidebar & Depth) */
+    --primary-deep: oklch(0.28 0.1 255);
+    --primary-deeper: oklch(0.22 0.08 255);
+    --primary-darkest: oklch(0.18 0.06 255);
+    --primary-shadow: oklch(0.15 0.05 255);
+    --primary-void: oklch(0.12 0.04 255);
   }
 }
 
@@ -54,6 +91,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 }

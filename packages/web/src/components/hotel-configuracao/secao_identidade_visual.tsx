@@ -225,7 +225,7 @@ export function SecaoIdentidadeVisual({
 
       {/* Paleta de Cores (Theme Tokens em HEX) */}
       <div className="pt-2">
-        <h4 className="text-sm font-semibold text-slate-800 mb-4">
+        <h4 className="text-sm font-semibold text-foreground mb-4">
           Tokens da Paleta de Cores (Código HEX)
         </h4>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

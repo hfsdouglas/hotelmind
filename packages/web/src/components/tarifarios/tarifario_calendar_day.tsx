@@ -102,7 +102,7 @@ export function TarifarioCalendarDay({
 
           <div className="flex shrink-0 items-center gap-0.5">
             {isToday && (
-              <span className="rounded bg-secondary px-1 text-[10px] leading-tight font-medium">
+              <span className="rounded bg-secondary px-1 text-[10px] leading-tight font-medium text-secondary-foreground">
                 Hoje
               </span>
             )}

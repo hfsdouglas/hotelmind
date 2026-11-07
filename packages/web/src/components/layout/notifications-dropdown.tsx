@@ -24,7 +24,7 @@ export function NotificationsDropdown() {
         size="icon"
         onClick={() => setOpen(p => !p)}
         aria-label="Notificações"
-        className="text-primary-foreground hover:bg-accent hover:text-accent-foreground"
+        className="text-primary-foreground hover:bg-primary-deep dark:hover:bg-primary-deeper hover:text-primary-foreground"
       >
         <Bell className="h-4 w-4" />
       </Button>

@@ -113,7 +113,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
-            <p className="truncate text-sm font-medium text-accent-foreground">
+            <p className="truncate text-sm font-medium text-primary-foreground">
               {session.user.nome_completo}
             </p>
             <p className="truncate text-xs text-primary-foreground/80">

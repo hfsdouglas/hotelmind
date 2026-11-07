@@ -353,7 +353,7 @@ export function EditarOrcamentoPage() {
             <span className="text-xs text-muted-foreground uppercase font-semibold">
               Lead / Primeiro Contato
             </span>
-            <p className="mt-1 font-bold text-slate-800">
+            <p className="mt-1 font-bold text-foreground">
               {orcamento.lead?.nome}
             </p>
             <p className="text-xs text-muted-foreground">
@@ -936,7 +936,7 @@ export function EditarOrcamentoPage() {
                     <span className="font-medium">
                       {formatarDataBR(noite.data)} - {noite.tarifario_nome}
                     </span>
-                    <span className="font-bold text-slate-800">
+                    <span className="font-bold text-foreground tabular-nums">
                       {formatarMoeda(noite.valor_diaria)}
                     </span>
                   </div>

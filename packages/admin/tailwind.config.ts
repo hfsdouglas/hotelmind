@@ -1,45 +1,75 @@
 import type { Config } from 'tailwindcss'
 
+function withOpacity(variableName: string) {
+  return `color-mix(in oklch, var(${variableName}) calc(100% * <alpha-value>), transparent)`
+}
+
 export default {
   darkMode: 'class',
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        border: 'hsl(var(--border))',
-        input: 'hsl(var(--input))',
-        ring: 'hsl(var(--ring))',
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
+        border: withOpacity('--border'),
+        input: withOpacity('--input'),
+        ring: withOpacity('--ring'),
+        background: withOpacity('--background'),
+        foreground: withOpacity('--foreground'),
         primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
+          DEFAULT: withOpacity('--primary'),
+          foreground: withOpacity('--primary-foreground'),
+          deep: withOpacity('--primary-deep'),
+          deeper: withOpacity('--primary-deeper'),
+          darkest: withOpacity('--primary-darkest'),
+          shadow: withOpacity('--primary-shadow'),
+          void: withOpacity('--primary-void'),
         },
         secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
+          DEFAULT: withOpacity('--secondary'),
+          foreground: withOpacity('--secondary-foreground'),
+        },
+        tertiary: {
+          DEFAULT: withOpacity('--tertiary'),
+          foreground: withOpacity('--tertiary-foreground'),
         },
         destructive: {
-          DEFAULT: 'hsl(var(--destructive))',
-          foreground: 'hsl(var(--destructive-foreground))',
+          DEFAULT: withOpacity('--destructive'),
+          foreground: withOpacity('--destructive-foreground'),
+        },
+        success: {
+          DEFAULT: withOpacity('--success'),
+          foreground: withOpacity('--success-foreground'),
+        },
+        warning: {
+          DEFAULT: withOpacity('--warning'),
+          foreground: withOpacity('--warning-foreground'),
+        },
+        info: {
+          DEFAULT: withOpacity('--info'),
+          foreground: withOpacity('--info-foreground'),
         },
         muted: {
-          DEFAULT: 'hsl(var(--muted))',
-          foreground: 'hsl(var(--muted-foreground))',
+          DEFAULT: withOpacity('--muted'),
+          foreground: withOpacity('--muted-foreground'),
         },
         accent: {
-          DEFAULT: 'hsl(var(--accent))',
-          foreground: 'hsl(var(--accent-foreground))',
+          DEFAULT: withOpacity('--accent'),
+          foreground: withOpacity('--accent-foreground'),
         },
         card: {
-          DEFAULT: 'hsl(var(--card))',
-          foreground: 'hsl(var(--card-foreground))',
+          DEFAULT: withOpacity('--card'),
+          foreground: withOpacity('--card-foreground'),
+        },
+        popover: {
+          DEFAULT: withOpacity('--popover'),
+          foreground: withOpacity('--popover-foreground'),
         },
       },
       borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        xl: 'var(--radius-xl)',
+        lg: 'var(--radius-lg)',
+        md: 'var(--radius-md)',
+        sm: 'var(--radius-sm)',
       },
     },
   },

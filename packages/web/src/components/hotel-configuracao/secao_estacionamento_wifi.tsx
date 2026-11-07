@@ -45,7 +45,7 @@ export function SecaoEstacionamentoWifi({
 
       {/* Subseção Estacionamento */}
       <div className="space-y-4 rounded-md border p-4 bg-muted/10">
-        <h4 className="text-sm font-semibold flex items-center gap-2 text-slate-800">
+        <h4 className="text-sm font-semibold flex items-center gap-2 text-foreground">
           <Car className="h-4 w-4" />
           Estacionamento
         </h4>
@@ -167,7 +167,7 @@ export function SecaoEstacionamentoWifi({
 
       {/* Subseção Wi-Fi */}
       <div className="space-y-4 rounded-md border p-4 bg-muted/10">
-        <h4 className="text-sm font-semibold flex items-center gap-2 text-slate-800">
+        <h4 className="text-sm font-semibold flex items-center gap-2 text-foreground">
           <Wifi className="h-4 w-4" />
           Conectividade & Wi-Fi
         </h4>

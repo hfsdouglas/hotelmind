@@ -54,11 +54,11 @@ export function TarifariosPage() {
       header: 'Canal / Parceiro',
       render: row =>
         row.parceiro ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
             {row.parceiro.nome_fantasia || row.parceiro.razao_social}
           </span>
         ) : (
-          <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+          <span className="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
             Reserva Direta
           </span>
         ),
