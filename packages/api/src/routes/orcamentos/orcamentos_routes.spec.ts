@@ -10,6 +10,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { InMemoryCategoriaQuartoRepository } from '@/core/repositories/categorias_quartos/in-memory/in_memory_categoria_quarto_repository'
 import { InMemoryLeadRepository } from '@/core/repositories/leads/in-memory/in_memory_lead_repository'
 import { InMemoryOrcamentoRepository } from '@/core/repositories/orcamentos/in-memory/in_memory_orcamento_repository'
+import { InMemoryParceiroComercialRepository } from '@/core/repositories/parceiros_comerciais/in-memory/in_memory_parceiro_comercial_repository'
 import { InMemoryRegimeAlimentacaoRepository } from '@/core/repositories/regimes_alimentacao/in-memory/in_memory_regime_alimentacao_repository'
 import { InMemoryTarifarioRepository } from '@/core/repositories/tarifarios/in-memory/in_memory_tarifario_repository'
 import authPlugin from '@/plugins/auth_plugin'
@@ -23,6 +24,7 @@ let leads_repo: InMemoryLeadRepository
 let regimes_repo: InMemoryRegimeAlimentacaoRepository
 let categorias_repo: InMemoryCategoriaQuartoRepository
 let tarifarios_repo: InMemoryTarifarioRepository
+let parceiros_repo: InMemoryParceiroComercialRepository
 
 vi.mock('@/lib/prisma', () => ({ db: {} }))
 
@@ -76,6 +78,16 @@ vi.mock(
   })
 )
 
+vi.mock(
+  '@/core/repositories/parceiros_comerciais/implementation/postgres_parceiro_comercial_repository',
+  () => ({
+    // biome-ignore lint/complexity/useArrowFunction: constructor function for new operator
+    PostgresParceiroComercialRepository: vi.fn(function () {
+      return parceiros_repo
+    }),
+  })
+)
+
 async function build_app(): Promise<FastifyInstance> {
   const app = fastify().withTypeProvider<ZodTypeProvider>()
   app.setValidatorCompiler(validatorCompiler)
@@ -116,6 +128,7 @@ describe('Orcamentos Routes', () => {
     regimes_repo = new InMemoryRegimeAlimentacaoRepository()
     categorias_repo = new InMemoryCategoriaQuartoRepository()
     tarifarios_repo = new InMemoryTarifarioRepository()
+    parceiros_repo = new InMemoryParceiroComercialRepository()
 
     app = await build_app()
   })
@@ -263,5 +276,149 @@ describe('Orcamentos Routes', () => {
     expect(body.valor_total).toBe('250.00')
     expect(body.cupom_desconto).toBe('BLACKFRIDAY')
     expect(body.token_publico).toBeDefined()
+  })
+
+  it('POST /orcamentos creates budget linked to partner and calculates rates strictly for that partner', async () => {
+    const token = make_token(app, HOTEL_ID)
+
+    const parceiro = await parceiros_repo.create({
+      hotel_id: HOTEL_ID,
+      tipo_parceiro: 'agencia_viagens',
+      tipo_pessoa: 'PJ',
+      razao_social: 'Agência Corporativa Viagens Ltda',
+      documento: '11222333000181',
+      modelo_tarifario: 'comissionada',
+      politica_faturamento: 'faturado',
+      status: 'ativo',
+    })
+
+    const cat = await categorias_repo.create({
+      hotel_id: HOTEL_ID,
+      nome: 'Suíte Corporativa',
+      status: 'S',
+    })
+    tarifarios_repo.register_category(cat.id, cat.nome, 'S')
+
+    const regime = await regimes_repo.create({
+      hotel_id: HOTEL_ID,
+      titulo: 'Café da Manhã',
+      cor_pulseira: '#3B82F6',
+      ativo: true,
+    })
+    tarifarios_repo.register_regime_alimentacao(
+      regime.id,
+      regime.titulo,
+      regime.cor_pulseira
+    )
+
+    // Tarifário exclusivo do parceiro
+    await tarifarios_repo.create({
+      hotel_id: HOTEL_ID,
+      parceiro_id: parceiro.id,
+      categoria_quarto_id: cat.id,
+      regime_alimentacao_id: regime.id,
+      nome: 'Tarifa Corporativa Acordada',
+      datas: ['2026-12-05'],
+      valor_diaria: '190.00',
+      ativo: true,
+    })
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/orcamentos',
+      cookies: { token },
+      payload: {
+        regime_alimentacao_id: regime.id,
+        categoria_quarto_id: cat.id,
+        parceiro_id: parceiro.id,
+        check_in: '2026-12-05',
+        check_out: '2026-12-06',
+        quantidade_adultos: 1,
+        quantidade_criancas: 0,
+        quantidade_pets: 0,
+        lead: {
+          nome: 'Executivo Carlos',
+          telefone: '11988887777',
+          email: 'executivo@corporativo.com',
+        },
+      },
+    })
+
+    expect(response.statusCode).toBe(201)
+    const body = response.json()
+    expect(body.id).toBeDefined()
+    expect(body.parceiro_id).toBe(parceiro.id)
+    expect(body.valor_total).toBe('190.00')
+    expect(body.detalhamento_noites[0].tarifario_nome).toBe(
+      'Tarifa Corporativa Acordada'
+    )
+  })
+
+  it('POST /orcamentos returns 400 when partner does not have coverage for dates', async () => {
+    const token = make_token(app, HOTEL_ID)
+
+    const parceiro = await parceiros_repo.create({
+      hotel_id: HOTEL_ID,
+      tipo_parceiro: 'agencia_viagens',
+      tipo_pessoa: 'PJ',
+      razao_social: 'Agência Sem Cobertura Ltda',
+      documento: '33000167000101',
+      modelo_tarifario: 'comissionada',
+      politica_faturamento: 'faturado',
+      status: 'ativo',
+    })
+
+    const cat = await categorias_repo.create({
+      hotel_id: HOTEL_ID,
+      nome: 'Suíte Luxo',
+      status: 'S',
+    })
+    tarifarios_repo.register_category(cat.id, cat.nome, 'S')
+
+    const regime = await regimes_repo.create({
+      hotel_id: HOTEL_ID,
+      titulo: 'All Inclusive',
+      cor_pulseira: '#10B981',
+      ativo: true,
+    })
+    tarifarios_repo.register_regime_alimentacao(
+      regime.id,
+      regime.titulo,
+      regime.cor_pulseira
+    )
+
+    // Apenas tarifário público existe para essa data, mas o orçamento foi solicitado com parceiro_id
+    await tarifarios_repo.create({
+      hotel_id: HOTEL_ID,
+      parceiro_id: null,
+      categoria_quarto_id: cat.id,
+      regime_alimentacao_id: regime.id,
+      nome: 'Tarifa Pública',
+      datas: ['2026-12-05'],
+      valor_diaria: '300.00',
+      ativo: true,
+    })
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/orcamentos',
+      cookies: { token },
+      payload: {
+        regime_alimentacao_id: regime.id,
+        categoria_quarto_id: cat.id,
+        parceiro_id: parceiro.id,
+        check_in: '2026-12-05',
+        check_out: '2026-12-06',
+        quantidade_adultos: 2,
+        lead: {
+          nome: 'Cliente Parceiro',
+          telefone: '11988887777',
+          email: 'cliente@parceiro.com',
+        },
+      },
+    })
+
+    expect(response.statusCode).toBe(400)
+    expect(response.json().message).toContain('Não há tarifário ativo elegível')
   })
 })

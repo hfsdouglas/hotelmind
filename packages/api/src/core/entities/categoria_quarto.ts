@@ -2,7 +2,7 @@ export interface CategoriaQuartoProps {
   id: string
   hotel_id: string
   nome: string
-  status: string
+  status: 'S' | 'N'
   created_at: Date
   updated_at: Date
 }
@@ -11,7 +11,7 @@ export class CategoriaQuarto {
   readonly id: string
   readonly hotel_id: string
   readonly nome: string
-  readonly status: string
+  readonly status: 'S' | 'N'
   readonly created_at: Date
   readonly updated_at: Date
 

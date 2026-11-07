@@ -36,6 +36,7 @@ model Hotel {
   orcamentos         Orcamento[]
   parceiros          Parceiro[]
   reservas           Reserva[]
+  configuracao       HotelConfiguracao?
 
   @@map("hoteis")
 }
@@ -209,6 +210,8 @@ model Tarifario {
   categoria_quarto    CategoriaQuarto   @relation(fields: [categoria_quarto_id], references: [id], onDelete: Restrict)
   regime_alimentacao_id String
   regime_alimentacao  RegimeAlimentacao @relation(fields: [regime_alimentacao_id], references: [id], onDelete: Restrict)
+  parceiro_id         String?
+  parceiro            Parceiro?          @relation(fields: [parceiro_id], references: [id], onDelete: Cascade)
   nome                String            @db.VarChar(100)
   valor_diaria        Decimal            @db.Decimal(12, 2)
   ativo               Boolean            @default(true)
@@ -219,7 +222,9 @@ model Tarifario {
   @@index([hotel_id])
   @@index([categoria_quarto_id])
   @@index([regime_alimentacao_id])
+  @@index([parceiro_id])
   @@index([hotel_id, categoria_quarto_id, ativo])
+  @@index([hotel_id, parceiro_id, ativo])
   @@map("tarifarios")
 }
 
@@ -279,6 +284,7 @@ model Orcamento {
   lead_id               String
   regime_alimentacao_id String
   categoria_quarto_id   String
+  parceiro_id           String?
   check_in              String            @db.VarChar(10)
   check_out             String            @db.VarChar(10)
   quantidade_adultos    Int               @default(1)
@@ -297,9 +303,11 @@ model Orcamento {
   lead                  Lead              @relation(fields: [lead_id], references: [id], onDelete: Restrict)
   regime_alimentacao    RegimeAlimentacao @relation(fields: [regime_alimentacao_id], references: [id], onDelete: Restrict)
   categoria_quarto      CategoriaQuarto   @relation(fields: [categoria_quarto_id], references: [id], onDelete: Restrict)
+  parceiro              Parceiro?         @relation(fields: [parceiro_id], references: [id], onDelete: SetNull)
 
   @@index([hotel_id])
   @@index([hotel_id, status])
+  @@index([parceiro_id])
   @@index([lead_id])
   @@index([token_publico])
   @@map("orcamentos")
@@ -340,6 +348,8 @@ model Parceiro {
   hotel                 Hotel              @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
   endereco              ParceiroEndereco?
   contatos              ParceiroContato[]
+  tarifarios            Tarifario[]
+  orcamentos            Orcamento[]
   reservas              Reserva[]
 
   @@unique([hotel_id, documento])
@@ -501,4 +511,63 @@ model ReservaLog {
   @@index([hotel_id])
   @@index([reserva_id, created_at])
   @@map("reservas_logs")
+}
+
+
+// -------------------------------------------------------------
+// 4. CONFIGURAÇÕES DO HOTEL
+// -------------------------------------------------------------
+model HotelConfiguracao {
+  id                 String    @id @default(uuid())
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @updatedAt
+  hotel_id           String    @unique
+  hotel              Hotel     @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+
+  // Identidade & Tema
+  categoria          String    @default("HOTEL") @db.VarChar(50)
+  classificacao_estrelas Int   @default(0)
+  descricao_curta    String?   @db.VarChar(160)
+  descricao_completa String?   @db.Text
+  logo_primary       String?   @db.Text
+  logo_dark          String?   @db.Text
+  favicon            String?   @db.Text
+  color_primary      String    @default("#1e40af") @db.VarChar(7)
+  color_secondary    String    @default("#64748b") @db.VarChar(7)
+  color_background   String    @default("#ffffff") @db.VarChar(7)
+  color_surface      String    @default("#f8fafc") @db.VarChar(7)
+  color_text_primary String    @default("#0f172a") @db.VarChar(7)
+  color_text_secondary String  @default("#475569") @db.VarChar(7)
+  color_accent       String    @default("#f59e0b") @db.VarChar(7)
+
+  // Crianças & Hóspedes Extras (apenas gratuidades)
+  free_child_age_limit     Int     @default(5)
+  free_child_max_per_room  Int     @default(1)
+
+  // Horários & Operação
+  checkin_time             String  @default("14:00") @db.VarChar(5)
+  checkout_time            String  @default("12:00") @db.VarChar(5)
+  reception_24h            Boolean @default(true)
+  reception_opening_time   String? @db.VarChar(5)
+  reception_closing_time   String? @db.VarChar(5)
+
+  // Políticas & Regras (Pets e Fumo)
+  pet_friendly             Boolean  @default(false)
+  pet_max_weight_kg        Decimal? @db.Decimal(5, 2)
+  smoking_allowed          Boolean  @default(false)
+  smoking_sanitization_fee Decimal? @db.Decimal(10, 2)
+
+  // Serviços Operacionais (Estacionamento & Wi-Fi)
+  parking_type             String   @default("NAO_POSSUI") @db.VarChar(30)
+  parking_fee_per_day      Decimal? @db.Decimal(10, 2)
+  parking_reservation_required Boolean @default(false)
+  parking_covered          String   @default("DESCOBERTO") @db.VarChar(20)
+  wifi_available           Boolean  @default(true)
+  wifi_type                String   @default("GRATUITO_TOTAL") @db.VarChar(30)
+  wifi_ssid_default        String?  @db.VarChar(100)
+  wifi_password_default    String?  @db.VarChar(100)
+  wifi_show_on_voucher     Boolean  @default(true)
+
+  @@index([hotel_id])
+  @@map("hoteis_configuracoes")
 }

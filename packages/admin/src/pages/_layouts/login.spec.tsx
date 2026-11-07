@@ -1,15 +1,21 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
-import { LoginLayout } from './login'
 import { AuthContext } from '@/contexts/AuthContext'
+import { LoginLayout } from './login'
 
 function renderLoginLayout(isAuthenticated: boolean) {
   return render(
     <AuthContext.Provider
       value={{
         session: isAuthenticated
-          ? { admin: { id: 'a1', nome_completo: 'Admin', email: 'admin@hotelmind.com' } }
+          ? {
+              admin: {
+                id: 'a1',
+                nome_completo: 'Admin',
+                email: 'admin@hotelmind.com',
+              },
+            }
           : null,
         setSession: vi.fn(),
         isAuthenticated,
@@ -23,7 +29,7 @@ function renderLoginLayout(isAuthenticated: boolean) {
           <Route path="/dashboard" element={<div>Painel Admin</div>} />
         </Routes>
       </MemoryRouter>
-    </AuthContext.Provider>,
+    </AuthContext.Provider>
   )
 }
 

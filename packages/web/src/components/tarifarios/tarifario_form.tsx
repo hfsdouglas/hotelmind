@@ -29,6 +29,7 @@ import { TarifarioPeriodSummary } from './tarifario_period_summary'
 export interface TarifarioSubmitPayload {
   categoria_quarto_id: string
   regime_alimentacao_id: string
+  parceiro_id?: string | null
   nome: string
   datas: string[]
   valor_diaria: string
@@ -43,6 +44,11 @@ export interface TarifarioFormProps {
   initialValues?: Partial<TarifarioFormValues>
   categories: CategoriaQuartoResumo[]
   regimes?: RegimeAlimentacao[]
+  parceiros?: Array<{
+    id: string
+    razao_social: string
+    nome_fantasia?: string | null
+  }>
   occupiedPeriods: PeriodoTarifarioCalendario[]
   isLoadingPeriods?: boolean
   excludeTarifarioId?: string
@@ -60,6 +66,7 @@ export function TarifarioForm({
   initialValues,
   categories,
   regimes = [],
+  parceiros = [],
   occupiedPeriods,
   isLoadingPeriods = false,
   excludeTarifarioId,
@@ -75,6 +82,9 @@ export function TarifarioForm({
   )
   const [regime_alimentacao_id, setRegimeAlimentacaoId] = useState<string>(
     initialValues?.regime_alimentacao_id ?? ''
+  )
+  const [parceiro_id, setParceiroId] = useState<string>(
+    initialValues?.parceiro_id ?? ''
   )
   const [datas, setDatas] = useState<string[]>(initialValues?.datas ?? [])
   const [valor_diaria, setValorDiaria] = useState(
@@ -92,6 +102,9 @@ export function TarifarioForm({
     if (initialValues.regime_alimentacao_id !== undefined) {
       setRegimeAlimentacaoId(initialValues.regime_alimentacao_id ?? '')
     }
+    if (initialValues.parceiro_id !== undefined) {
+      setParceiroId(initialValues.parceiro_id ?? '')
+    }
     if (initialValues.datas !== undefined) {
       setDatas(initialValues.datas)
     }
@@ -105,7 +118,12 @@ export function TarifarioForm({
 
   const conflicting_periods =
     ativo && datas.length > 0
-      ? find_conflicting_periods(datas, occupiedPeriods, excludeTarifarioId)
+      ? find_conflicting_periods(
+          datas,
+          occupiedPeriods,
+          excludeTarifarioId,
+          parceiro_id
+        )
       : []
 
   function handle_category_change(next_category_id: string) {
@@ -136,6 +154,7 @@ export function TarifarioForm({
       nome,
       categoria_quarto_id,
       regime_alimentacao_id,
+      parceiro_id: parceiro_id || null,
       datas,
       valor_diaria,
       ativo,
@@ -161,6 +180,7 @@ export function TarifarioForm({
     onSubmitPayload({
       categoria_quarto_id: parsed.data.categoria_quarto_id,
       regime_alimentacao_id: parsed.data.regime_alimentacao_id,
+      parceiro_id: parsed.data.parceiro_id || null,
       nome: parsed.data.nome,
       datas: parsed.data.datas,
       valor_diaria: normalize_currency_string(parsed.data.valor_diaria),
@@ -207,7 +227,7 @@ export function TarifarioForm({
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="nome">Nome *</Label>
             <Input
@@ -269,6 +289,31 @@ export function TarifarioForm({
                       />
                       <span>{regime.titulo}</span>
                     </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="relative flex flex-col gap-1.5">
+            <Label htmlFor="parceiro_id">Parceiro Comercial</Label>
+            <Select
+              value={parceiro_id || '__publico__'}
+              onValueChange={val => {
+                setParceiroId(val === '__publico__' ? '' : val)
+                if (errors.length > 0) setErrors([])
+              }}
+            >
+              <SelectTrigger id="parceiro_id" aria-label="Parceiro Comercial">
+                <SelectValue placeholder="Público (Geral)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__publico__">
+                  Tarifário Público (Geral)
+                </SelectItem>
+                {parceiros.map(p => (
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.razao_social}
                   </SelectItem>
                 ))}
               </SelectContent>

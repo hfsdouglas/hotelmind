@@ -2,10 +2,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { rotasService } from '@/api/rotas.service'
-import { RotaNovaPage } from './nova'
 import { RotaEditarPage } from './editar'
+import { RotaNovaPage } from './nova'
 
 vi.mock('@/api/rotas.service', () => ({
   rotasService: {
@@ -49,10 +49,12 @@ describe('Rotas Forms Pages', () => {
         <MemoryRouter initialEntries={['/rotas/nova']}>
           <RotaNovaPage />
         </MemoryRouter>
-      </QueryClientProvider>,
+      </QueryClientProvider>
     )
 
-    expect(screen.getByRole('heading', { name: 'Nova Rota' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: 'Nova Rota' })
+    ).toBeInTheDocument()
 
     await user.type(screen.getByLabelText('Módulo'), 'Financeiro')
     await user.type(screen.getByLabelText('Recurso'), 'Relatórios')
@@ -67,7 +69,7 @@ describe('Rotas Forms Pages', () => {
           modulo: 'Financeiro',
           recurso: 'Relatórios',
           rota: '/relatorios',
-        }),
+        })
       )
     })
   })
@@ -107,7 +109,7 @@ describe('Rotas Forms Pages', () => {
             <Route path="/rotas/:id/editar" element={<RotaEditarPage />} />
           </Routes>
         </MemoryRouter>
-      </QueryClientProvider>,
+      </QueryClientProvider>
     )
 
     expect(await screen.findByDisplayValue('Quartos')).toBeInTheDocument()
@@ -124,7 +126,7 @@ describe('Rotas Forms Pages', () => {
         'r-1',
         expect.objectContaining({
           recurso: 'Acomodações',
-        }),
+        })
       )
     })
   })

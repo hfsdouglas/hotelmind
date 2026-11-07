@@ -1,4 +1,8 @@
-import type { DiariaReserva, UpdateReservaPayload } from '@hotelmind/contracts'
+import type {
+  DiariaReserva,
+  ReservaStatus,
+  UpdateReservaPayload,
+} from '@hotelmind/contracts'
 import { Reserva } from '@/core/entities/reserva'
 import {
   ReservaConflitoError,
@@ -199,7 +203,7 @@ export class EditarReservaUseCase {
       await this.hospedes_repo.adjust_positions(reserva.id, total_pessoas)
     }
 
-    let status_final = reserva.status
+    let status_final: ReservaStatus = reserva.status
     if (dados.status && dados.status !== reserva.status) {
       this.status_service.validar_transicao(reserva.status, dados.status)
       status_final = dados.status

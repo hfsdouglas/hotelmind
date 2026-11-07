@@ -200,6 +200,7 @@ export function EditarReservaPage() {
   const totalPessoas = adultos + criancas
   const regimeId = watch('regime_alimentacao_id')
   const quartoIdSelecionado = watch('quarto_id')
+  const parceiroId = watch('parceiro_comercial_id')
 
   const nights = useMemo(
     () => enumerateNights(checkIn, checkOut),
@@ -219,6 +220,7 @@ export function EditarReservaPage() {
         checkOut,
         regimeId,
         totalPessoas,
+        parceiroId,
       ],
       queryFn: () =>
         reservasService.disponibilidade({
@@ -226,6 +228,7 @@ export function EditarReservaPage() {
           check_out: checkOut,
           regime_alimentacao_id: regimeId,
           pessoas: totalPessoas,
+          parceiro_id: parceiroId || null,
         }),
       enabled: podeConsultar,
     })
@@ -573,6 +576,7 @@ export function EditarReservaPage() {
                   value={field.value || 'direta'}
                   onValueChange={val => {
                     field.onChange(val === 'direta' ? '' : val)
+                    setValue('quarto_id', '')
                   }}
                 >
                   <SelectTrigger id="parceiro_comercial_id" className="h-9">

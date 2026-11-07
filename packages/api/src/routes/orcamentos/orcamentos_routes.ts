@@ -16,6 +16,7 @@ import {
   CategoriaQuartoRepository,
   LeadRepository,
   OrcamentoRepository,
+  ParceiroComercialRepository,
   RegimeAlimentacaoRepository,
   TarifarioRepository,
 } from '@/core/repositories'
@@ -44,6 +45,7 @@ function orcamento_to_response(o: Orcamento) {
     id: o.id,
     hotel_id: o.hotel_id,
     lead_id: o.lead_id,
+    parceiro_id: o.parceiro_id ?? null,
     regime_alimentacao_id: o.regime_alimentacao_id,
     categoria_quarto_id: o.categoria_quarto_id,
     check_in: o.check_in,
@@ -58,6 +60,7 @@ function orcamento_to_response(o: Orcamento) {
     observacoes: o.observacoes,
     cupom_desconto: o.cupom_desconto,
     lead: o.lead,
+    parceiro: o.parceiro ?? null,
     regime_alimentacao: o.regime_alimentacao,
     categoria_quarto: o.categoria_quarto,
     criado_em: o.created_at.toISOString(),
@@ -71,13 +74,15 @@ export async function orcamentos_routes(app: FastifyTypedInstance) {
   const regimes_repo = new RegimeAlimentacaoRepository(db)
   const categorias_repo = new CategoriaQuartoRepository(db)
   const tarifarios_repo = new TarifarioRepository(db)
+  const parceiros_repo = new ParceiroComercialRepository(db)
 
   const criar_use_case = new CriarOrcamentoUseCase(
     orcamentos_repo,
     leads_repo,
     regimes_repo,
     categorias_repo,
-    tarifarios_repo
+    tarifarios_repo,
+    parceiros_repo
   )
   const buscar_use_case = new BuscarOrcamentoUseCase(orcamentos_repo)
   const buscar_publico_use_case = new BuscarOrcamentoPublicoUseCase(
@@ -89,7 +94,8 @@ export async function orcamentos_routes(app: FastifyTypedInstance) {
     regimes_repo,
     categorias_repo,
     tarifarios_repo,
-    leads_repo
+    leads_repo,
+    parceiros_repo
   )
   const excluir_use_case = new ExcluirOrcamentoUseCase(orcamentos_repo)
 

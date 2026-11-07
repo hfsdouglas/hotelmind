@@ -7,9 +7,9 @@ export interface QuartoProps {
   identificacao: string
   descricao: string | null
   limite_hospedes: number
-  status: string
+  status: 'S' | 'N'
   camas: ConfiguracaoCama[]
-  categoria: { id: string; nome: string; status: string }
+  categoria: { id: string; nome: string; status: 'S' | 'N' }
   created_at: Date
   updated_at: Date
 }
@@ -21,7 +21,7 @@ export class Quarto {
   readonly identificacao: string
   readonly descricao: string | null
   readonly limite_hospedes: number
-  readonly status: string
+  readonly status: 'S' | 'N'
   readonly camas: ConfiguracaoCama[]
   readonly categoria: QuartoProps['categoria']
   readonly created_at: Date

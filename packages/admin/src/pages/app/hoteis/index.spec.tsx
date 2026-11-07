@@ -1,11 +1,11 @@
-import { describe, it, expect, vi } from 'vitest'
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { http, HttpResponse } from 'msw'
+import { HttpResponse, http } from 'msw'
+import { describe, expect, it, vi } from 'vitest'
+import { mock_hoteis } from '@/mocks/handlers/hoteis_handlers'
 import { server } from '@/mocks/server'
 import { render_with_providers } from '@/test/render_with_providers'
 import { HoteisPage } from './index'
-import { mock_hoteis } from '@/mocks/handlers/hoteis_handlers'
 
 vi.mock('sonner', () => ({
   toast: { success: vi.fn(), error: vi.fn() },
@@ -13,7 +13,11 @@ vi.mock('sonner', () => ({
 
 // Provide a logged-in session so the page can render inside layouts that check auth
 const mock_session = {
-  admin: { id: '1', nome_completo: 'Admin Teste', email: 'admin@hotelmind.com.br' },
+  admin: {
+    id: '1',
+    nome_completo: 'Admin Teste',
+    email: 'admin@hotelmind.com.br',
+  },
 }
 
 function setup() {
@@ -48,8 +52,11 @@ describe('HoteisPage', () => {
     server.use(
       http.get('http://localhost:3000/admin/hoteis', async () => {
         await new Promise(res => setTimeout(res, 200))
-        return HttpResponse.json({ data: [], meta: { pagina: 1, limite: 50, total: 0, ultima_pagina: 1 } })
-      }),
+        return HttpResponse.json({
+          data: [],
+          meta: { pagina: 1, limite: 50, total: 0, ultima_pagina: 1 },
+        })
+      })
     )
     setup()
     expect(screen.getByLabelText('Carregando resultados')).toBeInTheDocument()
@@ -58,12 +65,17 @@ describe('HoteisPage', () => {
   it('shows empty message when API returns no hotels', async () => {
     server.use(
       http.get('http://localhost:3000/admin/hoteis', () =>
-        HttpResponse.json({ data: [], meta: { pagina: 1, limite: 50, total: 0, ultima_pagina: 1 } }),
-      ),
+        HttpResponse.json({
+          data: [],
+          meta: { pagina: 1, limite: 50, total: 0, ultima_pagina: 1 },
+        })
+      )
     )
     setup()
     await waitFor(() => {
-      expect(screen.getByText('Nenhum resultado encontrado.')).toBeInTheDocument()
+      expect(
+        screen.getByText('Nenhum resultado encontrado.')
+      ).toBeInTheDocument()
     })
   })
 
@@ -82,9 +94,15 @@ describe('HoteisPage', () => {
     // rows[0] = header, rows[1] = Grand Palace Hotel
     const first_row = rows[1]
     const edit_link = within(first_row).getByTitle('Editar')
-    expect(edit_link.closest('a')).toHaveAttribute('href', `/hoteis/${mock_hoteis[0].id}/editar`)
+    expect(edit_link.closest('a')).toHaveAttribute(
+      'href',
+      `/hoteis/${mock_hoteis[0].id}/editar`
+    )
     const rotas_link = within(first_row).getByTitle('Gerenciar rotas')
-    expect(rotas_link.closest('a')).toHaveAttribute('href', `/hoteis/${mock_hoteis[0].id}/rotas`)
+    expect(rotas_link.closest('a')).toHaveAttribute(
+      'href',
+      `/hoteis/${mock_hoteis[0].id}/rotas`
+    )
   })
 
   it('calls the delete API when the remove button is confirmed', async () => {
@@ -92,10 +110,13 @@ describe('HoteisPage', () => {
     let delete_called = false
 
     server.use(
-      http.delete(`http://localhost:3000/admin/hoteis/${mock_hoteis[0].id}`, () => {
-        delete_called = true
-        return new HttpResponse(null, { status: 204 })
-      }),
+      http.delete(
+        `http://localhost:3000/admin/hoteis/${mock_hoteis[0].id}`,
+        () => {
+          delete_called = true
+          return new HttpResponse(null, { status: 204 })
+        }
+      )
     )
 
     vi.spyOn(window, 'confirm').mockReturnValue(true)

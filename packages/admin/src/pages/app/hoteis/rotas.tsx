@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { hoteisService } from '@/api/hoteis.service'
-import { rotasService, type Rota } from '@/api/rotas.service'
-import { Button } from '@/components/ui/button'
+import { type Rota, rotasService } from '@/api/rotas.service'
 import { SaveButton } from '@/components/forms/save_button'
+import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/lib/utils'
 
@@ -54,16 +54,21 @@ export function HotelRotasPage() {
     })
   }
 
-  const grouped = (allRotas?.data ?? []).reduce<Record<string, Rota[]>>((acc, r) => {
-    ;(acc[r.modulo] ??= []).push(r)
-    return acc
-  }, {})
+  const grouped = (allRotas?.data ?? []).reduce<Record<string, Rota[]>>(
+    (acc, r) => {
+      ;(acc[r.modulo] ??= []).push(r)
+      return acc
+    },
+    {}
+  )
 
   return (
     <div className="max-w-6xl space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Rotas do Hotel</h1>
-        {hotel && <p className="text-muted-foreground">{hotel.nome_fantasia}</p>}
+        {hotel && (
+          <p className="text-muted-foreground">{hotel.nome_fantasia}</p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -76,7 +81,7 @@ export function HotelRotasPage() {
                   key={rota.id}
                   className={cn(
                     'flex cursor-pointer items-center gap-3 rounded-md border p-3 transition-colors hover:bg-accent',
-                    selected.has(rota.id) && 'border-primary bg-accent',
+                    selected.has(rota.id) && 'border-primary bg-accent'
                   )}
                 >
                   <Checkbox
@@ -95,7 +100,11 @@ export function HotelRotasPage() {
       </div>
 
       <div className="flex gap-2">
-        <SaveButton type="button" onClick={() => save()} isPending={isPending} />
+        <SaveButton
+          type="button"
+          onClick={() => save()}
+          isPending={isPending}
+        />
         <Button variant="outline" onClick={() => navigate('/hoteis')}>
           Cancelar
         </Button>

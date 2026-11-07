@@ -1,13 +1,20 @@
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { administradoresService } from '@/api/administradores.service'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
+import { Button } from '@/components/ui/button'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import {
   type AdministradorCreateFormData,
   administradorCreateSchema,
@@ -29,13 +36,15 @@ export function AdministradorNovoPage() {
   })
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: FormData) => administradoresService.create({ ...data, status: 'S' }),
+    mutationFn: (data: FormData) =>
+      administradoresService.create({ ...data, status: 'S' }),
     onSuccess: () => {
       toast.success('Administrador criado.')
       qc.invalidateQueries({ queryKey: ['admin:administradores'] })
       navigate('/administradores')
     },
-    onError: () => toast.error('Erro ao criar administrador. E-mail pode já existir.'),
+    onError: () =>
+      toast.error('Erro ao criar administrador. E-mail pode já existir.'),
   })
 
   return (
@@ -46,7 +55,13 @@ export function AdministradorNovoPage() {
       actions={
         <>
           <SaveButton isPending={isPending} />
-          <Button type="button" variant="outline" onClick={() => navigate('/administradores')}>Cancelar</Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => navigate('/administradores')}
+          >
+            Cancelar
+          </Button>
         </>
       }
     >
@@ -59,9 +74,24 @@ export function AdministradorNovoPage() {
               name={field}
               render={({ field: f }) => (
                 <FormItem>
-                  <FormLabel>{field === 'nome_completo' ? 'Nome completo' : field === 'email' ? 'E-mail' : 'Senha'}</FormLabel>
+                  <FormLabel>
+                    {field === 'nome_completo'
+                      ? 'Nome completo'
+                      : field === 'email'
+                        ? 'E-mail'
+                        : 'Senha'}
+                  </FormLabel>
                   <FormControl>
-                    <Input type={field === 'senha' ? 'password' : field === 'email' ? 'email' : 'text'} {...f} />
+                    <Input
+                      type={
+                        field === 'senha'
+                          ? 'password'
+                          : field === 'email'
+                            ? 'email'
+                            : 'text'
+                      }
+                      {...f}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

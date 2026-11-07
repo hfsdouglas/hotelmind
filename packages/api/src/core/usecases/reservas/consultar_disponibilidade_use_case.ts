@@ -10,6 +10,7 @@ export interface ConsultarDisponibilidadeInput {
   check_out: string
   regime_alimentacao_id: string
   pessoas: number
+  parceiro_id?: string | null
   ignorar_reserva_id?: string
 }
 
@@ -63,6 +64,7 @@ export class ConsultarDisponibilidadeUseCase {
           await this.tarifarios_repo.find_active_for_range({
             hotel_id,
             categoria_quarto_id: cat_id,
+            parceiro_id: input.parceiro_id,
             data_inicio: check_in,
             data_fim: check_out,
           })
@@ -74,6 +76,7 @@ export class ConsultarDisponibilidadeUseCase {
         const calculo = this.pricing_service.calcular_reserva({
           hotel_id,
           categoria_quarto_id: cat_id,
+          parceiro_id: input.parceiro_id,
           check_in,
           check_out,
           tarifarios: do_regime,

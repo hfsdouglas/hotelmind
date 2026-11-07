@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Filter, Pencil, Plus, X } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { categoriasQuartosService } from '@/api/categorias_quartos.service'
+import { parceirosComerciaisService } from '@/api/parceiros_comerciais.service'
 import { tarifariosService } from '@/api/tarifarios.service'
 import type { Column } from '@/components/data-table/data_table'
 import { ListPageLayout } from '@/components/data-table/list_page_layout'
@@ -31,6 +32,7 @@ export function TarifariosPage() {
     usePaginacao()
   const [searchParams] = useSearchParams()
   const categoria_quarto_id = searchParams.get('categoria_quarto_id') ?? ''
+  const parceiro_id_param = searchParams.get('parceiro_id') ?? ''
   const ativo_param = searchParams.get('ativo')
   const ativo_filter =
     ativo_param === 'true' ? true : ativo_param === 'false' ? false : undefined
@@ -40,8 +42,27 @@ export function TarifariosPage() {
     queryFn: () => categoriasQuartosService.list({ limite: 250 }),
   })
 
+  const { data: parceiros_res } = useQuery({
+    queryKey: ['parceiros_comerciais', 'all'],
+    queryFn: () => parceirosComerciaisService.list({ limite: 250 }),
+  })
+
   const columns: Column<Tarifario>[] = [
     { key: 'nome', header: 'Nome do tarifário' },
+    {
+      key: 'parceiro',
+      header: 'Canal / Parceiro',
+      render: row =>
+        row.parceiro ? (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+            {row.parceiro.nome_fantasia || row.parceiro.razao_social}
+          </span>
+        ) : (
+          <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+            Público (Balcão)
+          </span>
+        ),
+    },
     {
       key: 'categoria_quarto',
       header: 'Categoria de quarto',
@@ -192,7 +213,37 @@ export function TarifariosPage() {
                 </Select>
               </div>
 
-              {(categoria_quarto_id || ativo_param) && (
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="filtro-parceiro">
+                  Canal / Parceiro Comercial
+                </Label>
+                <Select
+                  value={parceiro_id_param || 'all'}
+                  onValueChange={value =>
+                    setParam('parceiro_id', value === 'all' ? '' : value)
+                  }
+                >
+                  <SelectTrigger
+                    id="filtro-parceiro"
+                    aria-label="Filtrar por parceiro comercial"
+                  >
+                    <SelectValue placeholder="Todos os canais" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os canais</SelectItem>
+                    <SelectItem value="publico">
+                      Apenas Tarifários Públicos
+                    </SelectItem>
+                    {parceiros_res?.data.map(p => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.nome_fantasia || p.razao_social}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {(categoria_quarto_id || ativo_param || parceiro_id_param) && (
                 <Button
                   type="button"
                   variant="ghost"
@@ -200,7 +251,11 @@ export function TarifariosPage() {
                   data-testid="clear-more-filters"
                   className="h-7 self-start px-2 text-xs text-muted-foreground hover:text-foreground"
                   onClick={() => {
-                    setParams({ categoria_quarto_id: '', ativo: '' })
+                    setParams({
+                      categoria_quarto_id: '',
+                      ativo: '',
+                      parceiro_id: '',
+                    })
                   }}
                 >
                   Limpar filtros
@@ -221,6 +276,7 @@ export function TarifariosPage() {
             limite,
             busca,
             categoria_quarto_id,
+            parceiro_id: parceiro_id_param,
             ativo: ativo_filter,
           },
         ]}
@@ -230,6 +286,7 @@ export function TarifariosPage() {
             limite,
             busca: busca || undefined,
             categoria_quarto_id: categoria_quarto_id || undefined,
+            parceiro_id: parceiro_id_param || undefined,
             ativo: ativo_filter,
           })
         }

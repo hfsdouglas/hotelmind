@@ -3,6 +3,7 @@ import type { Tarifario } from '@hotelmind/contracts'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   BedDouble,
+  Building2,
   Calendar,
   CheckCircle2,
   DollarSign,
@@ -21,6 +22,7 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { categoriasQuartosService } from '@/api/categorias_quartos.service'
 import { orcamentosService } from '@/api/orcamentos.service'
+import { parceirosComerciaisService } from '@/api/parceiros_comerciais.service'
 import { regimesAlimentacaoService } from '@/api/regimes_alimentacao.service'
 import { tarifariosService } from '@/api/tarifarios.service'
 import { CrudFormLayout } from '@/components/forms/CrudFormLayout'
@@ -125,6 +127,7 @@ export function NovoOrcamentoPage() {
       quantidade_adultos: 2,
       quantidade_criancas: 0,
       quantidade_pets: 0,
+      parceiro_id: '',
       regime_alimentacao_id: '',
       categoria_quarto_id: '',
       lead_nome: '',
@@ -139,6 +142,7 @@ export function NovoOrcamentoPage() {
   const watch_check_out = watch('check_out')
   const watch_regime_id = watch('regime_alimentacao_id')
   const watch_categoria_id = watch('categoria_quarto_id')
+  const watch_parceiro_id = watch('parceiro_id')
 
   // Calcula a lista de noites da hospedagem
   const nights = useMemo(
@@ -160,12 +164,26 @@ export function NovoOrcamentoPage() {
   })
   const categorias = categorias_res?.data ?? []
 
-  // 3. Carregar todos os tarifários ativos do hotel
+  // 3. Carregar parceiros comerciais ativos
+  const { data: parceiros_res } = useQuery({
+    queryKey: ['parceiros_comerciais', { status: 'ativo' }],
+    queryFn: () =>
+      parceirosComerciaisService.list({ status: 'ativo', limite: 250 }),
+  })
+  const parceiros = parceiros_res?.data ?? []
+
+  // 4. Carregar todos os tarifários ativos do hotel
   const { data: tarifarios_res } = useQuery({
     queryKey: ['tarifarios', 'todos_ativos'],
     queryFn: () => tarifariosService.list({ ativo: true, limite: 250 }),
   })
   const tarifarios = tarifarios_res?.data ?? []
+
+  // Filtra tarifários de acordo com o parceiro comercial selecionado (ou públicos se não houver parceiro)
+  const tarifariosFiltrados = useMemo(() => {
+    const targetParceiro = watch_parceiro_id || null
+    return tarifarios.filter(t => (t.parceiro_id ?? null) === targetParceiro)
+  }, [tarifarios, watch_parceiro_id])
 
   // Avalia cobertura de cada regime com base nas datas selecionadas
   const regimesWithStatus = useMemo(() => {
@@ -178,7 +196,7 @@ export function NovoOrcamentoPage() {
           cat.id,
           regime.id,
           nights,
-          tarifarios
+          tarifariosFiltrados
         )
         return calc.coberto
       })
@@ -188,25 +206,38 @@ export function NovoOrcamentoPage() {
         suitesDisponiveis: suites.length,
       }
     })
-  }, [regimes, categorias, nights, tarifarios])
+  }, [regimes, categorias, nights, tarifariosFiltrados])
 
-  // Suítes disponíveis calculadas com base no período e regime selecionado
+  // Suítes disponíveis calculadas com base no período, regime e parceiro
   const suitesCalculadas = useMemo(() => {
     if (nights.length === 0 || !watch_regime_id) return []
 
-    return categorias.map(cat => {
+    const list = categorias.map(cat => {
       const calc = calculateCategoryTariff(
         cat.id,
         watch_regime_id,
         nights,
-        tarifarios
+        tarifariosFiltrados
       )
       return {
         ...cat,
         ...calc,
       }
     })
-  }, [categorias, nights, watch_regime_id, tarifarios])
+
+    // Se houver parceiro comercial indicado, apresentar apenas as tarifas e suítes disponíveis para ele
+    if (watch_parceiro_id) {
+      return list.filter(s => s.coberto)
+    }
+
+    return list
+  }, [
+    categorias,
+    nights,
+    watch_regime_id,
+    tarifariosFiltrados,
+    watch_parceiro_id,
+  ])
 
   const selectedSuite = suitesCalculadas.find(
     s => s.id === watch_categoria_id && s.coberto
@@ -218,6 +249,7 @@ export function NovoOrcamentoPage() {
       orcamentosService.create({
         regime_alimentacao_id: data.regime_alimentacao_id,
         categoria_quarto_id: data.categoria_quarto_id,
+        parceiro_id: data.parceiro_id || null,
         check_in: data.check_in,
         check_out: data.check_out,
         quantidade_adultos: data.quantidade_adultos,
@@ -268,6 +300,33 @@ export function NovoOrcamentoPage() {
               Passo 1: Período e Hóspedes
             </h2>
           </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 max-w-xl">
+            <div className="space-y-1.5">
+              <Label htmlFor="parceiro_id">Parceiro Comercial</Label>
+              <div className="relative">
+                <Building2 className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <select
+                  id="parceiro_id"
+                  aria-label="Parceiro Comercial"
+                  className="h-9 w-full rounded-md border border-input bg-background pl-9 pr-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  {...register('parceiro_id', {
+                    onChange: () => {
+                      setValue('categoria_quarto_id', '')
+                    },
+                  })}
+                >
+                  <option value="">Tarifário Público (Sem Parceiro)</option>
+                  {parceiros.map(p => (
+                    <option key={p.id} value={p.id}>
+                      {p.nome_fantasia || p.razao_social}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <div className="space-y-1.5">
               <Label htmlFor="check_in">Data de Check-in *</Label>

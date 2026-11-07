@@ -8,7 +8,9 @@ export interface SuporteUsuario {
 
 export const suporteService = {
   listarUsuarios: (hotelId: string) =>
-    api.get<SuporteUsuario[]>(`/admin/hoteis/${hotelId}/usuarios`).then(r => r.data),
+    api
+      .get<SuporteUsuario[]>(`/admin/hoteis/${hotelId}/usuarios`)
+      .then(r => r.data),
   buildAcessoUrl: (hotelId: string, usuarioId: string) =>
     `${api.defaults.baseURL}/admin/hoteis/${hotelId}/suporte-acesso?usuario_id=${usuarioId}`,
 }

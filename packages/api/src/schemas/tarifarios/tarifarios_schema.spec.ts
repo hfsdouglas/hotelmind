@@ -27,6 +27,19 @@ describe('tarifarios_schema', () => {
     })
   })
 
+  it('validates create_tarifario_body_schema with parceiro_id', () => {
+    const parceiroUuid = '44444444-4444-4444-8444-444444444444'
+    const parsed = create_tarifario_body_schema.parse({
+      categoria_quarto_id: 'cat-1',
+      regime_alimentacao_id: VALID_REGIME_ID,
+      parceiro_id: parceiroUuid,
+      nome: 'Tarifa Petrobras',
+      datas: ['2027-03-01'],
+      valor_diaria: '200.00',
+    })
+    expect(parsed.parceiro_id).toBe(parceiroUuid)
+  })
+
   it('rejects empty name, empty datas array, negative or 3-decimal rate values, and missing regime_alimentacao_id', () => {
     expect(
       create_tarifario_body_schema.safeParse({

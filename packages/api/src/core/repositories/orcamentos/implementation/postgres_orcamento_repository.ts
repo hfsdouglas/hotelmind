@@ -17,6 +17,7 @@ const DEFAULT_INCLUDE = {
   lead: true,
   regime_alimentacao: true,
   categoria_quarto: true,
+  parceiro: true,
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: Prisma relations mapping
@@ -25,6 +26,7 @@ function map_row(row: any): Orcamento {
     id: row.id,
     hotel_id: row.hotel_id,
     lead_id: row.lead_id,
+    parceiro_id: row.parceiro_id ?? null,
     regime_alimentacao_id: row.regime_alimentacao_id,
     categoria_quarto_id: row.categoria_quarto_id,
     check_in: row.check_in,
@@ -44,6 +46,13 @@ function map_row(row: any): Orcamento {
           nome: row.lead.nome,
           telefone: row.lead.telefone,
           email: row.lead.email,
+        }
+      : undefined,
+    parceiro: row.parceiro
+      ? {
+          id: row.parceiro.id,
+          razao_social: row.parceiro.razao_social,
+          nome_fantasia: row.parceiro.nome_fantasia,
         }
       : undefined,
     hotel: row.hotel
@@ -93,6 +102,7 @@ export class PostgresOrcamentoRepository implements IOrcamentoRepository {
       data: {
         hotel_id: data.hotel_id,
         lead_id: data.lead_id,
+        parceiro_id: data.parceiro_id ?? null,
         regime_alimentacao_id: data.regime_alimentacao_id,
         categoria_quarto_id: data.categoria_quarto_id,
         check_in: data.check_in,
@@ -116,6 +126,9 @@ export class PostgresOrcamentoRepository implements IOrcamentoRepository {
 
   async update(data: UpdateOrcamentoData): Promise<Orcamento> {
     const updateData: Prisma.OrcamentoUncheckedUpdateInput = {
+      ...(data.parceiro_id !== undefined
+        ? { parceiro_id: data.parceiro_id }
+        : {}),
       ...(data.regime_alimentacao_id !== undefined
         ? { regime_alimentacao_id: data.regime_alimentacao_id }
         : {}),
@@ -211,12 +224,24 @@ export class PostgresOrcamentoRepository implements IOrcamentoRepository {
       pagina,
       limite,
       busca,
+      parceiro_id,
       regime_alimentacao_id,
       categoria_quarto_id,
       status,
     } = filter
+
+    let parceiro_filter: { parceiro_id?: string | null } = {}
+    if (parceiro_id !== undefined) {
+      if (parceiro_id === null || parceiro_id === 'publico') {
+        parceiro_filter = { parceiro_id: null }
+      } else {
+        parceiro_filter = { parceiro_id }
+      }
+    }
+
     const where = {
       hotel_id,
+      ...parceiro_filter,
       ...(regime_alimentacao_id ? { regime_alimentacao_id } : {}),
       ...(categoria_quarto_id ? { categoria_quarto_id } : {}),
       ...(status ? { status } : {}),

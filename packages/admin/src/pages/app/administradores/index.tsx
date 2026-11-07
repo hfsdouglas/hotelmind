@@ -1,20 +1,29 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { Pencil, Trash2, Plus } from 'lucide-react'
 import { toast } from 'sonner'
+import type { Administrador } from '@/api/administradores.service'
 import { administradoresService } from '@/api/administradores.service'
-import { usePaginacao } from '@/hooks/usePaginacao'
 import type { Column } from '@/components/data-table/data_table'
-import { SearchBar } from '@/components/data-table/search_bar'
-import { Button } from '@/components/ui/button'
 import { ListPageLayout } from '@/components/data-table/list_page_layout'
 import { PagedDataTable } from '@/components/data-table/paged_data_table'
-import type { Administrador } from '@/api/administradores.service'
+import { SearchBar } from '@/components/data-table/search_bar'
+import { Button } from '@/components/ui/button'
+import { usePaginacao } from '@/hooks/usePaginacao'
 
 export function AdministradoresPage() {
   const qc = useQueryClient()
-  const { pagina, limite, busca, ordenar_por, direcao, setParam, setPagina, toggleSort, isPending } =
-    usePaginacao()
+  const {
+    pagina,
+    limite,
+    busca,
+    ordenar_por,
+    direcao,
+    setParam,
+    setPagina,
+    toggleSort,
+    isPending,
+  } = usePaginacao()
 
   const { mutate: deleteAdmin } = useMutation({
     mutationFn: administradoresService.delete,
@@ -42,12 +51,29 @@ export function AdministradoresPage() {
           </Link>
         </Button>
       }
-      searchBar={<SearchBar defaultValue={busca} onSearch={v => setParam('busca', v)} />}
+      searchBar={
+        <SearchBar defaultValue={busca} onSearch={v => setParam('busca', v)} />
+      }
     >
       <PagedDataTable
         columns={columns}
-        queryKey={['admin:administradores', pagina, limite, busca, ordenar_por, direcao]}
-        queryFn={() => administradoresService.list({ pagina, limite, busca, ordenar_por, direcao })}
+        queryKey={[
+          'admin:administradores',
+          pagina,
+          limite,
+          busca,
+          ordenar_por,
+          direcao,
+        ]}
+        queryFn={() =>
+          administradoresService.list({
+            pagina,
+            limite,
+            busca,
+            ordenar_por,
+            direcao,
+          })
+        }
         label="Resultados de administradores"
         isPending={isPending}
         pagina={pagina}

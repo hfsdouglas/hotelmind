@@ -33,6 +33,18 @@ function render_with_providers(initial_entry: string) {
 describe('Tarifarios Pages (List, Create & Edit)', () => {
   beforeEach(() => {
     server.use(
+      http.get(`${BASE_URL}/comercial/parceiros`, () =>
+        HttpResponse.json({
+          data: [
+            {
+              id: 'parc-1',
+              razao_social: 'Petrobras S/A',
+              status: 'ativo',
+            },
+          ],
+          meta: { pagina: 1, limite: 250, total: 1, ultima_pagina: 1 },
+        })
+      ),
       http.get(`${BASE_URL}/regimes_alimentacao`, () =>
         HttpResponse.json({
           data: [

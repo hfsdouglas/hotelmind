@@ -223,6 +223,60 @@ describe('Reservas Routes', () => {
     expect(list[0].valor_total).toBe('200.00')
   })
 
+  it('GET /reservas/disponibilidade filtra por parceiro comercial exibindo apenas tarifas acordadas', async () => {
+    const token = make_token(app, HOTEL_ID)
+
+    const parceiro = await parceiros_repo.create({
+      hotel_id: HOTEL_ID,
+      tipo_parceiro: 'agencia_viagens',
+      tipo_pessoa: 'PJ',
+      razao_social: 'Agência Corporativa S.A.',
+      documento: '11222333000181',
+      modelo_tarifario: 'comissionada',
+      politica_faturamento: 'faturado',
+      status: 'ativo',
+    })
+
+    const regime = await regimes_repo.create({
+      hotel_id: HOTEL_ID,
+      titulo: 'Café da Manhã',
+      cor_pulseira: '#22c55e',
+      ativo: true,
+    })
+
+    await quartos_repo.create({
+      hotel_id: HOTEL_ID,
+      categoria_id: 'cat-corp',
+      identificacao: '301',
+      limite_hospedes: 2,
+      camas: [{ tipo: 'casal', quantidade: 1 }],
+    })
+
+    // Cadastra tarifa exclusiva para o parceiro
+    await tarifarios_repo.create({
+      hotel_id: HOTEL_ID,
+      parceiro_id: parceiro.id,
+      categoria_quarto_id: 'cat-corp',
+      regime_alimentacao_id: regime.id,
+      nome: 'Tarifa Corporativa Especial',
+      valor_diaria: '175.00',
+      datas: ['2026-12-10'],
+      ativo: true,
+    })
+
+    const response = await app.inject({
+      method: 'GET',
+      url: `/reservas/disponibilidade?check_in=2026-12-10&check_out=2026-12-11&regime_alimentacao_id=${regime.id}&pessoas=2&parceiro_id=${parceiro.id}`,
+      cookies: { token },
+    })
+
+    expect(response.statusCode).toBe(200)
+    const list = response.json()
+    expect(list).toHaveLength(1)
+    expect(list[0].identificacao).toBe('301')
+    expect(list[0].valor_total).toBe('175.00')
+  })
+
   it('GET /reservas lista reservas do hotel com paginação e filtros', async () => {
     const token = make_token(app, HOTEL_ID)
 

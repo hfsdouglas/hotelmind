@@ -8,7 +8,7 @@ describe('Avatar', () => {
       <Avatar>
         <AvatarImage src="" alt="Admin" />
         <AvatarFallback>AD</AvatarFallback>
-      </Avatar>,
+      </Avatar>
     )
 
     expect(screen.getByText('AD')).toBeInTheDocument()

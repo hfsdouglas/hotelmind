@@ -56,6 +56,7 @@ describe('Gerenciar Hospedes, Status e Edição da Reserva', () => {
       tarifarios_repo,
       undefined,
       undefined,
+      undefined,
       disp
     )
 

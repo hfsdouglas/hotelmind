@@ -1,4 +1,5 @@
 import type { PaginacaoMeta } from './grupos.js'
+import type { ParceiroResumo } from './parceiros_comerciais.js'
 import type { CategoriaQuartoResumo } from './quartos.js'
 
 export interface RegimeAlimentacaoResumo {
@@ -10,12 +11,14 @@ export interface RegimeAlimentacaoResumo {
 export interface Tarifario {
   id: string
   hotel_id: string
+  parceiro_id: string | null
   categoria_quarto_id: string
   regime_alimentacao_id: string
   nome: string
   datas: string[]
   valor_diaria: string
   ativo: boolean
+  parceiro?: ParceiroResumo | null
   categoria_quarto: CategoriaQuartoResumo
   regime_alimentacao: RegimeAlimentacaoResumo
   criado_em: string
@@ -31,6 +34,7 @@ export interface TarifarioListParams {
   pagina?: number
   limite?: number
   busca?: string
+  parceiro_id?: string | null
   categoria_quarto_id?: string
   regime_alimentacao_id?: string
   ativo?: boolean
@@ -39,6 +43,7 @@ export interface TarifarioListParams {
 export interface CreateTarifarioPayload {
   categoria_quarto_id: string
   regime_alimentacao_id: string
+  parceiro_id?: string | null
   nome: string
   datas: string[]
   valor_diaria: string
@@ -48,6 +53,7 @@ export interface CreateTarifarioPayload {
 export interface UpdateTarifarioPayload {
   categoria_quarto_id?: string
   regime_alimentacao_id?: string
+  parceiro_id?: string | null
   nome?: string
   datas?: string[]
   valor_diaria?: string
@@ -57,6 +63,7 @@ export interface UpdateTarifarioPayload {
 export interface PeriodoTarifarioCalendario {
   id: string
   categoria_quarto_id: string
+  parceiro_id?: string | null
   nome: string
   datas: string[]
   valor_diaria: string
@@ -65,6 +72,7 @@ export interface PeriodoTarifarioCalendario {
 
 export interface ConsultarCalendarioTarifariosParams {
   categoria_quarto_id: string
+  parceiro_id?: string | null
   data_inicio?: string
   data_fim?: string
 }

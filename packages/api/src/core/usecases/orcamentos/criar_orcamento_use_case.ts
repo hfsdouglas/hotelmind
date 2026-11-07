@@ -12,6 +12,7 @@ import { RegimeAlimentacaoNotFoundError } from '@/core/errors/regime_alimentacao
 import type { ICategoriaQuartoRepository } from '@/core/repositories/categorias_quartos/categoria_quarto.repository'
 import type { ILeadRepository } from '@/core/repositories/leads/lead_repository'
 import type { IOrcamentoRepository } from '@/core/repositories/orcamentos/orcamento_repository'
+import type { IParceiroComercialRepository } from '@/core/repositories/parceiros_comerciais/parceiro_comercial_repository'
 import type { IRegimeAlimentacaoRepository } from '@/core/repositories/regimes_alimentacao/regime_alimentacao.repository'
 import type { ITarifarioRepository } from '@/core/repositories/tarifarios/tarifario.repository'
 import { TarifarioPricingService } from '@/core/services/tarifario_pricing_service'
@@ -21,6 +22,7 @@ export interface CriarOrcamentoInput {
   hotel_id: string
   regime_alimentacao_id: string
   categoria_quarto_id: string
+  parceiro_id?: string | null
   check_in: string
   check_out: string
   quantidade_adultos: number
@@ -43,6 +45,7 @@ export class CriarOrcamentoUseCase {
     private readonly regimes_alimentacao: IRegimeAlimentacaoRepository,
     private readonly categorias: ICategoriaQuartoRepository,
     private readonly tarifarios: ITarifarioRepository,
+    private readonly parceiros?: IParceiroComercialRepository,
     private readonly pricing_service: TarifarioPricingService = new TarifarioPricingService(),
     private readonly criar_lead_use_case: CriarLeadUseCase = new CriarLeadUseCase(
       leads
@@ -71,7 +74,24 @@ export class CriarOrcamentoUseCase {
       )
     }
 
-    // 2. Validar regime de alimentação
+    // 2. Validar parceiro comercial se informado
+    const final_parceiro_id = input.parceiro_id || null
+    if (final_parceiro_id && this.parceiros) {
+      const parceiro = await this.parceiros.find_by_id(
+        final_parceiro_id,
+        input.hotel_id
+      )
+      if (!parceiro) {
+        throw new OrcamentoValidationError('Parceiro comercial não encontrado.')
+      }
+      if (parceiro.status !== 'ativo') {
+        throw new OrcamentoValidationError(
+          'O parceiro comercial selecionado está inativo.'
+        )
+      }
+    }
+
+    // 3. Validar regime de alimentação
     const regime = await this.regimes_alimentacao.find_by_id(
       input.regime_alimentacao_id,
       input.hotel_id
@@ -85,7 +105,7 @@ export class CriarOrcamentoUseCase {
       )
     }
 
-    // 3. Validar categoria de acomodação
+    // 4. Validar categoria de acomodação
     const categoria = await this.categorias.find_by_id(
       input.categoria_quarto_id,
       input.hotel_id
@@ -97,10 +117,11 @@ export class CriarOrcamentoUseCase {
       throw new CategoriaQuartoInativaError()
     }
 
-    // 4. Calcular tarifas sem checar disponibilidade de quartos físicos
+    // 5. Calcular tarifas sem checar disponibilidade de quartos físicos
     const tarifarios_ativos = await this.tarifarios.find_active_for_range({
       hotel_id: input.hotel_id,
       categoria_quarto_id: input.categoria_quarto_id,
+      parceiro_id: final_parceiro_id,
       data_inicio: input.check_in,
       data_fim: input.check_out,
     })
@@ -112,6 +133,7 @@ export class CriarOrcamentoUseCase {
     const calculo = this.pricing_service.calcular_reserva({
       hotel_id: input.hotel_id,
       categoria_quarto_id: input.categoria_quarto_id,
+      parceiro_id: final_parceiro_id,
       check_in: input.check_in,
       check_out: input.check_out,
       tarifarios: tarifarios_do_regime,
@@ -122,6 +144,7 @@ export class CriarOrcamentoUseCase {
     return this.orcamentos.create({
       hotel_id: input.hotel_id,
       lead_id,
+      parceiro_id: final_parceiro_id,
       regime_alimentacao_id: input.regime_alimentacao_id,
       categoria_quarto_id: input.categoria_quarto_id,
       check_in: input.check_in,

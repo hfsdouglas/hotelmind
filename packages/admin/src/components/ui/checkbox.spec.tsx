@@ -8,7 +8,12 @@ describe('Checkbox', () => {
     const user = userEvent.setup()
     const onCheckedChange = vi.fn()
 
-    render(<Checkbox aria-label="Permissão Admin" onCheckedChange={onCheckedChange} />)
+    render(
+      <Checkbox
+        aria-label="Permissão Admin"
+        onCheckedChange={onCheckedChange}
+      />
+    )
 
     const checkbox = screen.getByRole('checkbox', { name: 'Permissão Admin' })
     expect(checkbox).not.toBeChecked()
@@ -19,6 +24,8 @@ describe('Checkbox', () => {
 
   it('renders disabled state', () => {
     render(<Checkbox disabled aria-label="Desabilitado" />)
-    expect(screen.getByRole('checkbox', { name: 'Desabilitado' })).toBeDisabled()
+    expect(
+      screen.getByRole('checkbox', { name: 'Desabilitado' })
+    ).toBeDisabled()
   })
 })

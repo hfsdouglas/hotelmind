@@ -7,10 +7,12 @@ describe('ListPageLayout', () => {
     render(
       <ListPageLayout title="Administradores">
         <p>Conteúdo da tabela</p>
-      </ListPageLayout>,
+      </ListPageLayout>
     )
 
-    expect(screen.getByRole('heading', { name: 'Administradores' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: 'Administradores' })
+    ).toBeInTheDocument()
     expect(screen.getByText('Conteúdo da tabela')).toBeInTheDocument()
   })
 
@@ -23,10 +25,12 @@ describe('ListPageLayout', () => {
         filters={<button type="button">Filtros</button>}
       >
         <div>Lista</div>
-      </ListPageLayout>,
+      </ListPageLayout>
     )
 
-    expect(screen.getByRole('button', { name: 'Novo Hotel' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Novo Hotel' })
+    ).toBeInTheDocument()
     expect(screen.getByPlaceholderText('Buscar hotel...')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Filtros' })).toBeInTheDocument()
   })

@@ -18,7 +18,6 @@ export class InMemoryQuartoRepository implements IQuartoRepository {
       c =>
         new ConfiguracaoCama({
           id: randomUUID(),
-          quarto_id,
           tipo: c.tipo,
           quantidade: c.quantidade,
         })
@@ -64,7 +63,6 @@ export class InMemoryQuartoRepository implements IQuartoRepository {
       c =>
         new ConfiguracaoCama({
           id: randomUUID(),
-          quarto_id: data.id,
           tipo: c.tipo,
           quantidade: c.quantidade,
         })
@@ -77,7 +75,7 @@ export class InMemoryQuartoRepository implements IQuartoRepository {
       identificacao: data.identificacao,
       descricao: data.descricao ?? null,
       limite_hospedes: data.limite_hospedes,
-      status: data.status,
+      status: data.status as 'S' | 'N',
       camas,
       categoria: current.categoria,
       created_at: current.created_at,

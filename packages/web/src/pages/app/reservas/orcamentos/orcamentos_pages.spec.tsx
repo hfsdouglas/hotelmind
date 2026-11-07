@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { categoriasQuartosService } from '@/api/categorias_quartos.service'
 import { orcamentosService } from '@/api/orcamentos.service'
+import { parceirosComerciaisService } from '@/api/parceiros_comerciais.service'
 import { regimesAlimentacaoService } from '@/api/regimes_alimentacao.service'
 import { tarifariosService } from '@/api/tarifarios.service'
 import { EditarOrcamentoPage } from './[id]/editar'
@@ -17,6 +18,12 @@ vi.mock('@/api/orcamentos.service', () => ({
     create: vi.fn(),
     update: vi.fn(),
     delete: vi.fn(),
+  },
+}))
+
+vi.mock('@/api/parceiros_comerciais.service', () => ({
+  parceirosComerciaisService: {
+    list: vi.fn(),
   },
 }))
 
@@ -82,6 +89,23 @@ describe('Orcamentos Admin Pages', () => {
     vi.mocked(tarifariosService.list).mockResolvedValue({
       data: [],
       meta: { total: 0, pagina: 1, limite: 10, ultima_pagina: 1 },
+    })
+
+    vi.mocked(parceirosComerciaisService.list).mockResolvedValue({
+      data: [
+        {
+          id: 'parc-1',
+          hotel_id: 'hotel-1',
+          tipo_pessoa: 'PJ',
+          razao_social: 'Agência Corporativa Viagens Ltda',
+          nome_fantasia: 'Corp Travel',
+          documento: '11222333000181',
+          status: 'ativo',
+          created_at: '2026-01-01T00:00:00Z',
+          updated_at: '2026-01-01T00:00:00Z',
+        },
+      ],
+      meta: { total: 1, pagina: 1, limite: 10, ultima_pagina: 1 },
     })
   })
 
@@ -183,6 +207,13 @@ describe('Orcamentos Admin Pages', () => {
         screen.getByText('Passo 4: Dados do Primeiro Contato (Lead)')
       ).toBeInTheDocument()
       expect(screen.getByRole('button', { name: 'Salvar' })).toBeInTheDocument()
+      expect(screen.getByText('Parceiro Comercial')).toBeInTheDocument()
+      expect(
+        screen.getByRole('option', { name: 'Tarifário Público (Sem Parceiro)' })
+      ).toBeInTheDocument()
+      expect(
+        screen.getByRole('option', { name: 'Corp Travel' })
+      ).toBeInTheDocument()
       expect(screen.getByText('Data de Check-in *')).toBeInTheDocument()
       expect(screen.getByText('Data de Check-out *')).toBeInTheDocument()
       expect(screen.getByText('Cupom de Desconto')).toBeInTheDocument()

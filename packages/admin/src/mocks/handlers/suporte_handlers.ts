@@ -1,4 +1,4 @@
-import { http, HttpResponse } from 'msw'
+import { HttpResponse, http } from 'msw'
 
 export const mock_hoteis_suporte = [
   {
@@ -26,7 +26,11 @@ export const mock_hoteis_suporte = [
 ]
 
 export const mock_usuarios_hotel = [
-  { id: 'u1', nome_completo: 'Douglas Faria', email: 'douglas@furnaspark.com.br' },
+  {
+    id: 'u1',
+    nome_completo: 'Douglas Faria',
+    email: 'douglas@furnaspark.com.br',
+  },
   { id: 'u2', nome_completo: 'Ana Souza', email: 'ana@furnaspark.com.br' },
 ]
 
@@ -35,7 +39,9 @@ export const suporte_hoteis_handlers = [
   http.get('http://localhost:3000/admin/hoteis', ({ request }) => {
     const url = new URL(request.url)
     const status = url.searchParams.get('status')
-    const data = status ? mock_hoteis_suporte.filter(h => h.status === status) : mock_hoteis_suporte
+    const data = status
+      ? mock_hoteis_suporte.filter(h => h.status === status)
+      : mock_hoteis_suporte
     return HttpResponse.json({
       data,
       meta: { pagina: 1, limite: 50, total: data.length, ultima_pagina: 1 },
@@ -43,8 +49,13 @@ export const suporte_hoteis_handlers = [
   }),
 ]
 
-export const suporte_hoteis_empty_handler = http.get('http://localhost:3000/admin/hoteis', () =>
-  HttpResponse.json({ data: [], meta: { pagina: 1, limite: 50, total: 0, ultima_pagina: 1 } }),
+export const suporte_hoteis_empty_handler = http.get(
+  'http://localhost:3000/admin/hoteis',
+  () =>
+    HttpResponse.json({
+      data: [],
+      meta: { pagina: 1, limite: 50, total: 0, ultima_pagina: 1 },
+    })
 )
 
 export const suporte_usuarios_handlers = [

@@ -6,6 +6,7 @@ export const orcamentoFormSchema = z.object({
   quantidade_adultos: z.coerce.number().int().min(1, 'Mínimo de 1 adulto.'),
   quantidade_criancas: z.coerce.number().int().min(0).default(0),
   quantidade_pets: z.coerce.number().int().min(0).default(0),
+  parceiro_id: z.string().nullable().optional(),
   regime_alimentacao_id: z
     .string()
     .min(1, 'Selecione o regime de alimentação.'),

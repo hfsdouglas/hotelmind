@@ -12,7 +12,7 @@ const items = [
 describe('CheckboxGrid', () => {
   it('renders one checkbox per item in a grid', () => {
     render(
-      <CheckboxGrid items={items} selectedIds={new Set()} onToggle={vi.fn()} />,
+      <CheckboxGrid items={items} selectedIds={new Set()} onToggle={vi.fn()} />
     )
     expect(screen.getAllByRole('checkbox')).toHaveLength(3)
     expect(screen.getByText('Dashboard')).toBeInTheDocument()
@@ -26,7 +26,7 @@ describe('CheckboxGrid', () => {
         items={items}
         selectedIds={new Set(['2'])}
         onToggle={vi.fn()}
-      />,
+      />
     )
     const checkboxes = screen.getAllByRole('checkbox')
     expect(checkboxes[1]).toHaveAttribute('data-state', 'checked')
@@ -37,7 +37,7 @@ describe('CheckboxGrid', () => {
     const user = userEvent.setup()
     const onToggle = vi.fn()
     render(
-      <CheckboxGrid items={items} selectedIds={new Set()} onToggle={onToggle} />,
+      <CheckboxGrid items={items} selectedIds={new Set()} onToggle={onToggle} />
     )
     await user.click(screen.getAllByRole('checkbox')[0])
     expect(onToggle).toHaveBeenCalledWith('1')
@@ -50,7 +50,7 @@ describe('CheckboxGrid', () => {
         selectedIds={new Set()}
         onToggle={vi.fn()}
         emptyMessage="Nenhuma opção disponível."
-      />,
+      />
     )
     expect(screen.getByText('Nenhuma opção disponível.')).toBeInTheDocument()
     expect(screen.queryAllByRole('checkbox')).toHaveLength(0)

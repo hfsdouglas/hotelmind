@@ -153,6 +153,18 @@ describe('routes_seed', () => {
       },
     ])
 
+    // 5. Configurações
+    const configuracoes = BASE_ROUTES.filter(r => r.modulo === 'Configurações')
+    expect(configuracoes).toEqual([
+      {
+        modulo: 'Configurações',
+        recurso: 'Hotel',
+        rota: '/configuracoes/hotel',
+        icone: 'Settings',
+        ordem: 50,
+      },
+    ])
+
     // Dashboard
     const dashboard = BASE_ROUTES.find(r => r.rota === '/')
     expect(dashboard).toEqual({

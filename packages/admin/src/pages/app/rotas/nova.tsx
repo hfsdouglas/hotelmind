@@ -1,14 +1,21 @@
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { rotasService } from '@/api/rotas.service'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Checkbox } from '@/components/ui/checkbox'
 import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import {
   type RotaCreateFormData,
   rotaCreateSchema,
@@ -57,7 +64,13 @@ export function RotaNovaPage() {
       actions={
         <>
           <SaveButton isPending={isPending} />
-          <Button type="button" variant="outline" onClick={() => navigate('/rotas')}>Cancelar</Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => navigate('/rotas')}
+          >
+            Cancelar
+          </Button>
         </>
       }
     >
@@ -71,7 +84,9 @@ export function RotaNovaPage() {
               render={({ field: f }) => (
                 <FormItem>
                   <FormLabel>{fieldLabels[field]}</FormLabel>
-                  <FormControl><Input {...f} value={f.value ?? ''} /></FormControl>
+                  <FormControl>
+                    <Input {...f} value={f.value ?? ''} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -83,7 +98,9 @@ export function RotaNovaPage() {
             render={({ field: f }) => (
               <FormItem>
                 <FormLabel>Ordem</FormLabel>
-                <FormControl><Input type="number" {...f} /></FormControl>
+                <FormControl>
+                  <Input type="number" {...f} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

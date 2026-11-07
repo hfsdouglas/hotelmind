@@ -12,5 +12,5 @@ api.interceptors.response.use(
       window.dispatchEvent(new Event('admin:session-expired'))
     }
     return Promise.reject(err)
-  },
+  }
 )

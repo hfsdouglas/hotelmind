@@ -27,7 +27,7 @@ describe('ParceiroComercial Entity', () => {
       documento: '11222333000181',
       modelo_tarifario: 'comissionada',
       comissao_padrao: 10,
-      politica_faturamento: 'faturado_quinzenal',
+      politica_faturamento: 'faturado',
       prazo_pagamento_dias: 15,
       limite_credito: 10000,
       allotment_quartos: 2,

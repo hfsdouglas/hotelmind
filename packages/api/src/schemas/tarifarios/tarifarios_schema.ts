@@ -42,15 +42,23 @@ const regime_alimentacao_resumo_schema = z.object({
   cor_pulseira: z.string(),
 })
 
+const parceiro_resumo_schema = z.object({
+  id: z.string(),
+  razao_social: z.string(),
+  nome_fantasia: z.string().nullable().optional(),
+})
+
 export const tarifario_response_schema = z.object({
   id: z.string(),
   hotel_id: z.string(),
+  parceiro_id: z.string().nullable(),
   categoria_quarto_id: z.string(),
   regime_alimentacao_id: z.string(),
   nome: z.string(),
   datas: z.array(z.string()),
   valor_diaria: z.string(),
   ativo: z.boolean(),
+  parceiro: parceiro_resumo_schema.nullable().optional(),
   categoria_quarto: categoria_resumo_schema,
   regime_alimentacao: regime_alimentacao_resumo_schema,
   criado_em: z.string(),
@@ -68,6 +76,7 @@ export const list_tarifarios_query_schema = z.object({
     )
     .default(25),
   busca: z.string().trim().min(1).optional(),
+  parceiro_id: z.string().optional(),
   categoria_quarto_id: z
     .string()
     .transform(value => value.split(',').filter(Boolean))
@@ -85,6 +94,7 @@ export const create_tarifario_body_schema = z.object({
     .trim()
     .min(1, 'A categoria de quarto é obrigatória.'),
   regime_alimentacao_id: z.string().uuid('Informe o regime de alimentação.'),
+  parceiro_id: z.string().uuid().nullable().optional(),
   nome: z
     .string()
     .trim()
@@ -105,6 +115,7 @@ export const update_tarifario_body_schema = z.object({
     .string()
     .uuid('Informe o regime de alimentação.')
     .optional(),
+  parceiro_id: z.string().uuid().nullable().optional(),
   nome: z
     .string()
     .trim()
@@ -122,6 +133,7 @@ export const calendario_tarifarios_query_schema = z
       .string()
       .trim()
       .min(1, 'A categoria de quarto é obrigatória.'),
+    parceiro_id: z.string().optional(),
     data_inicio: iso_date_schema.optional(),
     data_fim: iso_date_schema.optional(),
   })
@@ -151,6 +163,7 @@ export const list_tarifarios_response_schema = z.object({
 export const periodo_calendario_schema = z.object({
   id: z.string(),
   categoria_quarto_id: z.string(),
+  parceiro_id: z.string().nullable().optional(),
   nome: z.string(),
   datas: z.array(z.string()),
   valor_diaria: z.string(),

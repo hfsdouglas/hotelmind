@@ -13,6 +13,7 @@ export const list_orcamentos_query_schema = z.object({
   pagina: z.coerce.number().int().positive().default(1),
   limite: z.coerce.number().int().min(1).max(250).default(25),
   busca: z.string().trim().min(1).optional(),
+  parceiro_id: z.string().optional(),
   regime_alimentacao_id: z.string().uuid().optional(),
   categoria_quarto_id: z.string().uuid().optional(),
   status: z.enum(['pendente', 'aprovado', 'cancelado', 'expirado']).optional(),
@@ -33,6 +34,7 @@ export const create_orcamento_body_schema = z.object({
   categoria_quarto_id: z
     .string()
     .uuid('Selecione uma categoria de acomodação válida.'),
+  parceiro_id: z.string().uuid().nullable().optional(),
   check_in: z
     .string()
     .regex(
@@ -60,6 +62,7 @@ export const create_orcamento_body_schema = z.object({
 export const update_orcamento_body_schema = z.object({
   regime_alimentacao_id: z.string().uuid().optional(),
   categoria_quarto_id: z.string().uuid().optional(),
+  parceiro_id: z.string().uuid().nullable().optional(),
   check_in: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/)
@@ -94,6 +97,7 @@ export const orcamento_response_schema = z.object({
   id: z.string(),
   hotel_id: z.string(),
   lead_id: z.string(),
+  parceiro_id: z.string().nullable().optional(),
   regime_alimentacao_id: z.string(),
   categoria_quarto_id: z.string(),
   check_in: z.string(),
@@ -114,6 +118,14 @@ export const orcamento_response_schema = z.object({
       telefone: z.string(),
       email: z.string(),
     })
+    .optional(),
+  parceiro: z
+    .object({
+      id: z.string(),
+      razao_social: z.string(),
+      nome_fantasia: z.string().nullable().optional(),
+    })
+    .nullable()
     .optional(),
   regime_alimentacao: z
     .object({

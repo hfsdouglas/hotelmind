@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { DashboardPage } from './dashboard'
 import { AuthContext } from '@/contexts/AuthContext'
+import { DashboardPage } from './dashboard'
 
 describe('Admin DashboardPage', () => {
   it('renders dashboard heading and welcome message with admin name', () => {
@@ -20,10 +20,12 @@ describe('Admin DashboardPage', () => {
         }}
       >
         <DashboardPage />
-      </AuthContext.Provider>,
+      </AuthContext.Provider>
     )
 
-    expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: 'Dashboard' })
+    ).toBeInTheDocument()
     expect(screen.getByText('Bem-vindo, Mariana Lima.')).toBeInTheDocument()
   })
 })

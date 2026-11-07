@@ -1,15 +1,15 @@
-import { build } from "esbuild";
-import { nodeExternalsPlugin } from "esbuild-node-externals";
+import { build } from 'esbuild'
+import { nodeExternalsPlugin } from 'esbuild-node-externals'
 
 build({
-  entryPoints: ["src/server.ts"],
-  outfile: "dist/server.js",
+  entryPoints: ['src/server.ts'],
+  outfile: 'dist/server.js',
 
   bundle: true,
-  platform: "node",
-  target: "node22",
+  platform: 'node',
+  target: 'node22',
 
-  format: "esm",
+  format: 'esm',
 
   sourcemap: true,
   minify: false,
@@ -17,6 +17,6 @@ build({
   plugins: [nodeExternalsPlugin()],
 
   alias: {
-    "@": "./src",
+    '@': './src',
   },
-}).catch(() => process.exit(1));
+}).catch(() => process.exit(1))

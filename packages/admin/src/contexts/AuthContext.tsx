@@ -1,4 +1,10 @@
-import { createContext, useState, useCallback, useEffect, type ReactNode } from 'react'
+import {
+  createContext,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react'
 import type { AdminSession } from '@/types/auth'
 
 const SESSION_KEY = 'hotelmind:admin:session'
@@ -37,7 +43,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [setSession])
 
   return (
-    <AuthContext.Provider value={{ session, setSession, isAuthenticated: !!session }}>
+    <AuthContext.Provider
+      value={{ session, setSession, isAuthenticated: !!session }}
+    >
       {children}
     </AuthContext.Provider>
   )

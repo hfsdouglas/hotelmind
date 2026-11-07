@@ -17,6 +17,7 @@ export class InMemoryOrcamentoRepository implements IOrcamentoRepository {
       id: randomUUID(),
       hotel_id: data.hotel_id,
       lead_id: data.lead_id,
+      parceiro_id: data.parceiro_id ?? null,
       regime_alimentacao_id: data.regime_alimentacao_id,
       categoria_quarto_id: data.categoria_quarto_id,
       check_in: data.check_in,
@@ -51,6 +52,8 @@ export class InMemoryOrcamentoRepository implements IOrcamentoRepository {
       id: current.id,
       hotel_id: current.hotel_id,
       lead_id: current.lead_id,
+      parceiro_id:
+        data.parceiro_id !== undefined ? data.parceiro_id : current.parceiro_id,
       regime_alimentacao_id:
         data.regime_alimentacao_id ?? current.regime_alimentacao_id,
       categoria_quarto_id:
@@ -124,6 +127,16 @@ export class InMemoryOrcamentoRepository implements IOrcamentoRepository {
 
     if (filter.status) {
       filtered = filtered.filter(item => item.status === filter.status)
+    }
+
+    if (filter.parceiro_id !== undefined) {
+      if (filter.parceiro_id === null || filter.parceiro_id === 'publico') {
+        filtered = filtered.filter(item => item.parceiro_id === null)
+      } else {
+        filtered = filtered.filter(
+          item => item.parceiro_id === filter.parceiro_id
+        )
+      }
     }
 
     if (filter.busca) {

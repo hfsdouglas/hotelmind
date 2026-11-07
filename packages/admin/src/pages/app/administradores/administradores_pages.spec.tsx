@@ -2,10 +2,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { administradoresService } from '@/api/administradores.service'
-import { AdministradorNovoPage } from './novo'
 import { AdministradorEditarPage } from './editar'
+import { AdministradorNovoPage } from './novo'
 
 vi.mock('@/api/administradores.service', () => ({
   administradoresService: {
@@ -46,10 +46,12 @@ describe('Administradores Pages (Novo e Editar)', () => {
         <MemoryRouter initialEntries={['/administradores/novo']}>
           <AdministradorNovoPage />
         </MemoryRouter>
-      </QueryClientProvider>,
+      </QueryClientProvider>
     )
 
-    expect(screen.getByRole('heading', { name: 'Novo Administrador' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: 'Novo Administrador' })
+    ).toBeInTheDocument()
 
     await user.type(screen.getByLabelText('Nome completo'), 'Juliana Rocha')
     await user.type(screen.getByLabelText('E-mail'), 'juliana@hotelmind.com')
@@ -94,10 +96,13 @@ describe('Administradores Pages (Novo e Editar)', () => {
       <QueryClientProvider client={queryClient}>
         <MemoryRouter initialEntries={['/administradores/adm-1/editar']}>
           <Routes>
-            <Route path="/administradores/:id/editar" element={<AdministradorEditarPage />} />
+            <Route
+              path="/administradores/:id/editar"
+              element={<AdministradorEditarPage />}
+            />
           </Routes>
         </MemoryRouter>
-      </QueryClientProvider>,
+      </QueryClientProvider>
     )
 
     expect(await screen.findByDisplayValue('Juliana Rocha')).toBeInTheDocument()
@@ -114,7 +119,7 @@ describe('Administradores Pages (Novo e Editar)', () => {
         'adm-1',
         expect.objectContaining({
           nome_completo: 'Juliana Rocha Silva',
-        }),
+        })
       )
     })
   })

@@ -1,5 +1,9 @@
-import { ChevronFirst, ChevronLast, ChevronLeft, ChevronRight } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import {
+  ChevronFirst,
+  ChevronLast,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -8,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { cn } from '@/lib/utils'
 
 interface DataTablePaginationProps {
   pagina: number
@@ -27,7 +32,9 @@ export function DataTablePagination({
   className,
 }: DataTablePaginationProps) {
   return (
-    <div className={cn('flex shrink-0 items-center justify-between', className)}>
+    <div
+      className={cn('flex shrink-0 items-center justify-between', className)}
+    >
       <div className="flex items-center gap-2">
         <span className="text-sm text-muted-foreground">Itens por página</span>
         <Select value={String(limite)} onValueChange={v => onLimite(Number(v))}>
@@ -46,16 +53,36 @@ export function DataTablePagination({
         <span className="text-sm text-muted-foreground mr-2">
           Página {pagina} de {ultima_pagina}
         </span>
-        <Button variant="ghost" size="icon" onClick={() => onPagina(1)} disabled={pagina <= 1}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => onPagina(1)}
+          disabled={pagina <= 1}
+        >
           <ChevronFirst className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" onClick={() => onPagina(pagina - 1)} disabled={pagina <= 1}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => onPagina(pagina - 1)}
+          disabled={pagina <= 1}
+        >
           <ChevronLeft className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" onClick={() => onPagina(pagina + 1)} disabled={pagina >= ultima_pagina}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => onPagina(pagina + 1)}
+          disabled={pagina >= ultima_pagina}
+        >
           <ChevronRight className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" onClick={() => onPagina(ultima_pagina)} disabled={pagina >= ultima_pagina}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => onPagina(ultima_pagina)}
+          disabled={pagina >= ultima_pagina}
+        >
           <ChevronLast className="h-4 w-4" />
         </Button>
       </div>

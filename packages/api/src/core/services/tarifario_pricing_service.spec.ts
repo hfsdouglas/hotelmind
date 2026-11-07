@@ -99,6 +99,46 @@ describe('TarifarioPricingService & CalcularTarifaReservaUseCase (CA10 & RN06)',
     expect(result.valor_total).toBe('861.00')
   })
 
+  it('filters rates strictly by parceiro_id when provided in pricing service', () => {
+    const t_publico = make_tarifario({
+      id: 't-pub',
+      nome: 'Tarifa Pública',
+      datas: ['2027-03-10'],
+      valor_diaria: '300.00',
+    })
+    const t_parceiro = new Tarifario({
+      id: 't-parc',
+      hotel_id: 'hotel-1',
+      categoria_quarto_id: 'cat-1',
+      regime_alimentacao_id: 'regime-1',
+      parceiro_id: 'parceiro-1',
+      nome: 'Tarifa Petrobras',
+      datas: ['2027-03-10'],
+      valor_diaria: '220.00',
+      ativo: true,
+      categoria_quarto: { id: 'cat-1', nome: 'Suítes Luxo', status: 'S' },
+      regime_alimentacao: {
+        id: 'regime-1',
+        titulo: 'Meia Pensão',
+        cor_pulseira: '#2563EB',
+      },
+      criado_em: '2026-11-02T12:00:00.000Z',
+      atualizado_em: '2026-11-02T12:00:00.000Z',
+    })
+
+    const result = service.calcular_reserva({
+      hotel_id: 'hotel-1',
+      categoria_quarto_id: 'cat-1',
+      check_in: '2027-03-10',
+      check_out: '2027-03-11',
+      parceiro_id: 'parceiro-1',
+      tarifarios: [t_publico, t_parceiro],
+    })
+
+    expect(result.valor_total).toBe('220.00')
+    expect(result.noites[0].tarifario_id).toBe('t-parc')
+  })
+
   it('calculates across multiple rate plans via CalcularTarifaReservaUseCase and throws when a night has no active coverage', async () => {
     const tarifarios_repo = new InMemoryTarifarioRepository()
     const categorias_repo = new InMemoryCategoriaQuartoRepository()

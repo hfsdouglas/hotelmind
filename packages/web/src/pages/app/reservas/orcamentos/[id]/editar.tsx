@@ -3,6 +3,7 @@ import type { Tarifario } from '@hotelmind/contracts'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   BedDouble,
+  Building2,
   Calendar,
   CheckCircle2,
   DollarSign,
@@ -23,6 +24,7 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import { categoriasQuartosService } from '@/api/categorias_quartos.service'
 import { orcamentosService } from '@/api/orcamentos.service'
+import { parceirosComerciaisService } from '@/api/parceiros_comerciais.service'
 import { regimesAlimentacaoService } from '@/api/regimes_alimentacao.service'
 import { tarifariosService } from '@/api/tarifarios.service'
 import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
@@ -47,6 +49,7 @@ const editOrcamentoSchema = z.object({
   quantidade_adultos: z.coerce.number().int().min(1, 'Mínimo de 1 adulto.'),
   quantidade_criancas: z.coerce.number().int().min(0).default(0),
   quantidade_pets: z.coerce.number().int().min(0).default(0),
+  parceiro_id: z.string().nullable().optional(),
   cupom_desconto: z.string().trim().max(50).optional(),
   regime_alimentacao_id: z
     .string()
@@ -157,6 +160,12 @@ export function EditarOrcamentoPage() {
   })
   const categorias = categorias_res?.data ?? []
 
+  const { data: parceiros_res } = useQuery({
+    queryKey: ['parceiros_comerciais'],
+    queryFn: () => parceirosComerciaisService.list({ limite: 250 }),
+  })
+  const parceiros = parceiros_res?.data ?? []
+
   const { data: tarifarios_res } = useQuery({
     queryKey: ['tarifarios', 'todos_ativos'],
     queryFn: () => tarifariosService.list({ ativo: true, limite: 250 }),
@@ -179,6 +188,7 @@ export function EditarOrcamentoPage() {
           quantidade_adultos: orcamento.quantidade_adultos,
           quantidade_criancas: orcamento.quantidade_criancas,
           quantidade_pets: orcamento.quantidade_pets,
+          parceiro_id: orcamento.parceiro_id ?? '',
           regime_alimentacao_id: orcamento.regime_alimentacao_id,
           categoria_quarto_id: orcamento.categoria_quarto_id,
           cupom_desconto: orcamento.cupom_desconto || '',
@@ -195,11 +205,17 @@ export function EditarOrcamentoPage() {
   const watch_check_out = watch('check_out')
   const watch_regime_id = watch('regime_alimentacao_id')
   const watch_categoria_id = watch('categoria_quarto_id')
+  const watch_parceiro_id = watch('parceiro_id')
 
   const nights = useMemo(
     () => enumerateNights(watch_check_in, watch_check_out),
     [watch_check_in, watch_check_out]
   )
+
+  const tarifariosFiltrados = useMemo(() => {
+    const targetParceiro = watch_parceiro_id || null
+    return tarifarios.filter(t => (t.parceiro_id ?? null) === targetParceiro)
+  }, [tarifarios, watch_parceiro_id])
 
   const regimesWithStatus = useMemo(() => {
     return regimes.map(regime => {
@@ -211,7 +227,7 @@ export function EditarOrcamentoPage() {
           cat.id,
           regime.id,
           nights,
-          tarifarios
+          tarifariosFiltrados
         )
         return calc.coberto
       })
@@ -221,24 +237,36 @@ export function EditarOrcamentoPage() {
         suitesDisponiveis: suites.length,
       }
     })
-  }, [regimes, categorias, nights, tarifarios])
+  }, [regimes, categorias, nights, tarifariosFiltrados])
 
   const suitesCalculadas = useMemo(() => {
     if (nights.length === 0 || !watch_regime_id) return []
 
-    return categorias.map(cat => {
+    const list = categorias.map(cat => {
       const calc = calculateCategoryTariff(
         cat.id,
         watch_regime_id,
         nights,
-        tarifarios
+        tarifariosFiltrados
       )
       return {
         ...cat,
         ...calc,
       }
     })
-  }, [categorias, nights, watch_regime_id, tarifarios])
+
+    if (watch_parceiro_id) {
+      return list.filter(s => s.coberto)
+    }
+
+    return list
+  }, [
+    categorias,
+    nights,
+    watch_regime_id,
+    tarifariosFiltrados,
+    watch_parceiro_id,
+  ])
 
   const selectedSuite = suitesCalculadas.find(
     s => s.id === watch_categoria_id && s.coberto
@@ -253,6 +281,7 @@ export function EditarOrcamentoPage() {
         quantidade_adultos: data.quantidade_adultos,
         quantidade_criancas: data.quantidade_criancas,
         quantidade_pets: data.quantidade_pets,
+        parceiro_id: data.parceiro_id || null,
         cupom_desconto: data.cupom_desconto?.trim() || null,
         regime_alimentacao_id: data.regime_alimentacao_id,
         categoria_quarto_id: data.categoria_quarto_id,
@@ -380,6 +409,33 @@ export function EditarOrcamentoPage() {
               Passo 1: Período e Hóspedes
             </h2>
           </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 max-w-xl">
+            <div className="space-y-1.5">
+              <Label htmlFor="parceiro_id">Parceiro Comercial</Label>
+              <div className="relative">
+                <Building2 className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <select
+                  id="parceiro_id"
+                  aria-label="Parceiro Comercial"
+                  className="h-9 w-full rounded-md border border-input bg-background pl-9 pr-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  {...register('parceiro_id', {
+                    onChange: () => {
+                      setValue('categoria_quarto_id', '')
+                    },
+                  })}
+                >
+                  <option value="">Tarifário Público (Sem Parceiro)</option>
+                  {parceiros.map(p => (
+                    <option key={p.id} value={p.id}>
+                      {p.nome_fantasia || p.razao_social}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <div className="space-y-1.5">
               <Label htmlFor="check_in">Data de Check-in *</Label>

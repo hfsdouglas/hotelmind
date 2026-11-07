@@ -1,10 +1,10 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { describe, expect, it, vi } from 'vitest'
-import { AppLayout } from './app'
 import { AuthContext } from '@/contexts/AuthContext'
 import { ThemeProvider } from '@/contexts/ThemeContext'
+import { AppLayout } from './app'
 
 function renderAdminAppLayout(isAuthenticated: boolean) {
   const queryClient = new QueryClient({
@@ -17,7 +17,13 @@ function renderAdminAppLayout(isAuthenticated: boolean) {
         <AuthContext.Provider
           value={{
             session: isAuthenticated
-              ? { admin: { id: 'a1', nome_completo: 'Admin Teste', email: 'admin@hotelmind.com' } }
+              ? {
+                  admin: {
+                    id: 'a1',
+                    nome_completo: 'Admin Teste',
+                    email: 'admin@hotelmind.com',
+                  },
+                }
               : null,
             setSession: vi.fn(),
             isAuthenticated,
@@ -27,13 +33,16 @@ function renderAdminAppLayout(isAuthenticated: boolean) {
             <Routes>
               <Route path="/login" element={<div>Tela de Login Admin</div>} />
               <Route element={<AppLayout />}>
-                <Route path="/dashboard" element={<div>Conteúdo Admin Dashboard</div>} />
+                <Route
+                  path="/dashboard"
+                  element={<div>Conteúdo Admin Dashboard</div>}
+                />
               </Route>
             </Routes>
           </MemoryRouter>
         </AuthContext.Provider>
       </ThemeProvider>
-    </QueryClientProvider>,
+    </QueryClientProvider>
   )
 }
 

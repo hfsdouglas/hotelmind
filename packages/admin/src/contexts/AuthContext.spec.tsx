@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { render, screen, act } from '@testing-library/react'
-import { AuthProvider, AuthContext } from './AuthContext'
+import { act, render, screen } from '@testing-library/react'
 import { useContext } from 'react'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { AuthContext, AuthProvider } from './AuthContext'
 
 const SESSION_KEY = 'hotelmind:admin:session'
 
@@ -31,7 +31,7 @@ describe('AuthProvider', () => {
     render(
       <AuthProvider>
         <Consumer />
-      </AuthProvider>,
+      </AuthProvider>
     )
     expect(screen.getByTestId('authenticated').textContent).toBe('false')
     expect(screen.getByTestId('name').textContent).toBe('none')
@@ -42,7 +42,7 @@ describe('AuthProvider', () => {
     render(
       <AuthProvider>
         <Consumer />
-      </AuthProvider>,
+      </AuthProvider>
     )
     expect(screen.getByTestId('authenticated').textContent).toBe('true')
     expect(screen.getByTestId('name').textContent).toBe('Admin Teste')
@@ -52,7 +52,7 @@ describe('AuthProvider', () => {
     render(
       <AuthProvider>
         <Consumer />
-      </AuthProvider>,
+      </AuthProvider>
     )
     await act(async () => {
       screen.getByText('set session').click()
@@ -67,7 +67,7 @@ describe('AuthProvider', () => {
     render(
       <AuthProvider>
         <Consumer />
-      </AuthProvider>,
+      </AuthProvider>
     )
     await act(async () => {
       screen.getByText('clear session').click()
@@ -81,7 +81,7 @@ describe('AuthProvider', () => {
     render(
       <AuthProvider>
         <Consumer />
-      </AuthProvider>,
+      </AuthProvider>
     )
     expect(screen.getByTestId('authenticated').textContent).toBe('true')
     await act(async () => {

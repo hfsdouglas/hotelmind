@@ -138,6 +138,7 @@ export async function reservas_routes(app: FastifyTypedInstance) {
     tarifarios_repo,
     parceiros_repo,
     undefined,
+    undefined,
     disponibilidade_use_case
   )
   const alterar_status_use_case = new AlterarStatusReservaUseCase(reservas_repo)
@@ -179,7 +180,7 @@ export async function reservas_routes(app: FastifyTypedInstance) {
         if (err instanceof Error) {
           return reply.status(400).send({ message: err.message })
         }
-        return reply.status(500).send({ message: 'Erro interno do servidor.' })
+        throw err
       }
     }
   )
@@ -238,7 +239,7 @@ export async function reservas_routes(app: FastifyTypedInstance) {
       try {
         const reserva = await criar_use_case.execute({
           hotel_id: request.user.hotelId,
-          user_id: request.user.sub,
+          user_id: request.user.userId,
           ...request.body,
         })
         return reply.status(201).send(reserva_to_response(reserva))
@@ -258,7 +259,7 @@ export async function reservas_routes(app: FastifyTypedInstance) {
         if (err instanceof Error) {
           return reply.status(400).send({ message: err.message })
         }
-        return reply.status(500).send({ message: 'Erro interno do servidor.' })
+        throw err
       }
     }
   )
@@ -289,7 +290,7 @@ export async function reservas_routes(app: FastifyTypedInstance) {
         if (err instanceof ReservaNotFoundError) {
           return reply.status(404).send({ message: err.message })
         }
-        return reply.status(500).send({ message: 'Erro interno do servidor.' })
+        throw err
       }
     }
   )
@@ -318,7 +319,7 @@ export async function reservas_routes(app: FastifyTypedInstance) {
         const updated = await editar_use_case.execute({
           reserva_id: request.params.id,
           hotel_id: request.user.hotelId,
-          user_id: request.user.sub,
+          user_id: request.user.userId,
           dados: request.body,
         })
         return reply.status(200).send(reserva_to_response(updated))
@@ -338,7 +339,7 @@ export async function reservas_routes(app: FastifyTypedInstance) {
         if (err instanceof ReservaValidationError) {
           return reply.status(400).send({ message: err.message })
         }
-        return reply.status(500).send({ message: 'Erro interno do servidor.' })
+        throw err
       }
     }
   )
@@ -367,7 +368,7 @@ export async function reservas_routes(app: FastifyTypedInstance) {
           reserva_id: request.params.id,
           hotel_id: request.user.hotelId,
           status_novo: request.body.status,
-          user_id: request.user.sub,
+          user_id: request.user.userId,
         })
         return reply.status(200).send(reserva_to_response(updated))
       } catch (err) {
@@ -377,7 +378,7 @@ export async function reservas_routes(app: FastifyTypedInstance) {
         if (err instanceof ReservaTransicaoInvalidaError) {
           return reply.status(422).send({ message: err.message })
         }
-        return reply.status(500).send({ message: 'Erro interno do servidor.' })
+        throw err
       }
     }
   )
@@ -443,7 +444,7 @@ export async function reservas_routes(app: FastifyTypedInstance) {
         if (err instanceof ReservaValidationError) {
           return reply.status(400).send({ message: err.message })
         }
-        return reply.status(500).send({ message: 'Erro interno do servidor.' })
+        throw err
       }
     }
   )
@@ -478,7 +479,7 @@ export async function reservas_routes(app: FastifyTypedInstance) {
         if (err instanceof ReservaValidationError) {
           return reply.status(422).send({ message: err.message })
         }
-        return reply.status(500).send({ message: 'Erro interno do servidor.' })
+        throw err
       }
     }
   )
@@ -509,7 +510,7 @@ export async function reservas_routes(app: FastifyTypedInstance) {
         if (err instanceof ReservaNotFoundError) {
           return reply.status(404).send({ message: err.message })
         }
-        return reply.status(500).send({ message: 'Erro interno do servidor.' })
+        throw err
       }
     }
   )

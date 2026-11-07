@@ -127,6 +127,7 @@ export function NovaReservaPage() {
   const totalPessoas = adultos + criancas
   const regimeId = watch('regime_alimentacao_id')
   const quartoIdSelecionado = watch('quarto_id')
+  const parceiroId = watch('parceiro_comercial_id')
 
   const nights = useMemo(
     () => enumerateNights(checkIn, checkOut),
@@ -161,6 +162,7 @@ export function NovaReservaPage() {
         checkOut,
         regimeId,
         totalPessoas,
+        parceiroId,
       ],
       queryFn: () =>
         reservasService.disponibilidade({
@@ -168,6 +170,7 @@ export function NovaReservaPage() {
           check_out: checkOut,
           regime_alimentacao_id: regimeId,
           pessoas: totalPessoas,
+          parceiro_id: parceiroId || null,
         }),
       enabled: podeConsultar,
     })
@@ -424,6 +427,7 @@ export function NovaReservaPage() {
                   value={field.value || 'direta'}
                   onValueChange={val => {
                     field.onChange(val === 'direta' ? '' : val)
+                    setValue('quarto_id', '')
                   }}
                 >
                   <SelectTrigger id="parceiro_comercial_id" className="h-9">

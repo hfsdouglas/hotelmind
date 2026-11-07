@@ -65,6 +65,7 @@ export interface TarifarioProps {
   hotel_id: string
   categoria_quarto_id: string
   regime_alimentacao_id: string
+  parceiro_id?: string | null
   nome: string
   datas: string[]
   valor_diaria: string
@@ -75,6 +76,11 @@ export interface TarifarioProps {
     titulo: string
     cor_pulseira: string
   }
+  parceiro?: {
+    id: string
+    razao_social: string
+    nome_fantasia?: string | null
+  } | null
   criado_em: string
   atualizado_em: string
 }
@@ -84,12 +90,14 @@ export class Tarifario {
   readonly hotel_id: string
   readonly categoria_quarto_id: string
   readonly regime_alimentacao_id: string
+  readonly parceiro_id: string | null
   readonly nome: string
   readonly datas: string[]
   readonly valor_diaria: string
   readonly ativo: boolean
   readonly categoria_quarto: TarifarioProps['categoria_quarto']
   readonly regime_alimentacao: TarifarioProps['regime_alimentacao']
+  readonly parceiro: TarifarioProps['parceiro'] | null
   readonly criado_em: string
   readonly atualizado_em: string
 
@@ -115,12 +123,14 @@ export class Tarifario {
     this.hotel_id = props.hotel_id
     this.categoria_quarto_id = props.categoria_quarto_id
     this.regime_alimentacao_id = props.regime_alimentacao_id
+    this.parceiro_id = props.parceiro_id ?? null
     this.nome = trimmed_nome
     this.datas = normalized_datas
     this.valor_diaria = normalized_valor
     this.ativo = props.ativo
     this.categoria_quarto = props.categoria_quarto
     this.regime_alimentacao = props.regime_alimentacao
+    this.parceiro = props.parceiro ?? null
     this.criado_em = props.criado_em
     this.atualizado_em = props.atualizado_em
   }

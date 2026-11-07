@@ -21,6 +21,10 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
     string,
     { titulo: string; cor_pulseira: string }
   >()
+  private parceiro_names = new Map<
+    string,
+    { razao_social: string; nome_fantasia?: string | null }
+  >()
 
   register_category(id: string, nome: string, status: 'S' | 'N' = 'S') {
     this.category_names.set(id, { nome, status })
@@ -32,6 +36,14 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
     cor_pulseira: string
   ) {
     this.regime_names.set(id, { titulo, cor_pulseira })
+  }
+
+  register_parceiro(
+    id: string,
+    razao_social: string,
+    nome_fantasia?: string | null
+  ) {
+    this.parceiro_names.set(id, { razao_social, nome_fantasia })
   }
 
   async list(
@@ -47,8 +59,21 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
         ) {
           return false
         }
+        if (
+          input.regime_alimentacao_id &&
+          item.regime_alimentacao_id !== input.regime_alimentacao_id
+        ) {
+          return false
+        }
         if (typeof input.ativo === 'boolean' && item.ativo !== input.ativo) {
           return false
+        }
+        if (input.parceiro_id !== undefined) {
+          if (input.parceiro_id === null || input.parceiro_id === 'publico') {
+            if (item.parceiro_id !== null) return false
+          } else {
+            if (item.parceiro_id !== input.parceiro_id) return false
+          }
         }
         if (input.busca) {
           const term = input.busca.toLowerCase()
@@ -56,7 +81,10 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
           const matches_cat = item.categoria_quarto.nome
             .toLowerCase()
             .includes(term)
-          if (!matches_name && !matches_cat) return false
+          const matches_parceiro = item.parceiro?.razao_social
+            .toLowerCase()
+            .includes(term)
+          if (!matches_name && !matches_cat && !matches_parceiro) return false
         }
         return true
       })
@@ -88,6 +116,11 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
       .filter(item => {
         if (item.hotel_id !== input.hotel_id) return false
         if (item.categoria_quarto_id !== input.categoria_quarto_id) return false
+        if (input.parceiro_id !== undefined) {
+          const target_parceiro =
+            input.parceiro_id === 'publico' ? null : input.parceiro_id
+          if (item.parceiro_id !== target_parceiro) return false
+        }
         if (input.data_inicio && input.data_fim) {
           const start = input.data_inicio
           const end = input.data_fim
@@ -99,6 +132,7 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
       .map(item => ({
         id: item.id,
         categoria_quarto_id: item.categoria_quarto_id,
+        parceiro_id: item.parceiro_id,
         nome: item.nome,
         datas: item.datas,
         valor_diaria: item.valor_diaria,
@@ -110,6 +144,8 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
     input: FindOverlappingActiveInput
   ): Tarifario | null {
     const requested = new Set(normalize_datas(input.datas))
+    const expected_parceiro = input.parceiro_id ?? null
+
     return (
       this.items.find(
         item =>
@@ -117,6 +153,9 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
           item.categoria_quarto_id === input.categoria_quarto_id &&
           item.ativo &&
           (!input.exclude_id || item.id !== input.exclude_id) &&
+          item.parceiro_id === expected_parceiro &&
+          (!input.regime_alimentacao_id ||
+            item.regime_alimentacao_id === input.regime_alimentacao_id) &&
           item.datas.some(d => requested.has(d))
       ) ?? null
     )
@@ -133,12 +172,16 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
     categoria_quarto_id: string
     data_inicio: string
     data_fim: string
+    parceiro_id?: string | null
   }): Promise<Tarifario[]> {
+    const target_parceiro = input.parceiro_id ?? null
+
     return this.items.filter(
       item =>
         item.hotel_id === input.hotel_id &&
         item.categoria_quarto_id === input.categoria_quarto_id &&
         item.ativo &&
+        item.parceiro_id === target_parceiro &&
         item.datas.some(d => d >= input.data_inicio && d < input.data_fim)
     )
   }
@@ -148,6 +191,8 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
       const conflict = this.find_overlapping_active_sync({
         hotel_id: data.hotel_id,
         categoria_quarto_id: data.categoria_quarto_id,
+        regime_alimentacao_id: data.regime_alimentacao_id,
+        parceiro_id: data.parceiro_id,
         datas: data.datas,
       })
       if (conflict) {
@@ -163,12 +208,19 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
       titulo: 'Regime',
       cor_pulseira: '#2563EB',
     }
+    const parceiro_meta = data.parceiro_id
+      ? (this.parceiro_names.get(data.parceiro_id) ?? {
+          razao_social: 'Parceiro Comercial',
+        })
+      : null
+
     const now = new Date().toISOString()
     const entity = new Tarifario({
       id: crypto.randomUUID(),
       hotel_id: data.hotel_id,
       categoria_quarto_id: data.categoria_quarto_id,
       regime_alimentacao_id: data.regime_alimentacao_id,
+      parceiro_id: data.parceiro_id ?? null,
       nome: data.nome,
       datas: data.datas,
       valor_diaria: data.valor_diaria,
@@ -183,6 +235,13 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
         titulo: regime_meta.titulo,
         cor_pulseira: regime_meta.cor_pulseira,
       },
+      parceiro: parceiro_meta
+        ? {
+            id: data.parceiro_id!,
+            razao_social: parceiro_meta.razao_social,
+            nome_fantasia: parceiro_meta.nome_fantasia,
+          }
+        : null,
       criado_em: now,
       atualizado_em: now,
     })
@@ -198,10 +257,18 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
       throw new Error('Tarifário não encontrado.')
     }
 
+    const current = this.items[index]
+    const regime_id =
+      data.regime_alimentacao_id ?? current.regime_alimentacao_id
+    const final_parceiro_id =
+      data.parceiro_id !== undefined ? data.parceiro_id : current.parceiro_id
+
     if (data.ativo) {
       const conflict = this.find_overlapping_active_sync({
         hotel_id: data.hotel_id,
         categoria_quarto_id: data.categoria_quarto_id,
+        regime_alimentacao_id: regime_id,
+        parceiro_id: final_parceiro_id,
         datas: data.datas,
         exclude_id: data.id,
       })
@@ -210,24 +277,29 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
       }
     }
 
-    const current = this.items[index]
     const cat_meta = this.category_names.get(data.categoria_quarto_id) ?? {
       nome: current.categoria_quarto.nome,
       status: current.categoria_quarto.status,
     }
-    const regime_id =
-      data.regime_alimentacao_id ?? current.regime_alimentacao_id
     const regime_meta =
       this.regime_names.get(regime_id) ??
       (current.regime_alimentacao?.id === regime_id
         ? current.regime_alimentacao
         : { titulo: 'Regime', cor_pulseira: '#2563EB' })
 
+    const parceiro_meta = final_parceiro_id
+      ? (this.parceiro_names.get(final_parceiro_id) ??
+        (current.parceiro?.id === final_parceiro_id
+          ? current.parceiro
+          : { razao_social: 'Parceiro Comercial' }))
+      : null
+
     const updated = new Tarifario({
       id: current.id,
       hotel_id: current.hotel_id,
       categoria_quarto_id: data.categoria_quarto_id,
       regime_alimentacao_id: regime_id,
+      parceiro_id: final_parceiro_id,
       nome: data.nome,
       datas: data.datas,
       valor_diaria: data.valor_diaria,
@@ -242,6 +314,13 @@ export class InMemoryTarifarioRepository implements ITarifarioRepository {
         titulo: regime_meta.titulo,
         cor_pulseira: regime_meta.cor_pulseira,
       },
+      parceiro: parceiro_meta
+        ? {
+            id: final_parceiro_id!,
+            razao_social: parceiro_meta.razao_social,
+            nome_fantasia: parceiro_meta.nome_fantasia,
+          }
+        : null,
       criado_em: current.criado_em,
       atualizado_em: new Date().toISOString(),
     })

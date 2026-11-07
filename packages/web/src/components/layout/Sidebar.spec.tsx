@@ -30,6 +30,14 @@ const mockSession = {
       icone: 'CalendarDays',
       ordem: 2,
     },
+    {
+      id: 'r3',
+      modulo: 'Configurações',
+      recurso: 'Hotel',
+      rota: '/configuracoes/hotel',
+      icone: 'Settings',
+      ordem: 3,
+    },
   ],
 }
 
@@ -71,5 +79,6 @@ describe('Sidebar', () => {
 
     expect(screen.getByText('Dashboard')).toBeInTheDocument()
     expect(screen.getByText('Calendário')).toBeInTheDocument()
+    expect(screen.getByText('Configurações')).toBeInTheDocument()
   })
 })

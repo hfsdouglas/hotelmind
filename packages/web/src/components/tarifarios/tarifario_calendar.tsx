@@ -218,6 +218,7 @@ export function TarifarioCalendar({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          {/* biome-ignore lint/a11y/useSemanticElements: toolbar group */}
           <div
             role="group"
             aria-label="Quantidade de meses exibidos"
@@ -338,6 +339,7 @@ export function TarifarioCalendar({
                     </Select>
                   </div>
 
+                  {/* biome-ignore lint/a11y/useSemanticElements: month grid group */}
                   <div
                     role="group"
                     aria-label="Grade de meses"
@@ -547,6 +549,15 @@ export function TarifarioCalendar({
             <div className="flex items-center gap-2">
               <span className="font-semibold">{inspected_period.nome}</span>
               <TarifarioStatusBadge ativo={inspected_period.ativo} />
+              {inspected_period.parceiro_id ? (
+                <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+                  Parceiro Comercial
+                </span>
+              ) : (
+                <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+                  Público
+                </span>
+              )}
             </div>
             <span className="text-xs text-muted-foreground">
               Datas: {format_dates_summary(inspected_period.datas, 6)}

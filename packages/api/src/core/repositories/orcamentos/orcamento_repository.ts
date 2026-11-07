@@ -8,6 +8,7 @@ import type { PaginatedResult } from '@/core/repositories/pagination'
 export interface CreateOrcamentoData {
   hotel_id: string
   lead_id: string
+  parceiro_id?: string | null
   regime_alimentacao_id: string
   categoria_quarto_id: string
   check_in: string
@@ -26,6 +27,7 @@ export interface CreateOrcamentoData {
 export interface UpdateOrcamentoData {
   id: string
   hotel_id: string
+  parceiro_id?: string | null
   regime_alimentacao_id?: string
   categoria_quarto_id?: string
   check_in?: string
@@ -44,6 +46,7 @@ export interface OrcamentoListFilter {
   pagina: number
   limite: number
   busca?: string
+  parceiro_id?: string | null
   regime_alimentacao_id?: string
   categoria_quarto_id?: string
   status?: OrcamentoStatus

@@ -64,6 +64,7 @@ export function TarifarioCalendarDay({
           'border-2 border-dashed border-destructive bg-destructive/15 ring-1 ring-destructive'
       )}
     >
+      {/* biome-ignore lint/a11y/useSemanticElements: interactive calendar date button */}
       <button
         type="button"
         role="checkbox"

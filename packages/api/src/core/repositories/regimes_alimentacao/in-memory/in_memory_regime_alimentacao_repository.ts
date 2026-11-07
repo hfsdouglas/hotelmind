@@ -46,7 +46,6 @@ export class InMemoryRegimeAlimentacaoRepository
         pagina: filter.pagina,
         limite: filter.limite,
         ultima_pagina: total_paginas,
-        total_paginas,
       },
     }
   }

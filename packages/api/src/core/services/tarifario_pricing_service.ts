@@ -50,10 +50,14 @@ export class TarifarioPricingService {
     check_in: string
     check_out: string
     tarifarios: Tarifario[]
+    parceiro_id?: string | null
   }): CalculoTarifaReserva {
     const nights = enumerate_nights(input.check_in, input.check_out)
     const noites_calculadas: NoiteCalculadaReserva[] = []
     let total_cents = 0
+
+    const target_parceiro =
+      input.parceiro_id !== undefined ? input.parceiro_id : undefined
 
     for (const night of nights) {
       const elegiveis = input.tarifarios.filter(
@@ -61,6 +65,9 @@ export class TarifarioPricingService {
           t.ativo &&
           t.hotel_id === input.hotel_id &&
           t.categoria_quarto_id === input.categoria_quarto_id &&
+          (target_parceiro !== undefined
+            ? t.parceiro_id === target_parceiro
+            : true) &&
           t.datas.includes(night)
       )
 

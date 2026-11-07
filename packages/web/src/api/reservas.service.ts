@@ -1,4 +1,5 @@
 import type {
+  ConsultarDisponibilidadeParams,
   CreateReservaPayload,
   FnrhLinkInfo,
   FnrhPublicaView,
@@ -28,12 +29,7 @@ export const reservasService = {
   changeStatus: (id: string, status: ReservaStatus) =>
     api.patch<Reserva>(`/reservas/${id}/status`, { status }).then(r => r.data),
 
-  disponibilidade: (params: {
-    check_in: string
-    check_out: string
-    regime_alimentacao_id: string
-    pessoas: number
-  }) =>
+  disponibilidade: (params: ConsultarDisponibilidadeParams) =>
     api
       .get<QuartoDisponivel[]>('/reservas/disponibilidade', { params })
       .then(r => r.data),

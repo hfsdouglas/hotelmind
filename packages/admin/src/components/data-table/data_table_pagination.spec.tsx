@@ -1,6 +1,6 @@
-import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { describe, expect, it, vi } from 'vitest'
 import { DataTablePagination } from './data_table_pagination'
 
 const default_props = {
@@ -30,7 +30,9 @@ describe('DataTablePagination', () => {
   it('calls onPagina(pagina - 1) when the previous-page button is clicked', async () => {
     const user = userEvent.setup()
     const on_pagina = vi.fn()
-    render(<DataTablePagination {...default_props} pagina={3} onPagina={on_pagina} />)
+    render(
+      <DataTablePagination {...default_props} pagina={3} onPagina={on_pagina} />
+    )
     const buttons = screen.getAllByRole('button')
     await user.click(buttons[1])
     expect(on_pagina).toHaveBeenCalledWith(2)
@@ -62,7 +64,9 @@ describe('DataTablePagination', () => {
   })
 
   it('disables next and last buttons on the last page', () => {
-    render(<DataTablePagination {...default_props} pagina={5} ultima_pagina={5} />)
+    render(
+      <DataTablePagination {...default_props} pagina={5} ultima_pagina={5} />
+    )
     const buttons = screen.getAllByRole('button')
     expect(buttons[2]).toBeDisabled()
     expect(buttons[3]).toBeDisabled()

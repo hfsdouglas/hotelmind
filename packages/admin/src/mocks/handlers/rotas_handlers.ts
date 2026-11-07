@@ -1,4 +1,4 @@
-import { http, HttpResponse } from 'msw'
+import { HttpResponse, http } from 'msw'
 
 export const mock_rotas = [
   {
@@ -25,27 +25,40 @@ export const rotas_handlers = [
   http.get('http://localhost:3000/admin/rotas', () => {
     return HttpResponse.json({
       data: mock_rotas,
-      meta: { pagina: 1, limite: 50, total: mock_rotas.length, ultima_pagina: 1 },
+      meta: {
+        pagina: 1,
+        limite: 50,
+        total: mock_rotas.length,
+        ultima_pagina: 1,
+      },
     })
   }),
 
   http.get('http://localhost:3000/admin/rotas/:id', ({ params }) => {
     const rota = mock_rotas.find(r => r.id === params.id)
-    if (!rota) return HttpResponse.json({ message: 'Not found' }, { status: 404 })
+    if (!rota)
+      return HttpResponse.json({ message: 'Not found' }, { status: 404 })
     return HttpResponse.json(rota)
   }),
 
   http.post('http://localhost:3000/admin/rotas', async ({ request }) => {
     const body = await request.json()
-    return HttpResponse.json({ id: 'new-id', ...(body as object) }, { status: 201 })
+    return HttpResponse.json(
+      { id: 'new-id', ...(body as object) },
+      { status: 201 }
+    )
   }),
 
-  http.put('http://localhost:3000/admin/rotas/:id', async ({ params, request }) => {
-    const body = await request.json()
-    const rota = mock_rotas.find(r => r.id === params.id)
-    if (!rota) return HttpResponse.json({ message: 'Not found' }, { status: 404 })
-    return HttpResponse.json({ ...rota, ...(body as object) })
-  }),
+  http.put(
+    'http://localhost:3000/admin/rotas/:id',
+    async ({ params, request }) => {
+      const body = await request.json()
+      const rota = mock_rotas.find(r => r.id === params.id)
+      if (!rota)
+        return HttpResponse.json({ message: 'Not found' }, { status: 404 })
+      return HttpResponse.json({ ...rota, ...(body as object) })
+    }
+  ),
 
   http.delete('http://localhost:3000/admin/rotas/:id', () => {
     return new HttpResponse(null, { status: 204 })

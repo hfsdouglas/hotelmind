@@ -77,13 +77,17 @@ export function toggle_date_selection(
 export function find_conflicting_periods(
   selected_dates: string[],
   periods: PeriodoTarifarioCalendario[],
-  exclude_id?: string
+  exclude_id?: string,
+  parceiro_id?: string | null
 ): PeriodoTarifarioCalendario[] {
   if (!selected_dates.length) return []
   const selected_set = new Set(selected_dates)
+  const expected_parceiro = parceiro_id || null
   return periods.filter(period => {
     if (!period.ativo) return false
     if (exclude_id && period.id === exclude_id) return false
+    const period_parceiro = period.parceiro_id || null
+    if (period_parceiro !== expected_parceiro) return false
     return period.datas.some(d => selected_set.has(d))
   })
 }
@@ -230,6 +234,7 @@ export const tarifario_form_schema = z.object({
     .string()
     .trim()
     .min(1, 'Selecione um regime de alimentação.'),
+  parceiro_id: z.string().trim().nullable().optional(),
   datas: z
     .array(z.string().trim().refine(is_valid_date_string, 'Data inválida.'))
     .min(1, 'Selecione ao menos uma data no calendário.'),

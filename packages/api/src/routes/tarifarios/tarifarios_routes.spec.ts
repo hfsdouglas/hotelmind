@@ -8,6 +8,7 @@ import {
 } from 'fastify-type-provider-zod'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { InMemoryCategoriaQuartoRepository } from '@/core/repositories/categorias_quartos/in-memory/in_memory_categoria_quarto_repository'
+import { InMemoryParceiroComercialRepository } from '@/core/repositories/parceiros_comerciais/in-memory/in_memory_parceiro_comercial_repository'
 import { InMemoryTarifarioRepository } from '@/core/repositories/tarifarios/in-memory/in_memory_tarifario_repository'
 import authPlugin from '@/plugins/auth_plugin'
 import { tarifarios_routes } from '@/routes/tarifarios/tarifarios_routes'
@@ -19,6 +20,7 @@ const TEST_SECRET = 'test-jwt-secret'
 
 let tarifario_repo: InMemoryTarifarioRepository
 let categoria_repo: InMemoryCategoriaQuartoRepository
+let parceiro_repo: InMemoryParceiroComercialRepository
 
 vi.mock('@/lib/prisma', () => ({ db: {} }))
 
@@ -39,6 +41,18 @@ vi.mock(
     PostgresCategoriaQuartoRepository: vi.fn().mockImplementation(function () {
       return categoria_repo
     }),
+  })
+)
+
+vi.mock(
+  '@/core/repositories/parceiros_comerciais/implementation/postgres_parceiro_comercial_repository',
+  () => ({
+    PostgresParceiroComercialRepository: vi
+      .fn()
+      // biome-ignore lint/complexity/useArrowFunction: constructor function
+      .mockImplementation(function () {
+        return parceiro_repo
+      }),
   })
 )
 
@@ -82,6 +96,7 @@ describe('tarifarios_routes', () => {
   beforeEach(async () => {
     tarifario_repo = new InMemoryTarifarioRepository()
     categoria_repo = new InMemoryCategoriaQuartoRepository()
+    parceiro_repo = new InMemoryParceiroComercialRepository()
     const cat_a = await categoria_repo.create({
       hotel_id: HOTEL_A,
       nome: 'Suítes Luxo',
@@ -260,5 +275,47 @@ describe('tarifarios_routes', () => {
       },
     })
     expect(res.statusCode).toBe(400)
+  })
+
+  it('US1: creates and queries rate plans linked to a commercial partner', async () => {
+    const parceiro = await parceiro_repo.create({
+      hotel_id: HOTEL_A,
+      tipo_parceiro: 'empresa_corporativa',
+      tipo_pessoa: 'PJ',
+      razao_social: 'Petrobras Corporate',
+      documento: '11222333000181',
+      modelo_tarifario: 'acordo',
+      politica_faturamento: 'faturado',
+      status: 'ativo',
+    })
+
+    const create_res = await app.inject({
+      method: 'POST',
+      url: '/tarifarios',
+      cookies: { token: token_hotel_a },
+      payload: {
+        categoria_quarto_id: cat_a_id,
+        regime_alimentacao_id: REGIME_ID,
+        parceiro_id: parceiro.id,
+        nome: 'Tarifa Petrobras VIP',
+        datas: ['2027-08-01', '2027-08-02'],
+        valor_diaria: '175.00',
+        ativo: true,
+      },
+    })
+    expect(create_res.statusCode).toBe(201)
+    expect(create_res.json()).toMatchObject({
+      nome: 'Tarifa Petrobras VIP',
+      parceiro_id: parceiro.id,
+    })
+
+    const list_res = await app.inject({
+      method: 'GET',
+      url: `/tarifarios?parceiro_id=${parceiro.id}`,
+      cookies: { token: token_hotel_a },
+    })
+    expect(list_res.statusCode).toBe(200)
+    expect(list_res.json().data).toHaveLength(1)
+    expect(list_res.json().data[0].parceiro_id).toBe(parceiro.id)
   })
 })

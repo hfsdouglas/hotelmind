@@ -6,6 +6,7 @@ export interface TarifarioListFilter {
   pagina: number
   limite: number
   busca?: string
+  parceiro_id?: string | null
   categoria_quarto_id?: string[]
   regime_alimentacao_id?: string
   ativo?: boolean
@@ -15,6 +16,7 @@ export interface CreateTarifarioData {
   hotel_id: string
   categoria_quarto_id: string
   regime_alimentacao_id: string
+  parceiro_id?: string | null
   nome: string
   datas: string[]
   valor_diaria: string
@@ -26,6 +28,7 @@ export interface UpdateTarifarioData {
   hotel_id: string
   categoria_quarto_id: string
   regime_alimentacao_id?: string
+  parceiro_id?: string | null
   nome: string
   datas: string[]
   valor_diaria: string
@@ -35,6 +38,7 @@ export interface UpdateTarifarioData {
 export interface FindCalendarioPeriodsInput {
   hotel_id: string
   categoria_quarto_id: string
+  parceiro_id?: string | null
   data_inicio?: string
   data_fim?: string
 }
@@ -42,6 +46,8 @@ export interface FindCalendarioPeriodsInput {
 export interface FindOverlappingActiveInput {
   hotel_id: string
   categoria_quarto_id: string
+  regime_alimentacao_id?: string
+  parceiro_id?: string | null
   datas: string[]
   exclude_id?: string
 }
@@ -63,6 +69,7 @@ export interface ITarifarioRepository {
     categoria_quarto_id: string
     data_inicio: string
     data_fim: string
+    parceiro_id?: string | null
   }): Promise<Tarifario[]>
   create(data: CreateTarifarioData): Promise<Tarifario>
   update(data: UpdateTarifarioData): Promise<Tarifario>

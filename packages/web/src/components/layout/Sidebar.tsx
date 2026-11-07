@@ -7,6 +7,7 @@ import {
   Handshake,
   LayoutDashboard,
   Moon,
+  Settings,
   Shield,
   Sun,
   Users,
@@ -45,6 +46,7 @@ const ICON_MAP: Record<string, ElementType> = {
   Shield,
   Calculator,
   Handshake,
+  Settings,
 }
 
 function buildNavigation(rotas: RotaMenu[]): NavEntry[] {

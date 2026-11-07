@@ -17,7 +17,11 @@ const groups = [
 describe('CheckboxGroupList', () => {
   it('renders each group label as a heading', () => {
     render(
-      <CheckboxGroupList groups={groups} selectedIds={new Set()} onToggle={vi.fn()} />,
+      <CheckboxGroupList
+        groups={groups}
+        selectedIds={new Set()}
+        onToggle={vi.fn()}
+      />
     )
     expect(screen.getAllByText('Dashboard').length).toBeGreaterThan(0)
     expect(screen.getByText('Reservas')).toBeInTheDocument()
@@ -25,7 +29,11 @@ describe('CheckboxGroupList', () => {
 
   it("stacks a group's routes vertically underneath its own heading, not beside another group", () => {
     render(
-      <CheckboxGroupList groups={groups} selectedIds={new Set()} onToggle={vi.fn()} />,
+      <CheckboxGroupList
+        groups={groups}
+        selectedIds={new Set()}
+        onToggle={vi.fn()}
+      />
     )
     const reservasHeading = screen.getByText('Reservas')
     const groupBlock = reservasHeading.parentElement as HTMLElement
@@ -40,7 +48,7 @@ describe('CheckboxGroupList', () => {
         groups={groups}
         selectedIds={new Set(['2'])}
         onToggle={vi.fn()}
-      />,
+      />
     )
     const checkboxes = screen.getAllByRole('checkbox')
     const listarReservasCheckbox = screen
@@ -55,7 +63,11 @@ describe('CheckboxGroupList', () => {
     const user = userEvent.setup()
     const onToggle = vi.fn()
     render(
-      <CheckboxGroupList groups={groups} selectedIds={new Set()} onToggle={onToggle} />,
+      <CheckboxGroupList
+        groups={groups}
+        selectedIds={new Set()}
+        onToggle={onToggle}
+      />
     )
     await user.click(screen.getByText('Nova reserva'))
     expect(onToggle).toHaveBeenCalledWith('3')
@@ -63,7 +75,11 @@ describe('CheckboxGroupList', () => {
 
   it('renders groups in a responsive grid container', () => {
     const { container } = render(
-      <CheckboxGroupList groups={groups} selectedIds={new Set()} onToggle={vi.fn()} />,
+      <CheckboxGroupList
+        groups={groups}
+        selectedIds={new Set()}
+        onToggle={vi.fn()}
+      />
     )
     expect(container.firstChild).toHaveClass('grid', 'lg:grid-cols-4')
   })
@@ -75,7 +91,7 @@ describe('CheckboxGroupList', () => {
         selectedIds={new Set()}
         onToggle={vi.fn()}
         emptyMessage="Nenhuma rota disponível."
-      />,
+      />
     )
     expect(screen.getByText('Nenhuma rota disponível.')).toBeInTheDocument()
     expect(screen.queryAllByRole('checkbox')).toHaveLength(0)

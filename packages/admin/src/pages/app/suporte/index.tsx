@@ -1,11 +1,12 @@
-import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
+import type { Hotel } from '@/api/hoteis.service'
 import { hoteisService } from '@/api/hoteis.service'
 import { suporteService } from '@/api/suporte.service'
-import { usePaginacao } from '@/hooks/usePaginacao'
 import type { Column } from '@/components/data-table/data_table'
+import { ListPageLayout } from '@/components/data-table/list_page_layout'
+import { PagedDataTable } from '@/components/data-table/paged_data_table'
 import { SearchBar } from '@/components/data-table/search_bar'
-import { Button } from '@/components/ui/button'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,13 +17,21 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { ListPageLayout } from '@/components/data-table/list_page_layout'
-import { PagedDataTable } from '@/components/data-table/paged_data_table'
-import type { Hotel } from '@/api/hoteis.service'
+import { Button } from '@/components/ui/button'
+import { usePaginacao } from '@/hooks/usePaginacao'
 
 export function SuportePage() {
-  const { pagina, limite, busca, ordenar_por, direcao, setParam, setPagina, toggleSort, isPending } =
-    usePaginacao()
+  const {
+    pagina,
+    limite,
+    busca,
+    ordenar_por,
+    direcao,
+    setParam,
+    setPagina,
+    toggleSort,
+    isPending,
+  } = usePaginacao()
 
   const [activeHotel, setActiveHotel] = useState<Hotel | null>(null)
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
@@ -45,7 +54,10 @@ export function SuportePage() {
 
   function handleAcessar() {
     if (!activeHotel || !selectedUserId) return
-    window.open(suporteService.buildAcessoUrl(activeHotel.id, selectedUserId), '_blank')
+    window.open(
+      suporteService.buildAcessoUrl(activeHotel.id, selectedUserId),
+      '_blank'
+    )
     closePicker()
   }
 
@@ -58,13 +70,29 @@ export function SuportePage() {
   return (
     <ListPageLayout
       title="Suporte"
-      searchBar={<SearchBar defaultValue={busca} onSearch={v => setParam('busca', v)} />}
+      searchBar={
+        <SearchBar defaultValue={busca} onSearch={v => setParam('busca', v)} />
+      }
     >
       <PagedDataTable
         columns={columns}
-        queryKey={['admin:suporte:hoteis', pagina, limite, busca, ordenar_por, direcao]}
+        queryKey={[
+          'admin:suporte:hoteis',
+          pagina,
+          limite,
+          busca,
+          ordenar_por,
+          direcao,
+        ]}
         queryFn={() =>
-          hoteisService.list({ status: 'S', pagina, limite, busca, ordenar_por, direcao })
+          hoteisService.list({
+            status: 'S',
+            pagina,
+            limite,
+            busca,
+            ordenar_por,
+            direcao,
+          })
         }
         label="Hotéis disponíveis para suporte"
         isPending={isPending}
@@ -82,12 +110,16 @@ export function SuportePage() {
         )}
       />
 
-      <AlertDialog open={!!activeHotel} onOpenChange={open => !open && closePicker()}>
+      <AlertDialog
+        open={!!activeHotel}
+        onOpenChange={open => !open && closePicker()}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Acessar como...</AlertDialogTitle>
             <AlertDialogDescription>
-              Escolha qual usuário de {activeHotel?.nome_fantasia} você deseja acessar.
+              Escolha qual usuário de {activeHotel?.nome_fantasia} você deseja
+              acessar.
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -116,7 +148,10 @@ export function SuportePage() {
 
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction disabled={!selectedUserId} onClick={handleAcessar}>
+            <AlertDialogAction
+              disabled={!selectedUserId}
+              onClick={handleAcessar}
+            >
               Acessar
             </AlertDialogAction>
           </AlertDialogFooter>

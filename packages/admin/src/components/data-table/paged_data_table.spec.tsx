@@ -16,9 +16,7 @@ interface Item {
   name: string
 }
 
-const columns = [
-  { key: 'name' as const, label: 'Nome' },
-]
+const columns = [{ key: 'name' as const, label: 'Nome' }]
 
 describe('PagedDataTable', () => {
   it('renders table rows and result count after suspense resolves', async () => {
@@ -39,7 +37,7 @@ describe('PagedDataTable', () => {
           queryFn={queryFn}
           label="registros"
         />
-      </QueryClientProvider>,
+      </QueryClientProvider>
     )
 
     await waitFor(() => {

@@ -2,11 +2,11 @@ import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import {
   Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
 } from './card'
 
 describe('Card', () => {
@@ -23,7 +23,7 @@ describe('Card', () => {
         <CardFooter>
           <button type="button">Avançar</button>
         </CardFooter>
-      </Card>,
+      </Card>
     )
 
     expect(screen.getByText('Dados do Hotel')).toBeInTheDocument()

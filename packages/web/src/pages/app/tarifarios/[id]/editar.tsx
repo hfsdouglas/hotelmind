@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { categoriasQuartosService } from '@/api/categorias_quartos.service'
+import { parceirosComerciaisService } from '@/api/parceiros_comerciais.service'
 import { regimesAlimentacaoService } from '@/api/regimes_alimentacao.service'
 import {
   TarifarioForm,
@@ -41,6 +42,11 @@ export function EditarTarifarioPage() {
   const { data: regimes } = useQuery({
     queryKey: ['regimes_alimentacao', 'todos'],
     queryFn: () => regimesAlimentacaoService.list({ limite: 250 }),
+  })
+
+  const { data: parceiros } = useQuery({
+    queryKey: ['parceiros_comerciais', 'todos'],
+    queryFn: () => parceirosComerciaisService.list({ limite: 250 }),
   })
 
   const [selected_category_id, setSelectedCategoryId] = useState('')
@@ -137,12 +143,14 @@ export function EditarTarifarioPage() {
           nome: tarifario.nome,
           categoria_quarto_id: tarifario.categoria_quarto_id,
           regime_alimentacao_id: tarifario.regime_alimentacao_id,
+          parceiro_id: tarifario.parceiro_id,
           datas: tarifario.datas,
           valor_diaria: tarifario.valor_diaria,
           ativo: tarifario.ativo,
         }}
         categories={selectable_categories}
         regimes={regimes?.data ?? []}
+        parceiros={parceiros?.data ?? []}
         occupiedPeriods={calendario_data?.data ?? []}
         isLoadingPeriods={is_loading_periods}
         excludeTarifarioId={tarifario.id}

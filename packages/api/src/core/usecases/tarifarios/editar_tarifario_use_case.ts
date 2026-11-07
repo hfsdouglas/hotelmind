@@ -10,6 +10,7 @@ import {
   TarifarioValidationError,
 } from '@/core/errors/tarifario_errors'
 import type { ICategoriaQuartoRepository } from '@/core/repositories/categorias_quartos/categoria_quarto.repository'
+import type { IParceiroComercialRepository } from '@/core/repositories/parceiros_comerciais/parceiro_comercial_repository'
 import type { ITarifarioRepository } from '@/core/repositories/tarifarios/tarifario.repository'
 
 export interface EditarTarifarioInput {
@@ -17,6 +18,7 @@ export interface EditarTarifarioInput {
   hotel_id: string
   categoria_quarto_id?: string
   regime_alimentacao_id?: string
+  parceiro_id?: string | null
   nome?: string
   datas?: string[]
   valor_diaria?: string
@@ -26,7 +28,8 @@ export interface EditarTarifarioInput {
 export class EditarTarifarioUseCase {
   constructor(
     private readonly tarifarios: ITarifarioRepository,
-    private readonly categorias: ICategoriaQuartoRepository
+    private readonly categorias: ICategoriaQuartoRepository,
+    private readonly parceiros?: IParceiroComercialRepository
   ) {}
 
   async execute(input: EditarTarifarioInput): Promise<Tarifario> {
@@ -77,10 +80,32 @@ export class EditarTarifarioUseCase {
       )
     }
 
+    const next_parceiro_id =
+      input.parceiro_id !== undefined
+        ? input.parceiro_id || null
+        : current.parceiro_id
+
+    if (next_parceiro_id && this.parceiros) {
+      const parceiro = await this.parceiros.find_by_id(
+        next_parceiro_id,
+        input.hotel_id
+      )
+      if (!parceiro) {
+        throw new TarifarioValidationError('Parceiro comercial não encontrado.')
+      }
+      if (parceiro.status !== 'ativo') {
+        throw new TarifarioValidationError(
+          'O parceiro comercial selecionado está inativo.'
+        )
+      }
+    }
+
     if (next_ativo) {
       const conflict = await this.tarifarios.find_overlapping_active({
         hotel_id: input.hotel_id,
         categoria_quarto_id: next_categoria_id,
+        regime_alimentacao_id: next_regime_id,
+        parceiro_id: next_parceiro_id,
         datas: next_datas,
         exclude_id: current.id,
       })
@@ -94,6 +119,7 @@ export class EditarTarifarioUseCase {
       hotel_id: input.hotel_id,
       categoria_quarto_id: next_categoria_id,
       regime_alimentacao_id: next_regime_id,
+      parceiro_id: next_parceiro_id,
       nome: next_nome,
       datas: next_datas,
       valor_diaria: next_valor,

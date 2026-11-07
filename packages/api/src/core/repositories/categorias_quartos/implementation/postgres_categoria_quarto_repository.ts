@@ -31,7 +31,13 @@ export class PostgresCategoriaQuartoRepository
       this.db.categoriaQuarto.count({ where }),
     ])
     return {
-      data: rows.map(row => new CategoriaQuarto(row)),
+      data: rows.map(
+        row =>
+          new CategoriaQuarto({
+            ...row,
+            status: row.status as 'S' | 'N',
+          })
+      ),
       meta: {
         pagina,
         limite,
@@ -49,14 +55,22 @@ export class PostgresCategoriaQuartoRepository
         status: data.status ?? 'S',
       },
     })
-    return new CategoriaQuarto(row)
+    return new CategoriaQuarto({
+      ...row,
+      status: row.status as 'S' | 'N',
+    })
   }
 
   async find_by_id(id: string, hotel_id: string) {
     const row = await this.db.categoriaQuarto.findFirst({
       where: { id, hotel_id },
     })
-    return row ? new CategoriaQuarto(row) : null
+    return row
+      ? new CategoriaQuarto({
+          ...row,
+          status: row.status as 'S' | 'N',
+        })
+      : null
   }
 
   async update(data: UpdateCategoriaQuartoData) {
@@ -64,6 +78,9 @@ export class PostgresCategoriaQuartoRepository
       where: { id: data.id },
       data: { nome: data.nome.trim(), status: data.status },
     })
-    return new CategoriaQuarto(row)
+    return new CategoriaQuarto({
+      ...row,
+      status: row.status as 'S' | 'N',
+    })
   }
 }

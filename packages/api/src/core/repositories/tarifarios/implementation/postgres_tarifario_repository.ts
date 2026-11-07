@@ -18,16 +18,22 @@ interface TarifarioRow {
   id: string
   hotel_id: string
   categoria_quarto_id: string
-  regime_alimentacao_id?: string | null
+  regime_alimentacao_id: string
+  parceiro_id?: string | null
   nome: string
   valor_diaria: { toFixed(digits: number): string } | number | string
   ativo: boolean
   datas: Array<{ data: Date }>
   categoria_quarto: { id: string; nome: string; status: string }
-  regime_alimentacao?: {
+  regime_alimentacao: {
     id: string
     titulo: string
     cor_pulseira: string
+  }
+  parceiro?: {
+    id: string
+    razao_social: string
+    nome_fantasia?: string | null
   } | null
   criado_em: Date
   atualizado_em: Date
@@ -56,6 +62,7 @@ function map_row(row: TarifarioRow): Tarifario {
     hotel_id: row.hotel_id,
     categoria_quarto_id: row.categoria_quarto_id,
     regime_alimentacao_id: row.regime_alimentacao_id,
+    parceiro_id: row.parceiro_id ?? null,
     nome: row.nome,
     datas: row.datas.map(d => to_date_only_string(d.data)),
     valor_diaria: format_decimal(row.valor_diaria),
@@ -70,6 +77,13 @@ function map_row(row: TarifarioRow): Tarifario {
       titulo: row.regime_alimentacao.titulo,
       cor_pulseira: row.regime_alimentacao.cor_pulseira,
     },
+    parceiro: row.parceiro
+      ? {
+          id: row.parceiro.id,
+          razao_social: row.parceiro.razao_social,
+          nome_fantasia: row.parceiro.nome_fantasia,
+        }
+      : null,
     criado_em: row.criado_em.toISOString(),
     atualizado_em: row.atualizado_em.toISOString(),
   })
@@ -83,12 +97,24 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
       pagina,
       limite,
       busca,
+      parceiro_id,
       categoria_quarto_id,
       regime_alimentacao_id,
       ativo,
     } = input
+
+    let parceiro_filter: { parceiro_id?: string | null } = {}
+    if (parceiro_id !== undefined) {
+      if (parceiro_id === null || parceiro_id === 'publico') {
+        parceiro_filter = { parceiro_id: null }
+      } else {
+        parceiro_filter = { parceiro_id }
+      }
+    }
+
     const where = {
       hotel_id,
+      ...parceiro_filter,
       ...(categoria_quarto_id?.length
         ? { categoria_quarto_id: { in: categoria_quarto_id } }
         : {}),
@@ -103,6 +129,14 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
                   nome: { contains: busca, mode: 'insensitive' as const },
                 },
               },
+              {
+                parceiro: {
+                  razao_social: {
+                    contains: busca,
+                    mode: 'insensitive' as const,
+                  },
+                },
+              },
             ],
           }
         : {}),
@@ -114,6 +148,7 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
         include: {
           categoria_quarto: true,
           regime_alimentacao: true,
+          parceiro: true,
           datas: { orderBy: { data: 'asc' } },
         },
         orderBy: [{ nome: 'asc' }, { criado_em: 'desc' }],
@@ -140,6 +175,7 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
       include: {
         categoria_quarto: true,
         regime_alimentacao: true,
+        parceiro: true,
         datas: { orderBy: { data: 'asc' } },
       },
     })
@@ -147,9 +183,19 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
   }
 
   async find_periods_by_category(input: FindCalendarioPeriodsInput) {
+    let parceiro_filter: { parceiro_id?: string | null } = {}
+    if (input.parceiro_id !== undefined) {
+      if (input.parceiro_id === null || input.parceiro_id === 'publico') {
+        parceiro_filter = { parceiro_id: null }
+      } else {
+        parceiro_filter = { parceiro_id: input.parceiro_id }
+      }
+    }
+
     const where = {
       hotel_id: input.hotel_id,
       categoria_quarto_id: input.categoria_quarto_id,
+      ...parceiro_filter,
       ...(input.data_inicio && input.data_fim
         ? {
             datas: {
@@ -173,6 +219,7 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
     return rows.map(row => ({
       id: row.id,
       categoria_quarto_id: row.categoria_quarto_id,
+      parceiro_id: row.parceiro_id,
       nome: row.nome,
       datas: row.datas.map(d => to_date_only_string(d.data)),
       valor_diaria: format_decimal(row.valor_diaria),
@@ -182,11 +229,17 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
 
   async find_overlapping_active(input: FindOverlappingActiveInput) {
     const normalized_datas = normalize_datas(input.datas)
+    const expected_parceiro = input.parceiro_id ?? null
+
     const row = await this.db.tarifario.findFirst({
       where: {
         hotel_id: input.hotel_id,
         categoria_quarto_id: input.categoria_quarto_id,
         ativo: true,
+        parceiro_id: expected_parceiro,
+        ...(input.regime_alimentacao_id
+          ? { regime_alimentacao_id: input.regime_alimentacao_id }
+          : {}),
         ...(input.exclude_id ? { id: { not: input.exclude_id } } : {}),
         datas: {
           some: {
@@ -199,6 +252,7 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
       include: {
         categoria_quarto: true,
         regime_alimentacao: true,
+        parceiro: true,
         datas: { orderBy: { data: 'asc' } },
       },
     })
@@ -210,12 +264,16 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
     categoria_quarto_id: string
     data_inicio: string
     data_fim: string
+    parceiro_id?: string | null
   }) {
+    const expected_parceiro = input.parceiro_id ?? null
+
     const rows = await this.db.tarifario.findMany({
       where: {
         hotel_id: input.hotel_id,
         categoria_quarto_id: input.categoria_quarto_id,
         ativo: true,
+        parceiro_id: expected_parceiro,
         datas: {
           some: {
             data: {
@@ -228,6 +286,7 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
       include: {
         categoria_quarto: true,
         regime_alimentacao: true,
+        parceiro: true,
         datas: { orderBy: { data: 'asc' } },
       },
       orderBy: [{ valor_diaria: 'asc' }, { nome: 'asc' }],
@@ -241,6 +300,8 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
       const conflict = await this.find_overlapping_active({
         hotel_id: data.hotel_id,
         categoria_quarto_id: data.categoria_quarto_id,
+        regime_alimentacao_id: data.regime_alimentacao_id,
+        parceiro_id: data.parceiro_id,
         datas: normalized_datas,
       })
       if (conflict) {
@@ -253,6 +314,7 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
         hotel_id: data.hotel_id,
         categoria_quarto_id: data.categoria_quarto_id,
         regime_alimentacao_id: data.regime_alimentacao_id,
+        parceiro_id: data.parceiro_id ?? null,
         nome: data.nome.trim(),
         valor_diaria: normalize_valor_diaria(data.valor_diaria),
         ativo: data.ativo,
@@ -263,6 +325,7 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
       include: {
         categoria_quarto: true,
         regime_alimentacao: true,
+        parceiro: true,
         datas: { orderBy: { data: 'asc' } },
       },
     })
@@ -275,6 +338,8 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
       const conflict = await this.find_overlapping_active({
         hotel_id: data.hotel_id,
         categoria_quarto_id: data.categoria_quarto_id,
+        regime_alimentacao_id: data.regime_alimentacao_id,
+        parceiro_id: data.parceiro_id,
         datas: normalized_datas,
         exclude_id: data.id,
       })
@@ -290,6 +355,9 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
         ...(data.regime_alimentacao_id !== undefined
           ? { regime_alimentacao_id: data.regime_alimentacao_id }
           : {}),
+        ...(data.parceiro_id !== undefined
+          ? { parceiro_id: data.parceiro_id }
+          : {}),
         nome: data.nome.trim(),
         valor_diaria: normalize_valor_diaria(data.valor_diaria),
         ativo: data.ativo,
@@ -301,6 +369,7 @@ export class PostgresTarifarioRepository implements ITarifarioRepository {
       include: {
         categoria_quarto: true,
         regime_alimentacao: true,
+        parceiro: true,
         datas: { orderBy: { data: 'asc' } },
       },
     })

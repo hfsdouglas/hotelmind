@@ -6,13 +6,18 @@
     "indentWidth": 2,
     "lineWidth": 80
   },
-  "javascript": {
+    "javascript": {
     "formatter": {
       "arrowParentheses": "asNeeded",
       "jsxQuoteStyle": "double",
       "quoteStyle": "single",
       "semicolons": "asNeeded",
       "trailingCommas": "es5"
+    }
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
     }
   },
   "linter": {
@@ -29,6 +34,6 @@
     }
   },
   "files": {
-    "includes": ["**", "!**/node_modules"]
+    "includes": ["**", "!**/node_modules", "!**/dist", "!**/build"]
   }
 }

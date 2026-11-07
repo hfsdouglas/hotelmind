@@ -1,7 +1,7 @@
-import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { DataTable, type Column } from './data_table'
+import { describe, expect, it, vi } from 'vitest'
+import { type Column, DataTable } from './data_table'
 
 interface Row {
   id: string
@@ -43,7 +43,13 @@ describe('DataTable', () => {
   })
 
   it('shows custom empty message', () => {
-    render(<DataTable columns={columns} rows={[]} emptyMessage="Sem hotéis cadastrados." />)
+    render(
+      <DataTable
+        columns={columns}
+        rows={[]}
+        emptyMessage="Sem hotéis cadastrados."
+      />
+    )
     expect(screen.getByText('Sem hotéis cadastrados.')).toBeInTheDocument()
   })
 
@@ -53,7 +59,7 @@ describe('DataTable', () => {
         columns={columns}
         rows={rows}
         renderActions={row => <button>Editar {row.nome}</button>}
-      />,
+      />
     )
     expect(screen.getByText('Ações')).toBeInTheDocument()
     expect(screen.getByText('Editar Hotel A')).toBeInTheDocument()
@@ -80,7 +86,9 @@ describe('DataTable', () => {
       {
         key: 'nome',
         label: 'Nome',
-        render: row => <strong data-testid="custom">{row.nome.toUpperCase()}</strong>,
+        render: row => (
+          <strong data-testid="custom">{row.nome.toUpperCase()}</strong>
+        ),
       },
     ]
     render(<DataTable columns={custom_columns} rows={[rows[0]]} />)

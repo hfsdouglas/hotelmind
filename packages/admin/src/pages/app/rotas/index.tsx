@@ -1,20 +1,29 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { Pencil, Trash2, Plus } from 'lucide-react'
 import { toast } from 'sonner'
+import type { Rota } from '@/api/rotas.service'
 import { rotasService } from '@/api/rotas.service'
-import { usePaginacao } from '@/hooks/usePaginacao'
 import type { Column } from '@/components/data-table/data_table'
-import { SearchBar } from '@/components/data-table/search_bar'
-import { Button } from '@/components/ui/button'
 import { ListPageLayout } from '@/components/data-table/list_page_layout'
 import { PagedDataTable } from '@/components/data-table/paged_data_table'
-import type { Rota } from '@/api/rotas.service'
+import { SearchBar } from '@/components/data-table/search_bar'
+import { Button } from '@/components/ui/button'
+import { usePaginacao } from '@/hooks/usePaginacao'
 
 export function RotasPage() {
   const qc = useQueryClient()
-  const { pagina, limite, busca, ordenar_por, direcao, setParam, setPagina, toggleSort, isPending } =
-    usePaginacao()
+  const {
+    pagina,
+    limite,
+    busca,
+    ordenar_por,
+    direcao,
+    setParam,
+    setPagina,
+    toggleSort,
+    isPending,
+  } = usePaginacao()
 
   const { mutate: deleteRota } = useMutation({
     mutationFn: rotasService.delete,
@@ -22,7 +31,10 @@ export function RotasPage() {
       toast.success('Rota removida.')
       qc.invalidateQueries({ queryKey: ['admin:rotas'] })
     },
-    onError: () => toast.error('Rota vinculada a hotéis ou grupos. Remova os vínculos antes.'),
+    onError: () =>
+      toast.error(
+        'Rota vinculada a hotéis ou grupos. Remova os vínculos antes.'
+      ),
   })
 
   const columns: Column<Rota>[] = [
@@ -44,12 +56,16 @@ export function RotasPage() {
           </Link>
         </Button>
       }
-      searchBar={<SearchBar defaultValue={busca} onSearch={v => setParam('busca', v)} />}
+      searchBar={
+        <SearchBar defaultValue={busca} onSearch={v => setParam('busca', v)} />
+      }
     >
       <PagedDataTable
         columns={columns}
         queryKey={['admin:rotas', pagina, limite, busca, ordenar_por, direcao]}
-        queryFn={() => rotasService.list({ pagina, limite, busca, ordenar_por, direcao })}
+        queryFn={() =>
+          rotasService.list({ pagina, limite, busca, ordenar_por, direcao })
+        }
         label="Resultados de rotas"
         isPending={isPending}
         pagina={pagina}

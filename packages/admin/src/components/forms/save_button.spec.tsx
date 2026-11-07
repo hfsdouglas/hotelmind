@@ -22,7 +22,9 @@ describe('SaveButton (Admin)', () => {
   })
 
   it('allows customizing label and pendingLabel while preserving floppy disk icon', () => {
-    render(<SaveButton label="Salvar alterações" pendingLabel="Atualizando..." />)
+    render(
+      <SaveButton label="Salvar alterações" pendingLabel="Atualizando..." />
+    )
 
     const button = screen.getByRole('button', { name: /Salvar alterações/i })
     expect(button).toBeInTheDocument()

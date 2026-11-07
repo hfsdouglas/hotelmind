@@ -6,6 +6,7 @@ import {
   TarifarioValidationError,
 } from '@/core/errors/tarifario_errors'
 import { InMemoryCategoriaQuartoRepository } from '@/core/repositories/categorias_quartos/in-memory/in_memory_categoria_quarto_repository'
+import { InMemoryParceiroComercialRepository } from '@/core/repositories/parceiros_comerciais/in-memory/in_memory_parceiro_comercial_repository'
 import { InMemoryTarifarioRepository } from '@/core/repositories/tarifarios/in-memory/in_memory_tarifario_repository'
 import { AtivarTarifarioUseCase } from './ativar_tarifario_use_case'
 import { BuscarTarifarioUseCase } from './buscar_tarifario_use_case'
@@ -18,6 +19,7 @@ import { ListarTarifariosUseCase } from './listar_tarifarios_use_case'
 describe('Tarifarios Use Cases', () => {
   let tarifarios_repo: InMemoryTarifarioRepository
   let categorias_repo: InMemoryCategoriaQuartoRepository
+  let parceiros_repo: InMemoryParceiroComercialRepository
   let criar_use_case: CriarTarifarioUseCase
   let editar_use_case: EditarTarifarioUseCase
   let listar_use_case: ListarTarifariosUseCase
@@ -32,16 +34,22 @@ describe('Tarifarios Use Cases', () => {
   beforeEach(async () => {
     tarifarios_repo = new InMemoryTarifarioRepository()
     categorias_repo = new InMemoryCategoriaQuartoRepository()
+    parceiros_repo = new InMemoryParceiroComercialRepository()
     regime_id = 'regime-1'
     tarifarios_repo.register_regime_alimentacao(
       regime_id,
       'Meia Pensão',
       '#2563EB'
     )
-    criar_use_case = new CriarTarifarioUseCase(tarifarios_repo, categorias_repo)
+    criar_use_case = new CriarTarifarioUseCase(
+      tarifarios_repo,
+      categorias_repo,
+      parceiros_repo
+    )
     editar_use_case = new EditarTarifarioUseCase(
       tarifarios_repo,
-      categorias_repo
+      categorias_repo,
+      parceiros_repo
     )
     listar_use_case = new ListarTarifariosUseCase(tarifarios_repo)
     buscar_use_case = new BuscarTarifarioUseCase(tarifarios_repo)
@@ -282,5 +290,99 @@ describe('Tarifarios Use Cases', () => {
         regime_alimentacao_id: '   ',
       })
     ).rejects.toThrow(TarifarioValidationError)
+  })
+
+  it('US1: creates and edits rate plans with commercial partner validation', async () => {
+    const parceiro = await parceiros_repo.create({
+      hotel_id: 'hotel-1',
+      tipo_parceiro: 'empresa_corporativa',
+      tipo_pessoa: 'PJ',
+      razao_social: 'Petrobras S/A',
+      documento: '11222333000181',
+      modelo_tarifario: 'acordo',
+      politica_faturamento: 'faturado',
+      status: 'ativo',
+    })
+
+    const tarifario_parceiro = await criar_use_case.execute({
+      hotel_id: 'hotel-1',
+      categoria_quarto_id: cat_luxo_id,
+      regime_alimentacao_id: regime_id,
+      parceiro_id: parceiro.id,
+      nome: 'Tarifa Petrobras 2027',
+      datas: ['2027-05-10', '2027-05-11'],
+      valor_diaria: '190.00',
+    })
+    expect(tarifario_parceiro.parceiro_id).toBe(parceiro.id)
+
+    // Permite tarifário público na mesma data sem conflito com o parceiro
+    const tarifario_publico = await criar_use_case.execute({
+      hotel_id: 'hotel-1',
+      categoria_quarto_id: cat_luxo_id,
+      regime_alimentacao_id: regime_id,
+      nome: 'Tarifa Balcão Geral',
+      datas: ['2027-05-10', '2027-05-11'],
+      valor_diaria: '300.00',
+    })
+    expect(tarifario_publico.parceiro_id).toBeNull()
+
+    // Conflito ao tentar criar OUTRO tarifário para o mesmo parceiro nas mesmas datas
+    await expect(
+      criar_use_case.execute({
+        hotel_id: 'hotel-1',
+        categoria_quarto_id: cat_luxo_id,
+        regime_alimentacao_id: regime_id,
+        parceiro_id: parceiro.id,
+        nome: 'Conflitante Petrobras',
+        datas: ['2027-05-10'],
+        valor_diaria: '210.00',
+      })
+    ).rejects.toThrow(TarifarioPeriodConflictError)
+
+    // Edição mantendo ou alterando o parceiro
+    const editado = await editar_use_case.execute({
+      id: tarifario_parceiro.id,
+      hotel_id: 'hotel-1',
+      valor_diaria: '195.00',
+    })
+    expect(editado.valor_diaria).toBe('195.00')
+    expect(editado.parceiro_id).toBe(parceiro.id)
+  })
+
+  it('US1: rejects non-existent or inactive commercial partner', async () => {
+    await expect(
+      criar_use_case.execute({
+        hotel_id: 'hotel-1',
+        categoria_quarto_id: cat_luxo_id,
+        regime_alimentacao_id: regime_id,
+        parceiro_id: 'parceiro-fantasma',
+        nome: 'Tarifa Inválida',
+        datas: ['2027-06-01'],
+        valor_diaria: '200.00',
+      })
+    ).rejects.toThrow(/Parceiro comercial não encontrado/)
+
+    const inativo = await parceiros_repo.create({
+      hotel_id: 'hotel-1',
+      tipo_parceiro: 'agencia_viagens',
+      tipo_pessoa: 'PJ',
+      razao_social: 'Agência Inativa',
+      documento: '33000167000101',
+      modelo_tarifario: 'comissionada',
+      politica_faturamento: 'prepago',
+      status: 'inativo',
+    })
+
+    await expect(
+      criar_use_case.execute({
+        hotel_id: 'hotel-1',
+        categoria_quarto_id: cat_luxo_id,
+        regime_alimentacao_id: regime_id,
+        parceiro_id: inativo.id,
+        nome: 'Tarifa Inválida',
+        datas: ['2027-06-01'],
+        valor_diaria: '200.00',
+      })
+    ).rejects.toThrow(/inativo/)
   })
 })

@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { categoriasQuartosService } from '@/api/categorias_quartos.service'
+import { parceirosComerciaisService } from '@/api/parceiros_comerciais.service'
 import { regimesAlimentacaoService } from '@/api/regimes_alimentacao.service'
 import {
   TarifarioForm,
@@ -31,6 +32,12 @@ export function NovoTarifarioPage() {
   const { data: regimes } = useQuery({
     queryKey: ['regimes_alimentacao', 'ativos'],
     queryFn: () => regimesAlimentacaoService.list({ ativo: true, limite: 250 }),
+  })
+
+  const { data: parceiros } = useQuery({
+    queryKey: ['parceiros_comerciais', 'ativos'],
+    queryFn: () =>
+      parceirosComerciaisService.list({ status: 'ativo', limite: 250 }),
   })
 
   const { data: calendario_data, isLoading: is_loading_periods } =
@@ -126,6 +133,7 @@ export function NovoTarifarioPage() {
       submitLabel="Salvar"
       categories={categories.data}
       regimes={regimes?.data ?? []}
+      parceiros={parceiros?.data ?? []}
       occupiedPeriods={calendario_data?.data ?? []}
       isLoadingPeriods={is_loading_periods}
       isSubmitting={create_mutation.isPending}

@@ -1,6 +1,7 @@
 export * from './auth.js'
 export * from './categorias_quartos.js'
 export * from './grupos.js'
+export * from './hotel_configuracao.js'
 export * from './leads.js'
 export * from './orcamentos.js'
 export * from './parceiros_comerciais.js'

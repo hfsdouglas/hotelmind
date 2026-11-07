@@ -60,7 +60,53 @@ describe('TarifarioForm', () => {
         nome: 'Alta Temporada',
         categoria_quarto_id: 'cat-1',
         regime_alimentacao_id: 'reg-1',
+        parceiro_id: null,
         valor_diaria: '250.00',
+        datas: ['2026-11-20'],
+        ativo: true,
+      })
+    })
+  })
+
+  it('submits with commercial partner when selected', async () => {
+    const user = userEvent.setup()
+    const onSubmitPayload = vi.fn()
+    const mockParceiros = [{ id: 'parc-1', razao_social: 'Petrobras S/A' }]
+
+    render(
+      <MemoryRouter>
+        <TarifarioForm
+          mode="create"
+          title="Novo Tarifário Corporativo"
+          categories={mockCategories}
+          regimes={mockRegimes}
+          parceiros={mockParceiros}
+          occupiedPeriods={[]}
+          onCancel={vi.fn()}
+          onSubmitPayload={onSubmitPayload}
+          initialValues={{
+            nome: 'Tarifa Petrobras',
+            categoria_quarto_id: 'cat-1',
+            regime_alimentacao_id: 'reg-1',
+            parceiro_id: 'parc-1',
+            valor_diaria: '210.00',
+            datas: ['2026-11-20'],
+            ativo: true,
+          }}
+        />
+      </MemoryRouter>
+    )
+
+    const submitBtn = screen.getByRole('button', { name: /salvar/i })
+    await user.click(submitBtn)
+
+    await waitFor(() => {
+      expect(onSubmitPayload).toHaveBeenCalledWith({
+        nome: 'Tarifa Petrobras',
+        categoria_quarto_id: 'cat-1',
+        regime_alimentacao_id: 'reg-1',
+        parceiro_id: 'parc-1',
+        valor_diaria: '210.00',
         datas: ['2026-11-20'],
         ativo: true,
       })

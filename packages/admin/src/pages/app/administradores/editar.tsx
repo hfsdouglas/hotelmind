@@ -1,15 +1,28 @@
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { administradoresService } from '@/api/administradores.service'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
+import { Button } from '@/components/ui/button'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {
   type AdministradorUpdateFormData,
   administradorUpdateSchema,
@@ -39,13 +52,17 @@ export function AdministradorEditarPage() {
   })
 
   useEffect(() => {
-    if (admin) form.reset({ ...admin, senha: '', status: admin.status as 'S' | 'N' })
+    if (admin)
+      form.reset({ ...admin, senha: '', status: admin.status as 'S' | 'N' })
   }, [admin, form])
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: FormData) => {
       const { senha, ...rest } = data
-      return administradoresService.update(id!, { ...rest, ...(senha ? { senha } : {}) })
+      return administradoresService.update(id!, {
+        ...rest,
+        ...(senha ? { senha } : {}),
+      })
     },
     onSuccess: () => {
       toast.success('Administrador atualizado.')
@@ -63,38 +80,73 @@ export function AdministradorEditarPage() {
       actions={
         <>
           <SaveButton isPending={isPending} />
-          <Button type="button" variant="outline" onClick={() => navigate('/administradores')}>Cancelar</Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => navigate('/administradores')}
+          >
+            Cancelar
+          </Button>
         </>
       }
     >
       <Form {...form}>
         <div className="space-y-4">
-          <FormField control={form.control} name="nome_completo"
-            render={({ field: f }) => (
-              <FormItem><FormLabel>Nome completo</FormLabel><FormControl><Input {...f} /></FormControl><FormMessage /></FormItem>
-            )}
-          />
-          <FormField control={form.control} name="email"
-            render={({ field: f }) => (
-              <FormItem><FormLabel>E-mail</FormLabel><FormControl><Input type="email" {...f} /></FormControl><FormMessage /></FormItem>
-            )}
-          />
-          <FormField control={form.control} name="senha"
+          <FormField
+            control={form.control}
+            name="nome_completo"
             render={({ field: f }) => (
               <FormItem>
-                <FormLabel>Nova senha <span className="text-muted-foreground text-xs">(deixe em branco para manter)</span></FormLabel>
-                <FormControl><Input type="password" {...f} /></FormControl>
+                <FormLabel>Nome completo</FormLabel>
+                <FormControl>
+                  <Input {...f} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <FormField control={form.control} name="status"
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field: f }) => (
+              <FormItem>
+                <FormLabel>E-mail</FormLabel>
+                <FormControl>
+                  <Input type="email" {...f} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="senha"
+            render={({ field: f }) => (
+              <FormItem>
+                <FormLabel>
+                  Nova senha{' '}
+                  <span className="text-muted-foreground text-xs">
+                    (deixe em branco para manter)
+                  </span>
+                </FormLabel>
+                <FormControl>
+                  <Input type="password" {...f} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="status"
             render={({ field: f }) => (
               <FormItem>
                 <FormLabel>Status</FormLabel>
                 <Select onValueChange={f.onChange} value={f.value}>
                   <FormControl>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
                   </FormControl>
                   <SelectContent>
                     <SelectItem value="S">Ativo</SelectItem>

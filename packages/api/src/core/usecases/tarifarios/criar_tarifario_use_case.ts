@@ -9,12 +9,14 @@ import {
   TarifarioValidationError,
 } from '@/core/errors/tarifario_errors'
 import type { ICategoriaQuartoRepository } from '@/core/repositories/categorias_quartos/categoria_quarto.repository'
+import type { IParceiroComercialRepository } from '@/core/repositories/parceiros_comerciais/parceiro_comercial_repository'
 import type { ITarifarioRepository } from '@/core/repositories/tarifarios/tarifario.repository'
 
 export interface CriarTarifarioInput {
   hotel_id: string
   categoria_quarto_id: string
   regime_alimentacao_id: string
+  parceiro_id?: string | null
   nome: string
   datas: string[]
   valor_diaria: string
@@ -24,7 +26,8 @@ export interface CriarTarifarioInput {
 export class CriarTarifarioUseCase {
   constructor(
     private readonly tarifarios: ITarifarioRepository,
-    private readonly categorias: ICategoriaQuartoRepository
+    private readonly categorias: ICategoriaQuartoRepository,
+    private readonly parceiros?: IParceiroComercialRepository
   ) {}
 
   async execute(input: CriarTarifarioInput): Promise<Tarifario> {
@@ -43,6 +46,23 @@ export class CriarTarifarioUseCase {
         'O regime de alimentação é obrigatório.'
       )
     }
+
+    const final_parceiro_id = input.parceiro_id || null
+    if (final_parceiro_id && this.parceiros) {
+      const parceiro = await this.parceiros.find_by_id(
+        final_parceiro_id,
+        input.hotel_id
+      )
+      if (!parceiro) {
+        throw new TarifarioValidationError('Parceiro comercial não encontrado.')
+      }
+      if (parceiro.status !== 'ativo') {
+        throw new TarifarioValidationError(
+          'O parceiro comercial selecionado está inativo.'
+        )
+      }
+    }
+
     const datas = normalize_datas(input.datas)
     const valor_diaria = normalize_valor_diaria(input.valor_diaria)
     const ativo = input.ativo ?? true
@@ -59,6 +79,8 @@ export class CriarTarifarioUseCase {
       const conflict = await this.tarifarios.find_overlapping_active({
         hotel_id: input.hotel_id,
         categoria_quarto_id: input.categoria_quarto_id,
+        regime_alimentacao_id: trimmed_regime_id,
+        parceiro_id: final_parceiro_id,
         datas,
       })
       if (conflict) {
@@ -70,6 +92,7 @@ export class CriarTarifarioUseCase {
       hotel_id: input.hotel_id,
       categoria_quarto_id: input.categoria_quarto_id,
       regime_alimentacao_id: trimmed_regime_id,
+      parceiro_id: final_parceiro_id,
       nome: trimmed_nome,
       datas,
       valor_diaria,

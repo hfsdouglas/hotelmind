@@ -1,5 +1,6 @@
 import type { PaginacaoMeta } from './grupos.js'
 import type { CreateLeadPayload } from './leads.js'
+import type { ParceiroResumo } from './parceiros_comerciais.js'
 
 export interface NoiteCalculadaOrcamento {
   data: string
@@ -14,6 +15,7 @@ export interface Orcamento {
   id: string
   hotel_id: string
   lead_id: string
+  parceiro_id: string | null
   regime_alimentacao_id: string
   categoria_quarto_id: string
   check_in: string
@@ -33,6 +35,7 @@ export interface Orcamento {
     telefone: string
     email: string
   }
+  parceiro?: ParceiroResumo | null
   regime_alimentacao?: {
     id: string
     titulo: string
@@ -87,6 +90,7 @@ export interface OrcamentoPublicoVisualizacao {
 export interface CreateOrcamentoPayload {
   regime_alimentacao_id: string
   categoria_quarto_id: string
+  parceiro_id?: string | null
   check_in: string
   check_out: string
   quantidade_adultos: number
@@ -101,6 +105,7 @@ export interface CreateOrcamentoPayload {
 export interface UpdateOrcamentoPayload {
   regime_alimentacao_id?: string
   categoria_quarto_id?: string
+  parceiro_id?: string | null
   check_in?: string
   check_out?: string
   quantidade_adultos?: number
@@ -120,6 +125,7 @@ export interface OrcamentoListParams {
   pagina?: number
   limite?: number
   busca?: string
+  parceiro_id?: string | null
   regime_alimentacao_id?: string
   categoria_quarto_id?: string
   status?: OrcamentoStatus

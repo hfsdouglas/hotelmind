@@ -60,7 +60,6 @@ export class PostgresRegimeAlimentacaoRepository
         pagina,
         limite,
         ultima_pagina: Math.max(1, Math.ceil(total / limite)),
-        total_paginas: Math.max(1, Math.ceil(total / limite)),
       },
     }
   }

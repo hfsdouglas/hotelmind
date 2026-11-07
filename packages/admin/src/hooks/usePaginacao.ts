@@ -1,5 +1,5 @@
-import { useSearchParams } from 'react-router-dom'
 import { useCallback, useTransition } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 export interface PaginacaoParams {
   pagina: number
@@ -16,8 +16,12 @@ export function usePaginacao(defaults?: Partial<PaginacaoParams>) {
   const pagina = Number(searchParams.get('pagina') ?? defaults?.pagina ?? 1)
   const limite = Number(searchParams.get('limite') ?? defaults?.limite ?? 50)
   const busca = searchParams.get('busca') ?? defaults?.busca ?? ''
-  const ordenar_por = searchParams.get('ordenar_por') ?? defaults?.ordenar_por ?? ''
-  const direcao = (searchParams.get('direcao') as 'asc' | 'desc') ?? defaults?.direcao ?? 'asc'
+  const ordenar_por =
+    searchParams.get('ordenar_por') ?? defaults?.ordenar_por ?? ''
+  const direcao =
+    (searchParams.get('direcao') as 'asc' | 'desc') ??
+    defaults?.direcao ??
+    'asc'
 
   const setParam = useCallback(
     (key: string, value: string | number) => {
@@ -34,7 +38,7 @@ export function usePaginacao(defaults?: Partial<PaginacaoParams>) {
         })
       })
     },
-    [setSearchParams, startTransition],
+    [setSearchParams, startTransition]
   )
 
   const setPagina = useCallback(
@@ -47,7 +51,7 @@ export function usePaginacao(defaults?: Partial<PaginacaoParams>) {
         })
       })
     },
-    [setSearchParams, startTransition],
+    [setSearchParams, startTransition]
   )
 
   const toggleSort = useCallback(
@@ -68,7 +72,7 @@ export function usePaginacao(defaults?: Partial<PaginacaoParams>) {
         })
       })
     },
-    [setSearchParams, startTransition],
+    [setSearchParams, startTransition]
   )
 
   return {

@@ -17,7 +17,7 @@ describe('Orcamento Entity', () => {
     valor_total: '1000.00',
     detalhamento_noites: [],
     token_publico: 'token-abc',
-    status: 'enviado' as const,
+    status: 'pendente' as const,
     created_at: new Date(),
     updated_at: new Date(),
   }
@@ -28,7 +28,19 @@ describe('Orcamento Entity', () => {
     expect(orcamento.id).toBe('orcamento-1')
     expect(orcamento.check_in).toBe('2026-12-01')
     expect(orcamento.valor_total).toBe('1000.00')
-    expect(orcamento.status).toBe('enviado')
+    expect(orcamento.status).toBe('pendente')
+    expect(orcamento.parceiro_id).toBeNull()
+  })
+
+  it('deve suportar vínculo opcional com parceiro comercial', () => {
+    const orcamento = new Orcamento({
+      ...base_props,
+      parceiro_id: 'parceiro-1',
+      parceiro: { id: 'parceiro-1', razao_social: 'CVC Viagens' },
+    })
+
+    expect(orcamento.parceiro_id).toBe('parceiro-1')
+    expect(orcamento.parceiro?.razao_social).toBe('CVC Viagens')
   })
 
   it('deve lançar erro se lead_id for vazio', () => {

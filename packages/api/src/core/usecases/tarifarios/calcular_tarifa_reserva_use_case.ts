@@ -7,6 +7,7 @@ import { TarifarioPricingService } from '@/core/services/tarifario_pricing_servi
 export interface CalcularTarifaReservaInput {
   hotel_id: string
   categoria_quarto_id: string
+  parceiro_id?: string | null
   check_in: string
   check_out: string
 }
@@ -32,6 +33,7 @@ export class CalcularTarifaReservaUseCase {
     const tarifarios_ativos = await this.tarifarios.find_active_for_range({
       hotel_id: input.hotel_id,
       categoria_quarto_id: input.categoria_quarto_id,
+      parceiro_id: input.parceiro_id,
       data_inicio: input.check_in,
       data_fim: input.check_out,
     })
@@ -39,6 +41,7 @@ export class CalcularTarifaReservaUseCase {
     return this.pricing_service.calcular_reserva({
       hotel_id: input.hotel_id,
       categoria_quarto_id: input.categoria_quarto_id,
+      parceiro_id: input.parceiro_id,
       check_in: input.check_in,
       check_out: input.check_out,
       tarifarios: tarifarios_ativos,

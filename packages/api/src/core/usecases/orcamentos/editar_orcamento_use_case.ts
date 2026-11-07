@@ -13,6 +13,7 @@ import { RegimeAlimentacaoNotFoundError } from '@/core/errors/regime_alimentacao
 import type { ICategoriaQuartoRepository } from '@/core/repositories/categorias_quartos/categoria_quarto.repository'
 import type { ILeadRepository } from '@/core/repositories/leads/lead_repository'
 import type { IOrcamentoRepository } from '@/core/repositories/orcamentos/orcamento_repository'
+import type { IParceiroComercialRepository } from '@/core/repositories/parceiros_comerciais/parceiro_comercial_repository'
 import type { IRegimeAlimentacaoRepository } from '@/core/repositories/regimes_alimentacao/regime_alimentacao.repository'
 import type { ITarifarioRepository } from '@/core/repositories/tarifarios/tarifario.repository'
 import { TarifarioPricingService } from '@/core/services/tarifario_pricing_service'
@@ -22,6 +23,7 @@ export interface EditarOrcamentoInput {
   hotel_id: string
   regime_alimentacao_id?: string
   categoria_quarto_id?: string
+  parceiro_id?: string | null
   check_in?: string
   check_out?: string
   quantidade_adultos?: number
@@ -44,6 +46,7 @@ export class EditarOrcamentoUseCase {
     private readonly categorias: ICategoriaQuartoRepository,
     private readonly tarifarios: ITarifarioRepository,
     private readonly leads?: ILeadRepository,
+    private readonly parceiros?: IParceiroComercialRepository,
     private readonly pricing_service: TarifarioPricingService = new TarifarioPricingService()
   ) {}
 
@@ -53,24 +56,49 @@ export class EditarOrcamentoUseCase {
       throw new OrcamentoNotFoundError()
     }
 
+    const check_in = input.check_in ?? existing.check_in
+    const check_out = input.check_out ?? existing.check_out
     const regime_id =
       input.regime_alimentacao_id ?? existing.regime_alimentacao_id
     const categoria_id =
       input.categoria_quarto_id ?? existing.categoria_quarto_id
-    const check_in = input.check_in ?? existing.check_in
-    const check_out = input.check_out ?? existing.check_out
+    const final_parceiro_id =
+      input.parceiro_id !== undefined
+        ? input.parceiro_id || null
+        : existing.parceiro_id
+
+    if (final_parceiro_id && this.parceiros) {
+      const parceiro = await this.parceiros.find_by_id(
+        final_parceiro_id,
+        input.hotel_id
+      )
+      if (!parceiro) {
+        throw new OrcamentoValidationError('Parceiro comercial não encontrado.')
+      }
+      if (parceiro.status !== 'ativo') {
+        throw new OrcamentoValidationError(
+          'O parceiro comercial selecionado está inativo.'
+        )
+      }
+    }
+
+    const needs_recalc =
+      input.check_in !== undefined ||
+      input.check_out !== undefined ||
+      input.regime_alimentacao_id !== undefined ||
+      input.categoria_quarto_id !== undefined ||
+      input.parceiro_id !== undefined
 
     let valor_total = existing.valor_total
     let detalhamento_noites = existing.detalhamento_noites
 
-    // Recalcular diárias se datas, categoria ou regime mudaram
-    const needs_recalc =
-      input.regime_alimentacao_id !== undefined ||
-      input.categoria_quarto_id !== undefined ||
-      input.check_in !== undefined ||
-      input.check_out !== undefined
-
     if (needs_recalc) {
+      if (check_in >= check_out) {
+        throw new OrcamentoValidationError(
+          'A data de check-out deve ser posterior à data de check-in.'
+        )
+      }
+
       const regime = await this.regimes_alimentacao.find_by_id(
         regime_id,
         input.hotel_id
@@ -91,6 +119,7 @@ export class EditarOrcamentoUseCase {
       const tarifarios_ativos = await this.tarifarios.find_active_for_range({
         hotel_id: input.hotel_id,
         categoria_quarto_id: categoria_id,
+        parceiro_id: final_parceiro_id,
         data_inicio: check_in,
         data_fim: check_out,
       })
@@ -102,6 +131,7 @@ export class EditarOrcamentoUseCase {
       const calculo = this.pricing_service.calcular_reserva({
         hotel_id: input.hotel_id,
         categoria_quarto_id: categoria_id,
+        parceiro_id: final_parceiro_id,
         check_in,
         check_out,
         tarifarios: tarifarios_do_regime,
@@ -124,6 +154,8 @@ export class EditarOrcamentoUseCase {
     return this.orcamentos.update({
       id: input.id,
       hotel_id: input.hotel_id,
+      parceiro_id:
+        input.parceiro_id !== undefined ? final_parceiro_id : undefined,
       regime_alimentacao_id: input.regime_alimentacao_id,
       categoria_quarto_id: input.categoria_quarto_id,
       check_in: input.check_in,

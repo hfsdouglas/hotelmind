@@ -1,10 +1,17 @@
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { useLogin } from '@/hooks/useLogin'
-import { login_schema, type LoginFormData } from '@/schemas/auth/auth_schema'
+import { type LoginFormData, login_schema } from '@/schemas/auth/auth_schema'
 
 export function LoginPage() {
   const { login, isPending } = useLogin()
@@ -18,11 +25,16 @@ export function LoginPage() {
     <div className="w-full max-w-sm space-y-6">
       <div className="space-y-1 text-center">
         <h1 className="text-2xl font-bold">HotelMind Admin</h1>
-        <p className="text-sm text-muted-foreground">Acesso restrito a administradores</p>
+        <p className="text-sm text-muted-foreground">
+          Acesso restrito a administradores
+        </p>
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(data => login(data))} className="space-y-4">
+        <form
+          onSubmit={form.handleSubmit(data => login(data))}
+          className="space-y-4"
+        >
           <FormField
             control={form.control}
             name="email"
@@ -30,7 +42,11 @@ export function LoginPage() {
               <FormItem>
                 <FormLabel>E-mail</FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder="admin@hotelmind.com.br" {...field} />
+                  <Input
+                    type="email"
+                    placeholder="admin@hotelmind.com.br"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

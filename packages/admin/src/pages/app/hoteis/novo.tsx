@@ -1,13 +1,20 @@
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { hoteisService } from '@/api/hoteis.service'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
+import { Button } from '@/components/ui/button'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import {
   type HotelCreateFormData,
   hotelCreateSchema,
@@ -60,7 +67,11 @@ export function HotelNovoPage() {
       actions={
         <>
           <SaveButton isPending={isPending} />
-          <Button type="button" variant="outline" onClick={() => navigate('/hoteis')}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => navigate('/hoteis')}
+          >
             Cancelar
           </Button>
         </>
@@ -68,7 +79,17 @@ export function HotelNovoPage() {
     >
       <Form {...form}>
         <div className="space-y-4">
-          {(['nome_hotel', 'razao_social', 'nome_fantasia', 'cnpj', 'email_comercial', 'telefone_comercial', 'website'] as const).map(field => (
+          {(
+            [
+              'nome_hotel',
+              'razao_social',
+              'nome_fantasia',
+              'cnpj',
+              'email_comercial',
+              'telefone_comercial',
+              'website',
+            ] as const
+          ).map(field => (
             <FormField
               key={field}
               control={form.control}
@@ -76,7 +97,9 @@ export function HotelNovoPage() {
               render={({ field: f }) => (
                 <FormItem>
                   <FormLabel>{fieldLabels[field] ?? field}</FormLabel>
-                  <FormControl><Input {...f} value={f.value ?? ''} /></FormControl>
+                  <FormControl>
+                    <Input {...f} value={f.value ?? ''} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

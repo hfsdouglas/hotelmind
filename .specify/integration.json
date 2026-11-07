@@ -1,10 +1,7 @@
 {
   "version": "1.2.6",
   "integration_state_schema": 1,
-  "installed_integrations": [
-    "claude",
-    "agy"
-  ],
+  "installed_integrations": ["claude", "agy"],
   "integration_settings": {
     "claude": {
       "script": "sh",

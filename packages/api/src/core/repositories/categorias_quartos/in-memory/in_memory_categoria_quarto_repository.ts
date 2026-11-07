@@ -40,7 +40,7 @@ export class InMemoryCategoriaQuartoRepository
       id: crypto.randomUUID(),
       hotel_id: data.hotel_id,
       nome: data.nome,
-      status: data.status ?? 'S',
+      status: (data.status ?? 'S') as 'S' | 'N',
       created_at: new Date(),
       updated_at: new Date(),
     })
@@ -65,7 +65,7 @@ export class InMemoryCategoriaQuartoRepository
     const updated = new CategoriaQuarto({
       ...current,
       nome: data.nome.trim(),
-      status: data.status,
+      status: data.status as 'S' | 'N',
       updated_at: new Date(),
     })
     this.categories[index] = updated

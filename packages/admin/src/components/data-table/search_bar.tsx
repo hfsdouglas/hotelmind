@@ -1,7 +1,7 @@
-import { useState } from 'react'
 import { Search } from 'lucide-react'
-import { Input } from '@/components/ui/input'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 interface SearchBarProps {
   defaultValue?: string
@@ -9,7 +9,11 @@ interface SearchBarProps {
   placeholder?: string
 }
 
-export function SearchBar({ defaultValue = '', onSearch, placeholder = 'Pesquisar...' }: SearchBarProps) {
+export function SearchBar({
+  defaultValue = '',
+  onSearch,
+  placeholder = 'Pesquisar...',
+}: SearchBarProps) {
   const [local, setLocal] = useState(defaultValue)
 
   function handleSubmit(e: React.FormEvent) {

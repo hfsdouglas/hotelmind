@@ -12,6 +12,7 @@ export interface OrcamentoProps {
   id: string
   hotel_id: string
   lead_id: string
+  parceiro_id?: string | null
   regime_alimentacao_id: string
   categoria_quarto_id: string
   check_in: string
@@ -31,6 +32,11 @@ export interface OrcamentoProps {
     telefone: string
     email: string
   }
+  parceiro?: {
+    id: string
+    razao_social: string
+    nome_fantasia?: string | null
+  } | null
   hotel?: {
     id: string
     nome_fantasia?: string | null
@@ -66,6 +72,7 @@ export class Orcamento {
   readonly id: string
   readonly hotel_id: string
   readonly lead_id: string
+  readonly parceiro_id: string | null
   readonly regime_alimentacao_id: string
   readonly categoria_quarto_id: string
   readonly check_in: string
@@ -80,6 +87,7 @@ export class Orcamento {
   readonly observacoes?: string | null
   readonly cupom_desconto?: string | null
   readonly lead?: OrcamentoProps['lead']
+  readonly parceiro?: OrcamentoProps['parceiro']
   readonly hotel?: OrcamentoProps['hotel']
   readonly regime_alimentacao?: OrcamentoProps['regime_alimentacao']
   readonly categoria_quarto?: OrcamentoProps['categoria_quarto']
@@ -133,6 +141,7 @@ export class Orcamento {
     this.id = props.id
     this.hotel_id = props.hotel_id
     this.lead_id = props.lead_id
+    this.parceiro_id = props.parceiro_id ?? null
     this.regime_alimentacao_id = props.regime_alimentacao_id
     this.categoria_quarto_id = props.categoria_quarto_id
     this.check_in = props.check_in
@@ -147,6 +156,7 @@ export class Orcamento {
     this.observacoes = props.observacoes
     this.cupom_desconto = props.cupom_desconto
     this.lead = props.lead
+    this.parceiro = props.parceiro ?? null
     this.hotel = props.hotel
     this.regime_alimentacao = props.regime_alimentacao
     this.categoria_quarto = props.categoria_quarto

@@ -67,7 +67,7 @@ export async function reservas_publicas_routes(app: FastifyTypedInstance) {
         if (err instanceof FnrhLinkInvalidoError) {
           return reply.status(404).send({ message: err.message })
         }
-        return reply.status(500).send({ message: 'Erro interno do servidor.' })
+        throw err
       }
     }
   )
@@ -136,7 +136,7 @@ export async function reservas_publicas_routes(app: FastifyTypedInstance) {
         if (err instanceof ReservaValidationError) {
           return reply.status(400).send({ message: err.message })
         }
-        return reply.status(500).send({ message: 'Erro interno do servidor.' })
+        throw err
       }
     }
   )
@@ -174,7 +174,7 @@ export async function reservas_publicas_routes(app: FastifyTypedInstance) {
         if (err instanceof ReservaValidationError) {
           return reply.status(400).send({ message: err.message })
         }
-        return reply.status(500).send({ message: 'Erro interno do servidor.' })
+        throw err
       }
     }
   )

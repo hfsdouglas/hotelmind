@@ -31,6 +31,17 @@ describe('Tarifario Entity', () => {
     expect(entity.nome).toBe('Alta Temporada')
     expect(entity.valor_diaria).toBe('350.50')
     expect(entity.datas).toEqual(['2026-12-20', '2026-12-22', '2026-12-25'])
+    expect(entity.parceiro_id).toBeNull()
+  })
+
+  it('supports partner association when parceiro_id and parceiro are provided', () => {
+    const entity = new Tarifario({
+      ...base_props,
+      parceiro_id: 'parceiro-1',
+      parceiro: { id: 'parceiro-1', razao_social: 'CVC Brasil S/A' },
+    })
+    expect(entity.parceiro_id).toBe('parceiro-1')
+    expect(entity.parceiro?.razao_social).toBe('CVC Brasil S/A')
   })
 
   it('rejects empty name or name exceeding 100 chars', () => {

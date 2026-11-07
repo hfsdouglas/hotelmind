@@ -35,17 +35,15 @@ function ControlledCalendarWrapper() {
 }
 
 describe('TarifarioCalendar & TarifarioForm (Hospitality Classification, Month/Year Selector & Usability)', () => {
-  it(
-    'US2: replaces "Mês atual" button with month/year selectors, renders icon-only navigation buttons, and preserves selected dates across view modes and navigation',
-    () => {
-      render(<ControlledCalendarWrapper />)
+  it('US2: replaces "Mês atual" button with month/year selectors, renders icon-only navigation buttons, and preserves selected dates across view modes and navigation', () => {
+    render(<ControlledCalendarWrapper />)
 
-      // "Mês atual" button does not exist anymore
-      expect(
-        screen.queryByRole('button', { name: 'Mês atual' })
-      ).not.toBeInTheDocument()
+    // "Mês atual" button does not exist anymore
+    expect(
+      screen.queryByRole('button', { name: 'Mês atual' })
+    ).not.toBeInTheDocument()
 
-      // Previous and Next buttons are icon-only (no text content inside the buttons)
+    // Previous and Next buttons are icon-only (no text content inside the buttons)
     const prev_btn = screen.getByTestId('calendar-prev-period')
     const next_btn = screen.getByTestId('calendar-next-period')
     expect(prev_btn.textContent).toBe('')
@@ -270,6 +268,7 @@ describe('TarifarioCalendar & TarifarioForm (Hospitality Classification, Month/Y
     expect(on_submit).toHaveBeenCalledWith({
       categoria_quarto_id: 'cat-1',
       regime_alimentacao_id: 'reg-1',
+      parceiro_id: null,
       nome: 'Fins de Semana Março',
       datas: [
         '2027-03-06',

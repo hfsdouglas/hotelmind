@@ -1,7 +1,7 @@
-import { render, screen, act } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { ThemeProvider, ThemeContext } from './ThemeContext'
+import { act, render, screen } from '@testing-library/react'
 import { useContext } from 'react'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { ThemeContext, ThemeProvider } from './ThemeContext'
 
 function ThemeConsumer() {
   const ctx = useContext(ThemeContext)
@@ -29,7 +29,7 @@ describe('ThemeProvider', () => {
     render(
       <ThemeProvider>
         <ThemeConsumer />
-      </ThemeProvider>,
+      </ThemeProvider>
     )
     expect(screen.getByTestId('theme')).toHaveTextContent('dark')
   })
@@ -39,7 +39,7 @@ describe('ThemeProvider', () => {
     render(
       <ThemeProvider>
         <ThemeConsumer />
-      </ThemeProvider>,
+      </ThemeProvider>
     )
     await act(async () => {
       screen.getByText('toggle').click()
@@ -53,7 +53,7 @@ describe('ThemeProvider', () => {
     render(
       <ThemeProvider>
         <ThemeConsumer />
-      </ThemeProvider>,
+      </ThemeProvider>
     )
     await act(async () => {
       screen.getByText('toggle').click()
@@ -67,7 +67,7 @@ describe('ThemeProvider', () => {
     render(
       <ThemeProvider>
         <ThemeConsumer />
-      </ThemeProvider>,
+      </ThemeProvider>
     )
     await act(async () => {
       screen.getByText('toggle').click()

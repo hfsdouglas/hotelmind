@@ -6,6 +6,7 @@ import {
   TarifarioValidationError,
 } from '@/core/errors/tarifario_errors'
 import { PostgresCategoriaQuartoRepository } from '@/core/repositories/categorias_quartos/implementation/postgres_categoria_quarto_repository'
+import { PostgresParceiroComercialRepository } from '@/core/repositories/parceiros_comerciais/implementation/postgres_parceiro_comercial_repository'
 import { PostgresTarifarioRepository } from '@/core/repositories/tarifarios/implementation/postgres_tarifario_repository'
 import { AtivarTarifarioUseCase } from '@/core/usecases/tarifarios/ativar_tarifario_use_case'
 import { BuscarTarifarioUseCase } from '@/core/usecases/tarifarios/buscar_tarifario_use_case'
@@ -30,11 +31,20 @@ import type { FastifyTypedInstance } from '@/types/fastify'
 export async function tarifarios_routes(app: FastifyTypedInstance) {
   const tarifarios = new PostgresTarifarioRepository(db)
   const categorias = new PostgresCategoriaQuartoRepository(db)
+  const parceiros = new PostgresParceiroComercialRepository(db)
 
   const listar_use_case = new ListarTarifariosUseCase(tarifarios)
   const buscar_use_case = new BuscarTarifarioUseCase(tarifarios)
-  const criar_use_case = new CriarTarifarioUseCase(tarifarios, categorias)
-  const editar_use_case = new EditarTarifarioUseCase(tarifarios, categorias)
+  const criar_use_case = new CriarTarifarioUseCase(
+    tarifarios,
+    categorias,
+    parceiros
+  )
+  const editar_use_case = new EditarTarifarioUseCase(
+    tarifarios,
+    categorias,
+    parceiros
+  )
   const ativar_use_case = new AtivarTarifarioUseCase(tarifarios)
   const desativar_use_case = new DesativarTarifarioUseCase(tarifarios)
   const consultar_calendario_use_case = new ConsultarPeriodosTarifariosUseCase(
@@ -84,6 +94,7 @@ export async function tarifarios_routes(app: FastifyTypedInstance) {
           await consultar_calendario_use_case.execute({
             hotel_id: request.user.hotelId,
             categoria_quarto_id: request.query.categoria_quarto_id,
+            parceiro_id: request.query.parceiro_id,
             data_inicio: request.query.data_inicio,
             data_fim: request.query.data_fim,
           })

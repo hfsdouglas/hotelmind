@@ -1,7 +1,7 @@
-import { describe, it, expect, vi } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { http, HttpResponse } from 'msw'
+import { HttpResponse, http } from 'msw'
+import { describe, expect, it, vi } from 'vitest'
 import { server } from '@/mocks/server'
 import { render_with_providers } from '@/test/render_with_providers'
 import { LoginPage } from './login'
@@ -14,7 +14,9 @@ vi.mock('sonner', () => ({
 describe('LoginPage', () => {
   it('renders the heading and form fields', () => {
     render_with_providers(<LoginPage />)
-    expect(screen.getByRole('heading', { name: /hotelmind admin/i })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /hotelmind admin/i })
+    ).toBeInTheDocument()
     expect(screen.getByLabelText(/e-mail/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/senha/i)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /entrar/i })).toBeInTheDocument()
@@ -47,10 +49,14 @@ describe('LoginPage', () => {
       http.post('http://localhost:3000/admin/auth/login', async () => {
         await new Promise(res => setTimeout(res, 100))
         return HttpResponse.json({
-          admin: { id: '1', nome_completo: 'Admin', email: 'admin@hotelmind.com.br' },
+          admin: {
+            id: '1',
+            nome_completo: 'Admin',
+            email: 'admin@hotelmind.com.br',
+          },
           message: 'ok',
         })
-      }),
+      })
     )
     render_with_providers(<LoginPage />)
     await user.type(screen.getByLabelText(/e-mail/i), 'admin@hotelmind.com.br')
@@ -64,13 +70,20 @@ describe('LoginPage', () => {
     let captured_body: unknown
 
     server.use(
-      http.post('http://localhost:3000/admin/auth/login', async ({ request }) => {
-        captured_body = await request.json()
-        return HttpResponse.json({
-          admin: { id: '1', nome_completo: 'Admin', email: 'admin@hotelmind.com.br' },
-          message: 'Login realizado com sucesso.',
-        })
-      }),
+      http.post(
+        'http://localhost:3000/admin/auth/login',
+        async ({ request }) => {
+          captured_body = await request.json()
+          return HttpResponse.json({
+            admin: {
+              id: '1',
+              nome_completo: 'Admin',
+              email: 'admin@hotelmind.com.br',
+            },
+            message: 'Login realizado com sucesso.',
+          })
+        }
+      )
     )
 
     render_with_providers(<LoginPage />)

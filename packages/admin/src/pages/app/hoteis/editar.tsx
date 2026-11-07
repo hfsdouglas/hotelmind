@@ -1,15 +1,28 @@
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { hoteisService } from '@/api/hoteis.service'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
+import { Button } from '@/components/ui/button'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {
   type HotelUpdateFormData,
   hotelUpdateSchema,
@@ -53,7 +66,12 @@ export function HotelEditarPage() {
   })
 
   useEffect(() => {
-    if (hotel) form.reset({ ...hotel, website: hotel.website ?? '', status: hotel.status })
+    if (hotel)
+      form.reset({
+        ...hotel,
+        website: hotel.website ?? '',
+        status: hotel.status,
+      })
   }, [hotel, form])
 
   const { mutate, isPending } = useMutation({
@@ -74,7 +92,11 @@ export function HotelEditarPage() {
       actions={
         <>
           <SaveButton isPending={isPending} />
-          <Button type="button" variant="outline" onClick={() => navigate('/hoteis')}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => navigate('/hoteis')}
+          >
             Cancelar
           </Button>
         </>
@@ -82,7 +104,17 @@ export function HotelEditarPage() {
     >
       <Form {...form}>
         <div className="space-y-4">
-          {(['nome_hotel', 'razao_social', 'nome_fantasia', 'cnpj', 'email_comercial', 'telefone_comercial', 'website'] as const).map(field => (
+          {(
+            [
+              'nome_hotel',
+              'razao_social',
+              'nome_fantasia',
+              'cnpj',
+              'email_comercial',
+              'telefone_comercial',
+              'website',
+            ] as const
+          ).map(field => (
             <FormField
               key={field}
               control={form.control}
@@ -90,19 +122,25 @@ export function HotelEditarPage() {
               render={({ field: f }) => (
                 <FormItem>
                   <FormLabel>{fieldLabels[field] ?? field}</FormLabel>
-                  <FormControl><Input {...f} value={f.value ?? ''} /></FormControl>
+                  <FormControl>
+                    <Input {...f} value={f.value ?? ''} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
           ))}
-          <FormField control={form.control} name="status"
+          <FormField
+            control={form.control}
+            name="status"
             render={({ field: f }) => (
               <FormItem>
                 <FormLabel>Status</FormLabel>
                 <Select onValueChange={f.onChange} value={f.value}>
                   <FormControl>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
                   </FormControl>
                   <SelectContent>
                     <SelectItem value="S">Ativo</SelectItem>

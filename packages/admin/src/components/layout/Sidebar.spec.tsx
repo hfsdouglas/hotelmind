@@ -1,11 +1,11 @@
-import { render, screen, act } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { act, render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
-import { Sidebar } from './Sidebar'
-import { ThemeProvider } from '@/contexts/ThemeContext'
 import { AuthContext } from '@/contexts/AuthContext'
+import { ThemeProvider } from '@/contexts/ThemeContext'
 import type { AdminSession } from '@/types/auth'
+import { Sidebar } from './Sidebar'
 
 const mockAdminSession: AdminSession = {
   admin: {
@@ -35,7 +35,7 @@ function renderSidebar(isOpen = true, onClose = vi.fn()) {
           </MemoryRouter>
         </AuthContext.Provider>
       </ThemeProvider>
-    </QueryClientProvider>,
+    </QueryClientProvider>
   )
 }
 

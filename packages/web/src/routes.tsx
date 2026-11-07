@@ -7,6 +7,7 @@ import { NovaCategoriaQuartoPage } from '@/pages/app/categorias_quartos/novo'
 import { ParceirosComerciaisPage } from '@/pages/app/comercial/parceiros'
 import { EditarParceiroPage } from '@/pages/app/comercial/parceiros/[id]/editar'
 import { NovoParceiroPage } from '@/pages/app/comercial/parceiros/novo'
+import { HotelConfiguracoesPage } from '@/pages/app/configuracoes/hotel'
 import { DashboardPage } from '@/pages/app/dashboard'
 import { EditarGrupoPage } from '@/pages/app/grupos/[id]/editar'
 import { GruposPage } from '@/pages/app/grupos/index'
@@ -118,6 +119,10 @@ export const router = createBrowserRouter([
       {
         path: '/comercial/parceiros/:id/editar',
         element: <EditarParceiroPage />,
+      },
+      {
+        path: '/configuracoes/hotel',
+        element: <HotelConfiguracoesPage />,
       },
     ],
   },
