@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { usePageTitle } from '@/hooks/use_document_title'
 import {
   type HotelUpdateFormData,
   hotelUpdateSchema,
@@ -50,6 +51,12 @@ export function HotelEditarPage() {
     queryFn: () => hoteisService.findById(id!),
     enabled: !!id,
   })
+
+  usePageTitle(
+    hotel?.nome_fantasia || hotel?.nome_hotel
+      ? `Editar Hotel - ${hotel.nome_fantasia || hotel.nome_hotel}`
+      : 'Editar Hotel'
+  )
 
   const form = useForm<FormData>({
     resolver: zodResolver(hotelUpdateSchema),

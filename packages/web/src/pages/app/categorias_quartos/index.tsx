@@ -15,8 +15,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { usePageTitle } from '@/hooks/use_document_title'
 
 export function CategoriasQuartosPage() {
+  usePageTitle('Categorias de Quartos')
   const [searchParams, setSearchParams] = useSearchParams()
   const [isPending, startTransition] = useTransition()
   const status = searchParams.get('status') as 'S' | 'N' | null

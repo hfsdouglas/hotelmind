@@ -40,6 +40,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { usePageTitle } from '@/hooks/use_document_title'
 import { unmask_phone, usePhoneMask } from '@/hooks/use_phone_mask'
 import {
   type NovaReservaFormData,
@@ -77,6 +78,7 @@ function formatarMoeda(valor: string | number) {
 }
 
 export function NovaReservaPage() {
+  usePageTitle('Nova Reserva')
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const phoneMask = usePhoneMask()

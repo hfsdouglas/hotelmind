@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { usePageTitle } from '@/hooks/use_document_title'
 import {
   type RotaCreateFormData,
   rotaCreateSchema,
@@ -31,6 +32,7 @@ const fieldLabels: Record<'modulo' | 'recurso' | 'rota' | 'icone', string> = {
 }
 
 export function RotaNovaPage() {
+  usePageTitle('Nova Rota')
   const navigate = useNavigate()
   const qc = useQueryClient()
 

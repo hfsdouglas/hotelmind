@@ -10,6 +10,7 @@ import { ColorPicker } from '@/components/ui/color_picker'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { usePageTitle } from '@/hooks/use_document_title'
 import {
   type RegimeAlimentacaoFormData,
   regimeAlimentacaoSchema,
@@ -25,6 +26,12 @@ export function EditarRegimeAlimentacaoPage() {
     queryFn: () => regimesAlimentacaoService.get(id ?? ''),
     enabled: !!id,
   })
+
+  usePageTitle(
+    regime?.titulo
+      ? `Editar Regime - ${regime.titulo}`
+      : 'Editar Regime de Alimentação'
+  )
 
   const {
     register,

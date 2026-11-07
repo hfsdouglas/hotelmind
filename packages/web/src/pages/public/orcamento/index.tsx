@@ -22,6 +22,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import { usePageTitle } from '@/hooks/use_document_title'
 import { mask_phone } from '@/hooks/use_phone_mask'
 
 function formatarDataBR(dataIso: string) {
@@ -52,6 +53,10 @@ export function VisualizarOrcamentoPublicoPage() {
     queryFn: () => orcamentosService.getPublico(publicToken),
     enabled: Boolean(publicToken),
   })
+
+  usePageTitle(
+    orcamento ? `Proposta - ${orcamento.lead_nome}` : 'Proposta de Hospedagem'
+  )
 
   if (isLoading) {
     return (

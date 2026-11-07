@@ -16,6 +16,7 @@ import { ReservaDetalhesHospedagem } from '@/components/reservas/reserva_detalhe
 import { ReservaHospedesSection } from '@/components/reservas/reserva_hospedes_section'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { usePageTitle } from '@/hooks/use_document_title'
 
 function getStatusBadge(status: ReservaStatus) {
   switch (status) {
@@ -94,6 +95,10 @@ export function DetalheReservaPage() {
     queryFn: () => reservasService.get(reservaId),
     enabled: Boolean(reservaId),
   })
+
+  usePageTitle(
+    reserva?.codigo ? `Reserva ${reserva.codigo}` : 'Detalhes da Reserva'
+  )
 
   // Salvar ficha do hóspede pela recepção
   const fichaMutation = useMutation({

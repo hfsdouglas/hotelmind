@@ -1,6 +1,8 @@
+import { usePageTitle } from '@/hooks/use_document_title'
 import { useAuth } from '@/hooks/useAuth'
 
 export function DashboardPage() {
+  usePageTitle('Dashboard')
   const { session } = useAuth()
 
   return (

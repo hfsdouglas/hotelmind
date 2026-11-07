@@ -14,12 +14,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { usePageTitle } from '@/hooks/use_document_title'
 import {
   type CategoriaQuartoFormData,
   categoriaQuartoSchema,
 } from '@/schemas/categorias_quartos/categoria_quarto_schema'
 
 export function NovaCategoriaQuartoPage() {
+  usePageTitle('Nova Categoria de Quarto')
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const {

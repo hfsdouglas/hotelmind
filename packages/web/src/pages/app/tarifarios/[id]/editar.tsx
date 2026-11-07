@@ -19,6 +19,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { usePageTitle } from '@/hooks/use_document_title'
 import {
   useTarifario,
   useTarifariosCalendario,
@@ -33,6 +34,12 @@ export function EditarTarifarioPage() {
     isLoading: is_loading_tarifario,
     isError: is_error_tarifario,
   } = useTarifario(id)
+
+  usePageTitle(
+    tarifario?.nome
+      ? `Editar Tarifário - ${tarifario.nome}`
+      : 'Editar Tarifário'
+  )
 
   const { data: categories, isLoading: is_loading_categories } = useQuery({
     queryKey: ['categorias_quartos', 'edit_tarifario'],

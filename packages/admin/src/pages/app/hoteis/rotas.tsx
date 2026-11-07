@@ -7,6 +7,7 @@ import { type Rota, rotasService } from '@/api/rotas.service'
 import { SaveButton } from '@/components/forms/save_button'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import { usePageTitle } from '@/hooks/use_document_title'
 import { cn } from '@/lib/utils'
 
 export function HotelRotasPage() {
@@ -20,6 +21,12 @@ export function HotelRotasPage() {
     queryFn: () => hoteisService.findById(id!),
     enabled: !!id,
   })
+
+  usePageTitle(
+    hotel?.nome_fantasia || hotel?.nome_hotel
+      ? `Rotas do Hotel - ${hotel.nome_fantasia || hotel.nome_hotel}`
+      : 'Rotas do Hotel'
+  )
 
   const { data: allRotas } = useQuery({
     queryKey: ['admin:rotas:all'],

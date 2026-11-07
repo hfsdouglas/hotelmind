@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { usePageTitle } from '@/hooks/use_document_title'
 import { mask_phone } from '@/hooks/use_phone_mask'
 import { usePaginacao } from '@/hooks/usePaginacao'
 
@@ -42,6 +43,7 @@ function formatarMoeda(valor: string | number) {
 }
 
 export function OrcamentosPage() {
+  usePageTitle('Orçamentos de Reserva')
   const { pagina, limite, busca, setParam, setPagina, isPending } =
     usePaginacao()
   const queryClient = useQueryClient()

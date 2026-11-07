@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { usePageTitle } from '@/hooks/use_document_title'
 import { type GrupoFormData, grupoSchema } from '@/schemas/grupos/grupo_schema'
 
 type FormData = GrupoFormData
@@ -45,6 +46,8 @@ export function EditarGrupoPage() {
     queryFn: () => gruposService.get(id!),
     enabled: !!id,
   })
+
+  usePageTitle(grupo?.grupo ? `Editar Grupo - ${grupo.grupo}` : 'Editar Grupo')
 
   const { data: allRotas = [] } = useQuery({
     queryKey: ['rotas'],

@@ -18,9 +18,11 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
+import { usePageTitle } from '@/hooks/use_document_title'
 import { usePaginacao } from '@/hooks/usePaginacao'
 
 export function SuportePage() {
+  usePageTitle('Suporte')
   const {
     pagina,
     limite,

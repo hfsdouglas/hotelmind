@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { usePageTitle } from '@/hooks/use_document_title'
 import { usePaginacao } from '@/hooks/usePaginacao'
 
 const TIPO_LABELS: Record<TipoParceiro, string> = {
@@ -68,6 +69,7 @@ function getStatusBadge(status: StatusParceiro) {
 }
 
 export function ParceirosComerciaisPage() {
+  usePageTitle('Parceiros Comerciais')
   const queryClient = useQueryClient()
   const { pagina, limite, busca, setParam, setPagina, isPending } =
     usePaginacao()

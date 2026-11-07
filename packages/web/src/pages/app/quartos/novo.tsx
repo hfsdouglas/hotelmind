@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { usePageTitle } from '@/hooks/use_document_title'
 import {
   type QuartoFormData,
   quartoSchema,
@@ -32,6 +33,7 @@ function format_bed_type(type: string) {
 }
 
 export function NovoQuartoPage() {
+  usePageTitle('Novo Quarto')
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 

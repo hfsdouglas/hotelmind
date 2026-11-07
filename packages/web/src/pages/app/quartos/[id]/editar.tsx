@@ -30,6 +30,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { usePageTitle } from '@/hooks/use_document_title'
 import {
   type QuartoFormData,
   quartoSchema,
@@ -54,6 +55,12 @@ export function EditarQuartoPage() {
     queryFn: () => quartosService.get(id),
     enabled: !!id,
   })
+
+  usePageTitle(
+    room?.identificacao
+      ? `Editar Quarto ${room.identificacao}`
+      : 'Editar Quarto'
+  )
 
   const { data: categories } = useQuery({
     queryKey: ['categorias_quartos', 'edit'],

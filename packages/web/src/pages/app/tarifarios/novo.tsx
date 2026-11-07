@@ -11,12 +11,14 @@ import {
 } from '@/components/tarifarios/tarifario_form'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { usePageTitle } from '@/hooks/use_document_title'
 import {
   useCreateTarifarioMutation,
   useTarifariosCalendario,
 } from '@/hooks/use_tarifarios'
 
 export function NovoTarifarioPage() {
+  usePageTitle('Novo Tarifário')
   const navigate = useNavigate()
   const [selected_category_id, setSelectedCategoryId] = useState('')
 

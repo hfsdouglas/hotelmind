@@ -21,9 +21,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { usePageTitle } from '@/hooks/use_document_title'
 import { usePaginacao } from '@/hooks/usePaginacao'
 
 export function RegimesAlimentacaoPage() {
+  usePageTitle('Regimes de Alimentação')
   const { pagina, limite, busca, setParam, setPagina, isPending } =
     usePaginacao()
   const [searchParams] = useSearchParams()

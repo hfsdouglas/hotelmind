@@ -17,6 +17,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { usePageTitle } from '@/hooks/use_document_title'
 import {
   type RotaUpdateFormData,
   rotaUpdateSchema,
@@ -41,6 +42,8 @@ export function RotaEditarPage() {
     queryFn: () => rotasService.findById(id!),
     enabled: !!id,
   })
+
+  usePageTitle(rota?.recurso ? `Editar Rota - ${rota.recurso}` : 'Editar Rota')
 
   const form = useForm<FormData>({
     resolver: zodResolver(rotaUpdateSchema),

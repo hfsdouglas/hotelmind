@@ -42,6 +42,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { usePageTitle } from '@/hooks/use_document_title'
 import { mask_phone, unmask_phone, usePhoneMask } from '@/hooks/use_phone_mask'
 import {
   type EditarReservaFormData,
@@ -120,6 +121,10 @@ export function EditarReservaPage() {
     queryFn: () => reservasService.get(reservaId),
     enabled: Boolean(reservaId),
   })
+
+  usePageTitle(
+    reserva?.codigo ? `Editar Reserva ${reserva.codigo}` : 'Editar Reserva'
+  )
 
   // 2. Regimes ativos
   const { data: regimesData } = useQuery({

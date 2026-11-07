@@ -38,6 +38,7 @@ import {
   ReservationsProvider,
   useReservations,
 } from '@/contexts/reservations_context'
+import { usePageTitle } from '@/hooks/use_document_title'
 import { cn } from '@/lib/utils'
 
 type RoomStatus =
@@ -720,6 +721,7 @@ function CalendarioContent() {
 }
 
 export function Calendario() {
+  usePageTitle('Calendário de Reservas')
   return (
     <ReservationsProvider reservations={mockReservations}>
       <CalendarioContent />

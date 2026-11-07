@@ -15,6 +15,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { usePageTitle } from '@/hooks/use_document_title'
 import {
   type AdministradorCreateFormData,
   administradorCreateSchema,
@@ -23,6 +24,7 @@ import {
 type FormData = AdministradorCreateFormData
 
 export function AdministradorNovoPage() {
+  usePageTitle('Novo Administrador')
   const navigate = useNavigate()
   const qc = useQueryClient()
 

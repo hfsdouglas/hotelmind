@@ -32,6 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { usePageTitle } from '@/hooks/use_document_title'
 import { mask_phone } from '@/hooks/use_phone_mask'
 import { usePaginacao } from '@/hooks/usePaginacao'
 
@@ -113,6 +114,7 @@ function getStatusBadge(status: ReservaStatus) {
 }
 
 export function ReservasPage() {
+  usePageTitle('Reservas')
   const { pagina, limite, busca, setParam, setParams, setPagina, isPending } =
     usePaginacao()
 

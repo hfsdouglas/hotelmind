@@ -15,6 +15,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { usePageTitle } from '@/hooks/use_document_title'
 import {
   type HotelCreateFormData,
   hotelCreateSchema,
@@ -33,6 +34,7 @@ const fieldLabels: Record<string, string> = {
 type FormData = HotelCreateFormData
 
 export function HotelNovoPage() {
+  usePageTitle('Novo Hotel')
   const navigate = useNavigate()
   const qc = useQueryClient()
 

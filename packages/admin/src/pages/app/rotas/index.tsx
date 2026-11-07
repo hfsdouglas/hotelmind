@@ -9,9 +9,11 @@ import { ListPageLayout } from '@/components/data-table/list_page_layout'
 import { PagedDataTable } from '@/components/data-table/paged_data_table'
 import { SearchBar } from '@/components/data-table/search_bar'
 import { Button } from '@/components/ui/button'
+import { usePageTitle } from '@/hooks/use_document_title'
 import { usePaginacao } from '@/hooks/usePaginacao'
 
 export function RotasPage() {
+  usePageTitle('Rotas')
   const qc = useQueryClient()
   const {
     pagina,

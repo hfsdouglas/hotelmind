@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { usePageTitle } from '@/hooks/use_document_title'
 import { type GrupoFormData, grupoSchema } from '@/schemas/grupos/grupo_schema'
 
 type FormData = GrupoFormData
@@ -36,6 +37,7 @@ function groupByModule(rotas: RotaItem[]) {
 }
 
 export function NovoGrupoPage() {
+  usePageTitle('Novo Grupo')
   const navigate = useNavigate()
   const {
     register,

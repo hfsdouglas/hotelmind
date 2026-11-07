@@ -30,9 +30,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { usePageTitle } from '@/hooks/use_document_title'
 import { usePaginacao } from '@/hooks/usePaginacao'
 
 export function GruposPage() {
+  usePageTitle('Grupos de Permissões')
   const queryClient = useQueryClient()
   const {
     pagina,

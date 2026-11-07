@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { usePageTitle } from '@/hooks/use_document_title'
 import { usePaginacao } from '@/hooks/usePaginacao'
 
 function format_bed_type(type: string) {
@@ -34,6 +35,7 @@ function format_bed_type(type: string) {
 }
 
 export function QuartosPage() {
+  usePageTitle('Quartos')
   const { pagina, limite, busca, setParam, setPagina, isPending } =
     usePaginacao()
   const [searchParams] = useSearchParams()

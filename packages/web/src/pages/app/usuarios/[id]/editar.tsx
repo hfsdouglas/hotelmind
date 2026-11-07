@@ -11,6 +11,7 @@ import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { usePageTitle } from '@/hooks/use_document_title'
 import {
   type UsuarioUpdateFormData,
   usuarioUpdateSchema,
@@ -28,6 +29,12 @@ export function EditarUsuarioPage() {
     queryFn: () => usuariosService.get(id!),
     enabled: !!id,
   })
+
+  usePageTitle(
+    usuario?.nome_completo
+      ? `Editar Usuário - ${usuario.nome_completo}`
+      : 'Editar Usuário'
+  )
 
   const { data: gruposData } = useQuery({
     queryKey: ['grupos', { pagina: 1, limite: 250 }],

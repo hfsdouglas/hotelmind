@@ -24,10 +24,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { usePageTitle } from '@/hooks/use_document_title'
 import { usePaginacao } from '@/hooks/usePaginacao'
 import { format_iso_to_br } from '@/schemas/tarifarios/tarifario_schema'
 
 export function TarifariosPage() {
+  usePageTitle('Tarifários')
   const { pagina, limite, busca, setParam, setParams, setPagina, isPending } =
     usePaginacao()
   const [searchParams] = useSearchParams()

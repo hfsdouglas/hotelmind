@@ -41,6 +41,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { usePageTitle } from '@/hooks/use_document_title'
 import { mask_phone, unmask_phone, usePhoneMask } from '@/hooks/use_phone_mask'
 
 const editOrcamentoSchema = z.object({
@@ -147,6 +148,12 @@ export function EditarOrcamentoPage() {
     queryFn: () => orcamentosService.get(orcamentoId),
     enabled: Boolean(orcamentoId),
   })
+
+  usePageTitle(
+    orcamento?.lead?.nome
+      ? `Editar Orçamento - ${orcamento.lead.nome}`
+      : 'Editar Orçamento'
+  )
 
   const { data: regimes_res, isLoading: isLoadingRegimes } = useQuery({
     queryKey: ['regimes_alimentacao'],

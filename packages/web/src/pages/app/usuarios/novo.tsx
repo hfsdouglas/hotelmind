@@ -10,6 +10,7 @@ import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { usePageTitle } from '@/hooks/use_document_title'
 import {
   type UsuarioCreateFormData,
   usuarioCreateSchema,
@@ -18,6 +19,7 @@ import {
 type FormData = UsuarioCreateFormData
 
 export function NovoUsuarioPage() {
+  usePageTitle('Novo Usuário')
   const navigate = useNavigate()
 
   const { data: gruposData } = useQuery({

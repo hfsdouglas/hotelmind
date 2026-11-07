@@ -6,8 +6,10 @@ import {
   ParceiroForm,
   type ParceiroFormState,
 } from '@/components/parceiros/parceiro_form'
+import { usePageTitle } from '@/hooks/use_document_title'
 
 export function NovoParceiroPage() {
+  usePageTitle('Novo Parceiro Comercial')
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 

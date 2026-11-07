@@ -9,12 +9,14 @@ import { ColorPicker } from '@/components/ui/color_picker'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { usePageTitle } from '@/hooks/use_document_title'
 import {
   type RegimeAlimentacaoFormData,
   regimeAlimentacaoSchema,
 } from '@/schemas/regimes_alimentacao/regime_alimentacao_schema'
 
 export function NovoRegimeAlimentacaoPage() {
+  usePageTitle('Novo Regime de Alimentação')
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 

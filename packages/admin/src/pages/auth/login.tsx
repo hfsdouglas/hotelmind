@@ -10,10 +10,12 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { usePageTitle } from '@/hooks/use_document_title'
 import { useLogin } from '@/hooks/useLogin'
 import { type LoginFormData, login_schema } from '@/schemas/auth/auth_schema'
 
 export function LoginPage() {
+  usePageTitle('Entrar')
   const { login, isPending } = useLogin()
 
   const form = useForm<LoginFormData>({

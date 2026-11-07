@@ -1,6 +1,7 @@
 import { toast } from 'sonner'
 import { HotelConfiguracaoForm } from '@/components/hotel-configuracao/hotel_configuracao_form'
 import { Skeleton } from '@/components/ui/skeleton'
+import { usePageTitle } from '@/hooks/use_document_title'
 import {
   useHotelConfiguracao,
   useUpdateHotelConfiguracaoMutation,
@@ -8,6 +9,7 @@ import {
 import type { HotelConfiguracaoFormData } from '@/schemas/hotel_configuracao'
 
 export function HotelConfiguracoesPage() {
+  usePageTitle('Configurações do Hotel')
   const { data: config, isLoading, isError } = useHotelConfiguracao()
   const { mutateAsync: updateConfig, isPending: isUpdating } =
     useUpdateHotelConfiguracaoMutation()

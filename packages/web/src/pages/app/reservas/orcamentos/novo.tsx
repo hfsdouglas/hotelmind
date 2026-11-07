@@ -38,6 +38,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { usePageTitle } from '@/hooks/use_document_title'
 import { unmask_phone, usePhoneMask } from '@/hooks/use_phone_mask'
 import {
   type OrcamentoFormData,
@@ -115,6 +116,7 @@ function formatarDataBR(dataIso: string) {
 }
 
 export function NovoOrcamentoPage() {
+  usePageTitle('Novo Orçamento')
   const navigate = useNavigate()
   const phone_mask = usePhoneMask()
   const queryClient = useQueryClient()

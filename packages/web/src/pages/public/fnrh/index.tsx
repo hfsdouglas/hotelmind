@@ -36,6 +36,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { usePageTitle } from '@/hooks/use_document_title'
 
 function formatarDataBR(dataIso: string | null | undefined) {
   if (!dataIso) return '-'
@@ -77,6 +78,7 @@ function calcularIdade(
 }
 
 export function FnrhPublicaPage() {
+  usePageTitle('Pré-check-in Digital (FNRH)')
   const { token } = useParams<{ token: string }>()
   const publicToken = token ?? ''
   const queryClient = useQueryClient()

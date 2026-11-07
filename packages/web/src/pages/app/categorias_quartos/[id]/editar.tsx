@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { usePageTitle } from '@/hooks/use_document_title'
 import {
   type CategoriaQuartoFormData,
   categoriaQuartoSchema,
@@ -39,6 +40,12 @@ export function EditarCategoriaQuartoPage() {
     queryFn: () => categoriasQuartosService.get(id),
     enabled: !!id,
   })
+
+  usePageTitle(
+    data?.nome
+      ? `Editar Categoria - ${data.nome}`
+      : 'Editar Categoria de Quarto'
+  )
   const {
     register,
     handleSubmit,

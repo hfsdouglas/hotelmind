@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { usePageTitle } from '@/hooks/use_document_title'
 import {
   type AdministradorUpdateFormData,
   administradorUpdateSchema,
@@ -40,6 +41,12 @@ export function AdministradorEditarPage() {
     queryFn: () => administradoresService.findById(id!),
     enabled: !!id,
   })
+
+  usePageTitle(
+    admin?.nome_completo
+      ? `Editar Administrador - ${admin.nome_completo}`
+      : 'Editar Administrador'
+  )
 
   const form = useForm<FormData>({
     resolver: zodResolver(administradorUpdateSchema),

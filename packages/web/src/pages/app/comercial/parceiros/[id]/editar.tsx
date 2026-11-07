@@ -8,6 +8,7 @@ import {
 } from '@/components/parceiros/parceiro_form'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { usePageTitle } from '@/hooks/use_document_title'
 
 export function EditarParceiroPage() {
   const { id } = useParams<{ id: string }>()
@@ -25,6 +26,12 @@ export function EditarParceiroPage() {
     queryFn: () => parceirosComerciaisService.get(partnerId),
     enabled: Boolean(partnerId),
   })
+
+  usePageTitle(
+    parceiro?.razao_social
+      ? `Editar Parceiro - ${parceiro.razao_social}`
+      : 'Editar Parceiro Comercial'
+  )
 
   const mutation = useMutation({
     mutationFn: (data: ParceiroFormState) =>

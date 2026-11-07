@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
+import { usePageTitle } from '@/hooks/use_document_title'
 
 export function Error404Page() {
+  usePageTitle('Página não encontrada')
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="space-y-3 text-center">
