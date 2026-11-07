@@ -196,23 +196,22 @@ describe('Orcamentos Admin Pages', () => {
         screen.getByText('Passo 1: Período e Hóspedes')
       ).toBeInTheDocument()
       expect(
-        screen.getByText('Passo 2: Regime de Alimentação')
+        screen.getByText('Passo 2: Parceiro Comercial')
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText('Passo 3: Regime de Alimentação')
       ).toBeInTheDocument()
       expect(
         screen.getByText(
-          'Passo 3: Acomodação (Suítes Disponíveis pelo Tarifário)'
+          'Passo 4: Acomodação (Suítes Disponíveis pelo Tarifário)'
         )
       ).toBeInTheDocument()
       expect(
-        screen.getByText('Passo 4: Dados do Primeiro Contato (Lead)')
+        screen.getByText('Passo 5: Dados do Primeiro Contato (Lead)')
       ).toBeInTheDocument()
       expect(screen.getByRole('button', { name: 'Salvar' })).toBeInTheDocument()
-      expect(screen.getByText('Parceiro Comercial')).toBeInTheDocument()
       expect(
-        screen.getByRole('option', { name: 'Tarifário Público (Sem Parceiro)' })
-      ).toBeInTheDocument()
-      expect(
-        screen.getByRole('option', { name: 'Corp Travel' })
+        screen.getByRole('combobox', { name: 'Parceiro Comercial' })
       ).toBeInTheDocument()
       expect(screen.getByText('Data de Check-in *')).toBeInTheDocument()
       expect(screen.getByText('Data de Check-out *')).toBeInTheDocument()

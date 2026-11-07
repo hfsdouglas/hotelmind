@@ -434,9 +434,7 @@ export function NovaReservaPage() {
                     <SelectValue placeholder="Selecione o canal ou parceiro" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="direta">
-                      Reserva Direta (Sem Parceiro)
-                    </SelectItem>
+                    <SelectItem value="direta">Reserva Direta</SelectItem>
                     {parceiros.map(p => (
                       <SelectItem key={p.id} value={p.id}>
                         {p.razao_social}{' '}

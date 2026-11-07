@@ -59,7 +59,7 @@ export function TarifariosPage() {
           </span>
         ) : (
           <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
-            Público (Balcão)
+            Reserva Direta
           </span>
         ),
     },
@@ -232,7 +232,7 @@ export function TarifariosPage() {
                   <SelectContent>
                     <SelectItem value="all">Todos os canais</SelectItem>
                     <SelectItem value="publico">
-                      Apenas Tarifários Públicos
+                      Apenas Reserva Direta
                     </SelectItem>
                     {parceiros_res?.data.map(p => (
                       <SelectItem key={p.id} value={p.id}>

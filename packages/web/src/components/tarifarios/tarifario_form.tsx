@@ -3,7 +3,7 @@ import type {
   PeriodoTarifarioCalendario,
   RegimeAlimentacao,
 } from '@hotelmind/contracts'
-import { Save } from 'lucide-react'
+import { CalendarCheck2, DollarSign, Handshake, Save, Tag } from 'lucide-react'
 import { type FormEvent, useEffect, useState } from 'react'
 import { CrudFormLayout } from '@/components/forms/CrudFormLayout'
 import { Button } from '@/components/ui/button'
@@ -227,76 +227,96 @@ export function TarifarioForm({
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="nome">Nome *</Label>
-            <Input
-              id="nome"
-              placeholder="Ex.: Baixa temporada"
-              value={nome}
-              onChange={e => setNome(e.target.value)}
-              maxLength={100}
-            />
+        {/* PASSO 1: DADOS DO TARIFÁRIO */}
+        <section className="space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b">
+            <Tag className="h-5 w-5 text-primary" />
+            <h2 className="text-lg font-semibold text-foreground">
+              Passo 1: Dados do Tarifário
+            </h2>
           </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="nome">Nome *</Label>
+              <Input
+                id="nome"
+                placeholder="Ex.: Baixa temporada"
+                value={nome}
+                onChange={e => setNome(e.target.value)}
+                maxLength={100}
+              />
+            </div>
 
-          <div className="relative flex flex-col gap-1.5">
-            <Label htmlFor="categoria_quarto_id">Categoria de quarto *</Label>
-            <Select
-              value={categoria_quarto_id || undefined}
-              onValueChange={handle_category_change}
-            >
-              <SelectTrigger
-                id="categoria_quarto_id"
-                aria-label="Categoria de quarto"
+            <div className="relative flex flex-col gap-1.5">
+              <Label htmlFor="categoria_quarto_id">Categoria de quarto *</Label>
+              <Select
+                value={categoria_quarto_id || undefined}
+                onValueChange={handle_category_change}
               >
-                <SelectValue placeholder="Selecione uma categoria" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map(category => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.nome}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+                <SelectTrigger
+                  id="categoria_quarto_id"
+                  aria-label="Categoria de quarto"
+                >
+                  <SelectValue placeholder="Selecione uma categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map(category => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          <div className="relative flex flex-col gap-1.5">
-            <Label htmlFor="regime_alimentacao_id">
-              Regime de Alimentação *
+            <div className="relative flex flex-col gap-1.5">
+              <Label htmlFor="regime_alimentacao_id">
+                Regime de Alimentação *
+              </Label>
+              <Select
+                value={regime_alimentacao_id || undefined}
+                onValueChange={val => {
+                  setRegimeAlimentacaoId(val)
+                  if (errors.length > 0) setErrors([])
+                }}
+              >
+                <SelectTrigger
+                  id="regime_alimentacao_id"
+                  aria-label="Regime de Alimentação"
+                >
+                  <SelectValue placeholder="Selecione um regime" />
+                </SelectTrigger>
+                <SelectContent>
+                  {regimes.map(regime => (
+                    <SelectItem key={regime.id} value={regime.id}>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="inline-block h-3 w-3 shrink-0 rounded-full border border-black/10 shadow-sm"
+                          style={{ backgroundColor: regime.cor_pulseira }}
+                          aria-hidden="true"
+                        />
+                        <span>{regime.titulo}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </section>
+
+        {/* PASSO 2: PARCEIRO COMERCIAL */}
+        <section className="space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b">
+            <Handshake className="h-5 w-5 text-primary" />
+            <h2 className="text-lg font-semibold text-foreground">
+              Passo 2: Parceiro Comercial
+            </h2>
+          </div>
+          <div className="max-w-md flex flex-col gap-1.5">
+            <Label htmlFor="parceiro_id">
+              Canal / Parceiro Comercial (Opcional)
             </Label>
-            <Select
-              value={regime_alimentacao_id || undefined}
-              onValueChange={val => {
-                setRegimeAlimentacaoId(val)
-                if (errors.length > 0) setErrors([])
-              }}
-            >
-              <SelectTrigger
-                id="regime_alimentacao_id"
-                aria-label="Regime de Alimentação"
-              >
-                <SelectValue placeholder="Selecione um regime" />
-              </SelectTrigger>
-              <SelectContent>
-                {regimes.map(regime => (
-                  <SelectItem key={regime.id} value={regime.id}>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="inline-block h-3 w-3 shrink-0 rounded-full border border-black/10 shadow-sm"
-                        style={{ backgroundColor: regime.cor_pulseira }}
-                        aria-hidden="true"
-                      />
-                      <span>{regime.titulo}</span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="relative flex flex-col gap-1.5">
-            <Label htmlFor="parceiro_id">Parceiro Comercial</Label>
             <Select
               value={parceiro_id || '__publico__'}
               onValueChange={val => {
@@ -305,12 +325,10 @@ export function TarifarioForm({
               }}
             >
               <SelectTrigger id="parceiro_id" aria-label="Parceiro Comercial">
-                <SelectValue placeholder="Público (Geral)" />
+                <SelectValue placeholder="Reserva Direta" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="__publico__">
-                  Tarifário Público (Geral)
-                </SelectItem>
+                <SelectItem value="__publico__">Reserva Direta</SelectItem>
                 {parceiros.map(p => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.razao_social}
@@ -319,25 +337,29 @@ export function TarifarioForm({
               </SelectContent>
             </Select>
           </div>
-        </div>
+        </section>
 
-        <TarifarioPeriodSummary
-          selectedDates={datas}
-          valorDiaria={valor_diaria}
-          conflictingPeriods={conflicting_periods}
-        />
-
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <Label className="text-base font-semibold">
-              Calendário de datas *
-            </Label>
+        {/* PASSO 3: CALENDÁRIO DE DATAS */}
+        <section className="space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b">
+            <div className="flex items-center gap-2">
+              <CalendarCheck2 className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-semibold text-foreground">
+                Passo 3: Calendário de Datas
+              </h2>
+            </div>
             {isLoadingPeriods && (
               <span className="text-xs text-muted-foreground">
                 Carregando datas ocupadas...
               </span>
             )}
           </div>
+
+          <TarifarioPeriodSummary
+            selectedDates={datas}
+            valorDiaria={valor_diaria}
+            conflictingPeriods={conflicting_periods}
+          />
 
           <TarifarioCalendar
             selectedDates={datas}
@@ -348,61 +370,70 @@ export function TarifarioForm({
             onReplaceSelection={handle_replace_dates}
             onClearSelection={handle_clear_dates}
           />
-        </div>
+        </section>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="valor_diaria">Valor da diária (R$) *</Label>
-            <Input
-              id="valor_diaria"
-              type="number"
-              step="0.01"
-              min="0"
-              placeholder="0.00"
-              value={valor_diaria}
-              onChange={e => setValorDiaria(e.target.value)}
-            />
+        {/* PASSO 4: VALOR DA DIÁRIA E SITUAÇÃO */}
+        <section className="space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b">
+            <DollarSign className="h-5 w-5 text-primary" />
+            <h2 className="text-lg font-semibold text-foreground">
+              Passo 4: Valor da Diária e Situação
+            </h2>
           </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="valor_diaria">Valor da diária (R$) *</Label>
+              <Input
+                id="valor_diaria"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="0.00"
+                value={valor_diaria}
+                onChange={e => setValorDiaria(e.target.value)}
+              />
+            </div>
 
-          <div className="flex flex-col gap-1.5">
-            <Label id="status-label">Status</Label>
-            <div
-              role="radiogroup"
-              aria-labelledby="status-label"
-              className="flex h-9 items-center gap-6"
-            >
-              <div className="flex items-center gap-2">
-                <input
-                  id="status_ativado"
-                  type="radio"
-                  name="status"
-                  value="ativado"
-                  checked={ativo}
-                  onChange={() => setAtivo(true)}
-                  className="h-4 w-4 cursor-pointer accent-primary"
-                />
-                <Label htmlFor="status_ativado" className="cursor-pointer">
-                  Ativado
-                </Label>
-              </div>
+            <div className="flex flex-col gap-1.5">
+              <Label id="status-label">Status</Label>
+              <div
+                role="radiogroup"
+                aria-labelledby="status-label"
+                className="flex h-9 items-center gap-6"
+              >
+                <div className="flex items-center gap-2">
+                  <input
+                    id="status_ativado"
+                    type="radio"
+                    name="status"
+                    value="ativado"
+                    checked={ativo}
+                    onChange={() => setAtivo(true)}
+                    className="h-4 w-4 cursor-pointer accent-primary"
+                  />
+                  <Label htmlFor="status_ativado" className="cursor-pointer">
+                    Ativado
+                  </Label>
+                </div>
 
-              <div className="flex items-center gap-2">
-                <input
-                  id="status_desativado"
-                  type="radio"
-                  name="status"
-                  value="desativado"
-                  checked={!ativo}
-                  onChange={() => setAtivo(false)}
-                  className="h-4 w-4 cursor-pointer accent-primary"
-                />
-                <Label htmlFor="status_desativado" className="cursor-pointer">
-                  Desativado
-                </Label>
+                <div className="flex items-center gap-2">
+                  <input
+                    id="status_desativado"
+                    type="radio"
+                    name="status"
+                    value="desativado"
+                    checked={!ativo}
+                    onChange={() => setAtivo(false)}
+                    className="h-4 w-4 cursor-pointer accent-primary"
+                  />
+                  <Label htmlFor="status_desativado" className="cursor-pointer">
+                    Desativado
+                  </Label>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </section>
       </div>
     </CrudFormLayout>
   )

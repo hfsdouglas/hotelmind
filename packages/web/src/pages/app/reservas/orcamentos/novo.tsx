@@ -3,10 +3,10 @@ import type { Tarifario } from '@hotelmind/contracts'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   BedDouble,
-  Building2,
   Calendar,
   CheckCircle2,
   DollarSign,
+  Handshake,
   Info,
   Mail,
   PawPrint,
@@ -30,6 +30,13 @@ import { Badge } from '@/components/ui/badge'
 import { DatePicker } from '@/components/ui/date_picker'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { unmask_phone, usePhoneMask } from '@/hooks/use_phone_mask'
 import {
@@ -301,32 +308,6 @@ export function NovoOrcamentoPage() {
             </h2>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 max-w-xl">
-            <div className="space-y-1.5">
-              <Label htmlFor="parceiro_id">Parceiro Comercial</Label>
-              <div className="relative">
-                <Building2 className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <select
-                  id="parceiro_id"
-                  aria-label="Parceiro Comercial"
-                  className="h-9 w-full rounded-md border border-input bg-background pl-9 pr-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                  {...register('parceiro_id', {
-                    onChange: () => {
-                      setValue('categoria_quarto_id', '')
-                    },
-                  })}
-                >
-                  <option value="">Tarifário Público (Sem Parceiro)</option>
-                  {parceiros.map(p => (
-                    <option key={p.id} value={p.id}>
-                      {p.nome_fantasia || p.razao_social}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
-
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <div className="space-y-1.5">
               <Label htmlFor="check_in">Data de Check-in *</Label>
@@ -436,12 +417,56 @@ export function NovoOrcamentoPage() {
           )}
         </section>
 
-        {/* PASSO 2: REGIME DE ALIMENTAÇÃO */}
+        {/* PASSO 2: PARCEIRO COMERCIAL */}
+        <section className="space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b">
+            <Handshake className="h-5 w-5 text-primary" />
+            <h2 className="text-lg font-semibold text-foreground">
+              Passo 2: Parceiro Comercial
+            </h2>
+          </div>
+          <div className="max-w-md space-y-1.5">
+            <Label htmlFor="parceiro_id">
+              Canal / Parceiro Comercial (Opcional)
+            </Label>
+            <Controller
+              control={control}
+              name="parceiro_id"
+              render={({ field }) => (
+                <Select
+                  value={field.value || 'direta'}
+                  onValueChange={val => {
+                    field.onChange(val === 'direta' ? '' : val)
+                    setValue('categoria_quarto_id', '')
+                  }}
+                >
+                  <SelectTrigger
+                    id="parceiro_id"
+                    className="h-9"
+                    aria-label="Parceiro Comercial"
+                  >
+                    <SelectValue placeholder="Selecione o canal ou parceiro" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="direta">Reserva Direta</SelectItem>
+                    {parceiros.map(p => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.nome_fantasia || p.razao_social}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </div>
+        </section>
+
+        {/* PASSO 3: REGIME DE ALIMENTAÇÃO */}
         <section className="space-y-4">
           <div className="flex items-center gap-2 pb-2 border-b">
             <Utensils className="h-5 w-5 text-primary" />
             <h2 className="text-lg font-semibold text-foreground">
-              Passo 2: Regime de Alimentação
+              Passo 3: Regime de Alimentação
             </h2>
           </div>
           {nights.length === 0 ? (
@@ -560,12 +585,12 @@ export function NovoOrcamentoPage() {
           </div>
         </section>
 
-        {/* PASSO 3: CARREGAMENTO DE SUÍTES DE ACORDO COM O TARIFÁRIO */}
+        {/* PASSO 4: CARREGAMENTO DE SUÍTES DE ACORDO COM O TARIFÁRIO */}
         <section className="space-y-4">
           <div className="flex items-center gap-2 pb-2 border-b">
             <BedDouble className="h-5 w-5 text-primary" />
             <h2 className="text-lg font-semibold text-foreground">
-              Passo 3: Acomodação (Suítes Disponíveis pelo Tarifário)
+              Passo 4: Acomodação (Suítes Disponíveis pelo Tarifário)
             </h2>
           </div>
           {nights.length === 0 || !watch_regime_id ? (
@@ -573,7 +598,7 @@ export function NovoOrcamentoPage() {
               <Info className="h-5 w-5 shrink-0 text-muted-foreground" />
               <p>
                 Preencha o período (<strong>Passo 1</strong>) e selecione o
-                regime de alimentação (<strong>Passo 2</strong>) para carregar
+                regime de alimentação (<strong>Passo 3</strong>) para carregar
                 as suítes disponíveis com base nos tarifários cadastrados.
               </p>
             </div>
@@ -706,12 +731,12 @@ export function NovoOrcamentoPage() {
           </div>
         )}
 
-        {/* PASSO 4: PRIMEIRO CONTATO (LEAD) */}
+        {/* PASSO 5: PRIMEIRO CONTATO (LEAD) */}
         <section className="space-y-4">
           <div className="flex items-center gap-2 pb-2 border-b">
             <User className="h-5 w-5 text-primary" />
             <h2 className="text-lg font-semibold text-foreground">
-              Passo 4: Dados do Primeiro Contato (Lead)
+              Passo 5: Dados do Primeiro Contato (Lead)
             </h2>
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
