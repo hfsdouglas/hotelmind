@@ -8,7 +8,6 @@ import {
   Plus,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { PageHeader } from '@/components/page_header'
 import { ReservationCell } from '@/components/reservation_cell'
 import { Button } from '@/components/ui/button'
 import {
@@ -315,13 +314,10 @@ function CalendarioContent() {
   }
 
   return (
-    <div className="flex flex-col h-full isolate">
-      {/* Header */}
-      <PageHeader
-        title="Calendário de Reservas"
-        description="Visualize e gerencie as reservas do hotel"
-      >
-        <div className="flex items-center gap-2">
+    <div className="-m-6 flex flex-1 flex-col h-[calc(100%+3rem)] min-h-0 overflow-hidden isolate">
+      {/* Filtros de período e navegação */}
+      <div className="grid grid-cols-3 items-center px-4 py-2 bg-background shrink-0">
+        <div className="flex items-center gap-3 justify-self-start">
           <div className="flex items-center gap-1.5">
             <Label htmlFor="month" className="text-sm">
               Mês
@@ -361,47 +357,49 @@ function CalendarioContent() {
               max={2100}
             />
           </div>
-
-          <div className="flex gap-1 items-center">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handlePreviousWeek}
-              title="Voltar 15 dias"
-              className="h-8 w-8 p-0"
-            >
-              <ChevronsLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handlePreviousDay}
-              title="Dia anterior"
-              className="h-8 w-8 p-0"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleNextDay}
-              title="Próximo dia"
-              className="h-8 w-8 p-0"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleNextWeek}
-              title="Avançar 15 dias"
-              className="h-8 w-8 p-0"
-            >
-              <ChevronsRight className="h-4 w-4" />
-            </Button>
-          </div>
         </div>
-      </PageHeader>
+
+        <span className="font-bold justify-self-center">Calendário</span>
+
+        <div className="flex gap-1 items-center justify-self-end">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handlePreviousWeek}
+            title="Voltar 15 dias"
+            className="h-8 w-8 p-0"
+          >
+            <ChevronsLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handlePreviousDay}
+            title="Dia anterior"
+            className="h-8 w-8 p-0"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleNextDay}
+            title="Próximo dia"
+            className="h-8 w-8 p-0"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleNextWeek}
+            title="Avançar 15 dias"
+            className="h-8 w-8 p-0"
+          >
+            <ChevronsRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
 
       {/* Grid de Reservas */}
       <div className="flex-1 overflow-auto min-h-0">
@@ -575,7 +573,7 @@ function CalendarioContent() {
       </div>
 
       {/* Toolbar na parte inferior */}
-      <div className="border-t bg-background shrink-0 p-2 flex items-center gap-2 justify-start">
+      <div className="border-t bg-background shrink-0 px-4 py-2 flex items-center gap-2 justify-start">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
