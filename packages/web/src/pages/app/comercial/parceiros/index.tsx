@@ -275,10 +275,7 @@ export function ParceirosComerciaisPage() {
       searchBar={
         <SearchBar
           value={busca}
-          onSearch={val => {
-            setParam('busca', val)
-            setPagina(1)
-          }}
+          onSearch={val => setParam('busca', val)}
           placeholder="Buscar por Razão Social, Nome Fantasia, CNPJ/CPF, CADASTUR..."
         />
       }
@@ -287,10 +284,9 @@ export function ParceirosComerciaisPage() {
           <div className="w-full sm:w-56">
             <Select
               value={tipoFiltro}
-              onValueChange={v => {
+              onValueChange={v =>
                 setParam('tipo_parceiro', v === 'todos' ? '' : v)
-                setPagina(1)
-              }}
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Tipo de Parceiro" />
@@ -317,10 +313,7 @@ export function ParceirosComerciaisPage() {
           <div className="w-full sm:w-44">
             <Select
               value={statusFiltro}
-              onValueChange={v => {
-                setParam('status', v === 'todos' ? '' : v)
-                setPagina(1)
-              }}
+              onValueChange={v => setParam('status', v === 'todos' ? '' : v)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Status" />

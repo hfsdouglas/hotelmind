@@ -27,16 +27,18 @@ export function usePaginacao(defaults?: Partial<PaginacaoParams>) {
 
   const setParam = useCallback(
     (key: string, value: string | number) => {
-      const next = new URLSearchParams(latest_params_ref.current)
-      if (value === '' || value === 0) {
-        next.delete(key)
-      } else {
-        next.set(key, String(value))
-      }
-      if (key !== 'pagina') next.set('pagina', '1')
-      latest_params_ref.current = next
       startTransition(() => {
-        setSearchParams(next)
+        setSearchParams(prev => {
+          const next = new URLSearchParams(latest_params_ref.current ?? prev)
+          if (value === '' || value === 0) {
+            next.delete(key)
+          } else {
+            next.set(key, String(value))
+          }
+          if (key !== 'pagina') next.set('pagina', '1')
+          latest_params_ref.current = next
+          return next
+        })
       })
     },
     [setSearchParams]
@@ -44,22 +46,24 @@ export function usePaginacao(defaults?: Partial<PaginacaoParams>) {
 
   const setParams = useCallback(
     (updates: Record<string, string | number>) => {
-      const next = new URLSearchParams(latest_params_ref.current)
-      let touched_non_page = false
-      for (const [key, value] of Object.entries(updates)) {
-        if (value === '' || value === 0) {
-          next.delete(key)
-        } else {
-          next.set(key, String(value))
-        }
-        if (key !== 'pagina') touched_non_page = true
-      }
-      if (touched_non_page && !('pagina' in updates)) {
-        next.set('pagina', '1')
-      }
-      latest_params_ref.current = next
       startTransition(() => {
-        setSearchParams(next)
+        setSearchParams(prev => {
+          const next = new URLSearchParams(latest_params_ref.current ?? prev)
+          let touched_non_page = false
+          for (const [key, value] of Object.entries(updates)) {
+            if (value === '' || value === 0) {
+              next.delete(key)
+            } else {
+              next.set(key, String(value))
+            }
+            if (key !== 'pagina') touched_non_page = true
+          }
+          if (touched_non_page && !('pagina' in updates)) {
+            next.set('pagina', '1')
+          }
+          latest_params_ref.current = next
+          return next
+        })
       })
     },
     [setSearchParams]
@@ -69,22 +73,23 @@ export function usePaginacao(defaults?: Partial<PaginacaoParams>) {
     (p: number) => {
       startTransition(() => {
         setSearchParams(prev => {
-          const next = new URLSearchParams(prev)
+          const next = new URLSearchParams(latest_params_ref.current ?? prev)
           next.set('pagina', String(p))
+          latest_params_ref.current = next
           return next
         })
       })
     },
-    [setSearchParams, startTransition]
+    [setSearchParams]
   )
 
   const toggleSort = useCallback(
     (campo: string) => {
       startTransition(() => {
         setSearchParams(prev => {
-          const next = new URLSearchParams(prev)
-          const current = prev.get('ordenar_por')
-          const currentDir = prev.get('direcao') ?? 'asc'
+          const next = new URLSearchParams(latest_params_ref.current ?? prev)
+          const current = next.get('ordenar_por')
+          const currentDir = next.get('direcao') ?? 'asc'
           if (current === campo) {
             next.set('direcao', currentDir === 'asc' ? 'desc' : 'asc')
           } else {
@@ -92,11 +97,12 @@ export function usePaginacao(defaults?: Partial<PaginacaoParams>) {
             next.set('direcao', 'asc')
           }
           next.set('pagina', '1')
+          latest_params_ref.current = next
           return next
         })
       })
     },
-    [setSearchParams, startTransition]
+    [setSearchParams]
   )
 
   return {

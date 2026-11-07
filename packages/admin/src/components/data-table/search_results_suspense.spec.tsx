@@ -17,7 +17,7 @@ describe('SearchResultsSuspense', () => {
     expect(screen.getAllByRole('row')[1].querySelectorAll('td')).toHaveLength(4)
   })
 
-  it('keeps result content and controls available while pending', () => {
+  it('keeps result content and controls available while pending without rendering duplicate skeleton', () => {
     render(
       <SearchResultsSuspense column_count={3} is_pending label="Resultados">
         <button type="button">Continuar</button>
@@ -34,6 +34,9 @@ describe('SearchResultsSuspense', () => {
     expect(screen.getByRole('status')).toHaveTextContent(
       'Atualizando resultados.'
     )
+    expect(
+      screen.queryByLabelText('Carregando resultados')
+    ).not.toBeInTheDocument()
   })
 
   it('announces completion after a pending refresh ends', () => {

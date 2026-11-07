@@ -113,7 +113,7 @@ function getStatusBadge(status: ReservaStatus) {
 }
 
 export function ReservasPage() {
-  const { pagina, limite, busca, setParam, setPagina, isPending } =
+  const { pagina, limite, busca, setParam, setParams, setPagina, isPending } =
     usePaginacao()
 
   const { data: parceirosData } = useQuery({
@@ -303,10 +303,7 @@ export function ReservasPage() {
       searchBar={
         <SearchBar
           value={busca}
-          onSearch={val => {
-            setParam('busca', val)
-            setPagina(1)
-          }}
+          onSearch={val => setParam('busca', val)}
           placeholder="Buscar por código ou nome do hóspede..."
         />
       }
@@ -341,10 +338,7 @@ export function ReservasPage() {
               <Label htmlFor="filtro-status">Status da Reserva</Label>
               <Select
                 value={statusFiltro || 'all'}
-                onValueChange={v => {
-                  setParam('status', v === 'all' ? '' : v)
-                  setPagina(1)
-                }}
+                onValueChange={v => setParam('status', v === 'all' ? '' : v)}
               >
                 <SelectTrigger id="filtro-status" className="h-9 text-xs">
                   <SelectValue placeholder="Todos os status" />
@@ -366,10 +360,9 @@ export function ReservasPage() {
               <Label htmlFor="filtro-parceiro">Parceiro Comercial</Label>
               <Select
                 value={parceiroFiltro || 'all'}
-                onValueChange={v => {
+                onValueChange={v =>
                   setParam('parceiro_id', v === 'all' ? '' : v)
-                  setPagina(1)
-                }}
+                }
               >
                 <SelectTrigger id="filtro-parceiro" className="h-9 text-xs">
                   <SelectValue placeholder="Todos os parceiros" />
@@ -393,9 +386,7 @@ export function ReservasPage() {
                 data-testid="clear-more-filters"
                 className="h-8 w-full text-xs text-muted-foreground hover:text-foreground"
                 onClick={() => {
-                  setParam('status', '')
-                  setParam('parceiro_id', '')
-                  setPagina(1)
+                  setParams({ status: '', parceiro_id: '' })
                 }}
               >
                 Limpar filtros

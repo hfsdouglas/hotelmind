@@ -15,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { cn } from '@/lib/utils'
 
 interface SearchResultsSkeletonProps {
   column_labels?: string[]
@@ -49,7 +50,7 @@ export function SearchResultsSkeleton({
   row_count = 5,
 }: SearchResultsSkeletonProps) {
   return (
-    <div
+    <section
       aria-busy="true"
       aria-label="Carregando resultados"
       className="flex flex-1 min-h-0 flex-col rounded-md border overflow-hidden"
@@ -74,7 +75,7 @@ export function SearchResultsSkeleton({
           ))}
         </TableBody>
       </Table>
-    </div>
+    </section>
   )
 }
 
@@ -145,11 +146,10 @@ export function SearchResultsSuspense({
       >
         {announcement}
       </div>
-      <div
+      <section
         aria-busy={is_pending || undefined}
         aria-label={label}
         className="relative flex flex-1 flex-col min-h-0 gap-4"
-        role="region"
       >
         <SearchResultsErrorBoundary
           error_message={error_message}
@@ -164,22 +164,17 @@ export function SearchResultsSuspense({
               />
             }
           >
-            {children}
+            <div
+              className={cn(
+                'flex flex-1 flex-col min-h-0 transition-opacity duration-200',
+                is_pending && 'opacity-50 pointer-events-none'
+              )}
+            >
+              {children}
+            </div>
           </Suspense>
         </SearchResultsErrorBoundary>
-        {is_pending && (
-          <div
-            className="pointer-events-none mt-2 opacity-60"
-            aria-hidden="true"
-          >
-            <SearchResultsSkeleton
-              column_count={column_count}
-              column_labels={resolved_column_labels}
-              row_count={row_count}
-            />
-          </div>
-        )}
-      </div>
+      </section>
     </>
   )
 }

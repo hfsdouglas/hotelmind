@@ -218,10 +218,7 @@ export function OrcamentosPage() {
       searchBar={
         <SearchBar
           value={busca}
-          onSearch={val => {
-            setParam('busca', val)
-            setPagina(1)
-          }}
+          onSearch={val => setParam('busca', val)}
           placeholder="Buscar por nome do lead, telefone ou observações..."
         />
       }

@@ -27,7 +27,7 @@ describe('SearchBar', () => {
     render(<SearchBar value="" onSearch={onSearch} />)
 
     await user.type(screen.getByRole('textbox'), 'plaza')
-    await user.click(screen.getByRole('button'))
+    await user.click(screen.getByRole('button', { name: /pesquisar/i }))
 
     expect(onSearch).toHaveBeenCalledWith('plaza')
   })
@@ -40,5 +40,35 @@ describe('SearchBar', () => {
     await user.type(screen.getByRole('textbox'), 'abc')
 
     expect(onSearch).not.toHaveBeenCalled()
+  })
+
+  it('synchronizes input when value prop changes externally', () => {
+    const { rerender } = render(
+      <SearchBar value="inicial" onSearch={vi.fn()} />
+    )
+    expect(screen.getByDisplayValue('inicial')).toBeInTheDocument()
+
+    rerender(<SearchBar value="atualizado" onSearch={vi.fn()} />)
+    expect(screen.getByDisplayValue('atualizado')).toBeInTheDocument()
+
+    rerender(<SearchBar value="" onSearch={vi.fn()} />)
+    expect(screen.getByRole('textbox')).toHaveValue('')
+  })
+
+  it('renders a clear button only when input has text and clears on click', async () => {
+    const user = userEvent.setup()
+    const onSearch = vi.fn()
+    render(<SearchBar value="praia" onSearch={onSearch} />)
+
+    const clearButton = screen.getByRole('button', { name: 'Limpar pesquisa' })
+    expect(clearButton).toBeInTheDocument()
+
+    await user.click(clearButton)
+
+    expect(onSearch).toHaveBeenCalledWith('')
+    expect(screen.getByRole('textbox')).toHaveValue('')
+    expect(
+      screen.queryByRole('button', { name: 'Limpar pesquisa' })
+    ).not.toBeInTheDocument()
   })
 })
