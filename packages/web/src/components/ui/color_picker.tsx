@@ -1,3 +1,4 @@
+import type React from 'react'
 import { useRef } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -9,6 +10,8 @@ export interface ColorPickerProps {
   onChange: (value: string) => void
   disabled?: boolean
   className?: string
+  showWristbandBadge?: boolean
+  presetLabel?: string
 }
 
 const PRESET_COLORS = [
@@ -25,11 +28,13 @@ const PRESET_COLORS = [
 ]
 
 export function ColorPicker({
-  id = 'cor_pulseira',
+  id = 'cor_picker',
   value,
   onChange,
   disabled = false,
   className,
+  showWristbandBadge = false,
+  presetLabel = 'Cores sugeridas:',
 }: ColorPickerProps) {
   const inputColorRef = useRef<HTMLInputElement>(null)
   const currentHex = value || '#2563EB'
@@ -41,6 +46,13 @@ export function ColorPicker({
     }
     onChange(text.toUpperCase())
   }
+
+  const effectivePresetLabel =
+    presetLabel !== 'Cores sugeridas:'
+      ? presetLabel
+      : showWristbandBadge
+        ? 'Cores sugeridas para pulseiras:'
+        : 'Cores sugeridas:'
 
   return (
     <div className={cn('flex flex-col gap-3', className)}>
@@ -54,7 +66,11 @@ export function ColorPicker({
             value={currentHex.length === 7 ? currentHex : '#2563EB'}
             onChange={e => onChange(e.target.value.toUpperCase())}
             disabled={disabled}
-            aria-label="Selecionar cor da pulseira"
+            aria-label={
+              showWristbandBadge
+                ? 'Selecionar cor da pulseira'
+                : 'Selecionar cor'
+            }
             className="sr-only"
           />
           <button
@@ -77,33 +93,42 @@ export function ColorPicker({
             maxLength={7}
             disabled={disabled}
             className="font-mono text-sm uppercase"
-            aria-label="Código hexadecimal da cor da pulseira"
+            aria-label={
+              showWristbandBadge
+                ? 'Código hexadecimal da cor da pulseira'
+                : 'Código hexadecimal da cor'
+            }
           />
         </div>
 
-        {/* Representação visual da Pulseira de Identificação */}
-        <div
-          className="flex items-center gap-2 rounded-full border px-3 py-1 shadow-xs"
-          style={{
-            borderColor: currentHex,
-            backgroundColor: `${currentHex}15`,
-          }}
-          data-testid="wristband-preview"
-        >
+        {/* Representação visual da Pulseira de Identificação (apenas quando solicitado) */}
+        {showWristbandBadge && (
           <div
-            className="h-3.5 w-6 rounded-xs shadow-inner"
-            style={{ backgroundColor: currentHex }}
-          />
-          <span className="text-xs font-semibold" style={{ color: currentHex }}>
-            Pulseira de Identificação
-          </span>
-        </div>
+            className="flex items-center gap-2 rounded-full border px-3 py-1 shadow-xs"
+            style={{
+              borderColor: currentHex,
+              backgroundColor: `${currentHex}15`,
+            }}
+            data-testid="wristband-preview"
+          >
+            <div
+              className="h-3.5 w-6 rounded-xs shadow-inner"
+              style={{ backgroundColor: currentHex }}
+            />
+            <span
+              className="text-xs font-semibold"
+              style={{ color: currentHex }}
+            >
+              Pulseira de Identificação
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Cores predefinidas para seleção rápida */}
       <div className="flex flex-col gap-1.5">
         <Label className="text-xs text-muted-foreground">
-          Cores sugeridas para pulseiras:
+          {effectivePresetLabel}
         </Label>
         <div className="flex flex-wrap gap-2">
           {PRESET_COLORS.map(preset => {

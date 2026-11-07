@@ -28,4 +28,24 @@ describe('ColorPicker', () => {
 
     expect(onChange).toHaveBeenCalled()
   })
+
+  it('does not render wristband badge by default', () => {
+    render(<ColorPicker value="#2563EB" onChange={() => {}} />)
+    expect(screen.queryByTestId('wristband-preview')).not.toBeInTheDocument()
+    expect(screen.getByText('Cores sugeridas:')).toBeInTheDocument()
+  })
+
+  it('renders wristband badge when showWristbandBadge is true', () => {
+    render(
+      <ColorPicker
+        value="#2563EB"
+        onChange={() => {}}
+        showWristbandBadge={true}
+      />
+    )
+    expect(screen.getByTestId('wristband-preview')).toBeInTheDocument()
+    expect(
+      screen.getByText('Cores sugeridas para pulseiras:')
+    ).toBeInTheDocument()
+  })
 })

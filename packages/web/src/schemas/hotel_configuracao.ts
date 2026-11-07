@@ -7,87 +7,106 @@ const HEX_COLOR = z
     'Código HEX inválido (#RGB ou #RRGGBB)'
   )
 
+export const hotelTemaFormSchema = z.object({
+  logo_principal: z.string().nullable().default(null),
+  logo_escuro: z.string().nullable().default(null),
+  favicon: z.string().nullable().default(null),
+  cor_primaria: HEX_COLOR.default('#1e40af'),
+  cor_secundaria: HEX_COLOR.default('#64748b'),
+  cor_fundo: HEX_COLOR.default('#ffffff'),
+  cor_superficie: HEX_COLOR.default('#f8fafc'),
+  cor_texto_principal: HEX_COLOR.default('#0f172a'),
+  cor_texto_secundario: HEX_COLOR.default('#475569'),
+  cor_destaque: HEX_COLOR.default('#f59e0b'),
+})
+
 export const hotelConfiguracaoFormSchema = z
   .object({
-    hotel_name: z.string().min(1, 'Nome do hotel é obrigatório'),
-    legal_name: z.string().default(''),
-    tax_id: z.string().default(''),
-    category: z.enum(['HOTEL', 'POUSADA', 'RESORT', 'HOSTEL', 'FLAT']),
-    star_rating: z.number().int().min(0).max(5).default(0),
-    short_description: z
+    // Seção 1: Dados Cadastrais & Contato
+    nome_hotel: z.string().min(1, 'Nome corporativo é obrigatório'),
+    nome_fantasia: z.string().min(1, 'Nome de exibição/fantasia é obrigatório'),
+    razao_social: z.string().min(1, 'Razão social é obrigatória'),
+    cnpj: z.string().min(14, 'CNPJ é obrigatório'),
+    email_comercial: z.string().email('E-mail comercial inválido'),
+    telefone_comercial: z.string().min(10, 'Telefone comercial é obrigatório'),
+    celular: z.string().nullable().default(null),
+    website: z.string().nullable().default(null),
+    categoria: z.enum(['HOTEL', 'POUSADA', 'RESORT', 'HOSTEL', 'FLAT']),
+    classificacao_estrelas: z.number().int().min(0).max(5).default(0),
+
+    // Seção 2: Apresentação & Slogan
+    descricao_curta: z
       .string()
       .max(160, 'Máximo de 160 caracteres')
       .nullable()
       .default(null),
-    full_description: z.string().nullable().default(null),
+    descricao_completa: z.string().nullable().default(null),
 
-    logo_primary: z.string().nullable().default(null),
-    logo_dark: z.string().nullable().default(null),
-    favicon: z.string().nullable().default(null),
-    color_primary: HEX_COLOR.default('#1e40af'),
-    color_secondary: HEX_COLOR.default('#64748b'),
-    color_background: HEX_COLOR.default('#ffffff'),
-    color_surface: HEX_COLOR.default('#f8fafc'),
-    color_text_primary: HEX_COLOR.default('#0f172a'),
-    color_text_secondary: HEX_COLOR.default('#475569'),
-    color_accent: HEX_COLOR.default('#f59e0b'),
+    // Seção 3: Identidade Visual & Tema
+    tema: hotelTemaFormSchema,
 
-    free_child_age_limit: z
+    // Seção 4: Políticas de Crianças & Hóspedes
+    limite_idade_crianca_gratis: z
       .number()
       .int()
       .min(0, 'Não pode ser negativo')
       .default(5),
-    free_child_max_per_room: z
+    quantidade_max_criancas_gratis: z
       .number()
       .int()
       .min(0, 'Não pode ser negativo')
       .default(1),
 
-    checkin_time: z
+    // Seção 5: Horários Operacionais
+    horario_checkin: z
       .string()
       .min(1, 'Horário de check-in é obrigatório')
       .default('14:00'),
-    checkout_time: z
+    horario_checkout: z
       .string()
       .min(1, 'Horário de check-out é obrigatório')
       .default('12:00'),
-    reception_24h: z.boolean().default(true),
-    reception_opening_time: z.string().nullable().default(null),
-    reception_closing_time: z.string().nullable().default(null),
+    recepcao_24h: z.boolean().default(true),
+    horario_abertura_recepcao: z.string().nullable().default(null),
+    horario_fechamento_recepcao: z.string().nullable().default(null),
 
-    pet_friendly: z.boolean().default(false),
-    pet_max_weight_kg: z.number().nullable().default(null),
-    smoking_allowed: z.boolean().default(false),
-    smoking_sanitization_fee: z.number().nullable().default(null),
+    // Seção 6: Regras da Casa & Pets
+    aceita_pets: z.boolean().default(false),
+    peso_maximo_pet_kg: z.number().nullable().default(null),
+    permite_fumar: z.boolean().default(false),
+    taxa_higienizacao_fumo: z.number().nullable().default(null),
 
-    parking_type: z
+    // Seção 7: Estacionamento & Conectividade
+    tipo_estacionamento: z
       .enum(['GRATUITO', 'PAGO_LOCAL', 'CONVENIADO', 'NAO_POSSUI'])
       .default('NAO_POSSUI'),
-    parking_fee_per_day: z.number().nullable().default(null),
-    parking_reservation_required: z.boolean().default(false),
-    parking_covered: z
+    valor_diaria_estacionamento: z.number().nullable().default(null),
+    estacionamento_reserva_previa: z.boolean().default(false),
+    cobertura_estacionamento: z
       .enum(['COBERTO', 'DESCOBERTO', 'MISTO'])
       .default('DESCOBERTO'),
 
-    wifi_available: z.boolean().default(true),
-    wifi_type: z
+    possui_wifi: z.boolean().default(true),
+    tipo_wifi: z
       .enum(['GRATUITO_TOTAL', 'GRATUITO_AREAS_COMUNS', 'PAGO'])
       .default('GRATUITO_TOTAL'),
-    wifi_ssid_default: z.string().nullable().default(null),
-    wifi_password_default: z.string().nullable().default(null),
-    wifi_show_on_voucher: z.boolean().default(true),
+    nome_rede_wifi: z.string().nullable().default(null),
+    senha_rede_wifi: z.string().nullable().default(null),
+    exibir_wifi_voucher: z.boolean().default(true),
   })
   .refine(
     data => {
-      if (!data.reception_24h) {
-        return !!data.reception_opening_time && !!data.reception_closing_time
+      if (!data.recepcao_24h) {
+        return (
+          !!data.horario_abertura_recepcao && !!data.horario_fechamento_recepcao
+        )
       }
       return true
     },
     {
       message:
         'Horários de abertura e fechamento são obrigatórios quando a recepção não funciona 24h',
-      path: ['reception_opening_time'],
+      path: ['horario_abertura_recepcao'],
     }
   )
 

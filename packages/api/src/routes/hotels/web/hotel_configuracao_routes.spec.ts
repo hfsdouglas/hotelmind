@@ -67,10 +67,12 @@ describe('hotel_configuracao_routes (web)', () => {
     repository = new InMemoryHotelConfiguracaoRepository()
     repository.seedHotel({
       id: HOTEL_ID,
-      nome_hotel: 'Hotel Paradiso',
+      nome_hotel: 'Hotel Paradiso Corp',
       nome_fantasia: 'Paradiso Resort',
       razao_social: 'Paradiso Hotelaria LTDA',
       cnpj: '12345678000100',
+      email_comercial: 'contato@paradiso.com',
+      telefone_comercial: '11999999999',
     })
 
     app = await build_app()
@@ -95,10 +97,11 @@ describe('hotel_configuracao_routes (web)', () => {
 
       expect(res.statusCode).toBe(200)
       const body = res.json()
-      expect(body.hotel_id).toBe(HOTEL_ID)
-      expect(body.hotel_name).toBe('Paradiso Resort')
-      expect(body.color_primary).toBe('#1e40af')
-      expect(body.reception_24h).toBe(true)
+      expect(body.id).toBe(HOTEL_ID)
+      expect(body.nome_fantasia).toBe('Paradiso Resort')
+      expect(body.email_comercial).toBe('contato@paradiso.com')
+      expect(body.categoria).toBe('HOTEL')
+      expect(body.recepcao_24h).toBe(true)
     })
   })
 
@@ -108,8 +111,8 @@ describe('hotel_configuracao_routes (web)', () => {
         method: 'PUT',
         url: '/hoteis/configuracao',
         payload: {
-          hotel_name: 'Novo Nome',
-          category: 'HOTEL',
+          nome_fantasia: 'Novo Nome',
+          categoria: 'HOTEL',
         },
       })
       expect(res.statusCode).toBe(401)
@@ -121,66 +124,80 @@ describe('hotel_configuracao_routes (web)', () => {
         url: '/hoteis/configuracao',
         cookies: { token },
         payload: {
-          hotel_name: 'Paradiso Beach Resort',
-          legal_name: 'Paradiso Beach Hotelaria LTDA',
-          tax_id: '12345678000100',
-          category: 'RESORT',
-          star_rating: 5,
-          short_description: 'Resort à beira-mar',
-          full_description: 'Descrição completa',
-          logo_primary: 'data:image/png;base64,primary',
-          logo_dark: null,
-          favicon: null,
-          color_primary: '#0284c7',
-          color_secondary: '#0f172a',
-          color_background: '#ffffff',
-          color_surface: '#f0f9ff',
-          color_text_primary: '#0c4a6e',
-          color_text_secondary: '#0369a1',
-          color_accent: '#f59e0b',
-          free_child_age_limit: 7,
-          free_child_max_per_room: 2,
-          checkin_time: '15:00',
-          checkout_time: '11:00',
-          reception_24h: true,
-          reception_opening_time: null,
-          reception_closing_time: null,
-          pet_friendly: true,
-          pet_max_weight_kg: 12,
-          smoking_allowed: false,
-          smoking_sanitization_fee: 350,
-          parking_type: 'PAGO_LOCAL',
-          parking_fee_per_day: 40,
-          parking_reservation_required: true,
-          parking_covered: 'COBERTO',
-          wifi_available: true,
-          wifi_type: 'GRATUITO_TOTAL',
-          wifi_ssid_default: 'Paradiso_Guest',
-          wifi_password_default: 'paradiso2026',
-          wifi_show_on_voucher: true,
+          nome_hotel: 'Paradiso Beach Hotelaria SA',
+          nome_fantasia: 'Paradiso Beach Resort',
+          razao_social: 'Paradiso Beach Hotelaria LTDA',
+          cnpj: '12345678000100',
+          email_comercial: 'contato@paradiso.com',
+          telefone_comercial: '11999999999',
+          celular: '11988887777',
+          website: 'https://paradiso.com.br',
+          categoria: 'RESORT',
+          classificacao_estrelas: 5,
+          descricao_curta: 'Resort à beira-mar',
+          descricao_completa: 'Descrição completa',
+          limite_idade_crianca_gratis: 7,
+          quantidade_max_criancas_gratis: 2,
+          horario_checkin: '15:00',
+          horario_checkout: '11:00',
+          recepcao_24h: true,
+          recepcao_opening_time: null,
+          recepcao_closing_time: null,
+          aceita_pets: true,
+          peso_maximo_pet_kg: 12,
+          permite_fumar: false,
+          taxa_higienizacao_fumo: 350,
+          tipo_estacionamento: 'PAGO_LOCAL',
+          valor_diaria_estacionamento: 40,
+          estacionamento_reserva_previa: true,
+          cobertura_estacionamento: 'COBERTO',
+          possui_wifi: true,
+          tipo_wifi: 'GRATUITO_TOTAL',
+          nome_rede_wifi: 'Paradiso_Guest',
+          senha_rede_wifi: 'paradiso2026',
+          exibir_wifi_voucher: true,
+          tema: {
+            logo_principal: 'data:image/png;base64,primary',
+            logo_escuro: null,
+            favicon: null,
+            cor_primaria: '#0284c7',
+            cor_secundaria: '#0f172a',
+            cor_fundo: '#ffffff',
+            cor_superficie: '#f0f9ff',
+            cor_texto_principal: '#0c4a6e',
+            cor_texto_secundario: '#0369a1',
+            cor_destaque: '#f59e0b',
+          },
         },
       })
 
       expect(res.statusCode).toBe(200)
       const body = res.json()
-      expect(body.hotel_name).toBe('Paradiso Beach Resort')
-      expect(body.category).toBe('RESORT')
-      expect(body.color_primary).toBe('#0284c7')
-      expect(body.wifi_ssid_default).toBe('Paradiso_Guest')
+      expect(body.nome_fantasia).toBe('Paradiso Beach Resort')
+      expect(body.categoria).toBe('RESORT')
+      expect(body.tema?.cor_primaria).toBe('#0284c7')
+      expect(body.nome_rede_wifi).toBe('Paradiso_Guest')
     })
 
-    it('returns 400 when reception_24h is false but hours are missing', async () => {
+    it('returns 400 when recepcao_24h is false but hours are missing', async () => {
       const res = await app.inject({
         method: 'PUT',
         url: '/hoteis/configuracao',
         cookies: { token },
         payload: {
-          hotel_name: 'Paradiso Beach Resort',
-          category: 'HOTEL',
-          color_primary: '#0284c7',
-          reception_24h: false,
-          reception_opening_time: null,
-          reception_closing_time: null,
+          nome_hotel: 'Paradiso Beach Hotelaria SA',
+          nome_fantasia: 'Paradiso Beach Resort',
+          razao_social: 'Paradiso Beach Hotelaria LTDA',
+          cnpj: '12345678000100',
+          email_comercial: 'contato@paradiso.com',
+          telefone_comercial: '11999999999',
+          categoria: 'HOTEL',
+          recepcao_24h: false,
+          horario_abertura_recepcao: null,
+          horario_fechamento_recepcao: null,
+          tema: {
+            cor_primaria: '#0284c7',
+          },
         },
       })
 

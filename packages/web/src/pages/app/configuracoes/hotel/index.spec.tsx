@@ -21,47 +21,57 @@ vi.mock('sonner', () => ({
 }))
 
 const MOCK_CONFIG = {
-  id: 'cfg-1',
-  hotel_id: 'hotel-1',
+  id: 'hotel-1',
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
-  hotel_name: 'Pousada Sol & Mar',
-  legal_name: 'Sol & Mar LTDA',
-  tax_id: '12345678000199',
-  category: 'POUSADA' as const,
-  star_rating: 4,
-  short_description: 'Pousada beira-mar',
-  full_description: 'Descrição completa da pousada',
-  logo_primary: null,
-  logo_dark: null,
-  favicon: null,
-  color_primary: '#0284c7',
-  color_secondary: '#64748b',
-  color_background: '#ffffff',
-  color_surface: '#f8fafc',
-  color_text_primary: '#0f172a',
-  color_text_secondary: '#475569',
-  color_accent: '#f59e0b',
-  free_child_age_limit: 5,
-  free_child_max_per_room: 1,
-  checkin_time: '14:00',
-  checkout_time: '12:00',
-  reception_24h: true,
-  reception_opening_time: null,
-  reception_closing_time: null,
-  pet_friendly: true,
-  pet_max_weight_kg: 10,
-  smoking_allowed: false,
-  smoking_sanitization_fee: 300,
-  parking_type: 'GRATUITO' as const,
-  parking_fee_per_day: null,
-  parking_reservation_required: false,
-  parking_covered: 'COBERTO' as const,
-  wifi_available: true,
-  wifi_type: 'GRATUITO_TOTAL' as const,
-  wifi_ssid_default: 'SolMar_WiFi',
-  wifi_password_default: 'solmar123',
-  wifi_show_on_voucher: true,
+  nome_hotel: 'Pousada Sol & Mar SA',
+  nome_fantasia: 'Pousada Sol & Mar',
+  razao_social: 'Sol & Mar LTDA',
+  cnpj: '12345678000199',
+  email_comercial: 'contato@solemar.com.br',
+  telefone_comercial: '1133334444',
+  celular: '11988887777',
+  website: 'https://solemar.com.br',
+  categoria: 'POUSADA' as const,
+  classificacao_estrelas: 4,
+  descricao_curta: 'Pousada beira-mar',
+  descricao_completa: 'Descrição completa da pousada',
+  limite_idade_crianca_gratis: 5,
+  quantidade_max_criancas_gratis: 1,
+  horario_checkin: '14:00',
+  horario_checkout: '12:00',
+  recepcao_24h: true,
+  horario_abertura_recepcao: null,
+  horario_fechamento_recepcao: null,
+  aceita_pets: true,
+  peso_maximo_pet_kg: 10,
+  permite_fumar: false,
+  taxa_higienizacao_fumo: 300,
+  tipo_estacionamento: 'GRATUITO' as const,
+  valor_diaria_estacionamento: null,
+  estacionamento_reserva_previa: false,
+  cobertura_estacionamento: 'COBERTO' as const,
+  possui_wifi: true,
+  tipo_wifi: 'GRATUITO_TOTAL' as const,
+  nome_rede_wifi: 'SolMar_WiFi',
+  senha_rede_wifi: 'solmar123',
+  exibir_wifi_voucher: true,
+  tema: {
+    id: 'tema-1',
+    hotel_id: 'hotel-1',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    logo_principal: null,
+    logo_escuro: null,
+    favicon: null,
+    cor_primaria: '#0284c7',
+    cor_secundaria: '#64748b',
+    cor_fundo: '#ffffff',
+    cor_superficie: '#f8fafc',
+    cor_texto_principal: '#0f172a',
+    cor_texto_secundario: '#475569',
+    cor_destaque: '#f59e0b',
+  },
 }
 
 function createQueryClient() {
@@ -95,7 +105,10 @@ describe('HotelConfiguracoesPage', () => {
 
     expect(screen.getByText('Configurações do Hotel')).toBeInTheDocument()
     expect(
-      screen.getByRole('tab', { name: /identidade visual & tema/i })
+      screen.getByText(/1\. Dados Cadastrais & Contato/i)
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/3\. Identidade Visual & Cores/i)
     ).toBeInTheDocument()
   })
 
@@ -104,7 +117,7 @@ describe('HotelConfiguracoesPage', () => {
     vi.mocked(hotelConfiguracaoService.get).mockResolvedValue(MOCK_CONFIG)
     vi.mocked(hotelConfiguracaoService.update).mockResolvedValue({
       ...MOCK_CONFIG,
-      hotel_name: 'Pousada Sol & Mar Renovada',
+      nome_fantasia: 'Pousada Sol & Mar Renovada',
     })
 
     const queryClient = createQueryClient()

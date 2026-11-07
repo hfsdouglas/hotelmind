@@ -1,50 +1,49 @@
 import type React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-interface PreviewTemaCardProps {
-  hotelName: string
-  colorPrimary: string
-  colorSecondary: string
-  colorBackground: string
-  colorSurface: string
-  colorTextPrimary: string
-  colorTextSecondary: string
-  colorAccent: string
+export interface PreviewTemaCardProps {
+  nomeHotel: string
+  corPrimaria: string
+  corSecundaria: string
+  corFundo: string
+  corSuperficie: string
+  corTextoPrincipal: string
+  corTextoSecundario: string
+  corDestaque: string
   logoUrl?: string | null
 }
 
 export function PreviewTemaCard({
-  hotelName,
-  colorPrimary,
-  colorSecondary,
-  colorBackground,
-  colorSurface,
-  colorTextPrimary,
-  colorTextSecondary,
-  colorAccent,
+  nomeHotel,
+  corPrimaria,
+  corSecundaria,
+  corFundo,
+  corSuperficie,
+  corTextoPrincipal,
+  corTextoSecundario,
+  corDestaque,
   logoUrl,
 }: PreviewTemaCardProps) {
   const dynamicStyles: React.CSSProperties = {
-    // Custom CSS vars for testing and style containment
-    ['--p-primary' as string]: colorPrimary,
-    ['--p-secondary' as string]: colorSecondary,
-    ['--p-bg' as string]: colorBackground,
-    ['--p-surface' as string]: colorSurface,
-    ['--p-text' as string]: colorTextPrimary,
-    ['--p-text-muted' as string]: colorTextSecondary,
-    ['--p-accent' as string]: colorAccent,
-    backgroundColor: colorBackground,
-    color: colorTextPrimary,
+    ['--p-primary' as string]: corPrimaria,
+    ['--p-secondary' as string]: corSecundaria,
+    ['--p-bg' as string]: corFundo,
+    ['--p-surface' as string]: corSuperficie,
+    ['--p-text' as string]: corTextoPrincipal,
+    ['--p-text-muted' as string]: corTextoSecundario,
+    ['--p-accent' as string]: corDestaque,
+    backgroundColor: corFundo,
+    color: corTextoPrincipal,
   }
 
   return (
-    <Card className="sticky top-6 border shadow-sm">
+    <Card className="border shadow-sm">
       <CardHeader className="pb-3 border-b">
         <CardTitle className="text-sm font-semibold flex items-center justify-between">
           <span>Demonstração Visual (Tempo Real)</span>
           <span
             className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full"
-            style={{ backgroundColor: colorAccent, color: '#ffffff' }}
+            style={{ backgroundColor: corDestaque, color: '#ffffff' }}
           >
             Live Preview
           </span>
@@ -59,7 +58,7 @@ export function PreviewTemaCard({
           {/* Header simulado do hotel */}
           <div
             className="flex items-center justify-between gap-3 border-b pb-3"
-            style={{ borderColor: `${colorSecondary}33` }}
+            style={{ borderColor: `${corSecundaria}33` }}
           >
             <div className="flex items-center gap-2">
               {logoUrl ? (
@@ -71,24 +70,24 @@ export function PreviewTemaCard({
               ) : (
                 <div
                   className="w-7 h-7 rounded flex items-center justify-center font-bold text-xs"
-                  style={{ backgroundColor: colorPrimary, color: '#ffffff' }}
+                  style={{ backgroundColor: corPrimaria, color: '#ffffff' }}
                 >
-                  {(hotelName || 'H')[0]?.toUpperCase()}
+                  {(nomeHotel || 'H')[0]?.toUpperCase()}
                 </div>
               )}
               <span
                 className="font-bold text-sm tracking-tight"
-                style={{ color: colorTextPrimary }}
+                style={{ color: corTextoPrincipal }}
               >
-                {hotelName || 'Nome do Hotel'}
+                {nomeHotel || 'Nome do Hotel'}
               </span>
             </div>
             <div className="flex gap-2">
               <span
                 className="text-xs px-2 py-0.5 rounded font-medium"
                 style={{
-                  backgroundColor: `${colorSecondary}20`,
-                  color: colorTextSecondary,
+                  backgroundColor: `${corSecundaria}20`,
+                  color: corTextoSecundario,
                 }}
               >
                 Início
@@ -96,8 +95,8 @@ export function PreviewTemaCard({
               <span
                 className="text-xs px-2 py-0.5 rounded font-medium"
                 style={{
-                  backgroundColor: `${colorSecondary}20`,
-                  color: colorTextSecondary,
+                  backgroundColor: `${corSecundaria}20`,
+                  color: corTextoSecundario,
                 }}
               >
                 Quartos
@@ -105,44 +104,72 @@ export function PreviewTemaCard({
             </div>
           </div>
 
-          {/* Card interno de demonstração (superfície) */}
+          {/* Card interno simulando superfície */}
           <div
-            className="rounded-md p-4 border flex flex-col gap-2.5 transition-colors"
+            className="p-4 rounded-md border flex flex-col gap-2.5 shadow-xs"
             style={{
-              backgroundColor: colorSurface,
-              borderColor: `${colorSecondary}25`,
+              backgroundColor: corSuperficie,
+              borderColor: `${corSecundaria}33`,
             }}
           >
             <div className="flex items-center justify-between">
               <span
-                className="text-xs font-semibold"
-                style={{ color: colorTextPrimary }}
+                className="text-xs font-semibold uppercase tracking-wider"
+                style={{ color: corDestaque }}
               >
-                Suíte Master Executiva
+                Oferta Especial
               </span>
               <span
-                className="text-[11px] font-bold px-1.5 py-0.5 rounded"
-                style={{ backgroundColor: colorAccent, color: '#ffffff' }}
+                className="text-xs px-2 py-0.5 rounded-full font-medium"
+                style={{
+                  backgroundColor: `${corPrimaria}15`,
+                  color: corPrimaria,
+                }}
               >
-                15% OFF
+                Disponível
               </span>
             </div>
-            <p className="text-xs" style={{ color: colorTextSecondary }}>
-              Diárias a partir de R$ 420 com café da manhã incluso.
+
+            <h4
+              className="text-base font-bold leading-tight"
+              style={{ color: corTextoPrincipal }}
+            >
+              Suíte Executiva com Vista
+            </h4>
+            <p
+              className="text-xs line-clamp-2 leading-relaxed"
+              style={{ color: corTextoSecundario }}
+            >
+              Ambiente com design moderno, Wi-Fi veloz e comodidades completas.
             </p>
-            <div className="pt-2 flex items-center justify-between">
-              <span
-                className="text-xs font-bold"
-                style={{ color: colorPrimary }}
-              >
-                R$ 420,00 / noite
-              </span>
+
+            <div
+              className="mt-2 flex items-center justify-between pt-2 border-t"
+              style={{ borderColor: `${corSecundaria}20` }}
+            >
+              <div>
+                <span
+                  className="text-[10px] uppercase font-medium block"
+                  style={{ color: corTextoSecundario }}
+                >
+                  A partir de
+                </span>
+                <span
+                  className="text-sm font-extrabold"
+                  style={{ color: corPrimaria }}
+                >
+                  R$ 380,00
+                </span>
+              </div>
               <button
                 type="button"
-                className="text-xs px-3 py-1.5 rounded-md font-semibold transition-opacity hover:opacity-90 active:scale-95 shadow-sm"
-                style={{ backgroundColor: colorPrimary, color: '#ffffff' }}
+                className="text-xs font-semibold px-3 py-1.5 rounded shadow-sm transition hover:opacity-90"
+                style={{
+                  backgroundColor: corPrimaria,
+                  color: '#ffffff',
+                }}
               >
-                Reservar agora
+                Reservar
               </button>
             </div>
           </div>

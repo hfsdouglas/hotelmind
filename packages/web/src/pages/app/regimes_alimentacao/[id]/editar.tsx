@@ -6,7 +6,6 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { regimesAlimentacaoService } from '@/api/regimes_alimentacao.service'
 import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
-import { Button } from '@/components/ui/button'
 import { ColorPicker } from '@/components/ui/color_picker'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -141,6 +140,7 @@ export function EditarRegimeAlimentacaoPage() {
                 id="cor_pulseira"
                 value={field.value}
                 onChange={field.onChange}
+                showWristbandBadge={true}
               />
             )}
           />

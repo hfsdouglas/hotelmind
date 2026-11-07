@@ -1,23 +1,34 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import type { HotelConfiguracaoDTO } from '@hotelmind/contracts'
-import { Car, Clock, Palette, ShieldAlert, Users } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useForm } from 'react-hook-form'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Form } from '@/components/ui/form'
+import { Separator } from '@/components/ui/separator'
 import {
   type HotelConfiguracaoFormData,
   hotelConfiguracaoFormSchema,
 } from '@/schemas/hotel_configuracao'
-import { AbaCriancasHospedes } from './aba_criancas_hospedes'
-import { AbaEstacionamentoWifi } from './aba_estacionamento_wifi'
-import { AbaHorariosOperacao } from './aba_horarios_operacao'
-import { AbaIdentidadeVisual } from './aba_identidade_visual'
-import { AbaRegrasCasa } from './aba_regras_casa'
-import { BarraAcoesFixa } from './barra_acoes_fixa'
+import { ModalPreviewTema } from './modal_preview_tema'
+import { SecaoApresentacao } from './secao_apresentacao'
+import { SecaoCriancasHospedes } from './secao_criancas_hospedes'
+import { SecaoDadosCadastrais } from './secao_dados_cadastrais'
+import { SecaoEstacionamentoWifi } from './secao_estacionamento_wifi'
+import { SecaoHorariosOperacao } from './secao_horarios_operacao'
+import { SecaoIdentidadeVisual } from './secao_identidade_visual'
+import { SecaoRegrasCasa } from './secao_regras_casa'
 
 interface HotelConfiguracaoFormProps {
-  initialData: HotelConfiguracaoDTO
-  onSubmit: (data: HotelConfiguracaoFormData) => void | Promise<void>
+  initialData?: Partial<HotelConfiguracaoFormData>
+  onSubmit: (data: HotelConfiguracaoFormData) => Promise<void>
   isSubmitting?: boolean
 }
 
@@ -26,117 +37,147 @@ export function HotelConfiguracaoForm({
   onSubmit,
   isSubmitting = false,
 }: HotelConfiguracaoFormProps) {
-  const [activeTab, setActiveTab] = useState('identidade')
+  const [modalPreviewAberto, setModalPreviewAberto] = useState(false)
 
   const defaultValues: HotelConfiguracaoFormData = {
-    hotel_name: initialData.hotel_name || '',
-    legal_name: initialData.legal_name || '',
-    tax_id: initialData.tax_id || '',
-    category: initialData.category,
-    star_rating: initialData.star_rating,
-    short_description: initialData.short_description,
-    full_description: initialData.full_description,
-    logo_primary: initialData.logo_primary,
-    logo_dark: initialData.logo_dark,
-    favicon: initialData.favicon,
-    color_primary: initialData.color_primary,
-    color_secondary: initialData.color_secondary,
-    color_background: initialData.color_background,
-    color_surface: initialData.color_surface,
-    color_text_primary: initialData.color_text_primary,
-    color_text_secondary: initialData.color_text_secondary,
-    color_accent: initialData.color_accent,
-    free_child_age_limit: initialData.free_child_age_limit,
-    free_child_max_per_room: initialData.free_child_max_per_room,
-    checkin_time: initialData.checkin_time,
-    checkout_time: initialData.checkout_time,
-    reception_24h: initialData.reception_24h,
-    reception_opening_time: initialData.reception_opening_time,
-    reception_closing_time: initialData.reception_closing_time,
-    pet_friendly: initialData.pet_friendly,
-    pet_max_weight_kg: initialData.pet_max_weight_kg,
-    smoking_allowed: initialData.smoking_allowed,
-    smoking_sanitization_fee: initialData.smoking_sanitization_fee,
-    parking_type: initialData.parking_type,
-    parking_fee_per_day: initialData.parking_fee_per_day,
-    parking_reservation_required: initialData.parking_reservation_required,
-    parking_covered: initialData.parking_covered,
-    wifi_available: initialData.wifi_available,
-    wifi_type: initialData.wifi_type,
-    wifi_ssid_default: initialData.wifi_ssid_default,
-    wifi_password_default: initialData.wifi_password_default,
-    wifi_show_on_voucher: initialData.wifi_show_on_voucher,
+    nome_hotel: initialData?.nome_hotel || '',
+    nome_fantasia: initialData?.nome_fantasia || '',
+    razao_social: initialData?.razao_social || '',
+    cnpj: initialData?.cnpj || '',
+    email_comercial: initialData?.email_comercial || '',
+    telefone_comercial: initialData?.telefone_comercial || '',
+    celular: initialData?.celular ?? null,
+    website: initialData?.website ?? null,
+    categoria: initialData?.categoria || 'HOTEL',
+    classificacao_estrelas: initialData?.classificacao_estrelas ?? 0,
+
+    descricao_curta: initialData?.descricao_curta ?? null,
+    descricao_completa: initialData?.descricao_completa ?? null,
+
+    tema: {
+      logo_principal: initialData?.tema?.logo_principal ?? null,
+      logo_escuro: initialData?.tema?.logo_escuro ?? null,
+      favicon: initialData?.tema?.favicon ?? null,
+      cor_primaria: initialData?.tema?.cor_primaria || '#1e40af',
+      cor_secundaria: initialData?.tema?.cor_secundaria || '#64748b',
+      cor_fundo: initialData?.tema?.cor_fundo || '#ffffff',
+      cor_superficie: initialData?.tema?.cor_superficie || '#f8fafc',
+      cor_texto_principal: initialData?.tema?.cor_texto_principal || '#0f172a',
+      cor_texto_secundario:
+        initialData?.tema?.cor_texto_secundario || '#475569',
+      cor_destaque: initialData?.tema?.cor_destaque || '#f59e0b',
+    },
+
+    limite_idade_crianca_gratis: initialData?.limite_idade_crianca_gratis ?? 5,
+    quantidade_max_criancas_gratis:
+      initialData?.quantidade_max_criancas_gratis ?? 1,
+
+    horario_checkin: initialData?.horario_checkin || '14:00',
+    horario_checkout: initialData?.horario_checkout || '12:00',
+    recepcao_24h: initialData?.recepcao_24h ?? true,
+    horario_abertura_recepcao: initialData?.horario_abertura_recepcao ?? null,
+    horario_fechamento_recepcao:
+      initialData?.horario_fechamento_recepcao ?? null,
+
+    aceita_pets: initialData?.aceita_pets ?? false,
+    peso_maximo_pet_kg: initialData?.peso_maximo_pet_kg ?? null,
+    permite_fumar: initialData?.permite_fumar ?? false,
+    taxa_higienizacao_fumo: initialData?.taxa_higienizacao_fumo ?? null,
+
+    tipo_estacionamento: initialData?.tipo_estacionamento || 'NAO_POSSUI',
+    valor_diaria_estacionamento:
+      initialData?.valor_diaria_estacionamento ?? null,
+    estacionamento_reserva_previa:
+      initialData?.estacionamento_reserva_previa ?? false,
+    cobertura_estacionamento:
+      initialData?.cobertura_estacionamento || 'DESCOBERTO',
+
+    possui_wifi: initialData?.possui_wifi ?? true,
+    tipo_wifi: initialData?.tipo_wifi || 'GRATUITO_TOTAL',
+    nome_rede_wifi: initialData?.nome_rede_wifi ?? null,
+    senha_rede_wifi: initialData?.senha_rede_wifi ?? null,
+    exibir_wifi_voucher: initialData?.exibir_wifi_voucher ?? true,
   }
 
-  const methods = useForm<HotelConfiguracaoFormData>({
+  const form = useForm<HotelConfiguracaoFormData>({
     resolver: zodResolver(hotelConfiguracaoFormSchema),
     defaultValues,
   })
 
-  const {
-    handleSubmit,
-    reset,
-    formState: { isDirty },
-  } = methods
-
-  const handleDiscard = () => {
-    reset(defaultValues)
-  }
+  const formTema = form.watch('tema')
+  const nomeFantasia = form.watch('nome_fantasia')
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(onSubmit)} className="pb-24">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="mb-6">
-            <TabsTrigger value="identidade" className="flex items-center gap-2">
-              <Palette className="h-4 w-4" />
-              <span>Identidade Visual & Tema</span>
-            </TabsTrigger>
-            <TabsTrigger value="criancas" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              <span>Crianças & Hóspedes Extras</span>
-            </TabsTrigger>
-            <TabsTrigger value="horarios" className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              <span>Horários & Operação</span>
-            </TabsTrigger>
-            <TabsTrigger value="regras" className="flex items-center gap-2">
-              <ShieldAlert className="h-4 w-4" />
-              <span>Regras da Casa & Pets</span>
-            </TabsTrigger>
-            <TabsTrigger value="servicos" className="flex items-center gap-2">
-              <Car className="h-4 w-4" />
-              <span>Estacionamento & Wi-Fi</span>
-            </TabsTrigger>
-          </TabsList>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <Card className="shadow-sm">
+          <CardHeader>
+            <CardTitle>Configurações Gerais do Hotel</CardTitle>
+            <CardDescription>
+              Gerencie a identidade visual, dados cadastrais, regras de cobrança
+              infantil, horários e serviços operacionais do estabelecimento.
+            </CardDescription>
+          </CardHeader>
 
-          <TabsContent value="identidade" forceMount>
-            <AbaIdentidadeVisual />
-          </TabsContent>
+          <CardContent className="space-y-8">
+            <SecaoDadosCadastrais form={form} />
+            <Separator />
+            <SecaoApresentacao form={form} />
+            <Separator />
+            <SecaoIdentidadeVisual
+              form={form}
+              onOpenPreview={() => setModalPreviewAberto(true)}
+            />
+            <Separator />
+            <SecaoCriancasHospedes form={form} />
+            <Separator />
+            <SecaoHorariosOperacao form={form} />
+            <Separator />
+            <SecaoRegrasCasa form={form} />
+            <Separator />
+            <SecaoEstacionamentoWifi form={form} />
+          </CardContent>
 
-          <TabsContent value="criancas" forceMount>
-            <AbaCriancasHospedes />
-          </TabsContent>
+          <CardFooter className="flex justify-end gap-3 pt-6 border-t bg-muted/10">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => form.reset(defaultValues)}
+              disabled={isSubmitting}
+            >
+              Descartar alterações
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="min-w-[160px]"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Salvando...
+                </>
+              ) : (
+                'Salvar alterações'
+              )}
+            </Button>
+          </CardFooter>
+        </Card>
 
-          <TabsContent value="horarios" forceMount>
-            <AbaHorariosOperacao />
-          </TabsContent>
-
-          <TabsContent value="regras" forceMount>
-            <AbaRegrasCasa />
-          </TabsContent>
-
-          <TabsContent value="servicos" forceMount>
-            <AbaEstacionamentoWifi />
-          </TabsContent>
-        </Tabs>
-
-        <BarraAcoesFixa
-          onDiscard={handleDiscard}
-          isSubmitting={isSubmitting}
-          isDirty={isDirty}
+        <ModalPreviewTema
+          open={modalPreviewAberto}
+          onOpenChange={setModalPreviewAberto}
+          nomeHotel={nomeFantasia || 'Seu Hotel'}
+          corPrimaria={formTema.cor_primaria}
+          corSecundaria={formTema.cor_secundaria}
+          corFundo={formTema.cor_fundo}
+          corSuperficie={formTema.cor_superficie}
+          corTextoPrincipal={formTema.cor_texto_principal}
+          corTextoSecundario={formTema.cor_texto_secundario}
+          corDestaque={formTema.cor_destaque}
+          logoUrl={formTema.logo_principal}
         />
       </form>
-    </FormProvider>
+    </Form>
   )
 }

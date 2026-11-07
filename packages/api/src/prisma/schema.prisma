@@ -24,6 +24,32 @@ model Hotel {
   website            String?
   status             String          @default("S") @db.Char(1)
 
+  // Dados operacionais e políticas migrados
+  categoria                    String          @default("HOTEL") @db.VarChar(50)
+  classificacao_estrelas       Int             @default(0)
+  descricao_curta              String?         @db.VarChar(160)
+  descricao_completa           String?         @db.Text
+  limite_idade_crianca_gratis   Int             @default(5)
+  quantidade_max_criancas_gratis Int             @default(1)
+  horario_checkin              String          @default("14:00") @db.VarChar(5)
+  horario_checkout             String          @default("12:00") @db.VarChar(5)
+  recepcao_24h                 Boolean         @default(true)
+  horario_abertura_recepcao    String?         @db.VarChar(5)
+  horario_fechamento_recepcao  String?         @db.VarChar(5)
+  aceita_pets                  Boolean         @default(false)
+  peso_maximo_pet_kg           Decimal?        @db.Decimal(5, 2)
+  permite_fumar                Boolean         @default(false)
+  taxa_higienizacao_fumo       Decimal?        @db.Decimal(10, 2)
+  tipo_estacionamento          String          @default("NAO_POSSUI") @db.VarChar(30)
+  valor_diaria_estacionamento  Decimal?        @db.Decimal(10, 2)
+  estacionamento_reserva_previa Boolean         @default(false)
+  cobertura_estacionamento     String          @default("DESCOBERTO") @db.VarChar(20)
+  possui_wifi                  Boolean         @default(true)
+  tipo_wifi                    String          @default("GRATUITO_TOTAL") @db.VarChar(30)
+  nome_rede_wifi               String?         @db.VarChar(100)
+  senha_rede_wifi              String?         @db.VarChar(100)
+  exibir_wifi_voucher          Boolean         @default(true)
+
   enderecos          HotelEndereco[]
   users              User[]
   grupos             Grupo[]
@@ -36,7 +62,7 @@ model Hotel {
   orcamentos         Orcamento[]
   parceiros          Parceiro[]
   reservas           Reserva[]
-  configuracao       HotelConfiguracao?
+  tema               HotelTema?
 
   @@map("hoteis")
 }
@@ -515,59 +541,29 @@ model ReservaLog {
 
 
 // -------------------------------------------------------------
-// 4. CONFIGURAÇÕES DO HOTEL
+// 4. TEMA E IDENTIDADE VISUAL DO HOTEL
 // -------------------------------------------------------------
-model HotelConfiguracao {
-  id                 String    @id @default(uuid())
-  created_at         DateTime  @default(now())
-  updated_at         DateTime  @updatedAt
-  hotel_id           String    @unique
-  hotel              Hotel     @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
+model HotelTema {
+  id                    String   @id @default(uuid())
+  created_at            DateTime @default(now())
+  updated_at            DateTime @updatedAt
+  hotel_id              String   @unique
+  hotel                 Hotel    @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
 
-  // Identidade & Tema
-  categoria          String    @default("HOTEL") @db.VarChar(50)
-  classificacao_estrelas Int   @default(0)
-  descricao_curta    String?   @db.VarChar(160)
-  descricao_completa String?   @db.Text
-  logo_primary       String?   @db.Text
-  logo_dark          String?   @db.Text
-  favicon            String?   @db.Text
-  color_primary      String    @default("#1e40af") @db.VarChar(7)
-  color_secondary    String    @default("#64748b") @db.VarChar(7)
-  color_background   String    @default("#ffffff") @db.VarChar(7)
-  color_surface      String    @default("#f8fafc") @db.VarChar(7)
-  color_text_primary String    @default("#0f172a") @db.VarChar(7)
-  color_text_secondary String  @default("#475569") @db.VarChar(7)
-  color_accent       String    @default("#f59e0b") @db.VarChar(7)
+  // Logotipos e Ícones
+  logo_principal        String?  @db.Text
+  logo_escuro           String?  @db.Text
+  favicon               String?  @db.Text
 
-  // Crianças & Hóspedes Extras (apenas gratuidades)
-  free_child_age_limit     Int     @default(5)
-  free_child_max_per_room  Int     @default(1)
-
-  // Horários & Operação
-  checkin_time             String  @default("14:00") @db.VarChar(5)
-  checkout_time            String  @default("12:00") @db.VarChar(5)
-  reception_24h            Boolean @default(true)
-  reception_opening_time   String? @db.VarChar(5)
-  reception_closing_time   String? @db.VarChar(5)
-
-  // Políticas & Regras (Pets e Fumo)
-  pet_friendly             Boolean  @default(false)
-  pet_max_weight_kg        Decimal? @db.Decimal(5, 2)
-  smoking_allowed          Boolean  @default(false)
-  smoking_sanitization_fee Decimal? @db.Decimal(10, 2)
-
-  // Serviços Operacionais (Estacionamento & Wi-Fi)
-  parking_type             String   @default("NAO_POSSUI") @db.VarChar(30)
-  parking_fee_per_day      Decimal? @db.Decimal(10, 2)
-  parking_reservation_required Boolean @default(false)
-  parking_covered          String   @default("DESCOBERTO") @db.VarChar(20)
-  wifi_available           Boolean  @default(true)
-  wifi_type                String   @default("GRATUITO_TOTAL") @db.VarChar(30)
-  wifi_ssid_default        String?  @db.VarChar(100)
-  wifi_password_default    String?  @db.VarChar(100)
-  wifi_show_on_voucher     Boolean  @default(true)
+  // Paleta de Cores (Theme Tokens em HEX)
+  cor_primaria          String   @default("#1e40af") @db.VarChar(7)
+  cor_secundaria        String   @default("#64748b") @db.VarChar(7)
+  cor_fundo             String   @default("#ffffff") @db.VarChar(7)
+  cor_superficie        String   @default("#f8fafc") @db.VarChar(7)
+  cor_texto_principal   String   @default("#0f172a") @db.VarChar(7)
+  cor_texto_secundario  String   @default("#475569") @db.VarChar(7)
+  cor_destaque          String   @default("#f59e0b") @db.VarChar(7)
 
   @@index([hotel_id])
-  @@map("hoteis_configuracoes")
+  @@map("hoteis_temas")
 }

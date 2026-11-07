@@ -46,6 +46,29 @@ describe('Hotel', () => {
     const hotel = new Hotel({ ...BASE_PROPS, status: 'N' })
     expect(hotel.status).toBe('N')
   })
+
+  it('validates reception hours when reception_24h is false', () => {
+    expect(
+      () =>
+        new Hotel({
+          ...BASE_PROPS,
+          recepcao_24h: false,
+          horario_abertura_recepcao: null,
+          horario_fechamento_recepcao: null,
+        })
+    ).toThrowError(
+      /Horários de abertura e fechamento da recepção são obrigatórios/
+    )
+
+    const validNon24h = new Hotel({
+      ...BASE_PROPS,
+      recepcao_24h: false,
+      horario_abertura_recepcao: '08:00',
+      horario_fechamento_recepcao: '22:00',
+    })
+    expect(validNon24h.recepcao_24h).toBe(false)
+    expect(validNon24h.horario_abertura_recepcao).toBe('08:00')
+  })
 })
 
 describe('Hotel.create', () => {

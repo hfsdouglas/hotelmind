@@ -1,243 +1,181 @@
 import type {
   CategoriaHotel,
-  ParkingCovered,
-  ParkingType,
+  CoberturaEstacionamento,
+  HotelConfiguracaoDTO,
+  HotelTemaDTO,
+  TipoEstacionamento,
+  TipoWifi,
   UpdateHotelConfiguracaoInput,
-  WifiType,
 } from '@hotelmind/contracts'
-import { HotelConfiguracao } from '@/core/entities/hotel_configuracao'
+import type { Prisma } from '@prisma/client'
 import type { DB } from '@/lib/prisma'
-import type {
-  HotelConfiguracaoRepository,
-  HotelConfiguracaoWithHotel,
-} from '../hotel_configuracao_repository'
+import type { HotelConfiguracaoRepository } from '../hotel_configuracao_repository'
+
+type HotelWithTema = Prisma.HotelGetPayload<{ include: { tema: true } }>
 
 export class PostgresHotelConfiguracaoRepository
   implements HotelConfiguracaoRepository
 {
   constructor(private readonly db: DB) {}
 
-  async findByHotelId(
-    hotelId: string
-  ): Promise<HotelConfiguracaoWithHotel | null> {
+  async findByHotelId(hotelId: string): Promise<HotelConfiguracaoDTO | null> {
     const hotel = await this.db.hotel.findUnique({
       where: { id: hotelId },
       include: {
-        configuracao: true,
+        tema: true,
       },
     })
 
     if (!hotel) return null
 
-    if (!hotel.configuracao) {
-      return null
-    }
-
-    const cfg = hotel.configuracao
-
-    const configuracao = HotelConfiguracao.create({
-      id: cfg.id,
-      hotel_id: cfg.hotel_id,
-      created_at: cfg.created_at,
-      updated_at: cfg.updated_at,
-      categoria: cfg.categoria as CategoriaHotel,
-      classificacao_estrelas: cfg.classificacao_estrelas,
-      descricao_curta: cfg.descricao_curta,
-      descricao_completa: cfg.descricao_completa,
-      logo_primary: cfg.logo_primary,
-      logo_dark: cfg.logo_dark,
-      favicon: cfg.favicon,
-      color_primary: cfg.color_primary,
-      color_secondary: cfg.color_secondary,
-      color_background: cfg.color_background,
-      color_surface: cfg.color_surface,
-      color_text_primary: cfg.color_text_primary,
-      color_text_secondary: cfg.color_text_secondary,
-      color_accent: cfg.color_accent,
-      free_child_age_limit: cfg.free_child_age_limit,
-      free_child_max_per_room: cfg.free_child_max_per_room,
-      checkin_time: cfg.checkin_time,
-      checkout_time: cfg.checkout_time,
-      reception_24h: cfg.reception_24h,
-      reception_opening_time: cfg.reception_opening_time,
-      reception_closing_time: cfg.reception_closing_time,
-      pet_friendly: cfg.pet_friendly,
-      pet_max_weight_kg: cfg.pet_max_weight_kg
-        ? Number(cfg.pet_max_weight_kg)
-        : null,
-      smoking_allowed: cfg.smoking_allowed,
-      smoking_sanitization_fee: cfg.smoking_sanitization_fee
-        ? Number(cfg.smoking_sanitization_fee)
-        : null,
-      parking_type: cfg.parking_type as ParkingType,
-      parking_fee_per_day: cfg.parking_fee_per_day
-        ? Number(cfg.parking_fee_per_day)
-        : null,
-      parking_reservation_required: cfg.parking_reservation_required,
-      parking_covered: cfg.parking_covered as ParkingCovered,
-      wifi_available: cfg.wifi_available,
-      wifi_type: cfg.wifi_type as WifiType,
-      wifi_ssid_default: cfg.wifi_ssid_default,
-      wifi_password_default: cfg.wifi_password_default,
-      wifi_show_on_voucher: cfg.wifi_show_on_voucher,
-    })
-
-    return {
-      configuracao,
-      hotel: {
-        nome_hotel: hotel.nome_hotel,
-        nome_fantasia: hotel.nome_fantasia,
-        razao_social: hotel.razao_social,
-        cnpj: hotel.cnpj,
-      },
-    }
+    return this.mapToDTO(hotel)
   }
 
   async upsert(
     hotelId: string,
     data: UpdateHotelConfiguracaoInput
-  ): Promise<HotelConfiguracaoWithHotel> {
+  ): Promise<HotelConfiguracaoDTO> {
     const updatedHotel = await this.db.hotel.update({
       where: { id: hotelId },
       data: {
-        nome_fantasia: data.hotel_name,
-        razao_social: data.legal_name,
-        cnpj: data.tax_id,
+        nome_hotel: data.nome_hotel,
+        nome_fantasia: data.nome_fantasia,
+        razao_social: data.razao_social,
+        cnpj: data.cnpj,
+        email_comercial: data.email_comercial,
+        telefone_comercial: data.telefone_comercial,
+        celular: data.celular ?? null,
+        website: data.website ?? null,
+        categoria: data.categoria,
+        classificacao_estrelas: data.classificacao_estrelas,
+        descricao_curta: data.descricao_curta ?? null,
+        descricao_completa: data.descricao_completa ?? null,
+        limite_idade_crianca_gratis: data.limite_idade_crianca_gratis,
+        quantidade_max_criancas_gratis: data.quantidade_max_criancas_gratis,
+        horario_checkin: data.horario_checkin,
+        horario_checkout: data.horario_checkout,
+        recepcao_24h: data.recepcao_24h,
+        horario_abertura_recepcao: data.recepcao_24h
+          ? null
+          : (data.horario_abertura_recepcao ?? null),
+        horario_fechamento_recepcao: data.recepcao_24h
+          ? null
+          : (data.horario_fechamento_recepcao ?? null),
+        aceita_pets: data.aceita_pets,
+        peso_maximo_pet_kg: data.peso_maximo_pet_kg ?? null,
+        permite_fumar: data.permite_fumar,
+        taxa_higienizacao_fumo: data.taxa_higienizacao_fumo ?? null,
+        tipo_estacionamento: data.tipo_estacionamento,
+        valor_diaria_estacionamento: data.valor_diaria_estacionamento ?? null,
+        estacionamento_reserva_previa: data.estacionamento_reserva_previa,
+        cobertura_estacionamento: data.cobertura_estacionamento,
+        possui_wifi: data.possui_wifi,
+        tipo_wifi: data.tipo_wifi,
+        nome_rede_wifi: data.nome_rede_wifi ?? null,
+        senha_rede_wifi: data.senha_rede_wifi ?? null,
+        exibir_wifi_voucher: data.exibir_wifi_voucher,
+        tema: {
+          upsert: {
+            create: {
+              logo_principal: data.tema.logo_principal ?? null,
+              logo_escuro: data.tema.logo_escuro ?? null,
+              favicon: data.tema.favicon ?? null,
+              cor_primaria: data.tema.cor_primaria,
+              cor_secundaria: data.tema.cor_secundaria,
+              cor_fundo: data.tema.cor_fundo,
+              cor_superficie: data.tema.cor_superficie,
+              cor_texto_principal: data.tema.cor_texto_principal,
+              cor_texto_secundario: data.tema.cor_texto_secundario,
+              cor_destaque: data.tema.cor_destaque,
+            },
+            update: {
+              logo_principal: data.tema.logo_principal ?? null,
+              logo_escuro: data.tema.logo_escuro ?? null,
+              favicon: data.tema.favicon ?? null,
+              cor_primaria: data.tema.cor_primaria,
+              cor_secundaria: data.tema.cor_secundaria,
+              cor_fundo: data.tema.cor_fundo,
+              cor_superficie: data.tema.cor_superficie,
+              cor_texto_principal: data.tema.cor_texto_principal,
+              cor_texto_secundario: data.tema.cor_texto_secundario,
+              cor_destaque: data.tema.cor_destaque,
+            },
+          },
+        },
+      },
+      include: {
+        tema: true,
       },
     })
 
-    const cfg = await this.db.hotelConfiguracao.upsert({
-      where: { hotel_id: hotelId },
-      create: {
-        hotel_id: hotelId,
-        categoria: data.category,
-        classificacao_estrelas: data.star_rating,
-        descricao_curta: data.short_description,
-        descricao_completa: data.full_description,
-        logo_primary: data.logo_primary,
-        logo_dark: data.logo_dark,
-        favicon: data.favicon,
-        color_primary: data.color_primary,
-        color_secondary: data.color_secondary,
-        color_background: data.color_background,
-        color_surface: data.color_surface,
-        color_text_primary: data.color_text_primary,
-        color_text_secondary: data.color_text_secondary,
-        color_accent: data.color_accent,
-        free_child_age_limit: data.free_child_age_limit,
-        free_child_max_per_room: data.free_child_max_per_room,
-        checkin_time: data.checkin_time,
-        checkout_time: data.checkout_time,
-        reception_24h: data.reception_24h,
-        reception_opening_time: data.reception_opening_time,
-        reception_closing_time: data.reception_closing_time,
-        pet_friendly: data.pet_friendly,
-        pet_max_weight_kg: data.pet_max_weight_kg,
-        smoking_allowed: data.smoking_allowed,
-        smoking_sanitization_fee: data.smoking_sanitization_fee,
-        parking_type: data.parking_type,
-        parking_fee_per_day: data.parking_fee_per_day,
-        parking_reservation_required: data.parking_reservation_required,
-        parking_covered: data.parking_covered,
-        wifi_available: data.wifi_available,
-        wifi_type: data.wifi_type,
-        wifi_ssid_default: data.wifi_ssid_default,
-        wifi_password_default: data.wifi_password_default,
-        wifi_show_on_voucher: data.wifi_show_on_voucher,
-      },
-      update: {
-        categoria: data.category,
-        classificacao_estrelas: data.star_rating,
-        descricao_curta: data.short_description,
-        descricao_completa: data.full_description,
-        logo_primary: data.logo_primary,
-        logo_dark: data.logo_dark,
-        favicon: data.favicon,
-        color_primary: data.color_primary,
-        color_secondary: data.color_secondary,
-        color_background: data.color_background,
-        color_surface: data.color_surface,
-        color_text_primary: data.color_text_primary,
-        color_text_secondary: data.color_text_secondary,
-        color_accent: data.color_accent,
-        free_child_age_limit: data.free_child_age_limit,
-        free_child_max_per_room: data.free_child_max_per_room,
-        checkin_time: data.checkin_time,
-        checkout_time: data.checkout_time,
-        reception_24h: data.reception_24h,
-        reception_opening_time: data.reception_opening_time,
-        reception_closing_time: data.reception_closing_time,
-        pet_friendly: data.pet_friendly,
-        pet_max_weight_kg: data.pet_max_weight_kg,
-        smoking_allowed: data.smoking_allowed,
-        smoking_sanitization_fee: data.smoking_sanitization_fee,
-        parking_type: data.parking_type,
-        parking_fee_per_day: data.parking_fee_per_day,
-        parking_reservation_required: data.parking_reservation_required,
-        parking_covered: data.parking_covered,
-        wifi_available: data.wifi_available,
-        wifi_type: data.wifi_type,
-        wifi_ssid_default: data.wifi_ssid_default,
-        wifi_password_default: data.wifi_password_default,
-        wifi_show_on_voucher: data.wifi_show_on_voucher,
-      },
-    })
+    return this.mapToDTO(updatedHotel)
+  }
 
-    const configuracao = HotelConfiguracao.create({
-      id: cfg.id,
-      hotel_id: cfg.hotel_id,
-      created_at: cfg.created_at,
-      updated_at: cfg.updated_at,
-      categoria: cfg.categoria as CategoriaHotel,
-      classificacao_estrelas: cfg.classificacao_estrelas,
-      descricao_curta: cfg.descricao_curta,
-      descricao_completa: cfg.descricao_completa,
-      logo_primary: cfg.logo_primary,
-      logo_dark: cfg.logo_dark,
-      favicon: cfg.favicon,
-      color_primary: cfg.color_primary,
-      color_secondary: cfg.color_secondary,
-      color_background: cfg.color_background,
-      color_surface: cfg.color_surface,
-      color_text_primary: cfg.color_text_primary,
-      color_text_secondary: cfg.color_text_secondary,
-      color_accent: cfg.color_accent,
-      free_child_age_limit: cfg.free_child_age_limit,
-      free_child_max_per_room: cfg.free_child_max_per_room,
-      checkin_time: cfg.checkin_time,
-      checkout_time: cfg.checkout_time,
-      reception_24h: cfg.reception_24h,
-      reception_opening_time: cfg.reception_opening_time,
-      reception_closing_time: cfg.reception_closing_time,
-      pet_friendly: cfg.pet_friendly,
-      pet_max_weight_kg: cfg.pet_max_weight_kg
-        ? Number(cfg.pet_max_weight_kg)
-        : null,
-      smoking_allowed: cfg.smoking_allowed,
-      smoking_sanitization_fee: cfg.smoking_sanitization_fee
-        ? Number(cfg.smoking_sanitization_fee)
-        : null,
-      parking_type: cfg.parking_type as ParkingType,
-      parking_fee_per_day: cfg.parking_fee_per_day
-        ? Number(cfg.parking_fee_per_day)
-        : null,
-      parking_reservation_required: cfg.parking_reservation_required,
-      parking_covered: cfg.parking_covered as ParkingCovered,
-      wifi_available: cfg.wifi_available,
-      wifi_type: cfg.wifi_type as WifiType,
-      wifi_ssid_default: cfg.wifi_ssid_default,
-      wifi_password_default: cfg.wifi_password_default,
-      wifi_show_on_voucher: cfg.wifi_show_on_voucher,
-    })
+  private mapToDTO(hotel: HotelWithTema): HotelConfiguracaoDTO {
+    let temaDTO: HotelTemaDTO | null = null
+    if (hotel.tema) {
+      temaDTO = {
+        id: hotel.tema.id,
+        hotel_id: hotel.tema.hotel_id,
+        created_at: hotel.tema.created_at.toISOString(),
+        updated_at: hotel.tema.updated_at.toISOString(),
+        logo_principal: hotel.tema.logo_principal,
+        logo_escuro: hotel.tema.logo_escuro,
+        favicon: hotel.tema.favicon,
+        cor_primaria: hotel.tema.cor_primaria,
+        cor_secundaria: hotel.tema.cor_secundaria,
+        cor_fundo: hotel.tema.cor_fundo,
+        cor_superficie: hotel.tema.cor_superficie,
+        cor_texto_principal: hotel.tema.cor_texto_principal,
+        cor_texto_secundario: hotel.tema.cor_texto_secundario,
+        cor_destaque: hotel.tema.cor_destaque,
+      }
+    }
 
     return {
-      configuracao,
-      hotel: {
-        nome_hotel: updatedHotel.nome_hotel,
-        nome_fantasia: updatedHotel.nome_fantasia,
-        razao_social: updatedHotel.razao_social,
-        cnpj: updatedHotel.cnpj,
-      },
+      id: hotel.id,
+      created_at: hotel.created_at.toISOString(),
+      updated_at: hotel.updated_at.toISOString(),
+      nome_hotel: hotel.nome_hotel,
+      nome_fantasia: hotel.nome_fantasia,
+      razao_social: hotel.razao_social,
+      cnpj: hotel.cnpj,
+      email_comercial: hotel.email_comercial,
+      telefone_comercial: hotel.telefone_comercial,
+      celular: hotel.celular,
+      website: hotel.website,
+      categoria: hotel.categoria as CategoriaHotel,
+      classificacao_estrelas: hotel.classificacao_estrelas,
+      descricao_curta: hotel.descricao_curta,
+      descricao_completa: hotel.descricao_completa,
+      limite_idade_crianca_gratis: hotel.limite_idade_crianca_gratis,
+      quantidade_max_criancas_gratis: hotel.quantidade_max_criancas_gratis,
+      horario_checkin: hotel.horario_checkin,
+      horario_checkout: hotel.horario_checkout,
+      recepcao_24h: hotel.recepcao_24h,
+      horario_abertura_recepcao: hotel.horario_abertura_recepcao,
+      horario_fechamento_recepcao: hotel.horario_fechamento_recepcao,
+      aceita_pets: hotel.aceita_pets,
+      peso_maximo_pet_kg: hotel.peso_maximo_pet_kg
+        ? Number(hotel.peso_maximo_pet_kg)
+        : null,
+      permite_fumar: hotel.permite_fumar,
+      taxa_higienizacao_fumo: hotel.taxa_higienizacao_fumo
+        ? Number(hotel.taxa_higienizacao_fumo)
+        : null,
+      tipo_estacionamento: hotel.tipo_estacionamento as TipoEstacionamento,
+      valor_diaria_estacionamento: hotel.valor_diaria_estacionamento
+        ? Number(hotel.valor_diaria_estacionamento)
+        : null,
+      estacionamento_reserva_previa: hotel.estacionamento_reserva_previa,
+      cobertura_estacionamento:
+        hotel.cobertura_estacionamento as CoberturaEstacionamento,
+      possui_wifi: hotel.possui_wifi,
+      tipo_wifi: hotel.tipo_wifi as TipoWifi,
+      nome_rede_wifi: hotel.nome_rede_wifi,
+      senha_rede_wifi: hotel.senha_rede_wifi,
+      exibir_wifi_voucher: hotel.exibir_wifi_voucher,
+      tema: temaDTO,
     }
   }
 }
