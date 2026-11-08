@@ -50,7 +50,8 @@ describe('Admin AppLayout', () => {
   it('renders child outlet and layout when authenticated', () => {
     renderAdminAppLayout(true)
     expect(screen.getByText('Conteúdo Admin Dashboard')).toBeInTheDocument()
-    expect(screen.getByText('HotelMind Admin')).toBeInTheDocument()
+    expect(screen.getByText('Suite')).toBeInTheDocument()
+    expect(screen.getByText('Sync')).toBeInTheDocument()
   })
 
   it('redirects to /login when unauthenticated', () => {

@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { SuiteSyncLogo } from '@/components/layout/SuiteSyncLogo'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -26,7 +27,9 @@ export function LoginPage() {
   return (
     <div className="w-full max-w-sm space-y-6">
       <div className="space-y-1 text-center">
-        <h1 className="text-2xl font-bold">HotelMind Admin</h1>
+        <h1 className="flex justify-center">
+          <SuiteSyncLogo size="lg" badge="ADMIN" />
+        </h1>
         <p className="text-sm text-muted-foreground">
           Acesso restrito a administradores
         </p>

@@ -1,16 +1,25 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { TopNavbar } from './TopNavbar'
 
 describe('TopNavbar', () => {
-  it('renders title and calls onMenuToggle on click', async () => {
+  it('renders SuiteSync Admin logo linking to / and calls onMenuToggle on click', async () => {
     const user = userEvent.setup()
     const onMenuToggle = vi.fn()
 
-    render(<TopNavbar onMenuToggle={onMenuToggle} />)
+    render(
+      <MemoryRouter>
+        <TopNavbar onMenuToggle={onMenuToggle} />
+      </MemoryRouter>
+    )
 
-    expect(screen.getByText('HotelMind Admin')).toBeInTheDocument()
+    const logoLink = screen.getByRole('link', { name: /suitesync/i })
+    expect(logoLink).toHaveAttribute('href', '/')
+    expect(screen.getByText('Suite')).toBeInTheDocument()
+    expect(screen.getByText('Sync')).toBeInTheDocument()
+    expect(screen.getByText('ADMIN')).toBeInTheDocument()
     const button = screen.getByRole('button')
     await user.click(button)
 

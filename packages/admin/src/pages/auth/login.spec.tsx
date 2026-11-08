@@ -15,7 +15,7 @@ describe('LoginPage', () => {
   it('renders the heading and form fields', () => {
     render_with_providers(<LoginPage />)
     expect(
-      screen.getByRole('heading', { name: /hotelmind admin/i })
+      screen.getByRole('heading', { name: /suitesync/i })
     ).toBeInTheDocument()
     expect(screen.getByLabelText(/e-mail/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/senha/i)).toBeInTheDocument()

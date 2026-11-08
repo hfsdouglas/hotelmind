@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { SuiteSyncLogo } from '@/components/layout/SuiteSyncLogo'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -30,8 +31,10 @@ export function LoginForm() {
 
   return (
     <Card className="w-full max-w-sm">
-      <CardHeader>
-        <CardTitle className="text-2xl">Hoteis</CardTitle>
+      <CardHeader className="items-center text-center">
+        <CardTitle className="flex justify-center">
+          <SuiteSyncLogo size="lg" />
+        </CardTitle>
         <CardDescription>
           Entre com suas credenciais para acessar
         </CardDescription>

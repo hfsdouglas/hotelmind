@@ -1,5 +1,7 @@
 import { Menu } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { SuiteSyncLogo } from './SuiteSyncLogo'
 
 interface TopNavbarProps {
   onMenuToggle: () => void
@@ -11,7 +13,13 @@ export function TopNavbar({ onMenuToggle }: TopNavbarProps) {
       <Button variant="ghost" size="icon" onClick={onMenuToggle}>
         <Menu className="h-5 w-5" />
       </Button>
-      <span className="ml-2 font-semibold text-sm">HotelMind Admin</span>
+      <Link
+        to="/"
+        aria-label="SuiteSync Admin — Ir para o dashboard"
+        className="ml-2 inline-flex items-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <SuiteSyncLogo size="sm" badge="ADMIN" />
+      </Link>
     </header>
   )
 }

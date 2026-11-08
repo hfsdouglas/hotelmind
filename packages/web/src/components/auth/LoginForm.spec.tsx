@@ -26,8 +26,10 @@ function renderLoginForm() {
 }
 
 describe('LoginForm', () => {
-  it('renders email and password inputs and a submit button', () => {
+  it('renders SuiteSync logo, email and password inputs and a submit button', () => {
     renderLoginForm()
+    expect(screen.getByText('Suite')).toBeInTheDocument()
+    expect(screen.getByText('Sync')).toBeInTheDocument()
     expect(screen.getByLabelText('Email')).toBeInTheDocument()
     expect(screen.getByLabelText('Senha')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /entrar/i })).toBeInTheDocument()
