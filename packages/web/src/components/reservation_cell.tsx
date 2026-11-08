@@ -29,8 +29,13 @@ export function ReservationCell({
   const isCheckIn = isSameDay(currentDate, checkInDate)
   const isCheckOut = isSameDay(currentDate, checkOutDate) && !isCheckIn
 
+  const isToConfirm =
+    reservation.status_code === 2 ||
+    reservation.status === 'a_confirmar' ||
+    reservation.status === 'A Confirmar'
   const hasCheckedIn =
-    reservation.status_code === 1 || reservation.status_code === null
+    !isToConfirm &&
+    (reservation.status_code === 1 || reservation.status_code === null)
 
   return (
     <TooltipProvider>
@@ -48,9 +53,13 @@ export function ReservationCell({
               isCheckOut && !isCheckIn && 'w-1/3 left-0 rounded-r z-[2]',
               // Dias intermediários: largura total sem bordas arredondadas
               !isCheckIn && !isCheckOut && 'w-full left-0 rounded-none z-[1]',
-              // Apenas duas cores baseadas no status (check-in feito ou não)
+              // Três temas visuais baseados no status da reserva:
+              // 1. Check-in realizado: cor primária sólida
               hasCheckedIn && 'bg-primary',
-              !hasCheckedIn && 'bg-primary/50'
+              // 2. Confirmada: cor primária com 50% de opacidade
+              !hasCheckedIn && !isToConfirm && 'bg-primary/50',
+              // 3. A confirmar: listras diagonais (zebrinha) com microespaçamento começando no canto inferior esquerdo
+              isToConfirm && 'bg-reservation-to-confirm'
             )}
             onClick={() => onSelect(reservation)}
             onKeyDown={e => {

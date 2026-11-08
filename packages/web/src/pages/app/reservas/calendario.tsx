@@ -1,6 +1,9 @@
-import { addDays, format, isSameDay } from 'date-fns'
+import type { ReservaStatus } from '@hotelmind/contracts'
+import { useQuery } from '@tanstack/react-query'
+import { format, isSameDay } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import {
+  Calendar as CalendarIcon,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
@@ -8,6 +11,8 @@ import {
   Plus,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { quartosService } from '@/api/quartos.service'
+import { reservasService } from '@/api/reservas.service'
 import { ReservationCell } from '@/components/reservation_cell'
 import { Button } from '@/components/ui/button'
 import {
@@ -17,8 +22,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import {
   Select,
   SelectContent,
@@ -40,160 +48,19 @@ import {
 import { usePageTitle } from '@/hooks/use_document_title'
 import { cn } from '@/lib/utils'
 
-type RoomStatus =
+export type RoomStatus =
   | 'disponivel'
   | 'bloqueado'
   | 'manutencao'
   | 'limpeza'
   | 'ocupado'
 
-interface Room {
+export interface Room {
   id: string
   numero: string
   tipo: string
   status: RoomStatus
 }
-
-// Dados mockados
-const mockRooms: Room[] = [
-  // 1º Andar - Standard
-  { id: '1', numero: '101', tipo: 'Standard', status: 'ocupado' },
-  { id: '2', numero: '102', tipo: 'Standard', status: 'limpeza' },
-  { id: '3', numero: '103', tipo: 'Standard', status: 'disponivel' },
-  { id: '4', numero: '104', tipo: 'Standard', status: 'disponivel' },
-  { id: '5', numero: '105', tipo: 'Standard', status: 'ocupado' },
-  { id: '6', numero: '106', tipo: 'Standard', status: 'disponivel' },
-  { id: '7', numero: '107', tipo: 'Standard', status: 'limpeza' },
-  { id: '8', numero: '108', tipo: 'Standard', status: 'disponivel' },
-
-  // 2º Andar - Deluxe
-  { id: '9', numero: '201', tipo: 'Deluxe', status: 'ocupado' },
-  { id: '10', numero: '202', tipo: 'Deluxe', status: 'manutencao' },
-  { id: '11', numero: '203', tipo: 'Deluxe', status: 'disponivel' },
-  { id: '12', numero: '204', tipo: 'Deluxe', status: 'ocupado' },
-  { id: '13', numero: '205', tipo: 'Deluxe', status: 'disponivel' },
-  { id: '14', numero: '206', tipo: 'Deluxe', status: 'limpeza' },
-  { id: '15', numero: '207', tipo: 'Deluxe', status: 'disponivel' },
-  { id: '16', numero: '208', tipo: 'Deluxe', status: 'bloqueado' },
-
-  // 3º Andar - Suite
-  { id: '17', numero: '301', tipo: 'Suite', status: 'bloqueado' },
-  { id: '18', numero: '302', tipo: 'Suite', status: 'disponivel' },
-  { id: '19', numero: '303', tipo: 'Suite', status: 'ocupado' },
-  { id: '20', numero: '304', tipo: 'Suite', status: 'disponivel' },
-  { id: '21', numero: '305', tipo: 'Suite', status: 'limpeza' },
-  { id: '22', numero: '306', tipo: 'Suite', status: 'disponivel' },
-
-  // 4º Andar - Premium
-  { id: '23', numero: '401', tipo: 'Premium', status: 'limpeza' },
-  { id: '24', numero: '402', tipo: 'Premium', status: 'disponivel' },
-  { id: '25', numero: '403', tipo: 'Premium', status: 'ocupado' },
-  { id: '26', numero: '404', tipo: 'Premium', status: 'disponivel' },
-  { id: '27', numero: '405', tipo: 'Premium', status: 'manutencao' },
-]
-
-const mockReservations: Reservation[] = [
-  {
-    id: '1',
-    quartoId: '1',
-    checkIn: new Date().toISOString().split('T')[0],
-    checkOut: addDays(new Date(), 2).toISOString().split('T')[0],
-    hospede: {
-      nome: 'João Silva',
-      email: 'joao@example.com',
-      telefone: '(11) 99999-9999',
-      documento: '123.456.789-00',
-    },
-    pagamento: {
-      metodo: 'Cartão de Crédito',
-      valor: 450.0,
-      status: 'Pago',
-    },
-    observacoes: 'Hóspede prefere quarto no andar térreo',
-    status: 'Check In',
-    status_code: 1,
-  },
-  {
-    id: '2',
-    quartoId: '1',
-    checkIn: addDays(new Date(), 2).toISOString().split('T')[0],
-    checkOut: addDays(new Date(), 5).toISOString().split('T')[0],
-    hospede: {
-      nome: 'Carlos Mendes',
-      email: 'carlos@example.com',
-      telefone: '(11) 66666-6666',
-      documento: '555.666.777-88',
-    },
-    pagamento: {
-      metodo: 'Cartão de Débito',
-      valor: 900.0,
-      status: 'Pago',
-    },
-    observacoes: 'Reserva consecutiva para teste visual',
-    status: 'Confirmada',
-    status_code: 0,
-  },
-  {
-    id: '3',
-    quartoId: '3',
-    checkIn: addDays(new Date(), 1).toISOString().split('T')[0],
-    checkOut: addDays(new Date(), 4).toISOString().split('T')[0],
-    hospede: {
-      nome: 'Maria Santos',
-      email: 'maria@example.com',
-      telefone: '(11) 88888-8888',
-      documento: '987.654.321-00',
-    },
-    pagamento: {
-      metodo: 'PIX',
-      valor: 1200.0,
-      status: 'Pago',
-    },
-    observacoes: 'Aniversário de casamento - decorar quarto',
-    status: 'Confirmada',
-    status_code: 0,
-  },
-  {
-    id: '4',
-    quartoId: '5',
-    checkIn: new Date().toISOString().split('T')[0],
-    checkOut: addDays(new Date(), 1).toISOString().split('T')[0],
-    hospede: {
-      nome: 'Pedro Oliveira',
-      email: 'pedro@example.com',
-      telefone: '(11) 77777-7777',
-      documento: '111.222.333-44',
-    },
-    pagamento: {
-      metodo: 'Dinheiro',
-      valor: 800.0,
-      status: 'Pendente',
-    },
-    observacoes: 'Check-in após 20h',
-    status: 'Confirmada',
-    status_code: 0,
-  },
-  {
-    id: '5',
-    quartoId: '3',
-    checkIn: addDays(new Date(), 4).toISOString().split('T')[0],
-    checkOut: addDays(new Date(), 7).toISOString().split('T')[0],
-    hospede: {
-      nome: 'Pedro Oliveira',
-      email: 'pedro@example.com',
-      telefone: '(11) 77777-7777',
-      documento: '111.222.333-44',
-    },
-    pagamento: {
-      metodo: 'Dinheiro',
-      valor: 800.0,
-      status: 'Pendente',
-    },
-    observacoes: 'Check-in após 20h',
-    status: 'Confirmada',
-    status_code: 0,
-  },
-]
 
 const months = [
   'Janeiro',
@@ -210,16 +77,47 @@ const months = [
   'Dezembro',
 ]
 
-function CalendarioContent() {
+const monthShortNames = [
+  'Jan',
+  'Fev',
+  'Mar',
+  'Abr',
+  'Mai',
+  'Jun',
+  'Jul',
+  'Ago',
+  'Set',
+  'Out',
+  'Nov',
+  'Dez',
+]
+
+interface CalendarioContentProps {
+  rooms: Room[]
+}
+
+function CalendarioContent({ rooms }: CalendarioContentProps) {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
 
   const [startDate, setStartDate] = useState(today)
   const [selectedMonth, setSelectedMonth] = useState(today.getMonth())
   const [selectedYear, setSelectedYear] = useState(today.getFullYear())
+  const [datepickerOpen, setDatepickerOpen] = useState(false)
   const [selectedReservation, setSelectedReservation] =
     useState<Reservation | null>(null)
   const { getReservationsByRoom } = useReservations()
+
+  const currentYear = today.getFullYear()
+  const minYear = Math.min(currentYear - 5, selectedYear - 2)
+  const maxYear = Math.max(currentYear + 10, selectedYear + 5)
+  const availableYears = useMemo(() => {
+    const years: number[] = []
+    for (let y = minYear; y <= maxYear; y++) {
+      years.push(y)
+    }
+    return years
+  }, [minYear, maxYear])
 
   // Calcula quantos dias cabem na tela (mínimo 15)
   // A tabela se estende conforme o espaço disponível, sem scroll horizontal
@@ -270,16 +168,15 @@ function CalendarioContent() {
     setSelectedYear(startDate.getFullYear())
   }, [startDate])
 
-  // Atualiza startDate quando mês ou ano mudam
-  // biome-ignore lint/correctness/useExhaustiveDependencies: today is intentionally omitted to avoid infinite render loops
-  useEffect(() => {
-    const newDate = new Date(selectedYear, selectedMonth, 1)
-    if (newDate <= today) {
+  const handleSelectMonthYear = (year: number, month: number) => {
+    setSelectedYear(year)
+    setSelectedMonth(month)
+    if (year === today.getFullYear() && month === today.getMonth()) {
       setStartDate(today)
     } else {
-      setStartDate(newDate)
+      setStartDate(new Date(year, month, 1))
     }
-  }, [selectedMonth, selectedYear])
+  }
 
   const handlePreviousDay = () => {
     setStartDate(prev => {
@@ -318,45 +215,116 @@ function CalendarioContent() {
       {/* Filtros de período e navegação */}
       <div className="grid grid-cols-3 items-center px-4 py-2 bg-background shrink-0">
         <div className="flex items-center gap-3 justify-self-start">
-          <div className="flex items-center gap-1.5">
-            <Label htmlFor="month" className="text-sm">
-              Mês
-            </Label>
-            <Select
-              value={selectedMonth.toString()}
-              onValueChange={value => setSelectedMonth(parseInt(value, 10))}
+          <Popover open={datepickerOpen} onOpenChange={setDatepickerOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                data-testid="calendar-datepicker-trigger"
+                aria-label="Selecionar mês e ano"
+                className="h-8 justify-start gap-2 px-3 text-xs font-medium"
+              >
+                <CalendarIcon
+                  className="h-3.5 w-3.5 text-muted-foreground"
+                  aria-hidden="true"
+                />
+                <span>
+                  {months[selectedMonth]} de {selectedYear}
+                </span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              align="start"
+              data-testid="calendar-datepicker-popover"
+              className="w-[280px] p-3"
             >
-              <SelectTrigger id="month" className="w-32 h-8 text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {months.map((month, index) => (
-                  <SelectItem key={index} value={index.toString()}>
-                    {month}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+              <div className="flex flex-col gap-3">
+                <div className="grid grid-cols-[1fr_100px] gap-2">
+                  <Select
+                    value={String(selectedMonth)}
+                    onValueChange={val =>
+                      handleSelectMonthYear(selectedYear, Number(val))
+                    }
+                  >
+                    <SelectTrigger
+                      data-testid="calendar-select-month"
+                      aria-label="Selecionar mês"
+                      className="h-8 text-xs"
+                    >
+                      <SelectValue placeholder="Mês" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {months.map((monthName, index) => (
+                        <SelectItem
+                          key={monthName}
+                          value={String(index)}
+                          className="text-xs"
+                        >
+                          {monthName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
-          <div className="flex items-center gap-1.5">
-            <Label htmlFor="year" className="text-sm">
-              Ano
-            </Label>
-            <Input
-              id="year"
-              type="number"
-              value={selectedYear}
-              onChange={e =>
-                setSelectedYear(
-                  parseInt(e.target.value, 10) || today.getFullYear()
-                )
-              }
-              className="w-20 h-8 text-sm"
-              min={2020}
-              max={2100}
-            />
-          </div>
+                  <Select
+                    value={String(selectedYear)}
+                    onValueChange={val =>
+                      handleSelectMonthYear(Number(val), selectedMonth)
+                    }
+                  >
+                    <SelectTrigger
+                      data-testid="calendar-select-year"
+                      aria-label="Selecionar ano"
+                      className="h-8 text-xs"
+                    >
+                      <SelectValue placeholder="Ano" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableYears.map(year => (
+                        <SelectItem
+                          key={year}
+                          value={String(year)}
+                          className="text-xs"
+                        >
+                          {year}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* biome-ignore lint/a11y/useSemanticElements: month grid group */}
+                <div
+                  role="group"
+                  aria-label="Grade de meses"
+                  className="grid grid-cols-3 gap-1.5"
+                >
+                  {monthShortNames.map((shortName, index) => {
+                    const isActiveMonth = selectedMonth === index
+                    return (
+                      <Button
+                        key={shortName}
+                        type="button"
+                        size="sm"
+                        variant={isActiveMonth ? 'default' : 'ghost'}
+                        data-testid={`calendar-picker-month-${index}`}
+                        aria-label={months[index]}
+                        aria-pressed={isActiveMonth}
+                        onClick={() => {
+                          handleSelectMonthYear(selectedYear, index)
+                          setDatepickerOpen(false)
+                        }}
+                        className="h-8 text-xs"
+                      >
+                        {shortName}
+                      </Button>
+                    )
+                  })}
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
 
         <span className="font-bold justify-self-center">Calendário</span>
@@ -429,7 +397,7 @@ function CalendarioContent() {
             </tr>
           </thead>
           <tbody>
-            {mockRooms.map(room => {
+            {rooms.map(room => {
               // Verifica se a linha contém o dia atual
               const hasTodayInRow = days.some(day => isSameDay(day, today))
 
@@ -467,7 +435,7 @@ function CalendarioContent() {
                               <span className="font-medium text-sm">
                                 {room.numero}
                               </span>
-                              <span className="text-xs text-muted-foreground">
+                              <span className="text-xs text-muted-foreground truncate">
                                 {room.tipo}
                               </span>
                             </div>
@@ -635,11 +603,8 @@ function CalendarioContent() {
                   <div>
                     <span className="text-muted-foreground">Quarto:</span>
                     <p className="font-medium">
-                      {
-                        mockRooms.find(
-                          r => r.id === selectedReservation.quartoId
-                        )?.numero
-                      }
+                      {rooms.find(r => r.id === selectedReservation.quartoId)
+                        ?.numero || '-'}
                     </p>
                   </div>
                 </div>
@@ -720,9 +685,111 @@ function CalendarioContent() {
 
 export function Calendario() {
   usePageTitle('Calendário de Reservas')
+
+  const { data: quartosData } = useQuery({
+    queryKey: ['quartos', 'calendario'],
+    queryFn: () => quartosService.list({ limite: 250, direcao: 'asc' }),
+  })
+
+  const { data: reservasData } = useQuery({
+    queryKey: ['reservas', 'calendario'],
+    queryFn: () => reservasService.list({ limite: 250 }),
+  })
+
+  const reservations = useMemo<Reservation[]>(() => {
+    if (!reservasData?.data) return []
+
+    // As únicas reservas que devem aparecer no calendário são: a confirmar, confirmada e check-in.
+    // O restante, não aparece: cancelada, check-out, no_show.
+    const allowedStatuses: ReservaStatus[] = [
+      'a_confirmar',
+      'confirmada',
+      'check_in',
+    ]
+
+    return reservasData.data
+      .filter(r => allowedStatuses.includes(r.status))
+      .map(r => {
+        const isCheckIn = r.status === 'check_in'
+        const statusLabel =
+          r.status === 'check_in'
+            ? 'Check In'
+            : r.status === 'confirmada'
+              ? 'Confirmada'
+              : 'A Confirmar'
+
+        const checkInStr = r.check_in.includes('T')
+          ? r.check_in.split('T')[0]
+          : r.check_in
+        const checkOutStr = r.check_out.includes('T')
+          ? r.check_out.split('T')[0]
+          : r.check_out
+
+        return {
+          id: r.id,
+          quartoId: r.quarto_id,
+          checkIn: `${checkInStr}T00:00:00`,
+          checkOut: `${checkOutStr}T00:00:00`,
+          hospede: {
+            nome: r.titular_nome,
+            email: r.titular_email || '-',
+            telefone: r.titular_telefone || '-',
+            documento: r.hospedes?.[0]?.numero_documento || '-',
+          },
+          pagamento: {
+            metodo: r.parceiro?.razao_social
+              ? `Parceiro: ${r.parceiro.razao_social}`
+              : 'Balcão / Reserva Direta',
+            valor: Number(r.valor_total) || 0,
+            status: isCheckIn ? 'Pago' : 'Pendente',
+          },
+          observacoes: r.observacoes || undefined,
+          status: statusLabel,
+          status_code:
+            r.status === 'check_in' ? 1 : r.status === 'confirmada' ? 0 : 2,
+        }
+      })
+  }, [reservasData])
+
+  const rooms = useMemo<Room[]>(() => {
+    if (!quartosData?.data) return []
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    return quartosData.data.map(q => {
+      let status: RoomStatus = 'disponivel'
+
+      if (q.status === 'N') {
+        status = 'bloqueado'
+      } else {
+        const hasActiveCheckInToday = reservations.some(res => {
+          if (res.quartoId !== q.id) return false
+          if (res.status_code !== 1) return false
+          const checkInDate = new Date(res.checkIn)
+          checkInDate.setHours(0, 0, 0, 0)
+          const checkOutDate = new Date(res.checkOut)
+          checkOutDate.setHours(0, 0, 0, 0)
+          return today >= checkInDate && today <= checkOutDate
+        })
+
+        if (hasActiveCheckInToday) {
+          status = 'ocupado'
+        }
+      }
+
+      return {
+        id: q.id,
+        numero: q.identificacao,
+        tipo: q.categoria?.nome || 'Padrão',
+        status,
+      }
+    })
+  }, [quartosData, reservations])
+
   return (
-    <ReservationsProvider reservations={mockReservations}>
-      <CalendarioContent />
+    <ReservationsProvider reservations={reservations}>
+      <CalendarioContent rooms={rooms} />
     </ReservationsProvider>
   )
 }

@@ -85,6 +85,10 @@ export default {
         md: 'var(--radius-md)',
         sm: 'var(--radius-sm)',
       },
+      backgroundImage: {
+        'reservation-to-confirm':
+          'repeating-linear-gradient(45deg, color-mix(in oklch, var(--primary) 50%, transparent) 0px, color-mix(in oklch, var(--primary) 50%, transparent) 3px, color-mix(in oklch, var(--primary) 12%, transparent) 3px, color-mix(in oklch, var(--primary) 12%, transparent) 5px)',
+      },
     },
   },
   plugins: [],

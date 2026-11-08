@@ -124,6 +124,18 @@
   }
 }
 
+@layer utilities {
+  .bg-reservation-to-confirm {
+    background-image: repeating-linear-gradient(
+      45deg,
+      color-mix(in oklch, var(--primary) 50%, transparent) 0px,
+      color-mix(in oklch, var(--primary) 50%, transparent) 3px,
+      color-mix(in oklch, var(--primary) 12%, transparent) 3px,
+      color-mix(in oklch, var(--primary) 12%, transparent) 5px
+    );
+  }
+}
+
 @keyframes themeToggle {
   0% {
     transform: rotate(0deg) scale(0.9);

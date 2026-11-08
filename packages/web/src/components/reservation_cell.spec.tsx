@@ -86,4 +86,57 @@ describe('ReservationCell', () => {
     expect(cell).toBeInTheDocument()
     expect(cell).toHaveClass('z-[1]')
   })
+
+  it('renders bg-primary for check-in status (status_code: 1)', () => {
+    const { container } = render(
+      <ReservationCell
+        reservation={{ ...mockReservation, status: 'Check In', status_code: 1 }}
+        day={new Date('2026-11-12T00:00:00')}
+        onSelect={vi.fn()}
+      />
+    )
+
+    const cell = container.querySelector('[role="button"]')
+    expect(cell).toHaveClass('bg-primary')
+    expect(cell).not.toHaveClass('bg-primary/50')
+    expect(cell).not.toHaveClass('bg-reservation-to-confirm')
+  })
+
+  it('renders bg-primary/50 for confirmed status (status_code: 0)', () => {
+    const { container } = render(
+      <ReservationCell
+        reservation={{
+          ...mockReservation,
+          status: 'Confirmada',
+          status_code: 0,
+        }}
+        day={new Date('2026-11-12T00:00:00')}
+        onSelect={vi.fn()}
+      />
+    )
+
+    const cell = container.querySelector('[role="button"]')
+    expect(cell).toHaveClass('bg-primary/50')
+    expect(cell).not.toHaveClass('bg-primary')
+    expect(cell).not.toHaveClass('bg-reservation-to-confirm')
+  })
+
+  it('renders diagonal zebra theme (bg-reservation-to-confirm) for "a confirmar" status', () => {
+    const { container } = render(
+      <ReservationCell
+        reservation={{
+          ...mockReservation,
+          status: 'A Confirmar',
+          status_code: 2,
+        }}
+        day={new Date('2026-11-12T00:00:00')}
+        onSelect={vi.fn()}
+      />
+    )
+
+    const cell = container.querySelector('[role="button"]')
+    expect(cell).toHaveClass('bg-reservation-to-confirm')
+    expect(cell).not.toHaveClass('bg-primary')
+    expect(cell).not.toHaveClass('bg-primary/50')
+  })
 })
