@@ -10,7 +10,10 @@ test.describe('Login (web)', () => {
     await page.getByPlaceholder('••••••••').fill('password123')
     await page.getByRole('button', { name: 'Entrar' }).click()
 
-    await expect(page).toHaveURL(/\/dashboard/)
+    await expect(
+      page.getByRole('heading', { name: 'Visão Geral' })
+    ).toBeVisible()
+    await expect(page).not.toHaveURL(/\/login/)
   })
 
   test('mantém na tela de login com credenciais inválidas', async ({
