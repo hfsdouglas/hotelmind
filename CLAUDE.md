@@ -10,7 +10,8 @@ packages/
   admin/        # Platform admin front-end   → packages/admin/CLAUDE.md
 ```
 
-Shared front-end rules (web + admin): `.claude/rules/front-end.md`.
+Shared rules: front-end (web + admin) `.claude/rules/front-end.md`; back-end
+(api and future API services) `.claude/rules/back-end.md`.
 
 ## Principles
 
@@ -58,4 +59,4 @@ Response: `{ data: T[], meta: { pagina, limite, total, ultima_pagina } }`.
   `revert`. Imperative mood, one logical change per commit.
 - Use the configured Git identity only: never set `user.name`/`user.email`,
   never `--author`, never AI identities or AI `Co-Authored-By` trailers.
-- Run tests and Biome before proposing a commit.
+- Run Biome before proposing a commit.

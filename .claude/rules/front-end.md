@@ -13,7 +13,7 @@ each package's `CLAUDE.md`. Paths below are relative to the package root.
 
 React + Vite + TypeScript (strict) · Tailwind CSS + shadcn/ui (new-york, Radix)
 · Lucide React · clsx · TanStack Query · Axios · React Hook Form + Zod · React
-Router · Sonner · Vitest + React Testing Library · MSW.
+Router · Sonner · Vitest + React Testing Library · MSW · Playwright (E2E).
 
 ## Structure
 
@@ -24,7 +24,7 @@ src/
 │   ├── app/          # Authenticated pages
 │   └── auth/         # Public auth pages
 ├── components/       # ALL reusable components
-│   ├── ui/           # shadcn/ui primitives
+│   ├── ui/           # shadcn/ui primitives (vendor code, NOT tested)
 │   ├── forms/        # CrudFormLayout, CheckboxGrid, CheckboxGroupList, save_button
 │   ├── data-table/   # List primitives (see DataTable)
 │   ├── layout/       # Sidebar, Navbar
@@ -34,7 +34,15 @@ src/
 ├── contexts/         # AuthContext, ThemeContext, ...
 ├── schemas/          # Zod form schemas
 ├── types/            # View models (shared contracts come from packages/.contracts)
-└── mocks/handlers/   # MSW handlers
+├── mocks/            # MSW mocks, one folder per domain
+│   ├── <domain>/     # <domain>_handlers.ts
+│   ├── handlers.ts   # aggregates every domain's handlers
+│   ├── server.ts     # MSW server (Vitest / node)
+│   └── browser.ts    # MSW worker (Playwright E2E)
+└── tests/
+    ├── setup.ts      # Vitest setup
+    ├── utils/        # shared test helpers (render_with_providers, ...)
+    └── <domain>/     # Playwright E2E specs (*.e2e.ts)
 ```
 
 **RED FLAG**: never create a `components/` folder inside `src/pages/**`. Forms,
@@ -111,6 +119,24 @@ Every create/edit page uses `components/forms/crud_form_layout.tsx`:
 
 ## Testing
 
-- `.spec.tsx` next to pages, contexts and components.
-- Mock HTTP with MSW (`src/mocks/handlers/`); never mock Axios directly.
+Stack: Vitest + React Testing Library (unit/integration) · Playwright (E2E) · MSW.
+
+**What to test** (created by the application): components, contexts, hooks and
+pages. **Never** test `components/ui/*` (shadcn/ui vendor code).
+
+- Unit specs: `.spec.ts(x)` next to the file under test.
+- E2E specs: `src/tests/<domain>/<name>.e2e.ts` (Playwright; `*.e2e.ts` is
+  excluded from Vitest).
+- Components live in `src/components/<domain>/`, never loose in
+  `src/components/`. File names are snake_case.
+- Mock HTTP with MSW only (`src/mocks/<domain>/<domain>_handlers.ts`, registered
+  in `src/mocks/handlers.ts`); never mock Axios directly. E2E runs the app with
+  `VITE_E2E_MOCKS=true`, which starts the MSW worker in the browser.
 - Assert observable behavior (`getByRole`, `getByText`), never internal state.
+
+Commands (per package): `pnpm test` (Vitest, single run), `pnpm test:watch`,
+`pnpm test:e2e` (Playwright; first run needs `pnpm exec playwright install
+chromium`, plus `sudo pnpm exec playwright install-deps chromium` on Linux).
+
+**AI agents**: run only the tests written/changed for the current task (e.g.
+`pnpm exec vitest run <path>`), never the whole suite, and never in watch mode.

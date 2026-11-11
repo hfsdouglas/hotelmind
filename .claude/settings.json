@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Edit(packages/*/src/**/*.spec.ts)",
+      "Edit(packages/*/src/**/*.spec.tsx)",
+      "Edit(packages/*/src/**/*.e2e.ts)",
+      "Edit(packages/*/src/tests/**)",
+      "Edit(packages/*/src/mocks/**)",
+      "Write(packages/*/src/**/*.spec.ts)",
+      "Write(packages/*/src/**/*.spec.tsx)",
+      "Write(packages/*/src/**/*.e2e.ts)",
+      "Write(packages/*/src/tests/**)",
+      "Write(packages/*/src/mocks/**)",
+      "Bash(pnpm exec vitest run:*)",
+      "Bash(pnpm exec playwright test:*)",
+      "Bash(pnpm exec biome check:*)",
+      "Bash(pnpm exec tsc --noEmit:*)",
+      "Bash(pnpm --filter * test)",
+      "Bash(pnpm --filter * test:e2e:*)",
+      "Bash(pnpm --filter * typecheck)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm test:e2e:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Read(packages/**)",
+      "Bash(find packages:*)",
+      "Bash(ls:*)",
+      "Bash(wc:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(git ls-files:*)",
+      "Bash(python3 .claude/scripts/find_test_gaps.py:*)"
+    ],
+    "deny": [
+      "Bash(pnpm exec vitest:*--watch*)",
+      "Bash(pnpm test:watch:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
+    ]
+  }
+}
