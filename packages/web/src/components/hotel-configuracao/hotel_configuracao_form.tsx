@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
+import { CrudFormLayout, SaveButton } from '@/components/forms/crud_form_layout'
 import { Form } from '@/components/ui/form'
 import { Separator } from '@/components/ui/separator'
 import {

@@ -24,7 +24,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { usePageTitle } from '@/hooks/use_document_title'
 import { mask_phone } from '@/hooks/use_phone_mask'
-import { usePaginacao } from '@/hooks/usePaginacao'
+import { usePaginacao } from '@/hooks/use_paginacao'
 
 function formatarDataBR(dataIso: string) {
   if (!dataIso) return ''

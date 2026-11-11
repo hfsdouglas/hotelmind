@@ -33,7 +33,7 @@ import { EditarUsuarioPage } from '@/pages/app/usuarios/[id]/editar'
 import { UsuariosPage } from '@/pages/app/usuarios/index'
 import { NovoUsuarioPage } from '@/pages/app/usuarios/novo'
 import { LoginPage } from '@/pages/auth/login'
-import { Error404Page } from '@/pages/error-404'
+import { Error404Page } from '@/pages/error_404'
 import { FnrhPublicaPage } from '@/pages/public/fnrh'
 import { VisualizarOrcamentoPublicoPage } from '@/pages/public/orcamento'
 

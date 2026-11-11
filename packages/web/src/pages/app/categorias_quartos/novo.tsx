@@ -4,7 +4,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { categoriasQuartosService } from '@/api/categorias_quartos.service'
-import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
+import { CrudFormLayout, SaveButton } from '@/components/forms/crud_form_layout'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {

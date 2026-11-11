@@ -12,7 +12,7 @@ import {
   Tag,
 } from 'lucide-react'
 import { type FormEvent, useEffect, useState } from 'react'
-import { CrudFormLayout } from '@/components/forms/CrudFormLayout'
+import { CrudFormLayout } from '@/components/forms/crud_form_layout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'

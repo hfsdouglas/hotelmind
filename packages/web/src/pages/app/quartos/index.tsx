@@ -25,7 +25,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { usePageTitle } from '@/hooks/use_document_title'
-import { usePaginacao } from '@/hooks/usePaginacao'
+import { usePaginacao } from '@/hooks/use_paginacao'
 
 function format_bed_type(type: string) {
   return type

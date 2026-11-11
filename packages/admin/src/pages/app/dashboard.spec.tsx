@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { AuthContext } from '@/contexts/AuthContext'
+import { AuthContext } from '@/contexts/auth_context'
 import { DashboardPage } from './dashboard'
 
 describe('Admin DashboardPage', () => {

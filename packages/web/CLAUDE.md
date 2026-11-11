@@ -6,7 +6,7 @@ quotes, guests, check-in/out). Shared front-end rules:
 
 ## Dynamic Sidebar
 
-`components/layout/Sidebar.tsx` renders navigation from `session.rotas` (saved
+`components/layout/sidebar.tsx` renders navigation from `session.rotas` (saved
 at login):
 
 - Grouped by `modulo`, sorted by `ordem`.

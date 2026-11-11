@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
-import { Sidebar } from '@/components/layout/Sidebar'
-import { SupportBanner } from '@/components/layout/SupportBanner'
-import { TopNavbar } from '@/components/layout/TopNavbar'
-import { useAuth } from '@/hooks/useAuth'
-import { useRotasSync } from '@/hooks/useRotasSync'
+import { Sidebar } from '@/components/layout/sidebar'
+import { SupportBanner } from '@/components/layout/support_banner'
+import { TopNavbar } from '@/components/layout/top_navbar'
+import { useAuth } from '@/hooks/use_auth'
+import { useRotasSync } from '@/hooks/use_rotas_sync'
 
 export function AppLayout() {
   const { isAuthenticated } = useAuth()

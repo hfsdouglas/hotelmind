@@ -7,7 +7,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { categoriasQuartosService } from '@/api/categorias_quartos.service'
 import { quartosService } from '@/api/quartos.service'
-import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
+import { CrudFormLayout, SaveButton } from '@/components/forms/crud_form_layout'
 import {
   AlertDialog,
   AlertDialogAction,

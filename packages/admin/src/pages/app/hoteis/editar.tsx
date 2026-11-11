@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { hoteisService } from '@/api/hoteis.service'
-import { CrudFormLayout, SaveButton } from '@/components/forms/CrudFormLayout'
+import { CrudFormLayout, SaveButton } from '@/components/forms/crud_form_layout'
 import { Button } from '@/components/ui/button'
 import {
   Form,

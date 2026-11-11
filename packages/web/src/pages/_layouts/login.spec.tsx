@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
-import { AuthContext } from '@/contexts/AuthContext'
+import { AuthContext } from '@/contexts/auth_context'
 import { LoginLayout } from './login'
 
 function renderWithAuth(isAuthenticated: boolean) {

@@ -25,7 +25,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { usePageTitle } from '@/hooks/use_document_title'
-import { usePaginacao } from '@/hooks/usePaginacao'
+import { usePaginacao } from '@/hooks/use_paginacao'
 import { format_iso_to_br } from '@/schemas/tarifarios/tarifario_schema'
 
 export function TarifariosPage() {

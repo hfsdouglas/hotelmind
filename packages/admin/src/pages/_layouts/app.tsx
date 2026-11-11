@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
-import { Sidebar } from '@/components/layout/Sidebar'
-import { TopNavbar } from '@/components/layout/TopNavbar'
-import { useAuth } from '@/hooks/useAuth'
+import { Sidebar } from '@/components/layout/sidebar'
+import { TopNavbar } from '@/components/layout/top_navbar'
+import { useAuth } from '@/hooks/use_auth'
 
 export function AppLayout() {
   const { isAuthenticated } = useAuth()

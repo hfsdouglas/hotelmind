@@ -5,7 +5,7 @@ import { usePageTitle } from '@/hooks/use_document_title'
 import {
   useHotelConfiguracao,
   useUpdateHotelConfiguracaoMutation,
-} from '@/hooks/useHotelConfiguracao'
+} from '@/hooks/use_hotel_configuracao'
 import type { HotelConfiguracaoFormData } from '@/schemas/hotel_configuracao'
 
 export function HotelConfiguracoesPage() {

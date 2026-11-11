@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { usePageTitle } from '@/hooks/use_document_title'
-import { usePaginacao } from '@/hooks/usePaginacao'
+import { usePaginacao } from '@/hooks/use_paginacao'
 
 export function SuportePage() {
   usePageTitle('Suporte')

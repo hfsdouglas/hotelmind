@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { SuiteSyncLogo } from '@/components/layout/SuiteSyncLogo'
+import { SuiteSyncLogo } from '@/components/layout/suite_sync_logo'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { usePageTitle } from '@/hooks/use_document_title'
-import { useLogin } from '@/hooks/useLogin'
+import { useLogin } from '@/hooks/use_login'
 import { type LoginFormData, login_schema } from '@/schemas/auth/auth_schema'
 
 export function LoginPage() {

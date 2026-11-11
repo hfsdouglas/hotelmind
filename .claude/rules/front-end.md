@@ -65,7 +65,7 @@ table markup:
 - **Action column**: header is empty (`header: ''`, never `"Ações"`); cell is
   `className="flex items-center justify-end gap-1"`.
 - **URL state**: pagination, search and sorting live in URL search params via
-  `hooks/usePaginacao.ts` (params follow the root pagination contract). Never
+  `hooks/use_paginacao.ts` (params follow the root pagination contract). Never
   keep them in `useState`.
 - **Suspense**: results are wrapped in `SearchResultsSuspense`. Title, search,
   filters and actions stay outside the boundary. Results use suspense queries;
@@ -75,7 +75,7 @@ table markup:
 
 ## Forms (`CrudFormLayout`)
 
-Every create/edit page uses `components/forms/CrudFormLayout.tsx`:
+Every create/edit page uses `components/forms/crud_form_layout.tsx`:
 
 - It owns the `<form>`, header (back button + title) and exactly **one**
   `Card`. Extra sections are sibling blocks inside that card, never

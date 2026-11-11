@@ -1,0 +1,32 @@
+import { useQuery } from '@tanstack/react-query'
+import { useEffect } from 'react'
+import { authService } from '@/api/auth.service'
+import { useAuth } from '@/hooks/use_auth'
+
+export function useRotasSync() {
+  const { session, setSession } = useAuth()
+
+  const { data } = useQuery({
+    queryKey: ['auth:session'],
+    queryFn: authService.me,
+    enabled: !!session,
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+  })
+
+  useEffect(() => {
+    if (!data || !session) return
+
+    const incoming = JSON.stringify(data.rotas)
+    const cached = JSON.stringify(session.rotas ?? [])
+
+    if (incoming !== cached) {
+      setSession({
+        user: data.user,
+        hotel: data.hotel,
+        rotas: data.rotas,
+        suporte: data.suporte,
+      })
+    }
+  }, [data, session, setSession])
+}

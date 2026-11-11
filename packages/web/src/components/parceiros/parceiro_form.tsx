@@ -6,7 +6,7 @@ import type {
 } from '@hotelmind/contracts'
 import { Building2, Globe, MapPin } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { CrudFormLayout } from '@/components/forms/CrudFormLayout'
+import { CrudFormLayout } from '@/components/forms/crud_form_layout'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'

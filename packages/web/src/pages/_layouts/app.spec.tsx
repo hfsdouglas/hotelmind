@@ -2,11 +2,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
-import { AuthContext } from '@/contexts/AuthContext'
-import { ThemeProvider } from '@/contexts/ThemeContext'
+import { AuthContext } from '@/contexts/auth_context'
+import { ThemeProvider } from '@/contexts/theme_context'
 import { AppLayout } from './app'
 
-vi.mock('@/hooks/useRotasSync', () => ({
+vi.mock('@/hooks/use_rotas_sync', () => ({
   useRotasSync: vi.fn(),
 }))
 

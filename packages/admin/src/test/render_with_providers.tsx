@@ -2,8 +2,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { type RenderOptions, render } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { MemoryRouter, type MemoryRouterProps } from 'react-router-dom'
-import { AuthProvider } from '@/contexts/AuthContext'
-import { ThemeProvider } from '@/contexts/ThemeContext'
+import { AuthProvider } from '@/contexts/auth_context'
+import { ThemeProvider } from '@/contexts/theme_context'
 import type { AdminSession } from '@/types/auth'
 
 interface RenderWithProvidersOptions extends RenderOptions {
