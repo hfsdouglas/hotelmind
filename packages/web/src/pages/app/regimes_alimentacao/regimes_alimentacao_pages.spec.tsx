@@ -154,11 +154,11 @@ describe('Regimes de Alimentação Pages', () => {
       target: { value: 'Café, almoço e jantar' },
     })
 
-    // Selecionar cor verde no preset
-    const greenPreset = screen.getByRole('button', {
-      name: /Escolher cor Verde/i,
-    })
-    fireEvent.click(greenPreset)
+    // Informar a cor da pulseira pelo código hexadecimal
+    fireEvent.change(
+      screen.getByLabelText('Código hexadecimal da cor da pulseira'),
+      { target: { value: '#16a34a' } }
+    )
 
     const submitBtn = screen.getByRole('button', { name: /Salvar/i })
     fireEvent.click(submitBtn)
