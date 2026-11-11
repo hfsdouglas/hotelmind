@@ -22,6 +22,8 @@
       "Bash(pnpm test:e2e:*)",
       "Bash(git status:*)",
       "Bash(git diff:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
       "Read(packages/**)",
       "Bash(find packages:*)",
       "Bash(ls:*)",
@@ -34,7 +36,6 @@
     "deny": [
       "Bash(pnpm exec vitest:*--watch*)",
       "Bash(pnpm test:watch:*)",
-      "Bash(git commit:*)",
       "Bash(git push:*)"
     ]
   }
