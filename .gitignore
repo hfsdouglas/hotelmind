@@ -7,3 +7,6 @@ coverage
 *.env
 !example.env
 .specify
+# Playwright
+test-results
+playwright-report

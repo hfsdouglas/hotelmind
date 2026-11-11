@@ -13,7 +13,7 @@ import {
 import { useEffect, useMemo, useState } from 'react'
 import { quartosService } from '@/api/quartos.service'
 import { reservasService } from '@/api/reservas.service'
-import { ReservationCell } from '@/components/reservation_cell'
+import { ReservationCell } from '@/components/reservas/reservation_cell'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,

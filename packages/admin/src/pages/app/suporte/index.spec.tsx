@@ -2,14 +2,14 @@ import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { HttpResponse, http } from 'msw'
 import { describe, expect, it, vi } from 'vitest'
+import { server } from '@/mocks/server'
 import {
   mock_usuarios_hotel,
   suporte_hoteis_empty_handler,
   suporte_hoteis_handlers,
   suporte_usuarios_handlers,
-} from '@/mocks/handlers/suporte_handlers'
-import { server } from '@/mocks/server'
-import { render_with_providers } from '@/test/render_with_providers'
+} from '@/mocks/suporte/suporte_handlers'
+import { render_with_providers } from '@/tests/utils/render_with_providers'
 import { SuportePage } from './index'
 
 vi.mock('sonner', () => ({

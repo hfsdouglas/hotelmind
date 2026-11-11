@@ -2,9 +2,9 @@ import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { HttpResponse, http } from 'msw'
 import { describe, expect, it, vi } from 'vitest'
-import { mock_hoteis } from '@/mocks/handlers/hoteis_handlers'
+import { mock_hoteis } from '@/mocks/hoteis/hoteis_handlers'
 import { server } from '@/mocks/server'
-import { render_with_providers } from '@/test/render_with_providers'
+import { render_with_providers } from '@/tests/utils/render_with_providers'
 import { HoteisPage } from './index'
 
 vi.mock('sonner', () => ({

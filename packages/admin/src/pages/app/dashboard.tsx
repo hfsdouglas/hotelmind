@@ -1,5 +1,5 @@
-import { usePageTitle } from '@/hooks/use_document_title'
 import { useAuth } from '@/hooks/use_auth'
+import { usePageTitle } from '@/hooks/use_document_title'
 
 export function DashboardPage() {
   usePageTitle('Dashboard')

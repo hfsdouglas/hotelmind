@@ -17,11 +17,10 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-    "ignoreDeprecations": "5.0",
-    "baseUrl": ".",
+    "types": ["vite/client", "vitest/globals"],
     "paths": {
       "@/*": ["./src/*"],
-      "@hotelmind/contracts": ["../packages/.contracts/src/index.ts"]
+      "@hotelmind/contracts": ["../.contracts/src/index.ts"]
     }
   },
   "include": ["src"]

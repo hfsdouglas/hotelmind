@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { HttpResponse, http } from 'msw'
 import { describe, expect, it, vi } from 'vitest'
 import { server } from '@/mocks/server'
-import { render_with_providers } from '@/test/render_with_providers'
+import { render_with_providers } from '@/tests/utils/render_with_providers'
 import { LoginPage } from './login'
 
 // Silence sonner toast in tests
