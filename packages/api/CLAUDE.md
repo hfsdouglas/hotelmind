@@ -1,24 +1,11 @@
 # API Package
 
-Fastify HTTP server for the HotelMind monorepo. This document is the authoritative guide for contributors and AI agents working on the backend service.
+Fastify HTTP server for HotelMind.
 
-## Technology Stack
+## Stack
 
-### Runtime Dependencies
-- `fastify`: HTTP framework.
-- `@fastify/cookie`: Cookie management.
-- `@fastify/cors`: Cross-Origin Resource Sharing.
-- `@fastify/jwt`: JWT authentication.
-- `@fastify/swagger` & `@fastify/swagger-ui`: OpenAPI specification generation and documentation.
-- `fastify-type-provider-zod`: Type-safe schema validation bridging Fastify and Zod.
-- `zod`: Request/response validation schemas and TypeScript type inference.
-- `prisma`: ORM for database migrations and query execution.
-- `pg` & `@prisma/adapter-pg`: PostgreSQL driver and runtime adapter.
-
-### Development & Testing
-- `typescript`: Strict type checking.
-- `tsx`: TypeScript execution for development and seed scripts.
-- `vitest`: Test runner for unit and integration tests.
+Fastify (+ cookie, cors, jwt, rate-limit, swagger) · `fastify-type-provider-zod`
+· Zod · Prisma + `@prisma/adapter-pg` (PostgreSQL) · tsx · Vitest.
 
 ---
 
@@ -80,7 +67,6 @@ Organized by domain folder (`core/repositories/<domain>/`):
 1. `<domain>.repository.ts`: Interface contract defining required queries and mutations.
 2. `implementation/`: Production class backed by Prisma.
 3. `in-memory/`: In-memory fake class maintaining state in memory, used exclusively in tests.
-- Shared pagination types (`PaginationInput`, `PaginationMeta`, `PaginatedResult`) live in `core/repositories/pagination.ts`.
 
 ### `core/usecases`
 Orchestration of application use cases.
@@ -122,9 +108,7 @@ export async function users_routes(app: FastifyTypedInstance) {
 
 ---
 
-## Multi-Tenancy Architecture
-
-HotelMind is multi-tenant. Every piece of business data belongs to exactly one hotel.
+## Multi-Tenancy (`hotel_id`)
 
 1. **Mandatory `hotel_id`**: Every business database table and model MUST include a `hotel_id` column.
 2. **Untrusted Client Inputs**: `hotel_id` is NEVER accepted from the client request body or query params.
@@ -146,31 +130,11 @@ HotelMind is multi-tenant. Every piece of business data belongs to exactly one h
 
 ---
 
-## Pagination Standard
+## Pagination
 
-All list endpoints accept standard query parameters:
-
-| Param | Type | Default | Description |
-|---|---|---|---|
-| `pagina` | number | 1 | Page number (1-indexed) |
-| `limite` | number | 50 | Items per page (max 250) |
-| `busca` | string | — | Optional search term |
-| `ordenar_por` | string | — | Field name to sort by |
-| `direcao` | `asc` \| `desc` | `asc` | Sort direction |
-
-List responses return a `data` array and a `meta` pagination object:
-
-```ts
-{
-  data: T[],
-  meta: {
-    pagina: number,
-    limite: number,
-    total: number,
-    ultima_pagina: number
-  }
-}
-```
+List endpoints implement the root pagination contract. Repository types
+(`PaginationInput`, `PaginationMeta`, `PaginatedResult`) live in
+`core/repositories/pagination.ts`.
 
 ---
 
@@ -183,9 +147,7 @@ List responses return a `data` array and a `meta` pagination object:
 
 ---
 
-## Testing (Mandatory TDD)
-
-Testing follows strict Test-Driven Development (Red → Green → Refactor). Tests are written before implementation code.
+## Testing
 
 - **Entity Tests** (`core/entities/<domain>/<entity>.spec.ts`): Test domain invariants and validations in pure TypeScript.
 - **Use Case Tests** (`core/usecases/<domain>/<use_case>.spec.ts`): Inject in-memory repository fakes. Never mock Prisma directly.
