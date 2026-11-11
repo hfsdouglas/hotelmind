@@ -57,6 +57,21 @@ isolation. One use case per file means one spec per use case.
   `direcao`) and the Suspense skeleton (`role="status"`, `aria-busy`).
 - Forms: validation messages, submit success/error toast, disabled-while-pending.
 
+## E2E scope
+
+The scope of a feature's E2E comes from the project's feature convention
+(Spec Kit): `specs/NNN-<feature>/spec.md` (User Stories with Acceptance
+Scenarios and an "Independent Test") and `tasks.md`.
+
+- One `src/tests/<domain>/<feature>.e2e.ts` per feature; one `test.describe`
+  per user story (P1 first), one `test` per acceptance scenario (Given/When/
+  Then), plus the edge cases the spec lists.
+- Written with the feature, tests first, as the feature's tasks require.
+- Mocks for the flow go in `src/mocks/<domain>/` (never inline in the spec).
+- Locators by role/label/text only; no CSS selectors, no fixed sleeps.
+- If a feature has no spec, ask the caller what to cover instead of inventing
+  the scope.
+
 ## Token economy
 
 - Run a single spec per command with minimal output:
