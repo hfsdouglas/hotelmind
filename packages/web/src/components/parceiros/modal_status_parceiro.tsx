@@ -13,9 +13,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Textarea,
 } from '@hotelmind/ui'
 import { useEffect, useState } from 'react'
-import { Textarea } from '@/components/ui/textarea'
 
 interface ModalStatusParceiroProps {
   parceiro: ParceiroComercial | null

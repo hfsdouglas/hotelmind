@@ -1,8 +1,12 @@
 import type { Quarto } from '@hotelmind/contracts'
 import {
+  Badge,
   Button,
   Checkbox,
   Label,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
   Select,
   SelectContent,
   SelectItem,
@@ -18,12 +22,6 @@ import type { Column } from '@/components/data-table/data_table'
 import { ListPageLayout } from '@/components/data-table/list_page_layout'
 import { PagedDataTable } from '@/components/data-table/paged_data_table'
 import { SearchBar } from '@/components/data-table/search_bar'
-import { Badge } from '@/components/ui/badge'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
 import { usePageTitle } from '@/hooks/use_document_title'
 import { usePaginacao } from '@/hooks/use_paginacao'
 

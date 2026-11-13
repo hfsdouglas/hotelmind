@@ -1,14 +1,14 @@
 import type { ReservaHospede } from '@hotelmind/contracts'
-import { Button } from '@hotelmind/ui'
-import { Edit2 } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
 import {
+  Badge,
+  Button,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from '@hotelmind/ui'
+import { Edit2 } from 'lucide-react'
 
 interface ReservaHospedesSectionProps {
   totalHospedes: number

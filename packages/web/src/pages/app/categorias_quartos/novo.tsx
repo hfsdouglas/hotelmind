@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
+  Input,
   Label,
   Select,
   SelectContent,
@@ -13,7 +14,6 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { categoriasQuartosService } from '@/api/categorias_quartos.service'
 import { CrudFormLayout, SaveButton } from '@/components/forms/crud_form_layout'
-import { Input } from '@/components/ui/input'
 import { usePageTitle } from '@/hooks/use_document_title'
 import {
   type CategoriaQuartoFormData,

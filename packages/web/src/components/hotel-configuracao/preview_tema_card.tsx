@@ -1,5 +1,5 @@
+import { Card, CardContent, CardHeader, CardTitle } from '@hotelmind/ui'
 import type React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export interface PreviewTemaCardProps {
   nomeHotel: string

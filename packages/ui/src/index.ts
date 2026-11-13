@@ -12,11 +12,20 @@ export {
   AlertDialogTrigger,
 } from './components/alert-dialog/alert-dialog'
 export { Avatar, AvatarFallback, AvatarImage } from './components/avatar/avatar'
+export { Badge, type BadgeProps, badgeVariants } from './components/badge/badge'
 export {
   Button,
   type ButtonProps,
   buttonVariants,
 } from './components/button/button'
+export {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from './components/card/card'
 export { Checkbox } from './components/checkbox/checkbox'
 export {
   Dialog,
@@ -28,7 +37,25 @@ export {
   DialogTitle,
   DialogTrigger,
 } from './components/dialog/dialog'
+export {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  useFormField,
+} from './components/form/form'
+export { Input } from './components/input/input'
 export { Label } from './components/label/label'
+export {
+  Popover,
+  PopoverClose,
+  PopoverContent,
+  type PopoverContentProps,
+  PopoverTrigger,
+} from './components/popover/popover'
 export {
   Select,
   SelectContent,
@@ -42,6 +69,23 @@ export {
   SelectValue,
 } from './components/select/select'
 export { Separator } from './components/separator/separator'
+export { Skeleton } from './components/skeleton/skeleton'
+export {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from './components/table/table'
+export {
+  Tabs,
+  TabsContent,
+  TabsList,
+  type TabsProps,
+  TabsTrigger,
+} from './components/tabs/tabs'
+export { Textarea } from './components/textarea/textarea'
 export {
   Tooltip,
   TooltipContent,

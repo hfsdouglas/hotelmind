@@ -1,14 +1,14 @@
-import { Checkbox } from '@hotelmind/ui'
-import { Clock } from 'lucide-react'
-import type { UseFormReturn } from 'react-hook-form'
 import {
+  Checkbox,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+  Input,
+} from '@hotelmind/ui'
+import { Clock } from 'lucide-react'
+import type { UseFormReturn } from 'react-hook-form'
 import type { HotelConfiguracaoFormData } from '@/schemas/hotel_configuracao'
 
 interface SecaoHorariosOperacaoProps {

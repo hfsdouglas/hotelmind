@@ -1,5 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, Checkbox } from '@hotelmind/ui'
+import {
+  Button,
+  Checkbox,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  Input,
+} from '@hotelmind/ui'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
@@ -7,15 +17,6 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { rotasService } from '@/api/rotas.service'
 import { CrudFormLayout, SaveButton } from '@/components/forms/crud_form_layout'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
 import { usePageTitle } from '@/hooks/use_document_title'
 import {
   type RotaUpdateFormData,

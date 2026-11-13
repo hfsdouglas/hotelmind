@@ -1,6 +1,6 @@
+import { Input } from '@hotelmind/ui'
 import type React from 'react'
 import { useRef } from 'react'
-import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 
 export interface ColorPickerProps {

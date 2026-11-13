@@ -1,16 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button } from '@hotelmind/ui'
-import { useForm } from 'react-hook-form'
-import { SuiteSyncLogo } from '@/components/layout/suite_sync_logo'
 import {
+  Button,
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+  Input,
+} from '@hotelmind/ui'
+import { useForm } from 'react-hook-form'
+import { SuiteSyncLogo } from '@/components/layout/suite_sync_logo'
 import { usePageTitle } from '@/hooks/use_document_title'
 import { useLogin } from '@/hooks/use_login'
 import { type LoginFormData, login_schema } from '@/schemas/auth/auth_schema'

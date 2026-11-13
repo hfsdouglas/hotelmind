@@ -1,6 +1,6 @@
 import type { Reserva } from '@hotelmind/contracts'
+import { Card, CardContent, CardHeader, CardTitle } from '@hotelmind/ui'
 import { Handshake } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 function formatarDataBR(dataIso: string | null | undefined) {
   if (!dataIso) return '-'

@@ -4,6 +4,7 @@ import type {
   TipoParceiro,
 } from '@hotelmind/contracts'
 import {
+  Badge,
   Button,
   Select,
   SelectContent,
@@ -22,7 +23,6 @@ import { ListPageLayout } from '@/components/data-table/list_page_layout'
 import { PagedDataTable } from '@/components/data-table/paged_data_table'
 import { SearchBar } from '@/components/data-table/search_bar'
 import { ModalStatusParceiro } from '@/components/parceiros/modal_status_parceiro'
-import { Badge } from '@/components/ui/badge'
 import { usePageTitle } from '@/hooks/use_document_title'
 import { usePaginacao } from '@/hooks/use_paginacao'
 

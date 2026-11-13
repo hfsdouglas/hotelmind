@@ -10,12 +10,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   Button,
+  Card,
+  CardContent,
+  Input,
   Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Textarea,
 } from '@hotelmind/ui'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
@@ -25,9 +29,6 @@ import { toast } from 'sonner'
 import { categoriasQuartosService } from '@/api/categorias_quartos.service'
 import { quartosService } from '@/api/quartos.service'
 import { CrudFormLayout, SaveButton } from '@/components/forms/crud_form_layout'
-import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { usePageTitle } from '@/hooks/use_document_title'
 import {
   type QuartoFormData,

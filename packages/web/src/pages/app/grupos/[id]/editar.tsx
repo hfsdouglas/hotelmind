@@ -1,12 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Button,
+  Input,
   Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Textarea,
 } from '@hotelmind/ui'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
@@ -17,8 +19,6 @@ import type { RotaItem } from '@/api/grupos.service'
 import { gruposService } from '@/api/grupos.service'
 import { CheckboxGroupList } from '@/components/forms/checkbox_group_list'
 import { CrudFormLayout, SaveButton } from '@/components/forms/crud_form_layout'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { usePageTitle } from '@/hooks/use_document_title'
 import { type GrupoFormData, grupoSchema } from '@/schemas/grupos/grupo_schema'
 

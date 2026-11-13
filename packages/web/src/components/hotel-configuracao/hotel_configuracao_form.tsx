@@ -1,9 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Separator } from '@hotelmind/ui'
+import { Form, Separator } from '@hotelmind/ui'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { CrudFormLayout, SaveButton } from '@/components/forms/crud_form_layout'
-import { Form } from '@/components/ui/form'
 import {
   type HotelConfiguracaoFormData,
   hotelConfiguracaoFormSchema,

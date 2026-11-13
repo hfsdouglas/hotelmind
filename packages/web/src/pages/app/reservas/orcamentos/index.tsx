@@ -8,6 +8,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  Badge,
   Button,
 } from '@hotelmind/ui'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -21,7 +22,6 @@ import { ListPageLayout } from '@/components/data-table/list_page_layout'
 import { PagedDataTable } from '@/components/data-table/paged_data_table'
 import { SearchBar } from '@/components/data-table/search_bar'
 import { OrcamentoAcoesCompartilhamento } from '@/components/orcamentos/orcamento_acoes_compartilhamento'
-import { Badge } from '@/components/ui/badge'
 import { usePageTitle } from '@/hooks/use_document_title'
 import { usePaginacao } from '@/hooks/use_paginacao'
 import { mask_phone } from '@/hooks/use_phone_mask'

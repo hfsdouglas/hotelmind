@@ -1,11 +1,14 @@
 import type { QuartoDisponivel } from '@hotelmind/contracts'
 import {
+  Badge,
+  Input,
   Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Textarea,
 } from '@hotelmind/ui'
 import {
   BedDouble,
@@ -25,10 +28,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Controller } from 'react-hook-form'
 import { ModalConflitoReserva } from '@/components/reservas/modal_conflito_reserva'
-import { Badge } from '@/components/ui/badge'
 import { DatePicker } from '@/components/ui/date_picker'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import type { useNovaReservaForm } from '@/hooks/use_nova_reserva_form'
 import { useNovaReservaOpcoes } from '@/hooks/use_nova_reserva_opcoes'
 import { usePhoneMask } from '@/hooks/use_phone_mask'

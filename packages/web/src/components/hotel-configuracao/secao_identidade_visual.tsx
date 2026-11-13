@@ -1,14 +1,14 @@
-import { Button } from '@hotelmind/ui'
-import { Eye, Palette, Upload } from 'lucide-react'
-import type React from 'react'
-import { Controller, type UseFormReturn } from 'react-hook-form'
-import { ColorPicker } from '@/components/ui/color_picker'
 import {
+  Button,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
+} from '@hotelmind/ui'
+import { Eye, Palette, Upload } from 'lucide-react'
+import type React from 'react'
+import { Controller, type UseFormReturn } from 'react-hook-form'
+import { ColorPicker } from '@/components/ui/color_picker'
 import type { HotelConfiguracaoFormData } from '@/schemas/hotel_configuracao'
 
 interface SecaoIdentidadeVisualProps {

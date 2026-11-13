@@ -1,14 +1,14 @@
-import { FileText } from 'lucide-react'
-import type { UseFormReturn } from 'react-hook-form'
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
+  Input,
+  Textarea,
+} from '@hotelmind/ui'
+import { FileText } from 'lucide-react'
+import type { UseFormReturn } from 'react-hook-form'
 import type { HotelConfiguracaoFormData } from '@/schemas/hotel_configuracao'
 
 interface SecaoApresentacaoProps {

@@ -1,6 +1,6 @@
+import { Skeleton } from '@hotelmind/ui'
 import { toast } from 'sonner'
 import { HotelConfiguracaoForm } from '@/components/hotel-configuracao/hotel_configuracao_form'
-import { Skeleton } from '@/components/ui/skeleton'
 import { usePageTitle } from '@/hooks/use_document_title'
 import {
   useHotelConfiguracao,

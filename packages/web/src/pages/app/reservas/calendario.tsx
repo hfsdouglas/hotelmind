@@ -1,5 +1,8 @@
 import {
   Button,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
   Select,
   SelectContent,
   SelectItem,
@@ -26,11 +29,6 @@ import { ModalCheckInReserva } from '@/components/reservas/modal_check_in_reserv
 import { ModalDetalhesReserva } from '@/components/reservas/modal_detalhes_reserva'
 import { ModalNovaReserva } from '@/components/reservas/modal_nova_reserva'
 import { SuiteStatusIndicator } from '@/components/reservas/suite_status_indicator'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
 import {
   ReservationsProvider,
   useReservations,

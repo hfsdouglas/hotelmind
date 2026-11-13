@@ -5,6 +5,7 @@ import type {
 } from '@hotelmind/contracts'
 import {
   Button,
+  Input,
   Label,
   Select,
   SelectContent,
@@ -22,7 +23,6 @@ import {
 } from 'lucide-react'
 import { type FormEvent, useEffect, useState } from 'react'
 import { CrudFormLayout } from '@/components/forms/crud_form_layout'
-import { Input } from '@/components/ui/input'
 import { useCurrencyMask } from '@/hooks/use_currency_mask'
 import {
   find_conflicting_periods,

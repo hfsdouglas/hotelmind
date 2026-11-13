@@ -3,7 +3,9 @@ import type {
   TipoContatoParceiro,
 } from '@hotelmind/contracts'
 import {
+  Badge,
   Button,
+  Input,
   Label,
   Select,
   SelectContent,
@@ -13,8 +15,6 @@ import {
 } from '@hotelmind/ui'
 import { Plus, Trash2, UserCheck } from 'lucide-react'
 import { useState } from 'react'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
 
 interface ContatosFormSectionProps {
   contatos: ParceiroContatoItem[]

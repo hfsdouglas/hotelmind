@@ -1,6 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Button,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  Input,
   Select,
   SelectContent,
   SelectItem,
@@ -14,15 +21,6 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { administradoresService } from '@/api/administradores.service'
 import { CrudFormLayout, SaveButton } from '@/components/forms/crud_form_layout'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
 import { usePageTitle } from '@/hooks/use_document_title'
 import {
   type AdministradorUpdateFormData,

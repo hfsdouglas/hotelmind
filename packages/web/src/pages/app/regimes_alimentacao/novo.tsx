@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Label } from '@hotelmind/ui'
+import { Input, Label, Textarea } from '@hotelmind/ui'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Controller, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
@@ -7,8 +7,6 @@ import { toast } from 'sonner'
 import { regimesAlimentacaoService } from '@/api/regimes_alimentacao.service'
 import { CrudFormLayout, SaveButton } from '@/components/forms/crud_form_layout'
 import { ColorPicker } from '@/components/ui/color_picker'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { usePageTitle } from '@/hooks/use_document_title'
 import {
   type RegimeAlimentacaoFormData,

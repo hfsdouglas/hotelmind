@@ -1,4 +1,4 @@
-import { Button } from '@hotelmind/ui'
+import { Button, Card, CardContent } from '@hotelmind/ui'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
@@ -10,7 +10,6 @@ import {
   TarifarioForm,
   type TarifarioSubmitPayload,
 } from '@/components/tarifarios/tarifario_form'
-import { Card, CardContent } from '@/components/ui/card'
 import { usePageTitle } from '@/hooks/use_document_title'
 import {
   useCreateTarifarioMutation,

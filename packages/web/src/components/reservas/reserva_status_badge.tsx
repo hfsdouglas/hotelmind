@@ -1,5 +1,5 @@
 import type { ReservaStatus } from '@hotelmind/contracts'
-import { Badge } from '@/components/ui/badge'
+import { Badge } from '@hotelmind/ui'
 import { STATUS_RESERVA_LABEL } from '@/types/calendario_reserva'
 
 const STATUS_CLASSES: Record<ReservaStatus, string> = {

@@ -2,6 +2,9 @@ import type { Tarifario } from '@hotelmind/contracts'
 import {
   Button,
   Label,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
   Select,
   SelectContent,
   SelectItem,
@@ -19,11 +22,6 @@ import { ListPageLayout } from '@/components/data-table/list_page_layout'
 import { PagedDataTable } from '@/components/data-table/paged_data_table'
 import { SearchBar } from '@/components/data-table/search_bar'
 import { TarifarioStatusBadge } from '@/components/tarifarios/tarifario_status_badge'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
 import { usePageTitle } from '@/hooks/use_document_title'
 import { usePaginacao } from '@/hooks/use_paginacao'
 import { format_iso_to_br } from '@/schemas/tarifarios/tarifario_schema'

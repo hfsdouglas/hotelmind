@@ -1,4 +1,12 @@
-import { Button } from '@hotelmind/ui'
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@hotelmind/ui'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   CheckCircle2,
@@ -11,14 +19,6 @@ import {
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { reservasService } from '@/api/reservas.service'
-import { Badge } from '@/components/ui/badge'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
 
 interface LinkFnrhCardProps {
   reservaId: string

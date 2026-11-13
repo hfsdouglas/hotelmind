@@ -1,4 +1,15 @@
-import { Button, Label } from '@hotelmind/ui'
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Label,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@hotelmind/ui'
 import {
   Baby,
   Bed,
@@ -14,18 +25,6 @@ import {
 import { useMemo, useState } from 'react'
 import { PageHeader } from '@/components/layout/page_header'
 import { Calendar } from '@/components/ui/calendar'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
 import { usePageTitle } from '@/hooks/use_document_title'
 
 // Dados mockados - substituir por chamadas de API depois

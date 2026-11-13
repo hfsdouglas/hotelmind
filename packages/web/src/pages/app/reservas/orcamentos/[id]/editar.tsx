@@ -1,12 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { Tarifario } from '@hotelmind/contracts'
 import {
+  Badge,
+  Input,
   Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Textarea,
 } from '@hotelmind/ui'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -37,10 +40,7 @@ import { regimesAlimentacaoService } from '@/api/regimes_alimentacao.service'
 import { tarifariosService } from '@/api/tarifarios.service'
 import { CrudFormLayout, SaveButton } from '@/components/forms/crud_form_layout'
 import { OrcamentoAcoesCompartilhamento } from '@/components/orcamentos/orcamento_acoes_compartilhamento'
-import { Badge } from '@/components/ui/badge'
 import { DatePicker } from '@/components/ui/date_picker'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { usePageTitle } from '@/hooks/use_document_title'
 import { mask_phone, unmask_phone, usePhoneMask } from '@/hooks/use_phone_mask'
 

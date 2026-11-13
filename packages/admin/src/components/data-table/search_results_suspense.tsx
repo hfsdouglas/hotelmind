@@ -1,4 +1,13 @@
 import {
+  Skeleton,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@hotelmind/ui'
+import {
   Component,
   type ReactNode,
   Suspense,
@@ -6,15 +15,6 @@ import {
   useRef,
   useState,
 } from 'react'
-import { Skeleton } from '@/components/ui/skeleton'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 
 interface SearchResultsSkeletonProps {

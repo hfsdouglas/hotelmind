@@ -1,13 +1,13 @@
-import { Baby } from 'lucide-react'
-import type { UseFormReturn } from 'react-hook-form'
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+  Input,
+} from '@hotelmind/ui'
+import { Baby } from 'lucide-react'
+import type { UseFormReturn } from 'react-hook-form'
 import type { HotelConfiguracaoFormData } from '@/schemas/hotel_configuracao'
 
 interface SecaoCriancasHospedesProps {

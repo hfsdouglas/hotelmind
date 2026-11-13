@@ -1,7 +1,11 @@
 import type { Reserva, ReservaStatus } from '@hotelmind/contracts'
 import {
+  Badge,
   Button,
   Label,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
   Select,
   SelectContent,
   SelectItem,
@@ -27,12 +31,6 @@ import { ListPageLayout } from '@/components/data-table/list_page_layout'
 import { PagedDataTable } from '@/components/data-table/paged_data_table'
 import { SearchBar } from '@/components/data-table/search_bar'
 import { ReservaStatusBadge } from '@/components/reservas/reserva_status_badge'
-import { Badge } from '@/components/ui/badge'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
 import { usePageTitle } from '@/hooks/use_document_title'
 import { usePaginacao } from '@/hooks/use_paginacao'
 import { mask_phone } from '@/hooks/use_phone_mask'

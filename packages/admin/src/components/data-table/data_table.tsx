@@ -1,4 +1,3 @@
-import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 import {
   Table,
   TableBody,
@@ -6,7 +5,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from '@hotelmind/ui'
+import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export interface Column<T> {

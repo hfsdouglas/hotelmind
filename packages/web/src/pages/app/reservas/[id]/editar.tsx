@@ -5,12 +5,15 @@ import type {
   ReservaStatus,
 } from '@hotelmind/contracts'
 import {
+  Badge,
+  Input,
   Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Textarea,
 } from '@hotelmind/ui'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -38,10 +41,7 @@ import { regimesAlimentacaoService } from '@/api/regimes_alimentacao.service'
 import { reservasService } from '@/api/reservas.service'
 import { CrudFormLayout } from '@/components/forms/crud_form_layout'
 import { ModalConflitoReserva } from '@/components/reservas/modal_conflito_reserva'
-import { Badge } from '@/components/ui/badge'
 import { DatePicker } from '@/components/ui/date_picker'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { usePageTitle } from '@/hooks/use_document_title'
 import { mask_phone, unmask_phone, usePhoneMask } from '@/hooks/use_phone_mask'
 import {

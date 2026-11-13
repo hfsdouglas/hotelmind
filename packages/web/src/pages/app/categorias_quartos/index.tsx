@@ -1,5 +1,6 @@
 import type { CategoriaQuarto } from '@hotelmind/contracts'
 import {
+  Badge,
   Button,
   Select,
   SelectContent,
@@ -14,7 +15,6 @@ import { categoriasQuartosService } from '@/api/categorias_quartos.service'
 import type { Column } from '@/components/data-table/data_table'
 import { ListPageLayout } from '@/components/data-table/list_page_layout'
 import { PagedDataTable } from '@/components/data-table/paged_data_table'
-import { Badge } from '@/components/ui/badge'
 import { usePageTitle } from '@/hooks/use_document_title'
 
 export function CategoriasQuartosPage() {

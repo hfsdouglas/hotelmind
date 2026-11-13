@@ -1,6 +1,9 @@
 import type { PeriodoTarifarioCalendario } from '@hotelmind/contracts'
 import {
   Button,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
   Select,
   SelectContent,
   SelectItem,
@@ -19,11 +22,6 @@ import {
   X,
 } from 'lucide-react'
 import { useState } from 'react'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 import {
   type CalendarBulkSelectMode,

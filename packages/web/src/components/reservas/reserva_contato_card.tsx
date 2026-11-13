@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@hotelmind/ui'
 import { mask_phone } from '@/hooks/use_phone_mask'
 
 interface ReservaContatoCardProps {

@@ -1,6 +1,12 @@
 import {
   Button,
   Checkbox,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  Input,
   Select,
   SelectContent,
   SelectItem,
@@ -10,14 +16,6 @@ import {
 import { Car, Eye, EyeOff, Wifi } from 'lucide-react'
 import { useState } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
 import type { HotelConfiguracaoFormData } from '@/schemas/hotel_configuracao'
 
 interface SecaoEstacionamentoWifiProps {

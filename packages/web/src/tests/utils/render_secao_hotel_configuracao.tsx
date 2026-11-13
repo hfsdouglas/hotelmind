@@ -1,7 +1,7 @@
+import { Form } from '@hotelmind/ui'
 import { render } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { type UseFormReturn, useForm } from 'react-hook-form'
-import { Form } from '@/components/ui/form'
 import type { HotelConfiguracaoFormData } from '@/schemas/hotel_configuracao'
 
 export function makeHotelConfiguracaoValues(

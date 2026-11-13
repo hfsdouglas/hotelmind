@@ -1,6 +1,12 @@
 import type { FichaFnrh, FnrhPublicaView } from '@hotelmind/contracts'
 import {
+  Badge,
   Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Input,
   Label,
   Select,
   SelectContent,
@@ -33,9 +39,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { reservasService } from '@/api/reservas.service'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { usePageTitle } from '@/hooks/use_document_title'
 
 function formatarDataBR(dataIso: string | null | undefined) {

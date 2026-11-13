@@ -1,4 +1,12 @@
-import { Button, Separator } from '@hotelmind/ui'
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Separator,
+} from '@hotelmind/ui'
 import { useQuery } from '@tanstack/react-query'
 import {
   AlertCircle,
@@ -19,8 +27,6 @@ import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { orcamentosService } from '@/api/orcamentos.service'
 import { ModalReservarInfo } from '@/components/orcamentos/modal_reservar_info'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { usePageTitle } from '@/hooks/use_document_title'
 import { mask_phone } from '@/hooks/use_phone_mask'
 
