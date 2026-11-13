@@ -3,7 +3,7 @@ import type {
   PeriodoTarifarioCalendario,
   RegimeAlimentacao,
 } from '@hotelmind/contracts'
-import { Button } from '@hotelmind/ui'
+import { Button, Label } from '@hotelmind/ui'
 import {
   BedDouble,
   CalendarCheck2,
@@ -15,7 +15,6 @@ import {
 import { type FormEvent, useEffect, useState } from 'react'
 import { CrudFormLayout } from '@/components/forms/crud_form_layout'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,

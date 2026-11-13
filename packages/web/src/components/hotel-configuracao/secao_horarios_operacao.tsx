@@ -1,6 +1,6 @@
+import { Checkbox } from '@hotelmind/ui'
 import { Clock } from 'lucide-react'
 import type { UseFormReturn } from 'react-hook-form'
-import { Checkbox } from '@/components/ui/checkbox'
 import {
   FormControl,
   FormField,

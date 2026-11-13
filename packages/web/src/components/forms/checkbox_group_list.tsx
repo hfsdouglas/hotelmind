@@ -1,4 +1,4 @@
-import { Checkbox } from '@/components/ui/checkbox'
+import { Checkbox } from '@hotelmind/ui'
 import type { CheckboxGridItem } from './checkbox_grid'
 
 export interface CheckboxGroup {

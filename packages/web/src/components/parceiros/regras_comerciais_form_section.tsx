@@ -1,7 +1,7 @@
 import type { ModeloTarifario, PoliticaFaturamento } from '@hotelmind/contracts'
+import { Label } from '@hotelmind/ui'
 import { BadgeDollarSign } from 'lucide-react'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,

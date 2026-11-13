@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button } from '@hotelmind/ui'
+import { Button, Label } from '@hotelmind/ui'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
@@ -10,7 +10,6 @@ import { usuariosService } from '@/api/usuarios.service'
 import { CheckboxGrid } from '@/components/forms/checkbox_grid'
 import { CrudFormLayout, SaveButton } from '@/components/forms/crud_form_layout'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { usePageTitle } from '@/hooks/use_document_title'
 import {
   type UsuarioUpdateFormData,

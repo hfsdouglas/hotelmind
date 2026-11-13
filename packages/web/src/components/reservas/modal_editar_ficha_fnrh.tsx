@@ -3,7 +3,7 @@ import type {
   ReservaHospede,
   SaveFichaPayload,
 } from '@hotelmind/contracts'
-import { Button } from '@hotelmind/ui'
+import { Button, Label } from '@hotelmind/ui'
 import { Compass, Copy, MapPin, Phone, User } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
@@ -16,7 +16,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,

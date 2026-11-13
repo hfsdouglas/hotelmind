@@ -1,4 +1,4 @@
-import { Button } from '@hotelmind/ui'
+import { Button, Label } from '@hotelmind/ui'
 import {
   Baby,
   Bed,
@@ -21,7 +21,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
 import {
   Popover,
   PopoverContent,

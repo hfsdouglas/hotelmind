@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { Tarifario } from '@hotelmind/contracts'
+import { Label } from '@hotelmind/ui'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   BedDouble,
@@ -29,7 +30,6 @@ import { CrudFormLayout } from '@/components/forms/crud_form_layout'
 import { Badge } from '@/components/ui/badge'
 import { DatePicker } from '@/components/ui/date_picker'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,

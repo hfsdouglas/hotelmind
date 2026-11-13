@@ -1,5 +1,5 @@
 import type { Reserva, ReservaStatus } from '@hotelmind/contracts'
-import { Button } from '@hotelmind/ui'
+import { Button, Label } from '@hotelmind/ui'
 import { useQuery } from '@tanstack/react-query'
 import {
   CheckCircle2,
@@ -20,7 +20,6 @@ import { PagedDataTable } from '@/components/data-table/paged_data_table'
 import { SearchBar } from '@/components/data-table/search_bar'
 import { ReservaStatusBadge } from '@/components/reservas/reserva_status_badge'
 import { Badge } from '@/components/ui/badge'
-import { Label } from '@/components/ui/label'
 import {
   Popover,
   PopoverContent,

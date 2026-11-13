@@ -1,7 +1,6 @@
-import { Button } from '@hotelmind/ui'
+import { Button, Separator } from '@hotelmind/ui'
 import { Bell } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { Separator } from '@/components/ui/separator'
 
 export function NotificationsDropdown() {
   const [open, setOpen] = useState(false)

@@ -1,4 +1,4 @@
-import { Button } from '@hotelmind/ui'
+import { Avatar, AvatarFallback, Button, Separator } from '@hotelmind/ui'
 import {
   BedDouble,
   Calculator,
@@ -16,8 +16,6 @@ import {
 import type { ElementType } from 'react'
 import { useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Separator } from '@/components/ui/separator'
 import { useAuth } from '@/hooks/use_auth'
 import { useLogout } from '@/hooks/use_logout'
 import { useTheme } from '@/hooks/use_theme'

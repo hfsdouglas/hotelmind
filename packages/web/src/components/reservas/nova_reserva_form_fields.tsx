@@ -1,4 +1,5 @@
 import type { QuartoDisponivel } from '@hotelmind/contracts'
+import { Label } from '@hotelmind/ui'
 import {
   BedDouble,
   Calendar,
@@ -20,7 +21,6 @@ import { ModalConflitoReserva } from '@/components/reservas/modal_conflito_reser
 import { Badge } from '@/components/ui/badge'
 import { DatePicker } from '@/components/ui/date_picker'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,

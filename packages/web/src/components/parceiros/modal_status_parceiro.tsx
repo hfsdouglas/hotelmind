@@ -1,5 +1,5 @@
 import type { ParceiroComercial, StatusParceiro } from '@hotelmind/contracts'
-import { Button } from '@hotelmind/ui'
+import { Button, Label } from '@hotelmind/ui'
 import { useEffect, useState } from 'react'
 import {
   Dialog,
@@ -9,7 +9,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
