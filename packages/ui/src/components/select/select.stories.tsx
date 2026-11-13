@@ -17,7 +17,7 @@ export default meta
 export const Default: StoryObj<typeof meta> = {
   render: () => (
     <Select>
-      <SelectTrigger className="w-56">
+      <SelectTrigger className="w-56" aria-label="Tipo de quarto">
         <SelectValue placeholder="Tipo de quarto" />
       </SelectTrigger>
       <SelectContent>

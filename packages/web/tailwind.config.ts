@@ -4,7 +4,12 @@ import type { Config } from 'tailwindcss'
 // Shared tokens come from the preset; only web's domain tokens live here.
 export default {
   presets: [preset],
-  content: ['./index.html', './src/**/*.{ts,tsx}', '../ui/src/**/*.{ts,tsx}'],
+  content: [
+    './index.html',
+    './src/**/*.{ts,tsx}',
+    '../ui/src/**/*.{ts,tsx}',
+    '!../ui/src/**/*.stories.tsx',
+  ],
   theme: {
     extend: {
       colors: {
