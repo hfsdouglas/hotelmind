@@ -1,7 +1,7 @@
+import { cn } from '@hotelmind/ui'
 import type { MouseEvent } from 'react'
 import { ReservationCell } from '@/components/reservas/reservation_cell'
 import { to_iso_day } from '@/lib/calendar_range_selection'
-import { cn } from '@/lib/utils'
 import type { CellSelectionState } from '@/types/calendar_range_selection'
 import type { Reservation } from '@/types/calendario_reserva'
 

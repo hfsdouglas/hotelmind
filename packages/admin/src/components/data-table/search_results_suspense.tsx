@@ -1,4 +1,5 @@
 import {
+  cn,
   Skeleton,
   Table,
   TableBody,
@@ -15,7 +16,6 @@ import {
   useRef,
   useState,
 } from 'react'
-import { cn } from '@/lib/utils'
 
 interface SearchResultsSkeletonProps {
   column_labels?: string[]

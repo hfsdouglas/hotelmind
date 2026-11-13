@@ -1,9 +1,15 @@
-import { Button, Card, CardContent, CardHeader, CardTitle } from '@hotelmind/ui'
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  cn,
+} from '@hotelmind/ui'
 import { ArrowLeft } from 'lucide-react'
 import type { FormEvent, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { SaveButton } from '@/components/forms/save_button'
-import { cn } from '@/lib/utils'
 
 export { SaveButton }
 

@@ -1,6 +1,7 @@
 import type { PeriodoTarifarioCalendario } from '@hotelmind/contracts'
 import {
   Button,
+  cn,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -22,7 +23,6 @@ import {
   X,
 } from 'lucide-react'
 import { useState } from 'react'
-import { cn } from '@/lib/utils'
 import {
   type CalendarBulkSelectMode,
   type CalendarMonthsViewCount,

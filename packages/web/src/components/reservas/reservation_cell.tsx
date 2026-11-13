@@ -1,4 +1,5 @@
 import {
+  cn,
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -6,7 +7,6 @@ import {
 } from '@hotelmind/ui'
 import { isSameDay } from 'date-fns'
 import { ReservaResumoCard } from '@/components/reservas/reserva_resumo_card'
-import { cn } from '@/lib/utils'
 import type { Reservation } from '@/types/calendario_reserva'
 
 export interface ReservationCellProps {

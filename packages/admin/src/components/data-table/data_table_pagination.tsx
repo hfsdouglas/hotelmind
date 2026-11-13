@@ -1,5 +1,6 @@
 import {
   Button,
+  cn,
   Select,
   SelectContent,
   SelectItem,
@@ -12,7 +13,6 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
 
 interface DataTablePaginationProps {
   pagina: number

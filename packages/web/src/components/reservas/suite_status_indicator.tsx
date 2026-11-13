@@ -1,10 +1,10 @@
 import {
+  cn,
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@hotelmind/ui'
-import { cn } from '@/lib/utils'
 import { ROOM_STATUS_LABEL, type Room } from '@/types/calendario_reserva'
 
 const DOT_CLASS: Record<Room['status'], string> = {

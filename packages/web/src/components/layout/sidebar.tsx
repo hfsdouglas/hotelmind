@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback, Button, Separator } from '@hotelmind/ui'
+import { Avatar, AvatarFallback, Button, cn, Separator } from '@hotelmind/ui'
 import {
   BedDouble,
   Calculator,
@@ -19,7 +19,6 @@ import { NavLink, useLocation } from 'react-router-dom'
 import { useAuth } from '@/hooks/use_auth'
 import { useLogout } from '@/hooks/use_logout'
 import { useTheme } from '@/hooks/use_theme'
-import { cn } from '@/lib/utils'
 import type { RotaMenu } from '@/types/auth'
 
 interface SidebarProps {

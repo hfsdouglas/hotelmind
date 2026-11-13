@@ -1,4 +1,4 @@
-import { Button, Checkbox } from '@hotelmind/ui'
+import { Button, Checkbox, cn } from '@hotelmind/ui'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -7,7 +7,6 @@ import { hoteisService } from '@/api/hoteis.service'
 import { type Rota, rotasService } from '@/api/rotas.service'
 import { SaveButton } from '@/components/forms/save_button'
 import { usePageTitle } from '@/hooks/use_document_title'
-import { cn } from '@/lib/utils'
 
 export function HotelRotasPage() {
   const { id } = useParams<{ id: string }>()

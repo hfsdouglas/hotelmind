@@ -1,5 +1,6 @@
 import {
   Button,
+  cn,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -47,7 +48,6 @@ import {
   map_quarto_to_room,
   map_reserva_to_calendario,
 } from '@/lib/calendario_reserva'
-import { cn } from '@/lib/utils'
 import type { OpcaoCheckIn, Room } from '@/types/calendario_reserva'
 
 const months = [

@@ -1,6 +1,6 @@
 import type { PeriodoTarifarioCalendario } from '@hotelmind/contracts'
+import { cn } from '@hotelmind/ui'
 import { AlertTriangle, Check, Lock } from 'lucide-react'
-import { cn } from '@/lib/utils'
 
 export interface TarifarioCalendarDayProps {
   isoDate: string

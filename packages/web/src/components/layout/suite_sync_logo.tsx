@@ -1,5 +1,5 @@
+import { cn } from '@hotelmind/ui'
 import type { SVGProps } from 'react'
-import { cn } from '@/lib/utils'
 
 export interface SuiteSyncLogoProps extends SVGProps<SVGSVGElement> {
   surface?: 'auto' | 'on-primary'
