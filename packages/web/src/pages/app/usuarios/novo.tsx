@@ -1,12 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, Input, Label } from '@hotelmind/ui'
+import { Button, CheckboxGrid, Input, Label } from '@hotelmind/ui'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { gruposService } from '@/api/grupos.service'
 import { usuariosService } from '@/api/usuarios.service'
-import { CheckboxGrid } from '@/components/forms/checkbox_grid'
 import { CrudFormLayout, SaveButton } from '@/components/forms/crud_form_layout'
 import { usePageTitle } from '@/hooks/use_document_title'
 import {

@@ -1,11 +1,10 @@
-import { Button, Checkbox, cn } from '@hotelmind/ui'
+import { Button, Checkbox, cn, SaveButton } from '@hotelmind/ui'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { hoteisService } from '@/api/hoteis.service'
 import { type Rota, rotasService } from '@/api/rotas.service'
-import { SaveButton } from '@/components/forms/save_button'
 import { usePageTitle } from '@/hooks/use_document_title'
 
 export function HotelRotasPage() {

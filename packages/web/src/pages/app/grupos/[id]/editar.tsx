@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Button,
+  CheckboxGroupList,
   Input,
   Label,
   Select,
@@ -17,7 +18,6 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import type { RotaItem } from '@/api/grupos.service'
 import { gruposService } from '@/api/grupos.service'
-import { CheckboxGroupList } from '@/components/forms/checkbox_group_list'
 import { CrudFormLayout, SaveButton } from '@/components/forms/crud_form_layout'
 import { usePageTitle } from '@/hooks/use_document_title'
 import { type GrupoFormData, grupoSchema } from '@/schemas/grupos/grupo_schema'

@@ -8,9 +8,9 @@ import {
   FormLabel,
   FormMessage,
   Input,
+  SuiteSyncLogo,
 } from '@hotelmind/ui'
 import { useForm } from 'react-hook-form'
-import { SuiteSyncLogo } from '@/components/layout/suite_sync_logo'
 import { usePageTitle } from '@/hooks/use_document_title'
 import { useLogin } from '@/hooks/use_login'
 import { type LoginFormData, login_schema } from '@/schemas/auth/auth_schema'

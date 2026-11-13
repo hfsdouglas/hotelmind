@@ -1,6 +1,6 @@
-import { Button } from '@hotelmind/ui'
 import { ChevronDown, ChevronUp, Filter } from 'lucide-react'
 import { useState } from 'react'
+import { Button } from '../../components/button/button'
 
 interface FilterPanelProps {
   children: React.ReactNode

@@ -111,3 +111,21 @@ export {
   iso_to_date_display,
   mask_date,
 } from './lib/date_mask'
+export {
+  CheckboxGrid,
+  type CheckboxGridItem,
+} from './patterns/checkbox_grid/checkbox_grid'
+export {
+  type CheckboxGroup,
+  CheckboxGroupList,
+} from './patterns/checkbox_group_list/checkbox_group_list'
+export { FilterPanel } from './patterns/filter_panel/filter_panel'
+export { ResultCount } from './patterns/result_count/result_count'
+export {
+  SaveButton,
+  type SaveButtonProps,
+} from './patterns/save_button/save_button'
+export {
+  SuiteSyncLogo,
+  type SuiteSyncLogoProps,
+} from './patterns/suite_sync_logo/suite_sync_logo'

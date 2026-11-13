@@ -11,6 +11,7 @@ import {
   AlertDialogTrigger,
   Badge,
   Button,
+  FilterPanel,
   Label,
   Select,
   SelectContent,
@@ -24,7 +25,6 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { gruposService } from '@/api/grupos.service'
 import type { Column } from '@/components/data-table/data_table'
-import { FilterPanel } from '@/components/data-table/filter_panel'
 import { ListPageLayout } from '@/components/data-table/list_page_layout'
 import { PagedDataTable } from '@/components/data-table/paged_data_table'
 import { SearchBar } from '@/components/data-table/search_bar'

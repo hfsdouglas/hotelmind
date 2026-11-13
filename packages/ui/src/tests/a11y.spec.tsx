@@ -6,9 +6,10 @@ import { describe, expect, it } from 'vitest'
 
 // Every story must pass axe. color-contrast is skipped: jsdom has no layout
 // or computed colors, so it cannot be evaluated here (check it in Storybook).
-const modules = import.meta.glob('../components/**/*.stories.tsx', {
-  eager: true,
-})
+const modules = import.meta.glob(
+  ['../components/**/*.stories.tsx', '../patterns/**/*.stories.tsx'],
+  { eager: true }
+)
 
 describe('a11y (axe) over every story', () => {
   for (const [path, module] of Object.entries(modules)) {

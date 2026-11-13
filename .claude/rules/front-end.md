@@ -25,7 +25,7 @@ src/
 │   ├── app/          # Authenticated pages
 │   └── auth/         # Public auth pages
 ├── components/       # ALL reusable components
-│   ├── forms/        # CrudFormLayout, CheckboxGrid, CheckboxGroupList, save_button
+│   ├── forms/        # CrudFormLayout
 │   ├── data-table/   # List primitives (see DataTable)
 │   ├── layout/       # Sidebar, Navbar
 │   └── <domain>/     # Domain components
@@ -57,6 +57,10 @@ modals, dialogs, sections and widgets go in `src/components/<domain>/`.
   `packages/ui` with a story (see `packages/ui/CLAUDE.md`). Domain wording or
   behavior stays in an app wrapper under `components/<domain>/`, configured
   through the primitive's props.
+- Reusable compositions with no router/query/API dependency (`SaveButton`,
+  `CheckboxGrid`, `FilterPanel`, `ResultCount`, `SuiteSyncLogo`) live in
+  `packages/ui/src/patterns/`, never duplicated in `web` and `admin`.
+- `cn` comes from `@hotelmind/ui`; do not recreate `lib/utils.ts`.
 - Use the shadcn MCP tools to search/scaffold primitives before hand-writing UI.
 - Multi-line fields use `Textarea` from `@hotelmind/ui`, never `Input`.
 - Tokens: shared tokens and the Tailwind preset live in `packages/ui`; an app
@@ -75,8 +79,8 @@ table markup:
 | `data_table.tsx` | Sortable table |
 | `data_table_pagination.tsx` | Page controls + `limite` selector (50/100/250) |
 | `search_bar.tsx` | Search input |
-| `filter_panel.tsx` | Collapsible secondary filters |
-| `result_count.tsx` | Result count indicator |
+| `FilterPanel` (`@hotelmind/ui`) | Collapsible secondary filters |
+| `ResultCount` (`@hotelmind/ui`) | Result count indicator |
 
 - **Action column**: header is empty (`header: ''`, never `"Ações"`); cell is
   `className="flex items-center justify-end gap-1"`.
@@ -97,7 +101,8 @@ Every create/edit page uses `components/forms/crud_form_layout.tsx`:
   `Card`. Extra sections are sibling blocks inside that card, never
   side-by-side cards.
 - Action buttons render below the card, right-aligned, fixed widths.
-- `CheckboxGrid` for flat checkbox sets; `CheckboxGroupList` for grouped ones.
+- `CheckboxGrid` (flat sets) and `CheckboxGroupList` (grouped) and `SaveButton`
+  come from `@hotelmind/ui`.
 
 ```tsx
 <CrudFormLayout

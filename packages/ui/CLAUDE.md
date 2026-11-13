@@ -9,7 +9,8 @@ preset, documented in Storybook. Consumed by `web` and `admin`
 
 ```text
 src/
-├── components/<name>/   # <name>.tsx + <name>.stories.tsx (snake_case)
+├── components/<name>/   # Primitives: <name>.tsx + <name>.stories.tsx (snake_case)
+├── patterns/<name>/     # Compositions of primitives: .tsx + .stories.tsx + .spec.tsx
 ├── lib/                 # cn.ts (clsx + tailwind-merge), date_mask.ts (+ specs)
 ├── styles/              # tokens.css (light/dark) + globals.css (Storybook)
 ├── tests/               # setup.ts, a11y.spec.tsx (axe over every story)
@@ -24,9 +25,13 @@ tailwind.preset.ts       # shared preset (colors, radius, dark mode)
   contexts (auth, routes, hotel data), no imports from `web`/`admin`.
 - **Import inside the package with relative paths** (`../button/button`,
   `../../lib/cn`), never through `@hotelmind/ui` itself.
-- **Every component ships a story** (`<name>.stories.tsx`) and is exported
+- **Every component and pattern ships a story** (`<name>.stories.tsx`) and is exported
   from `src/index.ts`. The axe spec runs over every story, so a story that
   breaks accessibility fails `pnpm test`.
+- **Patterns** (`src/patterns/`) are compositions with their own behavior
+  (selection, collapse, pluralization...). They keep a `.spec.tsx` next to the
+  component, and the same dependency rule applies: no router, query, API,
+  auth or app contexts. Anything that needs them stays in the app.
 - **No unit tests per primitive** (shadcn/ui vendor code). Test only what is
   written here: `cn`, `date_mask`, the preset/tokens and the a11y spec.
 - **Domain text stays out.** A primitive exposes props (labels, render slots)
