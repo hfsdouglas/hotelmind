@@ -1,12 +1,3 @@
-import {
-  Button,
-  buttonVariants,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@hotelmind/ui'
 import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import * as React from 'react'
 import {
@@ -15,7 +6,15 @@ import {
   type DropdownProps,
   getDefaultClassNames,
 } from 'react-day-picker'
-import { cn } from '@/lib/utils'
+import { cn } from '../../lib/cn'
+import { Button, buttonVariants } from '../button/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../select/select'
 
 function CalendarDropdown({
   value,

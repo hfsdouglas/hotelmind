@@ -1,7 +1,7 @@
-import { Input } from '@hotelmind/ui'
 import type React from 'react'
 import { useRef } from 'react'
-import { cn } from '@/lib/utils'
+import { cn } from '../../lib/cn'
+import { Input } from '../input/input'
 
 export interface ColorPickerProps {
   id?: string
@@ -9,7 +9,12 @@ export interface ColorPickerProps {
   onChange: (value: string) => void
   disabled?: boolean
   className?: string
-  showWristbandBadge?: boolean
+  /** Accessible name of the native color input. */
+  colorLabel?: string
+  /** Accessible name of the manual hex input. */
+  hexLabel?: string
+  /** Optional preview rendered next to the inputs, receives the hex. */
+  renderPreview?: (hex: string) => React.ReactNode
 }
 
 export function ColorPicker({
@@ -18,7 +23,9 @@ export function ColorPicker({
   onChange,
   disabled = false,
   className,
-  showWristbandBadge = false,
+  colorLabel = 'Selecionar cor',
+  hexLabel = 'Código hexadecimal da cor',
+  renderPreview,
 }: ColorPickerProps) {
   const inputColorRef = useRef<HTMLInputElement>(null)
   const currentHex = value || '#2563EB'
@@ -43,11 +50,7 @@ export function ColorPicker({
             value={currentHex.length === 7 ? currentHex : '#2563EB'}
             onChange={e => onChange(e.target.value.toUpperCase())}
             disabled={disabled}
-            aria-label={
-              showWristbandBadge
-                ? 'Selecionar cor da pulseira'
-                : 'Selecionar cor'
-            }
+            aria-label={colorLabel}
             className="sr-only"
           />
           <button
@@ -70,36 +73,11 @@ export function ColorPicker({
             maxLength={7}
             disabled={disabled}
             className="font-mono text-sm uppercase"
-            aria-label={
-              showWristbandBadge
-                ? 'Código hexadecimal da cor da pulseira'
-                : 'Código hexadecimal da cor'
-            }
+            aria-label={hexLabel}
           />
         </div>
 
-        {/* Representação visual da Pulseira de Identificação (apenas quando solicitado) */}
-        {showWristbandBadge && (
-          <div
-            className="flex items-center gap-2 rounded-full border px-3 py-1 shadow-xs"
-            style={{
-              borderColor: currentHex,
-              backgroundColor: `${currentHex}15`,
-            }}
-            data-testid="wristband-preview"
-          >
-            <div
-              className="h-3.5 w-6 rounded-xs shadow-inner"
-              style={{ backgroundColor: currentHex }}
-            />
-            <span
-              className="text-xs font-semibold"
-              style={{ color: currentHex }}
-            >
-              Pulseira de Identificação
-            </span>
-          </div>
-        )}
+        {renderPreview?.(currentHex)}
       </div>
     </div>
   )

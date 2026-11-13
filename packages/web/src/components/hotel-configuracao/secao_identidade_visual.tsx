@@ -1,5 +1,6 @@
 import {
   Button,
+  ColorPicker,
   FormField,
   FormItem,
   FormLabel,
@@ -8,7 +9,6 @@ import {
 import { Eye, Palette, Upload } from 'lucide-react'
 import type React from 'react'
 import { Controller, type UseFormReturn } from 'react-hook-form'
-import { ColorPicker } from '@/components/ui/color_picker'
 import type { HotelConfiguracaoFormData } from '@/schemas/hotel_configuracao'
 
 interface SecaoIdentidadeVisualProps {

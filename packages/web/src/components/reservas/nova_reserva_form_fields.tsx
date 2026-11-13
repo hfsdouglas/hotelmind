@@ -1,6 +1,7 @@
 import type { QuartoDisponivel } from '@hotelmind/contracts'
 import {
   Badge,
+  DatePicker,
   Input,
   Label,
   Select,
@@ -28,7 +29,6 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Controller } from 'react-hook-form'
 import { ModalConflitoReserva } from '@/components/reservas/modal_conflito_reserva'
-import { DatePicker } from '@/components/ui/date_picker'
 import type { useNovaReservaForm } from '@/hooks/use_nova_reserva_form'
 import { useNovaReservaOpcoes } from '@/hooks/use_nova_reserva_opcoes'
 import { usePhoneMask } from '@/hooks/use_phone_mask'

@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import type { Tarifario } from '@hotelmind/contracts'
 import {
   Badge,
+  DatePicker,
   Input,
   Label,
   Select,
@@ -37,7 +38,6 @@ import { parceirosComerciaisService } from '@/api/parceiros_comerciais.service'
 import { regimesAlimentacaoService } from '@/api/regimes_alimentacao.service'
 import { tarifariosService } from '@/api/tarifarios.service'
 import { CrudFormLayout } from '@/components/forms/crud_form_layout'
-import { DatePicker } from '@/components/ui/date_picker'
 import { usePageTitle } from '@/hooks/use_document_title'
 import { unmask_phone, usePhoneMask } from '@/hooks/use_phone_mask'
 import {

@@ -6,6 +6,7 @@ import type {
 } from '@hotelmind/contracts'
 import {
   Badge,
+  DatePicker,
   Input,
   Label,
   Select,
@@ -41,7 +42,6 @@ import { regimesAlimentacaoService } from '@/api/regimes_alimentacao.service'
 import { reservasService } from '@/api/reservas.service'
 import { CrudFormLayout } from '@/components/forms/crud_form_layout'
 import { ModalConflitoReserva } from '@/components/reservas/modal_conflito_reserva'
-import { DatePicker } from '@/components/ui/date_picker'
 import { usePageTitle } from '@/hooks/use_document_title'
 import { mask_phone, unmask_phone, usePhoneMask } from '@/hooks/use_phone_mask'
 import {

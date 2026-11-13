@@ -1,5 +1,6 @@
 import {
   Button,
+  Calendar,
   Card,
   CardContent,
   CardDescription,
@@ -24,7 +25,6 @@ import {
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { PageHeader } from '@/components/layout/page_header'
-import { Calendar } from '@/components/ui/calendar'
 import { usePageTitle } from '@/hooks/use_document_title'
 
 // Dados mockados - substituir por chamadas de API depois

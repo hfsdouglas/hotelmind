@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { regimesAlimentacaoService } from '@/api/regimes_alimentacao.service'
 import { CrudFormLayout, SaveButton } from '@/components/forms/crud_form_layout'
-import { ColorPicker } from '@/components/ui/color_picker'
+import { WristbandColorPicker } from '@/components/regimes-alimentacao/wristband_color_picker'
 import { usePageTitle } from '@/hooks/use_document_title'
 import {
   type RegimeAlimentacaoFormData,
@@ -102,11 +102,10 @@ export function NovoRegimeAlimentacaoPage() {
             name="cor_pulseira"
             control={control}
             render={({ field }) => (
-              <ColorPicker
+              <WristbandColorPicker
                 id="cor_pulseira"
                 value={field.value}
                 onChange={field.onChange}
-                showWristbandBadge={true}
               />
             )}
           />

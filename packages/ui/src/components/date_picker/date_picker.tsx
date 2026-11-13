@@ -1,20 +1,16 @@
-import {
-  Button,
-  Input,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@hotelmind/ui'
 import { ptBR } from 'date-fns/locale'
 import { Calendar as CalendarIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Calendar } from '@/components/ui/calendar'
+import { cn } from '../../lib/cn'
 import {
   date_display_to_iso,
   iso_to_date_display,
   mask_date,
-} from '@/hooks/use_date_mask'
-import { cn } from '@/lib/utils'
+} from '../../lib/date_mask'
+import { Button } from '../button/button'
+import { Calendar } from '../calendar/calendar'
+import { Input } from '../input/input'
+import { Popover, PopoverContent, PopoverTrigger } from '../popover/popover'
 
 export interface DatePickerProps {
   value?: string // YYYY-MM-DD
