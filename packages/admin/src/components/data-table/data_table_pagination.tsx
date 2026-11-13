@@ -18,8 +18,8 @@ interface DataTablePaginationProps {
   pagina: number
   limite: number
   ultima_pagina: number
-  onPagina: (page: number) => void
-  onLimite: (limit: number) => void
+  onPageChange: (page: number) => void
+  onLimitChange: (limit: number) => void
   className?: string
 }
 
@@ -27,8 +27,8 @@ export function DataTablePagination({
   pagina,
   limite,
   ultima_pagina,
-  onPagina,
-  onLimite,
+  onPageChange,
+  onLimitChange,
   className,
 }: DataTablePaginationProps) {
   return (
@@ -37,11 +37,15 @@ export function DataTablePagination({
     >
       <div className="flex items-center gap-2">
         <span className="text-sm text-muted-foreground">Itens por página</span>
-        <Select value={String(limite)} onValueChange={v => onLimite(Number(v))}>
+        <Select
+          value={String(limite)}
+          onValueChange={v => onLimitChange(Number(v))}
+        >
           <SelectTrigger className="w-20">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="25">25</SelectItem>
             <SelectItem value="50">50</SelectItem>
             <SelectItem value="100">100</SelectItem>
             <SelectItem value="250">250</SelectItem>
@@ -56,7 +60,7 @@ export function DataTablePagination({
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => onPagina(1)}
+          onClick={() => onPageChange(1)}
           disabled={pagina <= 1}
         >
           <ChevronFirst className="h-4 w-4" />
@@ -64,7 +68,7 @@ export function DataTablePagination({
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => onPagina(pagina - 1)}
+          onClick={() => onPageChange(pagina - 1)}
           disabled={pagina <= 1}
         >
           <ChevronLeft className="h-4 w-4" />
@@ -72,7 +76,7 @@ export function DataTablePagination({
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => onPagina(pagina + 1)}
+          onClick={() => onPageChange(pagina + 1)}
           disabled={pagina >= ultima_pagina}
         >
           <ChevronRight className="h-4 w-4" />
@@ -80,7 +84,7 @@ export function DataTablePagination({
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => onPagina(ultima_pagina)}
+          onClick={() => onPageChange(ultima_pagina)}
           disabled={pagina >= ultima_pagina}
         >
           <ChevronLast className="h-4 w-4" />

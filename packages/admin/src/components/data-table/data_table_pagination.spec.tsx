@@ -1,74 +1,86 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, type Mock, vi } from 'vitest'
 import { DataTablePagination } from './data_table_pagination'
 
-const default_props = {
-  pagina: 2,
-  limite: 50,
-  ultima_pagina: 5,
-  onPagina: vi.fn(),
-  onLimite: vi.fn(),
+// The Select trigger renders with role="combobox", so getAllByRole('button') returns
+// exactly the 4 navigation buttons in DOM order:
+// [0] ChevronFirst  [1] ChevronLeft  [2] ChevronRight  [3] ChevronLast
+
+function renderPagination(
+  overrides: {
+    pagina?: number
+    limite?: number
+    ultima_pagina?: number
+    onPageChange?: Mock<(page: number) => void>
+    onLimitChange?: Mock<(limit: number) => void>
+  } = {}
+) {
+  const props = {
+    pagina: 2,
+    limite: 50,
+    ultima_pagina: 5,
+    onPageChange: vi.fn<(page: number) => void>(),
+    onLimitChange: vi.fn<(limit: number) => void>(),
+    ...overrides,
+  }
+  render(<DataTablePagination {...props} />)
+  return props
 }
 
 describe('DataTablePagination', () => {
-  it('displays the current page and total pages', () => {
-    render(<DataTablePagination {...default_props} />)
-    expect(screen.getByText('Página 2 de 5')).toBeInTheDocument()
-  })
-
-  it('calls onPagina(1) when the first-page button is clicked', async () => {
-    const user = userEvent.setup()
-    const on_pagina = vi.fn()
-    render(<DataTablePagination {...default_props} onPagina={on_pagina} />)
-    const buttons = screen.getAllByRole('button')
-    // first button = go to first page
-    await user.click(buttons[0])
-    expect(on_pagina).toHaveBeenCalledWith(1)
-  })
-
-  it('calls onPagina(pagina - 1) when the previous-page button is clicked', async () => {
-    const user = userEvent.setup()
-    const on_pagina = vi.fn()
-    render(
-      <DataTablePagination {...default_props} pagina={3} onPagina={on_pagina} />
-    )
-    const buttons = screen.getAllByRole('button')
-    await user.click(buttons[1])
-    expect(on_pagina).toHaveBeenCalledWith(2)
-  })
-
-  it('calls onPagina(pagina + 1) when the next-page button is clicked', async () => {
-    const user = userEvent.setup()
-    const on_pagina = vi.fn()
-    render(<DataTablePagination {...default_props} onPagina={on_pagina} />)
-    const buttons = screen.getAllByRole('button')
-    await user.click(buttons[2])
-    expect(on_pagina).toHaveBeenCalledWith(3)
-  })
-
-  it('calls onPagina(ultima_pagina) when the last-page button is clicked', async () => {
-    const user = userEvent.setup()
-    const on_pagina = vi.fn()
-    render(<DataTablePagination {...default_props} onPagina={on_pagina} />)
-    const buttons = screen.getAllByRole('button')
-    await user.click(buttons[3])
-    expect(on_pagina).toHaveBeenCalledWith(5)
+  it('shows current page and total pages', () => {
+    renderPagination({ pagina: 3, ultima_pagina: 7 })
+    expect(screen.getByText('Página 3 de 7')).toBeInTheDocument()
   })
 
   it('disables first and previous buttons on the first page', () => {
-    render(<DataTablePagination {...default_props} pagina={1} />)
+    renderPagination({ pagina: 1 })
     const buttons = screen.getAllByRole('button')
-    expect(buttons[0]).toBeDisabled()
-    expect(buttons[1]).toBeDisabled()
+    expect(buttons[0]).toBeDisabled() // ChevronFirst
+    expect(buttons[1]).toBeDisabled() // ChevronLeft
   })
 
   it('disables next and last buttons on the last page', () => {
-    render(
-      <DataTablePagination {...default_props} pagina={5} ultima_pagina={5} />
-    )
+    renderPagination({ pagina: 5, ultima_pagina: 5 })
     const buttons = screen.getAllByRole('button')
-    expect(buttons[2]).toBeDisabled()
-    expect(buttons[3]).toBeDisabled()
+    expect(buttons[2]).toBeDisabled() // ChevronRight
+    expect(buttons[3]).toBeDisabled() // ChevronLast
+  })
+
+  it('calls onPageChange(1) when first-page button is clicked', async () => {
+    const user = userEvent.setup()
+    const onPageChange = vi.fn()
+    renderPagination({ pagina: 3, onPageChange })
+    const buttons = screen.getAllByRole('button')
+    await user.click(buttons[0])
+    expect(onPageChange).toHaveBeenCalledWith(1)
+  })
+
+  it('calls onPageChange with pagina - 1 when previous button is clicked', async () => {
+    const user = userEvent.setup()
+    const onPageChange = vi.fn()
+    renderPagination({ pagina: 3, onPageChange })
+    const buttons = screen.getAllByRole('button')
+    await user.click(buttons[1])
+    expect(onPageChange).toHaveBeenCalledWith(2)
+  })
+
+  it('calls onPageChange with pagina + 1 when next button is clicked', async () => {
+    const user = userEvent.setup()
+    const onPageChange = vi.fn()
+    renderPagination({ pagina: 3, ultima_pagina: 5, onPageChange })
+    const buttons = screen.getAllByRole('button')
+    await user.click(buttons[2])
+    expect(onPageChange).toHaveBeenCalledWith(4)
+  })
+
+  it('calls onPageChange with ultima_pagina when last-page button is clicked', async () => {
+    const user = userEvent.setup()
+    const onPageChange = vi.fn()
+    renderPagination({ pagina: 3, ultima_pagina: 5, onPageChange })
+    const buttons = screen.getAllByRole('button')
+    await user.click(buttons[3])
+    expect(onPageChange).toHaveBeenCalledWith(5)
   })
 })

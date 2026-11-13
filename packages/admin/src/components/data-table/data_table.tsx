@@ -11,36 +11,32 @@ import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 
 export interface Column<T> {
   key: string
-  label: string
+  header: string
   sortable?: boolean
   render?: (row: T) => React.ReactNode
 }
 
 interface DataTableProps<T> {
   columns: Column<T>[]
-  rows: T[]
+  data: T[]
   ordenar_por?: string
   direcao?: 'asc' | 'desc'
   onSort?: (campo: string) => void
   isLoading?: boolean
   emptyMessage?: string
-  renderActions?: (row: T) => React.ReactNode
   className?: string
 }
 
 export function DataTable<T extends { id?: string }>({
   columns,
-  rows,
+  data,
   ordenar_por,
   direcao,
   onSort,
   isLoading,
   emptyMessage = 'Nenhum resultado encontrado.',
-  renderActions,
   className,
 }: DataTableProps<T>) {
-  const totalCols = columns.length + (renderActions ? 1 : 0)
-
   function SortIcon({ campo }: { campo: string }) {
     if (!onSort) return null
     if (ordenar_por !== campo)
@@ -71,37 +67,34 @@ export function DataTable<T extends { id?: string }>({
                 onClick={() => col.sortable && onSort?.(col.key)}
               >
                 <span className="flex items-center">
-                  {col.label}
+                  {col.header}
                   {col.sortable && <SortIcon campo={col.key} />}
                 </span>
               </TableHead>
             ))}
-            {renderActions && (
-              <TableHead className="w-[100px]">Ações</TableHead>
-            )}
           </TableRow>
         </TableHeader>
         <TableBody>
           {isLoading ? (
             <TableRow>
               <TableCell
-                colSpan={totalCols}
+                colSpan={columns.length}
                 className="text-center text-muted-foreground py-8"
               >
                 Carregando...
               </TableCell>
             </TableRow>
-          ) : rows.length === 0 ? (
+          ) : data.length === 0 ? (
             <TableRow>
               <TableCell
-                colSpan={totalCols}
+                colSpan={columns.length}
                 className="text-center text-muted-foreground py-8"
               >
                 {emptyMessage}
               </TableCell>
             </TableRow>
           ) : (
-            rows.map((row, i) => (
+            data.map((row, i) => (
               <TableRow key={(row as { id?: string }).id ?? i}>
                 {columns.map(col => (
                   <TableCell key={col.key}>
@@ -110,7 +103,6 @@ export function DataTable<T extends { id?: string }>({
                       : String((row as Record<string, unknown>)[col.key] ?? '')}
                   </TableCell>
                 ))}
-                {renderActions && <TableCell>{renderActions(row)}</TableCell>}
               </TableRow>
             ))
           )}

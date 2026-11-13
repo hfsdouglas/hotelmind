@@ -37,10 +37,38 @@ export function HoteisPage() {
   })
 
   const columns: Column<Hotel>[] = [
-    { key: 'nome_fantasia', label: 'Nome Fantasia', sortable: true },
-    { key: 'cnpj', label: 'CNPJ', sortable: false },
-    { key: 'email_comercial', label: 'E-mail', sortable: false },
-    { key: 'telefone_comercial', label: 'Telefone', sortable: false },
+    { key: 'nome_fantasia', header: 'Nome Fantasia', sortable: true },
+    { key: 'cnpj', header: 'CNPJ', sortable: false },
+    { key: 'email_comercial', header: 'E-mail', sortable: false },
+    { key: 'telefone_comercial', header: 'Telefone', sortable: false },
+    {
+      key: 'acoes',
+      header: '',
+      render: row => (
+        <div className="flex items-center justify-end gap-1">
+          <Button variant="ghost" size="icon" asChild title="Gerenciar rotas">
+            <Link to={`/hoteis/${row.id}/rotas`}>
+              <Network className="h-4 w-4" />
+            </Link>
+          </Button>
+          <Button variant="ghost" size="icon" asChild title="Editar">
+            <Link to={`/hoteis/${row.id}/editar`}>
+              <Pencil className="h-4 w-4" />
+            </Link>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            title="Remover"
+            onClick={() => {
+              if (confirm('Remover este hotel?')) deleteHotel(row.id)
+            }}
+          >
+            <Trash2 className="h-4 w-4 text-destructive" />
+          </Button>
+        </div>
+      ),
+    },
   ]
 
   return (
@@ -68,35 +96,11 @@ export function HoteisPage() {
         isPending={isPending}
         pagina={pagina}
         limite={limite}
-        onPagina={setPagina}
-        onLimite={v => setParam('limite', String(v))}
+        onPageChange={setPagina}
+        onLimitChange={v => setParam('limite', String(v))}
         ordenar_por={ordenar_por}
         direcao={direcao}
         onSort={toggleSort}
-        renderActions={row => (
-          <div className="flex gap-2">
-            <Button variant="ghost" size="icon" asChild title="Gerenciar rotas">
-              <Link to={`/hoteis/${row.id}/rotas`}>
-                <Network className="h-4 w-4" />
-              </Link>
-            </Button>
-            <Button variant="ghost" size="icon" asChild title="Editar">
-              <Link to={`/hoteis/${row.id}/editar`}>
-                <Pencil className="h-4 w-4" />
-              </Link>
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              title="Remover"
-              onClick={() => {
-                if (confirm('Remover este hotel?')) deleteHotel(row.id)
-              }}
-            >
-              <Trash2 className="h-4 w-4 text-destructive" />
-            </Button>
-          </div>
-        )}
       />
     </ListPageLayout>
   )

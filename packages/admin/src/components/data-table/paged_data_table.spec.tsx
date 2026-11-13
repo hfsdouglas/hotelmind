@@ -16,15 +16,15 @@ interface Item {
   name: string
 }
 
-const columns = [{ key: 'name' as const, label: 'Nome' }]
+const columns = [{ key: 'name' as const, header: 'Nome' }]
 
 describe('PagedDataTable', () => {
   it('renders table rows and result count after suspense resolves', async () => {
     const queryClient = createQueryClient()
     const queryFn = vi.fn().mockResolvedValue({
       data: [
-        { id: '1', name: 'Item Admin 1' },
-        { id: '2', name: 'Item Admin 2' },
+        { id: '1', name: 'Item Um' },
+        { id: '2', name: 'Item Dois' },
       ],
       meta: { total: 2, pagina: 1, ultima_pagina: 1, limite: 10 },
     })
@@ -33,16 +33,16 @@ describe('PagedDataTable', () => {
       <QueryClientProvider client={queryClient}>
         <PagedDataTable<Item>
           columns={columns}
-          queryKey={['admin:items']}
+          queryKey={['items']}
           queryFn={queryFn}
-          label="registros"
+          label="itens"
         />
       </QueryClientProvider>
     )
 
     await waitFor(() => {
-      expect(screen.getByText('Item Admin 1')).toBeInTheDocument()
-      expect(screen.getByText('Item Admin 2')).toBeInTheDocument()
+      expect(screen.getByText('Item Um')).toBeInTheDocument()
+      expect(screen.getByText('Item Dois')).toBeInTheDocument()
       expect(screen.getByText('2 resultados encontrados')).toBeInTheDocument()
     })
   })

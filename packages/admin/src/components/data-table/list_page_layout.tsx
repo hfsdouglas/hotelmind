@@ -22,14 +22,23 @@ export function ListPageLayout({
   return (
     <div className={className}>
       <div className="flex shrink-0 items-center justify-between">
-        <h1 className="text-2xl font-bold">{title}</h1>
+        <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
         {action}
       </div>
 
       {hasFilterSection && (
         <div className="flex shrink-0 flex-col gap-3">
-          {searchBar}
-          {filters}
+          {searchBar && filters ? (
+            <div className="flex items-center gap-3">
+              {searchBar}
+              {filters}
+            </div>
+          ) : (
+            <>
+              {searchBar}
+              {filters}
+            </>
+          )}
         </div>
       )}
 

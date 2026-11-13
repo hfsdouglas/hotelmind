@@ -37,9 +37,31 @@ export function AdministradoresPage() {
   })
 
   const columns: Column<Administrador>[] = [
-    { key: 'nome_completo', label: 'Nome', sortable: true },
-    { key: 'email', label: 'E-mail', sortable: true },
-    { key: 'status', label: 'Status', sortable: false },
+    { key: 'nome_completo', header: 'Nome', sortable: true },
+    { key: 'email', header: 'E-mail', sortable: true },
+    { key: 'status', header: 'Status', sortable: false },
+    {
+      key: 'acoes',
+      header: '',
+      render: row => (
+        <div className="flex items-center justify-end gap-1">
+          <Button variant="ghost" size="icon" asChild>
+            <Link to={`/administradores/${row.id}/editar`}>
+              <Pencil className="h-4 w-4" />
+            </Link>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              if (confirm('Remover este administrador?')) deleteAdmin(row.id)
+            }}
+          >
+            <Trash2 className="h-4 w-4 text-destructive" />
+          </Button>
+        </div>
+      ),
+    },
   ]
 
   return (
@@ -80,29 +102,11 @@ export function AdministradoresPage() {
         isPending={isPending}
         pagina={pagina}
         limite={limite}
-        onPagina={setPagina}
-        onLimite={v => setParam('limite', String(v))}
+        onPageChange={setPagina}
+        onLimitChange={v => setParam('limite', String(v))}
         ordenar_por={ordenar_por}
         direcao={direcao}
         onSort={toggleSort}
-        renderActions={row => (
-          <div className="flex gap-2">
-            <Button variant="ghost" size="icon" asChild>
-              <Link to={`/administradores/${row.id}/editar`}>
-                <Pencil className="h-4 w-4" />
-              </Link>
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => {
-                if (confirm('Remover este administrador?')) deleteAdmin(row.id)
-              }}
-            >
-              <Trash2 className="h-4 w-4 text-destructive" />
-            </Button>
-          </div>
-        )}
       />
     </ListPageLayout>
   )

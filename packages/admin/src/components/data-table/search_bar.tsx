@@ -3,15 +3,15 @@ import { Search, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 export interface SearchBarProps {
-  defaultValue?: string
   value?: string
+  defaultValue?: string
   onSearch: (value: string) => void
   placeholder?: string
 }
 
 export function SearchBar({
-  defaultValue = '',
   value,
+  defaultValue = '',
   onSearch,
   placeholder = 'Pesquisar...',
 }: SearchBarProps) {
@@ -33,13 +33,13 @@ export function SearchBar({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2">
-      <div className="relative max-w-sm flex-1">
+    <form onSubmit={handleSubmit} className="flex w-full gap-2">
+      <div className="relative min-w-0 flex-1 md:min-w-[360px]">
         <Input
           value={local}
           onChange={e => setLocal(e.target.value)}
           placeholder={placeholder}
-          className={local ? 'pr-9' : ''}
+          className={local ? 'pr-9 w-full' : 'w-full'}
         />
         {Boolean(local) && (
           <button
@@ -55,10 +55,11 @@ export function SearchBar({
       <Button
         type="submit"
         variant="secondary"
-        size="icon"
-        aria-label="Pesquisar"
+        size="default"
+        className="shrink-0"
       >
-        <Search className="h-4 w-4" />
+        <Search className="mr-2 h-4 w-4" />
+        Pesquisar
       </Button>
     </form>
   )

@@ -1,6 +1,5 @@
 import { ResultCount } from '@hotelmind/ui'
 import { type QueryKey, useSuspenseQuery } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
 import { type Column, DataTable } from '@/components/data-table/data_table'
 import { DataTablePagination } from '@/components/data-table/data_table_pagination'
 import { SearchResultsSuspense } from '@/components/data-table/search_results_suspense'
@@ -23,12 +22,11 @@ export interface PagedDataTableProps<T extends { id?: string }> {
   emptyMessage?: string
   pagina?: number
   limite?: number
-  onPagina?: (page: number) => void
-  onLimite?: (limit: number) => void
+  onPageChange?: (page: number) => void
+  onLimitChange?: (limit: number) => void
   ordenar_por?: string
   direcao?: 'asc' | 'desc'
   onSort?: (campo: string) => void
-  renderActions?: (row: T) => ReactNode
   showPagination?: boolean
   showResultCount?: boolean
   reset_key?: string
@@ -42,12 +40,11 @@ function PagedDataTableContent<T extends { id?: string }>({
   emptyMessage,
   pagina,
   limite,
-  onPagina,
-  onLimite,
+  onPageChange,
+  onLimitChange,
   ordenar_por,
   direcao,
   onSort,
-  renderActions,
   showPagination = true,
   showResultCount = true,
 }: PagedDataTableProps<T>) {
@@ -63,20 +60,19 @@ function PagedDataTableContent<T extends { id?: string }>({
       {showResultCount && meta && <ResultCount total={meta.total} />}
       <DataTable
         columns={columns}
-        rows={data.data}
+        data={data.data}
         ordenar_por={ordenar_por}
         direcao={direcao}
         onSort={onSort}
         emptyMessage={emptyMessage}
-        renderActions={renderActions}
       />
-      {showPagination && meta && onPagina && onLimite && (
+      {showPagination && meta && onPageChange && onLimitChange && (
         <DataTablePagination
           pagina={pagina ?? meta.pagina ?? 1}
           limite={limite ?? meta.limite ?? 25}
           ultima_pagina={meta.ultima_pagina ?? 1}
-          onPagina={onPagina}
-          onLimite={onLimite}
+          onPageChange={onPageChange}
+          onLimitChange={onLimitChange}
           className="mt-auto"
         />
       )}
@@ -94,33 +90,28 @@ export function PagedDataTable<T extends { id?: string }>({
   emptyMessage,
   pagina,
   limite,
-  onPagina,
-  onLimite,
+  onPageChange,
+  onLimitChange,
   ordenar_por,
   direcao,
   onSort,
-  renderActions,
   showPagination = true,
   showResultCount = true,
   reset_key,
   row_count,
 }: PagedDataTableProps<T>) {
-  const column_labels = columns.map(col => col.label ?? '')
-  if (renderActions) {
-    column_labels.push('Ações')
-  }
-  const total_cols = columns.length + (renderActions ? 1 : 0)
+  const column_labels = columns.map(col => col.header ?? '')
   const computed_reset_key = reset_key ?? JSON.stringify(queryKey)
 
   return (
     <SearchResultsSuspense
-      column_count={total_cols}
+      column_count={columns.length}
       column_labels={column_labels}
       error_message={errorMessage}
       is_pending={isPending}
       label={label}
       reset_key={computed_reset_key}
-      row_count={row_count ?? limite ?? 25}
+      row_count={row_count}
     >
       <PagedDataTableContent
         columns={columns}
@@ -130,12 +121,11 @@ export function PagedDataTable<T extends { id?: string }>({
         emptyMessage={emptyMessage}
         pagina={pagina}
         limite={limite}
-        onPagina={onPagina}
-        onLimite={onLimite}
+        onPageChange={onPageChange}
+        onLimitChange={onLimitChange}
         ordenar_por={ordenar_por}
         direcao={direcao}
         onSort={onSort}
-        renderActions={renderActions}
         showPagination={showPagination}
         showResultCount={showResultCount}
       />

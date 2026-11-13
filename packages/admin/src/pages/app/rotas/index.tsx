@@ -40,11 +40,33 @@ export function RotasPage() {
   })
 
   const columns: Column<Rota>[] = [
-    { key: 'modulo', label: 'Módulo', sortable: true },
-    { key: 'recurso', label: 'Recurso', sortable: true },
-    { key: 'rota', label: 'Rota', sortable: false },
-    { key: 'icone', label: 'Ícone', sortable: false },
-    { key: 'ordem', label: 'Ordem', sortable: true },
+    { key: 'modulo', header: 'Módulo', sortable: true },
+    { key: 'recurso', header: 'Recurso', sortable: true },
+    { key: 'rota', header: 'Rota', sortable: false },
+    { key: 'icone', header: 'Ícone', sortable: false },
+    { key: 'ordem', header: 'Ordem', sortable: true },
+    {
+      key: 'acoes',
+      header: '',
+      render: row => (
+        <div className="flex items-center justify-end gap-1">
+          <Button variant="ghost" size="icon" asChild>
+            <Link to={`/rotas/${row.id}/editar`}>
+              <Pencil className="h-4 w-4" />
+            </Link>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              if (confirm('Remover esta rota?')) deleteRota(row.id)
+            }}
+          >
+            <Trash2 className="h-4 w-4 text-destructive" />
+          </Button>
+        </div>
+      ),
+    },
   ]
 
   return (
@@ -72,29 +94,11 @@ export function RotasPage() {
         isPending={isPending}
         pagina={pagina}
         limite={limite}
-        onPagina={setPagina}
-        onLimite={v => setParam('limite', String(v))}
+        onPageChange={setPagina}
+        onLimitChange={v => setParam('limite', String(v))}
         ordenar_por={ordenar_por}
         direcao={direcao}
         onSort={toggleSort}
-        renderActions={row => (
-          <div className="flex gap-2">
-            <Button variant="ghost" size="icon" asChild>
-              <Link to={`/rotas/${row.id}/editar`}>
-                <Pencil className="h-4 w-4" />
-              </Link>
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => {
-                if (confirm('Remover esta rota?')) deleteRota(row.id)
-              }}
-            >
-              <Trash2 className="h-4 w-4 text-destructive" />
-            </Button>
-          </div>
-        )}
       />
     </ListPageLayout>
   )

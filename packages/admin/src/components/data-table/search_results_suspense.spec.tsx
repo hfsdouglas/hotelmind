@@ -17,6 +17,13 @@ describe('SearchResultsSuspense', () => {
     expect(screen.getAllByRole('row')[1].querySelectorAll('td')).toHaveLength(4)
   })
 
+  it('defaults to 8 skeleton rows when row_count is not provided', () => {
+    render(<SearchResultsSkeleton column_count={4} />)
+
+    // 1 header row + 8 body rows
+    expect(screen.getAllByRole('row')).toHaveLength(9)
+  })
+
   it('keeps result content and controls available while pending without rendering duplicate skeleton', () => {
     render(
       <SearchResultsSuspense column_count={3} is_pending label="Resultados">

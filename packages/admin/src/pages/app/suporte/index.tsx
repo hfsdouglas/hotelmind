@@ -64,9 +64,20 @@ export function SuportePage() {
   }
 
   const columns: Column<Hotel>[] = [
-    { key: 'nome_fantasia', label: 'Nome Fantasia', sortable: true },
-    { key: 'cnpj', label: 'CNPJ', sortable: false },
-    { key: 'email_comercial', label: 'E-mail', sortable: false },
+    { key: 'nome_fantasia', header: 'Nome Fantasia', sortable: true },
+    { key: 'cnpj', header: 'CNPJ', sortable: false },
+    { key: 'email_comercial', header: 'E-mail', sortable: false },
+    {
+      key: 'acoes',
+      header: '',
+      render: row => (
+        <div className="flex items-center justify-end gap-1">
+          <Button size="sm" onClick={() => openPicker(row)}>
+            Acessar
+          </Button>
+        </div>
+      ),
+    },
   ]
 
   return (
@@ -100,16 +111,11 @@ export function SuportePage() {
         isPending={isPending}
         pagina={pagina}
         limite={limite}
-        onPagina={setPagina}
-        onLimite={v => setParam('limite', String(v))}
+        onPageChange={setPagina}
+        onLimitChange={v => setParam('limite', String(v))}
         ordenar_por={ordenar_por}
         direcao={direcao}
         onSort={toggleSort}
-        renderActions={row => (
-          <Button size="sm" onClick={() => openPicker(row)}>
-            Acessar
-          </Button>
-        )}
       />
 
       <AlertDialog

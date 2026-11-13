@@ -4,6 +4,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  cn,
   SaveButton,
 } from '@hotelmind/ui'
 import { ArrowLeft } from 'lucide-react'
@@ -21,6 +22,7 @@ export interface CrudFormLayoutProps {
   isSubmitting?: boolean
   cardTitle?: string
   children: ReactNode
+  className?: string
 }
 
 export function CrudFormLayout({
@@ -32,9 +34,15 @@ export function CrudFormLayout({
   isSubmitting = false,
   cardTitle,
   children,
+  className,
 }: CrudFormLayoutProps) {
   return (
-    <div className="mx-auto flex w-full flex-col gap-6 sm:max-w-[540px] md:max-w-[720px] lg:max-w-[960px] xl:max-w-[1140px] 2xl:max-w-[1320px]">
+    <div
+      className={cn(
+        'mx-auto flex w-full flex-col gap-6 sm:max-w-[540px] md:max-w-[720px] lg:max-w-[960px] xl:max-w-[1140px] 2xl:max-w-[1320px]',
+        className
+      )}
+    >
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
           <Link to={backTo}>
@@ -44,7 +52,7 @@ export function CrudFormLayout({
         <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
       </div>
 
-      <form onSubmit={onSubmit} className="flex flex-col gap-6">
+      <form onSubmit={onSubmit} className="relative flex flex-col gap-6">
         <Card data-testid="crud-form-card">
           {cardTitle && (
             <CardHeader>

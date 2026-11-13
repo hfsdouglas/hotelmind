@@ -4,66 +4,68 @@ import { describe, expect, it, vi } from 'vitest'
 import { SearchBar } from './search_bar'
 
 describe('SearchBar', () => {
-  it('renders with default placeholder', () => {
-    render(<SearchBar onSearch={vi.fn()} />)
+  it('renders an input with the given placeholder', () => {
+    render(
+      <SearchBar value="" onSearch={vi.fn()} placeholder="Buscar grupos..." />
+    )
+    expect(screen.getByPlaceholderText('Buscar grupos...')).toBeInTheDocument()
+  })
+
+  it('uses default placeholder when none is provided', () => {
+    render(<SearchBar value="" onSearch={vi.fn()} />)
     expect(screen.getByPlaceholderText('Pesquisar...')).toBeInTheDocument()
   })
 
-  it('renders with custom placeholder', () => {
-    render(<SearchBar onSearch={vi.fn()} placeholder="Buscar hotéis..." />)
-    expect(screen.getByPlaceholderText('Buscar hotéis...')).toBeInTheDocument()
+  it('initializes input with the given value', () => {
+    render(<SearchBar value="hotel" onSearch={vi.fn()} />)
+    expect(screen.getByDisplayValue('hotel')).toBeInTheDocument()
   })
 
-  it('initialises input with defaultValue', () => {
-    render(<SearchBar defaultValue="grand" onSearch={vi.fn()} />)
-    expect(screen.getByDisplayValue('grand')).toBeInTheDocument()
-  })
-
-  it('calls onSearch with the current input value on form submit', async () => {
+  it('calls onSearch with the current input value when the form is submitted', async () => {
     const user = userEvent.setup()
-    const on_search = vi.fn()
-    render(<SearchBar onSearch={on_search} />)
+    const onSearch = vi.fn()
+    render(<SearchBar value="" onSearch={onSearch} />)
 
-    await user.type(screen.getByRole('textbox'), 'palace')
+    await user.type(screen.getByRole('textbox'), 'plaza')
     await user.click(screen.getByRole('button', { name: /pesquisar/i }))
 
-    expect(on_search).toHaveBeenCalledWith('palace')
+    expect(onSearch).toHaveBeenCalledWith('plaza')
   })
 
-  it('calls onSearch when Enter is pressed inside the input', async () => {
+  it('does not call onSearch on simple input changes (only on submit)', async () => {
     const user = userEvent.setup()
-    const on_search = vi.fn()
-    render(<SearchBar onSearch={on_search} />)
+    const onSearch = vi.fn()
+    render(<SearchBar value="" onSearch={onSearch} />)
 
-    await user.type(screen.getByRole('textbox'), 'mar{Enter}')
+    await user.type(screen.getByRole('textbox'), 'abc')
 
-    expect(on_search).toHaveBeenCalledWith('mar')
+    expect(onSearch).not.toHaveBeenCalled()
   })
 
-  it('synchronizes input when defaultValue or value prop changes externally', () => {
+  it('synchronizes input when value prop changes externally', () => {
     const { rerender } = render(
-      <SearchBar defaultValue="inicial" onSearch={vi.fn()} />
+      <SearchBar value="inicial" onSearch={vi.fn()} />
     )
     expect(screen.getByDisplayValue('inicial')).toBeInTheDocument()
 
-    rerender(<SearchBar defaultValue="atualizado" onSearch={vi.fn()} />)
+    rerender(<SearchBar value="atualizado" onSearch={vi.fn()} />)
     expect(screen.getByDisplayValue('atualizado')).toBeInTheDocument()
 
-    rerender(<SearchBar defaultValue="" onSearch={vi.fn()} />)
+    rerender(<SearchBar value="" onSearch={vi.fn()} />)
     expect(screen.getByRole('textbox')).toHaveValue('')
   })
 
   it('renders a clear button only when input has text and clears on click', async () => {
     const user = userEvent.setup()
-    const on_search = vi.fn()
-    render(<SearchBar defaultValue="resort" onSearch={on_search} />)
+    const onSearch = vi.fn()
+    render(<SearchBar value="praia" onSearch={onSearch} />)
 
     const clearButton = screen.getByRole('button', { name: 'Limpar pesquisa' })
     expect(clearButton).toBeInTheDocument()
 
     await user.click(clearButton)
 
-    expect(on_search).toHaveBeenCalledWith('')
+    expect(onSearch).toHaveBeenCalledWith('')
     expect(screen.getByRole('textbox')).toHaveValue('')
     expect(
       screen.queryByRole('button', { name: 'Limpar pesquisa' })
