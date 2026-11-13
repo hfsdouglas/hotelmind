@@ -1,11 +1,14 @@
 import type { Reserva, ReservaStatus } from '@hotelmind/contracts'
+import type { Column } from '@hotelmind/ui'
 import {
   Badge,
   Button,
   Label,
+  ListPageLayout,
   Popover,
   PopoverContent,
   PopoverTrigger,
+  SearchBar,
   Select,
   SelectContent,
   SelectItem,
@@ -26,10 +29,7 @@ import { useMemo } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { parceirosComerciaisService } from '@/api/parceiros_comerciais.service'
 import { reservasService } from '@/api/reservas.service'
-import type { Column } from '@/components/data-table/data_table'
-import { ListPageLayout } from '@/components/data-table/list_page_layout'
 import { PagedDataTable } from '@/components/data-table/paged_data_table'
-import { SearchBar } from '@/components/data-table/search_bar'
 import { ReservaStatusBadge } from '@/components/reservas/reserva_status_badge'
 import { usePageTitle } from '@/hooks/use_document_title'
 import { usePaginacao } from '@/hooks/use_paginacao'

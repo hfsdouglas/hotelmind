@@ -25,8 +25,8 @@ src/
 │   ├── app/          # Authenticated pages
 │   └── auth/         # Public auth pages
 ├── components/       # ALL reusable components
-│   ├── forms/        # CrudFormLayout
-│   ├── data-table/   # List primitives (see DataTable)
+│   ├── forms/        # CrudFormLayout wrapper (binds ui layout to the router)
+│   ├── data-table/   # paged_data_table (query-bound; rest comes from ui)
 │   ├── layout/       # Sidebar, Navbar
 │   └── <domain>/     # Domain components
 ├── hooks/            # Custom hooks (queries, mutations, UI helpers)
@@ -68,22 +68,27 @@ modals, dialogs, sections and widgets go in `src/components/<domain>/`.
 
 ## DataTable & List Pages
 
-Build list pages only with `components/data-table/` primitives, never one-off
-table markup:
+Build list pages only with these primitives, never one-off table markup. All
+come from `@hotelmind/ui` except `paged_data_table`, which is bound to
+TanStack Query and stays in each app (`components/data-table/`):
 
-| File | Purpose |
+| Piece | Purpose |
 |---|---|
-| `list_page_layout.tsx` | Page shell: title, action, search bar, filters, content |
-| `search_results_suspense.tsx` | Suspense boundary + skeleton for results |
-| `paged_data_table.tsx` | Suspense query + `data_table` + pagination |
-| `data_table.tsx` | Sortable table |
-| `data_table_pagination.tsx` | Page controls + `limite` selector (50/100/250) |
-| `search_bar.tsx` | Search input |
-| `FilterPanel` (`@hotelmind/ui`) | Collapsible secondary filters |
-| `ResultCount` (`@hotelmind/ui`) | Result count indicator |
+| `ListPageLayout` | Page shell: title, action, search bar, filters, content |
+| `SearchResultsSuspense` / `SearchResultsSkeleton` | Suspense boundary + skeleton for results |
+| `paged_data_table.tsx` (app) | Suspense query + `DataTable` + pagination |
+| `DataTable` | Sortable table (`Column`: `key`, `header`, `sortable`, `render`) |
+| `DataTablePagination` | Page controls + `limite` selector (`onPageChange`, `onLimitChange`) |
+| `SearchBar` | Search input |
+| `FilterPanel` | Collapsible secondary filters |
+| `ResultCount` | Result count indicator |
 
-- **Action column**: header is empty (`header: ''`, never `"Ações"`); cell is
-  `className="flex items-center justify-end gap-1"`.
+Web and admin share the same API; there is no `renderActions`: actions are a
+regular column.
+
+- **Action column**: `{ key: 'acoes', header: '', render }`, never a visible
+  `"Ações"` header (`DataTable` adds an `sr-only` label for screen readers);
+  cell is `className="flex items-center justify-end gap-1"`.
 - **URL state**: pagination, search and sorting live in URL search params via
   `hooks/use_paginacao.ts` (params follow the root pagination contract). Never
   keep them in `useState`.
@@ -95,7 +100,9 @@ table markup:
 
 ## Forms (`CrudFormLayout`)
 
-Every create/edit page uses `components/forms/crud_form_layout.tsx`:
+Every create/edit page uses `components/forms/crud_form_layout.tsx`, the app
+wrapper (`backTo`) over `CrudFormLayout` from `@hotelmind/ui` (which takes
+`renderBackLink` so it stays router-free):
 
 - It owns the `<form>`, header (back button + title) and exactly **one**
   `Card`. Extra sections are sibling blocks inside that card, never

@@ -1,14 +1,4 @@
 import {
-  cn,
-  Skeleton,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@hotelmind/ui'
-import {
   Component,
   type ReactNode,
   Suspense,
@@ -16,6 +6,16 @@ import {
   useRef,
   useState,
 } from 'react'
+import { Skeleton } from '../../components/skeleton/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../../components/table/table'
+import { cn } from '../../lib/cn'
 
 interface SearchResultsSkeletonProps {
   column_labels?: string[]
@@ -59,7 +59,9 @@ export function SearchResultsSkeleton({
         <TableHeader>
           <TableRow>
             {column_labels.map((label, column_index) => (
-              <TableHead key={`${label}-${column_index}`}>{label}</TableHead>
+              <TableHead key={`${label}-${column_index}`}>
+                {label || <span className="sr-only">Ações</span>}
+              </TableHead>
             ))}
           </TableRow>
         </TableHeader>

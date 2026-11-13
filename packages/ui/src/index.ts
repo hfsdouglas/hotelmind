@@ -119,12 +119,27 @@ export {
   type CheckboxGroup,
   CheckboxGroupList,
 } from './patterns/checkbox_group_list/checkbox_group_list'
+export {
+  CrudFormLayout,
+  type CrudFormLayoutProps,
+} from './patterns/crud_form_layout/crud_form_layout'
+export { type Column, DataTable } from './patterns/data_table/data_table'
+export { DataTablePagination } from './patterns/data_table_pagination/data_table_pagination'
 export { FilterPanel } from './patterns/filter_panel/filter_panel'
+export { ListPageLayout } from './patterns/list_page_layout/list_page_layout'
 export { ResultCount } from './patterns/result_count/result_count'
 export {
   SaveButton,
   type SaveButtonProps,
 } from './patterns/save_button/save_button'
+export {
+  SearchBar,
+  type SearchBarProps,
+} from './patterns/search_bar/search_bar'
+export {
+  SearchResultsSkeleton,
+  SearchResultsSuspense,
+} from './patterns/search_results_suspense/search_results_suspense'
 export {
   SuiteSyncLogo,
   type SuiteSyncLogoProps,

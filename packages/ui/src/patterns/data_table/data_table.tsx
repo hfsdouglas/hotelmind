@@ -1,13 +1,13 @@
+import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 import {
-  cn,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from '@hotelmind/ui'
-import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
+} from '../../components/table/table'
+import { cn } from '../../lib/cn'
 
 export interface Column<T> {
   key: string
@@ -67,7 +67,7 @@ export function DataTable<T extends { id?: string }>({
                 onClick={() => col.sortable && onSort?.(col.key)}
               >
                 <span className="flex items-center">
-                  {col.header}
+                  {col.header || <span className="sr-only">Ações</span>}
                   {col.sortable && <SortIcon campo={col.key} />}
                 </span>
               </TableHead>

@@ -1,7 +1,9 @@
 import type { CategoriaQuarto } from '@hotelmind/contracts'
+import type { Column } from '@hotelmind/ui'
 import {
   Badge,
   Button,
+  ListPageLayout,
   Select,
   SelectContent,
   SelectItem,
@@ -12,8 +14,6 @@ import { Pencil, Plus } from 'lucide-react'
 import { useTransition } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { categoriasQuartosService } from '@/api/categorias_quartos.service'
-import type { Column } from '@/components/data-table/data_table'
-import { ListPageLayout } from '@/components/data-table/list_page_layout'
 import { PagedDataTable } from '@/components/data-table/paged_data_table'
 import { usePageTitle } from '@/hooks/use_document_title'
 

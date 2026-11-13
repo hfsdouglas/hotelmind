@@ -1,6 +1,7 @@
-import { Button, Input } from '@hotelmind/ui'
 import { Search, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { Button } from '../../components/button/button'
+import { Input } from '../../components/input/input'
 
 export interface SearchBarProps {
   value?: string

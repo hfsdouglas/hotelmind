@@ -1,4 +1,5 @@
 import type { Grupo } from '@hotelmind/contracts'
+import type { Column } from '@hotelmind/ui'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,6 +14,8 @@ import {
   Button,
   FilterPanel,
   Label,
+  ListPageLayout,
+  SearchBar,
   Select,
   SelectContent,
   SelectItem,
@@ -24,10 +27,7 @@ import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { gruposService } from '@/api/grupos.service'
-import type { Column } from '@/components/data-table/data_table'
-import { ListPageLayout } from '@/components/data-table/list_page_layout'
 import { PagedDataTable } from '@/components/data-table/paged_data_table'
-import { SearchBar } from '@/components/data-table/search_bar'
 import { usePageTitle } from '@/hooks/use_document_title'
 import { usePaginacao } from '@/hooks/use_paginacao'
 

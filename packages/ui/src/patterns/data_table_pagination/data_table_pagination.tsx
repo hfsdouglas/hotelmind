@@ -1,18 +1,18 @@
 import {
-  Button,
-  cn,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@hotelmind/ui'
-import {
   ChevronFirst,
   ChevronLast,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react'
+import { Button } from '../../components/button/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../../components/select/select'
+import { cn } from '../../lib/cn'
 
 interface DataTablePaginationProps {
   pagina: number
@@ -41,7 +41,7 @@ export function DataTablePagination({
           value={String(limite)}
           onValueChange={v => onLimitChange(Number(v))}
         >
-          <SelectTrigger className="w-20">
+          <SelectTrigger className="w-20" aria-label="Itens por página">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -61,6 +61,7 @@ export function DataTablePagination({
           variant="ghost"
           size="icon"
           onClick={() => onPageChange(1)}
+          aria-label="Primeira página"
           disabled={pagina <= 1}
         >
           <ChevronFirst className="h-4 w-4" />
@@ -69,6 +70,7 @@ export function DataTablePagination({
           variant="ghost"
           size="icon"
           onClick={() => onPageChange(pagina - 1)}
+          aria-label="Página anterior"
           disabled={pagina <= 1}
         >
           <ChevronLeft className="h-4 w-4" />
@@ -77,6 +79,7 @@ export function DataTablePagination({
           variant="ghost"
           size="icon"
           onClick={() => onPageChange(pagina + 1)}
+          aria-label="Próxima página"
           disabled={pagina >= ultima_pagina}
         >
           <ChevronRight className="h-4 w-4" />
@@ -85,6 +88,7 @@ export function DataTablePagination({
           variant="ghost"
           size="icon"
           onClick={() => onPageChange(ultima_pagina)}
+          aria-label="Última página"
           disabled={pagina >= ultima_pagina}
         >
           <ChevronLast className="h-4 w-4" />

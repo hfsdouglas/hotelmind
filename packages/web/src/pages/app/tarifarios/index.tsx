@@ -1,10 +1,13 @@
 import type { Tarifario } from '@hotelmind/contracts'
+import type { Column } from '@hotelmind/ui'
 import {
   Button,
   Label,
+  ListPageLayout,
   Popover,
   PopoverContent,
   PopoverTrigger,
+  SearchBar,
   Select,
   SelectContent,
   SelectItem,
@@ -17,10 +20,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { categoriasQuartosService } from '@/api/categorias_quartos.service'
 import { parceirosComerciaisService } from '@/api/parceiros_comerciais.service'
 import { tarifariosService } from '@/api/tarifarios.service'
-import type { Column } from '@/components/data-table/data_table'
-import { ListPageLayout } from '@/components/data-table/list_page_layout'
 import { PagedDataTable } from '@/components/data-table/paged_data_table'
-import { SearchBar } from '@/components/data-table/search_bar'
 import { TarifarioStatusBadge } from '@/components/tarifarios/tarifario_status_badge'
 import { usePageTitle } from '@/hooks/use_document_title'
 import { usePaginacao } from '@/hooks/use_paginacao'

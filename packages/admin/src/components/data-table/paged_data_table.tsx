@@ -1,8 +1,11 @@
-import { ResultCount } from '@hotelmind/ui'
+import {
+  type Column,
+  DataTable,
+  DataTablePagination,
+  ResultCount,
+  SearchResultsSuspense,
+} from '@hotelmind/ui'
 import { type QueryKey, useSuspenseQuery } from '@tanstack/react-query'
-import { type Column, DataTable } from '@/components/data-table/data_table'
-import { DataTablePagination } from '@/components/data-table/data_table_pagination'
-import { SearchResultsSuspense } from '@/components/data-table/search_results_suspense'
 
 export interface PagedDataTableProps<T extends { id?: string }> {
   columns: Column<T>[]

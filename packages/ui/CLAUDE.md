@@ -31,7 +31,9 @@ tailwind.preset.ts       # shared preset (colors, radius, dark mode)
 - **Patterns** (`src/patterns/`) are compositions with their own behavior
   (selection, collapse, pluralization...). They keep a `.spec.tsx` next to the
   component, and the same dependency rule applies: no router, query, API,
-  auth or app contexts. Anything that needs them stays in the app.
+  auth or app contexts. Anything that needs them stays in the app, bound by a
+  thin wrapper (e.g. `paged_data_table` over `DataTable`, `CrudFormLayout`
+  with `backTo` over the ui layout's `renderBackLink`).
 - **No unit tests per primitive** (shadcn/ui vendor code). Test only what is
   written here: `cn`, `date_mask`, the preset/tokens and the a11y spec.
 - **Domain text stays out.** A primitive exposes props (labels, render slots)

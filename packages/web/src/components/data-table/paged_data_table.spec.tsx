@@ -16,7 +16,7 @@ interface Item {
   name: string
 }
 
-const columns = [{ key: 'name' as const, label: 'Nome' }]
+const columns = [{ key: 'name' as const, header: 'Nome' }]
 
 describe('PagedDataTable', () => {
   it('renders table rows and result count after suspense resolves', async () => {
