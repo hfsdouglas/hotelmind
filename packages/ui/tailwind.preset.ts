@@ -1,0 +1,81 @@
+import type { Config } from 'tailwindcss'
+
+export function withOpacity(variableName: string) {
+  return `color-mix(in oklch, var(${variableName}) calc(100% * <alpha-value>), transparent)`
+}
+
+/**
+ * Shared Tailwind preset. Apps extend it with their own domain tokens
+ * (status, charts, range selection) in their own tailwind.config.ts.
+ */
+export default {
+  darkMode: 'class',
+  content: [],
+  theme: {
+    extend: {
+      colors: {
+        border: withOpacity('--border'),
+        input: withOpacity('--input'),
+        ring: withOpacity('--ring'),
+        background: withOpacity('--background'),
+        foreground: withOpacity('--foreground'),
+        primary: {
+          DEFAULT: withOpacity('--primary'),
+          foreground: withOpacity('--primary-foreground'),
+          deep: withOpacity('--primary-deep'),
+          deeper: withOpacity('--primary-deeper'),
+          darkest: withOpacity('--primary-darkest'),
+          shadow: withOpacity('--primary-shadow'),
+          void: withOpacity('--primary-void'),
+        },
+        secondary: {
+          DEFAULT: withOpacity('--secondary'),
+          foreground: withOpacity('--secondary-foreground'),
+        },
+        tertiary: {
+          DEFAULT: withOpacity('--tertiary'),
+          foreground: withOpacity('--tertiary-foreground'),
+        },
+        destructive: {
+          DEFAULT: withOpacity('--destructive'),
+          foreground: withOpacity('--destructive-foreground'),
+        },
+        success: {
+          DEFAULT: withOpacity('--success'),
+          foreground: withOpacity('--success-foreground'),
+        },
+        warning: {
+          DEFAULT: withOpacity('--warning'),
+          foreground: withOpacity('--warning-foreground'),
+        },
+        info: {
+          DEFAULT: withOpacity('--info'),
+          foreground: withOpacity('--info-foreground'),
+        },
+        muted: {
+          DEFAULT: withOpacity('--muted'),
+          foreground: withOpacity('--muted-foreground'),
+        },
+        accent: {
+          DEFAULT: withOpacity('--accent'),
+          foreground: withOpacity('--accent-foreground'),
+        },
+        card: {
+          DEFAULT: withOpacity('--card'),
+          foreground: withOpacity('--card-foreground'),
+        },
+        popover: {
+          DEFAULT: withOpacity('--popover'),
+          foreground: withOpacity('--popover-foreground'),
+        },
+      },
+      borderRadius: {
+        xl: 'var(--radius-xl)',
+        lg: 'var(--radius-lg)',
+        md: 'var(--radius-md)',
+        sm: 'var(--radius-sm)',
+      },
+    },
+  },
+  plugins: [],
+} satisfies Config

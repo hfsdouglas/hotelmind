@@ -4,7 +4,10 @@
   "version": "1.0.0",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./tailwind.preset": "./tailwind.preset.ts",
+    "./styles/tokens.css": "./src/styles/tokens.css",
+    "./styles/globals.css": "./src/styles/globals.css"
   },
   "scripts": {
     "storybook": "storybook dev -p 6006",
@@ -21,10 +24,15 @@
   "devDependencies": {
     "@storybook/addon-a11y": "^10.6.7",
     "@storybook/react-vite": "^10.6.7",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.10",
+    "@types/node": "^26.0.1",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.7.0",
     "autoprefixer": "^10.6.2",
+    "jsdom": "^29.1.1",
     "postcss": "^8.5.32",
     "storybook": "^10.6.7",
     "tailwind-merge": "^2.6.1",
