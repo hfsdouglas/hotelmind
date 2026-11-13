@@ -1,5 +1,4 @@
 import type { QuartoDisponivel } from '@hotelmind/contracts'
-import { AlertTriangle } from 'lucide-react'
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -8,7 +7,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+} from '@hotelmind/ui'
+import { AlertTriangle } from 'lucide-react'
 
 function formatarMoeda(valor: string | number) {
   const num = typeof valor === 'string' ? Number(valor) : valor

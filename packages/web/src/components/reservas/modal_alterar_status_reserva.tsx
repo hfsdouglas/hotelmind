@@ -1,5 +1,4 @@
 import type { ReservaStatus } from '@hotelmind/contracts'
-import { ShieldAlert } from 'lucide-react'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,7 +8,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+} from '@hotelmind/ui'
+import { ShieldAlert } from 'lucide-react'
 
 interface ModalAlterarStatusReservaProps {
   open: boolean

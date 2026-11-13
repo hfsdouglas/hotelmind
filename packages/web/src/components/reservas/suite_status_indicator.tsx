@@ -3,7 +3,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
+} from '@hotelmind/ui'
 import { cn } from '@/lib/utils'
 import { ROOM_STATUS_LABEL, type Room } from '@/types/calendario_reserva'
 

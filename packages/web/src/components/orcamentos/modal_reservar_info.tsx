@@ -1,13 +1,13 @@
-import { Button } from '@hotelmind/ui'
-import { Phone, Sparkles } from 'lucide-react'
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from '@hotelmind/ui'
+import { Phone, Sparkles } from 'lucide-react'
 
 interface ModalReservarInfoProps {
   open: boolean

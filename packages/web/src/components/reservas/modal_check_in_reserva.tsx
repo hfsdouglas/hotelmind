@@ -1,12 +1,12 @@
-import { Button } from '@hotelmind/ui'
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from '@hotelmind/ui'
 import {
   fichas_pendentes,
   rotulo_ficha_status,

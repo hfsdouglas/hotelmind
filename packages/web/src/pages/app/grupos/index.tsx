@@ -1,15 +1,4 @@
 import type { Grupo } from '@hotelmind/contracts'
-import { Button, Label } from '@hotelmind/ui'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Pencil, Plus, Trash2 } from 'lucide-react'
-import { Link, useSearchParams } from 'react-router-dom'
-import { toast } from 'sonner'
-import { gruposService } from '@/api/grupos.service'
-import type { Column } from '@/components/data-table/data_table'
-import { FilterPanel } from '@/components/data-table/filter_panel'
-import { ListPageLayout } from '@/components/data-table/list_page_layout'
-import { PagedDataTable } from '@/components/data-table/paged_data_table'
-import { SearchBar } from '@/components/data-table/search_bar'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,7 +9,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
+  Button,
+  Label,
+} from '@hotelmind/ui'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Pencil, Plus, Trash2 } from 'lucide-react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { toast } from 'sonner'
+import { gruposService } from '@/api/grupos.service'
+import type { Column } from '@/components/data-table/data_table'
+import { FilterPanel } from '@/components/data-table/filter_panel'
+import { ListPageLayout } from '@/components/data-table/list_page_layout'
+import { PagedDataTable } from '@/components/data-table/paged_data_table'
+import { SearchBar } from '@/components/data-table/search_bar'
 import { Badge } from '@/components/ui/badge'
 import {
   Select,

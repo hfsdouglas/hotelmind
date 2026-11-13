@@ -1,12 +1,12 @@
-import { Button } from '@hotelmind/ui'
-import { BellRing, CalendarPlus, Info } from 'lucide-react'
-import type { ReactNode, Ref } from 'react'
 import {
+  Button,
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
+} from '@hotelmind/ui'
+import { BellRing, CalendarPlus, Info } from 'lucide-react'
+import type { ReactNode, Ref } from 'react'
 import { avaliar_check_in } from '@/lib/reserva_status'
 import type { Reservation } from '@/types/calendario_reserva'
 

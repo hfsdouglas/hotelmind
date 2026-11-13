@@ -1,14 +1,14 @@
 import type { Reserva } from '@hotelmind/contracts'
-import { Button } from '@hotelmind/ui'
-import { SaveButton } from '@/components/forms/save_button'
-import { NovaReservaFormFields } from '@/components/reservas/nova_reserva_form_fields'
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from '@hotelmind/ui'
+import { SaveButton } from '@/components/forms/save_button'
+import { NovaReservaFormFields } from '@/components/reservas/nova_reserva_form_fields'
 import { useNovaReservaForm } from '@/hooks/use_nova_reserva_form'
 import type {
   NovaReservaValoresIniciais,

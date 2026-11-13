@@ -1,13 +1,13 @@
-import { Button } from '@hotelmind/ui'
-import { Link } from 'react-router-dom'
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from '@hotelmind/ui'
+import { Link } from 'react-router-dom'
 import {
   formatar_brl,
   formatar_data,

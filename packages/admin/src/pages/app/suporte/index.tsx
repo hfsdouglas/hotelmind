@@ -1,13 +1,3 @@
-import { Button } from '@hotelmind/ui'
-import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
-import type { Hotel } from '@/api/hoteis.service'
-import { hoteisService } from '@/api/hoteis.service'
-import { suporteService } from '@/api/suporte.service'
-import type { Column } from '@/components/data-table/data_table'
-import { ListPageLayout } from '@/components/data-table/list_page_layout'
-import { PagedDataTable } from '@/components/data-table/paged_data_table'
-import { SearchBar } from '@/components/data-table/search_bar'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,7 +7,17 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+  Button,
+} from '@hotelmind/ui'
+import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
+import type { Hotel } from '@/api/hoteis.service'
+import { hoteisService } from '@/api/hoteis.service'
+import { suporteService } from '@/api/suporte.service'
+import type { Column } from '@/components/data-table/data_table'
+import { ListPageLayout } from '@/components/data-table/list_page_layout'
+import { PagedDataTable } from '@/components/data-table/paged_data_table'
+import { SearchBar } from '@/components/data-table/search_bar'
 import { usePageTitle } from '@/hooks/use_document_title'
 import { usePaginacao } from '@/hooks/use_paginacao'
 

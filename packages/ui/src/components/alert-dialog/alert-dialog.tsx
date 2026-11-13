@@ -1,7 +1,7 @@
-import { buttonVariants } from '@hotelmind/ui'
 import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog'
 import * as React from 'react'
-import { cn } from '@/lib/utils'
+import { cn } from '../../lib/cn'
+import { buttonVariants } from '../button/button'
 
 const AlertDialog = AlertDialogPrimitive.Root
 const AlertDialogTrigger = AlertDialogPrimitive.Trigger

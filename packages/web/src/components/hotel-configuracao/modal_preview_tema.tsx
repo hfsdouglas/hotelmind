@@ -1,5 +1,5 @@
-import { Button } from '@hotelmind/ui'
 import {
+  Button,
   Dialog,
   DialogClose,
   DialogContent,
@@ -7,7 +7,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from '@hotelmind/ui'
 import { PreviewTemaCard, type PreviewTemaCardProps } from './preview_tema_card'
 
 interface ModalPreviewTemaProps extends PreviewTemaCardProps {
