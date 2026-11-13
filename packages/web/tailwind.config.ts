@@ -77,6 +77,14 @@ export default {
           maintenance: withOpacity('--status-maintenance'),
           cleaning: withOpacity('--status-cleaning'),
           occupied: withOpacity('--status-occupied'),
+          checkin: withOpacity('--status-checkin'),
+          'checkin-foreground': withOpacity('--status-checkin-foreground'),
+        },
+        'selection-ring': withOpacity('--selection-ring'),
+        'range-selection': {
+          DEFAULT: withOpacity('--range-selection'),
+          border: withOpacity('--range-selection-border'),
+          foreground: withOpacity('--range-selection-foreground'),
         },
       },
       borderRadius: {

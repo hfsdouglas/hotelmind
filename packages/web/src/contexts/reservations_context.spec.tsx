@@ -1,51 +1,26 @@
 import { renderHook } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { describe, expect, it } from 'vitest'
-import {
-  type Reservation,
-  ReservationsProvider,
-  useReservations,
-} from './reservations_context'
+import { make_calendario_reservation } from '@/tests/utils/make_calendario_reservation'
+import type { Reservation } from '@/types/calendario_reserva'
+import { ReservationsProvider, useReservations } from './reservations_context'
 
 const mockReservations: Reservation[] = [
-  {
+  make_calendario_reservation({
     id: 'res-1',
     quartoId: 'room-101',
-    checkIn: '2026-11-01',
-    checkOut: '2026-11-05',
+    checkIn: '2026-11-01T00:00:00',
+    checkOut: '2026-11-05T00:00:00',
     status: 'confirmada',
-    status_code: 1,
-    hospede: {
-      nome: 'João Silva',
-      email: 'joao@example.com',
-      telefone: '11999998888',
-      documento: '12345678900',
-    },
-    pagamento: {
-      metodo: 'pix',
-      valor: 500,
-      status: 'pago',
-    },
-  },
-  {
+  }),
+  make_calendario_reservation({
     id: 'res-2',
     quartoId: 'room-102',
-    checkIn: '2026-11-02',
-    checkOut: '2026-11-06',
-    status: 'pendente',
-    status_code: 0,
-    hospede: {
-      nome: 'Maria Souza',
-      email: 'maria@example.com',
-      telefone: '11988887777',
-      documento: '98765432100',
-    },
-    pagamento: {
-      metodo: 'cartao',
-      valor: 800,
-      status: 'pendente',
-    },
-  },
+    checkIn: '2026-11-02T00:00:00',
+    checkOut: '2026-11-06T00:00:00',
+    status: 'a_confirmar',
+    titular: { nome: 'Maria Souza', email: null, telefone: null },
+  }),
 ]
 
 describe('reservations_context', () => {
@@ -81,7 +56,7 @@ describe('reservations_context', () => {
 
     const { result } = renderHook(() => useReservations(), { wrapper })
 
-    expect(result.current.getReservationById('res-2')?.hospede.nome).toBe(
+    expect(result.current.getReservationById('res-2')?.titular.nome).toBe(
       'Maria Souza'
     )
     expect(result.current.getReservationById('non-existent')).toBeUndefined()

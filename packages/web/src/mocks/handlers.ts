@@ -3,7 +3,9 @@ import { categorias_quartos_handlers } from './categorias_quartos/categorias_qua
 import { fnrh_handlers } from './fnrh/fnrh_handlers'
 import { orcamentos_handlers } from './orcamentos/orcamentos_handlers'
 import { quartos_handlers } from './quartos/quartos_handlers'
+import { regimes_alimentacao_handlers } from './regimes_alimentacao/regimes_alimentacao_handlers'
 import { reservas_handlers } from './reservas/reservas_handlers'
+import { tarifarios_handlers } from './tarifarios/tarifarios_handlers'
 import { usuarios_handlers } from './usuarios/usuarios_handlers'
 
 export const handlers = [
@@ -11,7 +13,9 @@ export const handlers = [
   ...usuarios_handlers,
   ...categorias_quartos_handlers,
   ...quartos_handlers,
+  ...regimes_alimentacao_handlers,
   ...reservas_handlers,
+  ...tarifarios_handlers,
   ...orcamentos_handlers,
   ...fnrh_handlers,
 ]

@@ -17,6 +17,7 @@ import type { Column } from '@/components/data-table/data_table'
 import { ListPageLayout } from '@/components/data-table/list_page_layout'
 import { PagedDataTable } from '@/components/data-table/paged_data_table'
 import { SearchBar } from '@/components/data-table/search_bar'
+import { ReservaStatusBadge } from '@/components/reservas/reserva_status_badge'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -50,67 +51,6 @@ function formatarMoeda(valor: string | number) {
     style: 'currency',
     currency: 'BRL',
   }).format(num || 0)
-}
-
-function getStatusBadge(status: ReservaStatus) {
-  switch (status) {
-    case 'a_confirmar':
-      return (
-        <Badge
-          variant="outline"
-          className="bg-amber-500/10 text-amber-700 border-amber-300 dark:bg-amber-500/15 dark:text-amber-400 dark:border-amber-800"
-        >
-          A Confirmar
-        </Badge>
-      )
-    case 'confirmada':
-      return (
-        <Badge
-          variant="outline"
-          className="bg-sky-500/10 text-sky-700 border-sky-300 dark:bg-sky-500/15 dark:text-sky-400 dark:border-sky-800"
-        >
-          Confirmada
-        </Badge>
-      )
-    case 'check_in':
-      return (
-        <Badge
-          variant="outline"
-          className="bg-emerald-500/10 text-emerald-700 border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-800"
-        >
-          Check-in
-        </Badge>
-      )
-    case 'check_out':
-      return (
-        <Badge
-          variant="outline"
-          className="bg-muted text-muted-foreground border-border"
-        >
-          Check-out
-        </Badge>
-      )
-    case 'no_show':
-      return (
-        <Badge
-          variant="outline"
-          className="bg-purple-500/10 text-purple-700 border-purple-300 dark:bg-purple-500/15 dark:text-purple-400 dark:border-purple-800"
-        >
-          No-show
-        </Badge>
-      )
-    case 'cancelada':
-      return (
-        <Badge
-          variant="outline"
-          className="bg-destructive/10 text-destructive border-destructive/30"
-        >
-          Cancelada
-        </Badge>
-      )
-    default:
-      return <Badge variant="outline">{status}</Badge>
-  }
 }
 
 export function ReservasPage() {
@@ -255,7 +195,7 @@ export function ReservasPage() {
       {
         key: 'status',
         header: 'Status',
-        render: r => getStatusBadge(r.status),
+        render: r => <ReservaStatusBadge status={r.status} />,
       },
       {
         key: 'acoes',

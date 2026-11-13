@@ -305,4 +305,102 @@ describe('Reservas Routes', () => {
     expect(body.data).toHaveLength(1)
     expect(body.data[0].titular_nome).toBe('Joao Silva')
   })
+
+  describe('PATCH /reservas/:id/status', () => {
+    const OTHER_HOTEL_ID = 'hotel-res-outro'
+
+    async function criar_reserva(
+      hotel_id: string,
+      status: 'a_confirmar' | 'confirmada'
+    ) {
+      return reservas_repo.create({
+        hotel_id,
+        codigo: 'RES-0101',
+        titular_nome: 'Ana Souza',
+        quarto_id: 'q1',
+        regime_alimentacao_id: 'r1',
+        check_in: '2026-12-02',
+        check_out: '2026-12-04',
+        quantidade_adultos: 2,
+        valor_total: '1500.00',
+        detalhamento_diarias: [],
+        token_fnrh: 'token-1234567890abcdef12345678',
+        status,
+      })
+    }
+
+    it('retorna 200 ao mudar confirmada para check_in', async () => {
+      const token = make_token(app, HOTEL_ID)
+      const reserva = await criar_reserva(HOTEL_ID, 'confirmada')
+
+      const response = await app.inject({
+        method: 'PATCH',
+        url: `/reservas/${reserva.id}/status`,
+        cookies: { token },
+        payload: { status: 'check_in' },
+      })
+
+      expect(response.statusCode).toBe(200)
+      expect(response.json().status).toBe('check_in')
+    })
+
+    it('retorna 422 ao tentar check_in de reserva a_confirmar', async () => {
+      const token = make_token(app, HOTEL_ID)
+      const reserva = await criar_reserva(HOTEL_ID, 'a_confirmar')
+
+      const response = await app.inject({
+        method: 'PATCH',
+        url: `/reservas/${reserva.id}/status`,
+        cookies: { token },
+        payload: { status: 'check_in' },
+      })
+
+      expect(response.statusCode).toBe(422)
+      expect(response.json().message).toBeDefined()
+    })
+
+    it('retorna 404 para reserva de outro hotel e não altera os dados', async () => {
+      const token_b = make_token(app, OTHER_HOTEL_ID)
+      const reserva = await criar_reserva(HOTEL_ID, 'confirmada')
+
+      const response = await app.inject({
+        method: 'PATCH',
+        url: `/reservas/${reserva.id}/status`,
+        cookies: { token: token_b },
+        payload: { status: 'check_in' },
+      })
+
+      expect(response.statusCode).toBe(404)
+      expect(response.json().message).toBeDefined()
+      const atual = await reservas_repo.find_by_id(reserva.id, HOTEL_ID)
+      expect(atual?.status).toBe('confirmada')
+      expect(reservas_repo.historico).toHaveLength(0)
+    })
+
+    it('retorna 401 sem token', async () => {
+      const reserva = await criar_reserva(HOTEL_ID, 'confirmada')
+
+      const response = await app.inject({
+        method: 'PATCH',
+        url: `/reservas/${reserva.id}/status`,
+        payload: { status: 'check_in' },
+      })
+
+      expect(response.statusCode).toBe(401)
+    })
+
+    it('retorna 400 com status inválido', async () => {
+      const token = make_token(app, HOTEL_ID)
+      const reserva = await criar_reserva(HOTEL_ID, 'confirmada')
+
+      const response = await app.inject({
+        method: 'PATCH',
+        url: `/reservas/${reserva.id}/status`,
+        cookies: { token },
+        payload: { status: 'inexistente' },
+      })
+
+      expect(response.statusCode).toBe(400)
+    })
+  })
 })

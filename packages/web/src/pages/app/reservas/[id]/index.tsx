@@ -1,12 +1,8 @@
-import type {
-  ReservaHospede,
-  ReservaStatus,
-  SaveFichaPayload,
-} from '@hotelmind/contracts'
+import type { ReservaHospede, SaveFichaPayload } from '@hotelmind/contracts'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft, Edit } from 'lucide-react'
-import { useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { reservasService } from '@/api/reservas.service'
 import { LinkFnrhCard } from '@/components/reservas/link_fnrh_card'
@@ -14,70 +10,13 @@ import { ModalEditarFichaFnrh } from '@/components/reservas/modal_editar_ficha_f
 import { ReservaContatoCard } from '@/components/reservas/reserva_contato_card'
 import { ReservaDetalhesHospedagem } from '@/components/reservas/reserva_detalhes_hospedagem'
 import { ReservaHospedesSection } from '@/components/reservas/reserva_hospedes_section'
-import { Badge } from '@/components/ui/badge'
+import { ReservaStatusBadge } from '@/components/reservas/reserva_status_badge'
 import { Button } from '@/components/ui/button'
 import { usePageTitle } from '@/hooks/use_document_title'
+import { primeira_ficha_pendente } from '@/lib/fnrh'
 
-function getStatusBadge(status: ReservaStatus) {
-  switch (status) {
-    case 'a_confirmar':
-      return (
-        <Badge
-          variant="outline"
-          className="bg-amber-500/10 text-amber-700 border-amber-300 dark:bg-amber-500/15 dark:text-amber-400 dark:border-amber-800"
-        >
-          A Confirmar
-        </Badge>
-      )
-    case 'confirmada':
-      return (
-        <Badge
-          variant="outline"
-          className="bg-sky-500/10 text-sky-700 border-sky-300 dark:bg-sky-500/15 dark:text-sky-400 dark:border-sky-800"
-        >
-          Confirmada
-        </Badge>
-      )
-    case 'check_in':
-      return (
-        <Badge
-          variant="outline"
-          className="bg-emerald-500/10 text-emerald-700 border-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-800"
-        >
-          Check-in
-        </Badge>
-      )
-    case 'check_out':
-      return (
-        <Badge
-          variant="outline"
-          className="bg-muted text-muted-foreground border-border"
-        >
-          Check-out
-        </Badge>
-      )
-    case 'no_show':
-      return (
-        <Badge
-          variant="outline"
-          className="bg-purple-500/10 text-purple-700 border-purple-300 dark:bg-purple-500/15 dark:text-purple-400 dark:border-purple-800"
-        >
-          No-show
-        </Badge>
-      )
-    case 'cancelada':
-      return (
-        <Badge
-          variant="outline"
-          className="bg-destructive/10 text-destructive border-destructive/30"
-        >
-          Cancelada
-        </Badge>
-      )
-    default:
-      return <Badge variant="outline">{status}</Badge>
-  }
-}
+const FNRH_PARAM = 'fnrh'
+const FNRH_PENDENTE_PARAM = 'pendente'
 
 export function DetalheReservaPage() {
   const { id } = useParams<{ id: string }>()
@@ -120,6 +59,32 @@ export function DetalheReservaPage() {
     },
   })
 
+  const [searchParams, setSearchParams] = useSearchParams()
+  const fnrhPendenteTratado = useRef(false)
+
+  // FR-012: abre a ficha do primeiro hóspede pendente uma única vez e limpa o parâmetro
+  useEffect(() => {
+    if (fnrhPendenteTratado.current) return
+    if (searchParams.get(FNRH_PARAM) !== FNRH_PENDENTE_PARAM) return
+    if (!reserva) return
+    fnrhPendenteTratado.current = true
+
+    const hospedes = reserva.hospedes ?? []
+    const primeira = primeira_ficha_pendente(
+      hospedes.map(h => ({
+        posicao: h.posicao,
+        nome: h.nome_completo,
+        ficha_status: h.ficha_status,
+      }))
+    )
+    const alvo = hospedes.find(h => h.posicao === primeira?.posicao)
+    if (alvo) setHospedeEmEdicao(alvo)
+
+    const next = new URLSearchParams(searchParams)
+    next.delete(FNRH_PARAM)
+    setSearchParams(next, { replace: true })
+  }, [reserva, searchParams, setSearchParams])
+
   if (isLoading) {
     return (
       <div className="p-8 text-center text-sm text-muted-foreground animate-pulse">
@@ -157,7 +122,7 @@ export function DetalheReservaPage() {
               <h1 className="text-xl font-bold font-mono tracking-tight text-foreground">
                 {reserva.codigo}
               </h1>
-              {getStatusBadge(reserva.status)}
+              <ReservaStatusBadge status={reserva.status} />
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
               Criada em{' '}

@@ -1,7 +1,15 @@
 import type { Quarto, Reserva } from '@hotelmind/contracts'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { fireEvent, render, screen } from '@testing-library/react'
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { addDays, format } from 'date-fns'
+import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { quartosService } from '@/api/quartos.service'
 import { reservasService } from '@/api/reservas.service'
@@ -31,7 +39,9 @@ function renderCalendario() {
   const queryClient = createQueryClient()
   return render(
     <QueryClientProvider client={queryClient}>
-      <Calendario />
+      <MemoryRouter>
+        <Calendario />
+      </MemoryRouter>
     </QueryClientProvider>
   )
 }
@@ -377,29 +387,53 @@ describe('Página de Calendário de Reservas', () => {
     expect(trigger).toHaveTextContent(`Dezembro de ${currentYear}`)
   })
 
-  it('permite abrir o modal de detalhes ao clicar em uma reserva com dados reais da API', async () => {
+  it('abre o modal de detalhes pelo botão Detalhes com dados reais da API, sem dados de pagamento', async () => {
     renderCalendario()
 
     await screen.findByText('101')
+    fireEvent.click(
+      document.querySelector('[data-reserva-id="res-checkin"]') as HTMLElement
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Detalhes' }))
 
-    // Clica em uma célula de reserva (div com role="button" e cursor-pointer)
-    const clickableCells = document.querySelectorAll('td div.cursor-pointer')
-    expect(clickableCells.length).toBeGreaterThan(0)
-
-    fireEvent.click(clickableCells[0])
-
-    expect(await screen.findByText('Detalhes da Reserva')).toBeInTheDocument()
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Detalhes da Reserva',
+    })
+    expect(within(dialog).getAllByText('João Silva').length).toBeGreaterThan(0)
+    expect(within(dialog).getByText('joao@example.com')).toBeInTheDocument()
+    expect(within(dialog).getByText('(11) 99999-9999')).toBeInTheDocument()
+    expect(within(dialog).getByText('R$ 450,00')).toBeInTheDocument()
     expect(
-      screen.getByText('Informações completas sobre a hospedagem')
+      within(dialog).getByText('Hóspede prefere quarto no andar térreo')
     ).toBeInTheDocument()
-    expect(screen.getByText('João Silva')).toBeInTheDocument()
-    expect(screen.getByText('joao@example.com')).toBeInTheDocument()
-    expect(screen.getByText('(11) 99999-9999')).toBeInTheDocument()
-    expect(screen.getByText('123.456.789-00')).toBeInTheDocument()
-    expect(screen.getByText('R$ 450.00')).toBeInTheDocument()
+    expect(within(dialog).queryByText('Pago')).toBeNull()
+  })
+
+  it('mantém a barra selecionada ao fechar o modal de detalhes', async () => {
+    const user = userEvent.setup()
+    renderCalendario()
+    await screen.findByText('101')
+    await user.click(
+      document.querySelector('[data-reserva-id="res-checkin"]') as HTMLElement
+    )
+    await user.click(screen.getByRole('button', { name: 'Detalhes' }))
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Detalhes da Reserva',
+    })
+
+    await user.click(within(dialog).getByText('Detalhes da Reserva'))
     expect(
-      screen.getByText('Hóspede prefere quarto no andar térreo')
-    ).toBeInTheDocument()
+      document.querySelector('[data-reserva-id="res-checkin"]')
+    ).toHaveAttribute('aria-pressed', 'true')
+
+    await user.click(within(dialog).getByRole('button', { name: 'Close' }))
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+    for (const bar of document.querySelectorAll(
+      '[data-reserva-id="res-checkin"]'
+    )) {
+      expect(bar).toHaveAttribute('aria-pressed', 'true')
+    }
   })
 
   it('aplica corretamente as classes de ocupação total, isolamento e z-index no grid', async () => {
@@ -465,7 +499,7 @@ describe('Página de Calendário de Reservas', () => {
     }
   })
 
-  it('aplica os 3 estilos visuais nas reservas: check_in (bg-primary), confirmada (bg-primary/50) e a_confirmar (bg-reservation-to-confirm)', async () => {
+  it('aplica os 3 estilos visuais nas reservas: check_in (bg-status-checkin), confirmada (bg-primary/50) e a_confirmar (bg-reservation-to-confirm)', async () => {
     renderCalendario()
 
     await screen.findByText('101')
@@ -473,11 +507,9 @@ describe('Página de Calendário de Reservas', () => {
     const clickableCells = document.querySelectorAll('td div.cursor-pointer')
     expect(clickableCells.length).toBeGreaterThan(0)
 
-    // Pelo menos uma célula com check_in deve ter bg-primary sólida
-    const hasCheckInSolid = Array.from(clickableCells).some(
-      cell =>
-        cell.classList.contains('bg-primary') &&
-        !cell.classList.contains('bg-primary/50')
+    // Pelo menos uma célula com check_in deve ter o token laranja de check-in
+    const hasCheckInSolid = Array.from(clickableCells).some(cell =>
+      cell.classList.contains('bg-status-checkin')
     )
     expect(hasCheckInSolid).toBe(true)
 
@@ -494,20 +526,22 @@ describe('Página de Calendário de Reservas', () => {
     expect(hasToConfirmZebra).toBe(true)
   })
 
-  it('calcula o status operacional do quarto dinamicamente (disponivel, ocupado, bloqueado)', async () => {
+  it('calcula o status operacional do quarto dinamicamente (disponivel, checkin, bloqueado)', async () => {
     renderCalendario()
 
     await screen.findByText('101')
 
-    // Quarto 101 tem reserva com check_in hoje -> ocupado (bg-status-occupied)
+    // Quarto 101 tem reserva em check_in -> checkin (bg-status-checkin)
     const room101Row = screen.getByText('101').closest('tr')
-    expect(room101Row?.querySelector('.bg-status-occupied')).toBeInTheDocument()
+    const dot101 = room101Row?.querySelector('[data-status]')
+    expect(dot101).toHaveAttribute('data-status', 'checkin')
+    expect(dot101).toHaveClass('bg-status-checkin')
 
     // Quarto 103 tem status: 'N' -> bloqueado (bg-status-blocked)
     const room103Row = screen.getByText('103').closest('tr')
     expect(room103Row?.querySelector('.bg-status-blocked')).toBeInTheDocument()
 
-    // Quarto 102 não tem check-in hoje e está ativo -> disponivel (bg-status-available)
+    // Quarto 102 só tem reserva confirmada -> disponivel (bg-status-available)
     const room102Row = screen.getByText('102').closest('tr')
     expect(
       room102Row?.querySelector('.bg-status-available')

@@ -1,4 +1,3 @@
-import type { ReservaStatus } from '@hotelmind/contracts'
 import { useQuery } from '@tanstack/react-query'
 import { format, isSameDay } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
@@ -8,20 +7,18 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  Plus,
 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { quartosService } from '@/api/quartos.service'
 import { reservasService } from '@/api/reservas.service'
-import { ReservationCell } from '@/components/reservas/reservation_cell'
+import { CalendarDayCell } from '@/components/reservas/calendar_day_cell'
+import { CalendarioBarraAcoes } from '@/components/reservas/calendario_barra_acoes'
+import { ModalCheckInReserva } from '@/components/reservas/modal_check_in_reserva'
+import { ModalDetalhesReserva } from '@/components/reservas/modal_detalhes_reserva'
+import { ModalNovaReserva } from '@/components/reservas/modal_nova_reserva'
+import { SuiteStatusIndicator } from '@/components/reservas/suite_status_indicator'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 import {
   Popover,
   PopoverContent,
@@ -35,32 +32,25 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
-import {
-  type Reservation,
   ReservationsProvider,
   useReservations,
 } from '@/contexts/reservations_context'
+import { useCalendarRangeSelection } from '@/hooks/use_calendar_range_selection'
+import { useCheckInReserva } from '@/hooks/use_check_in_reserva'
 import { usePageTitle } from '@/hooks/use_document_title'
+import { useReservaSelecionada } from '@/hooks/use_reserva_selecionada'
+import {
+  format_range_announcement,
+  range_to_periodo,
+  to_iso_day,
+} from '@/lib/calendar_range_selection'
+import {
+  filtrar_reservas_calendario,
+  map_quarto_to_room,
+  map_reserva_to_calendario,
+} from '@/lib/calendario_reserva'
 import { cn } from '@/lib/utils'
-
-export type RoomStatus =
-  | 'disponivel'
-  | 'bloqueado'
-  | 'manutencao'
-  | 'limpeza'
-  | 'ocupado'
-
-export interface Room {
-  id: string
-  numero: string
-  tipo: string
-  status: RoomStatus
-}
+import type { OpcaoCheckIn, Room } from '@/types/calendario_reserva'
 
 const months = [
   'Janeiro',
@@ -104,9 +94,63 @@ function CalendarioContent({ rooms }: CalendarioContentProps) {
   const [selectedMonth, setSelectedMonth] = useState(today.getMonth())
   const [selectedYear, setSelectedYear] = useState(today.getFullYear())
   const [datepickerOpen, setDatepickerOpen] = useState(false)
-  const [selectedReservation, setSelectedReservation] =
-    useState<Reservation | null>(null)
-  const { getReservationsByRoom } = useReservations()
+  const { reservations, getReservationsByRoom } = useReservations()
+  const navigate = useNavigate()
+  const [novaReservaOpen, setNovaReservaOpen] = useState(false)
+  const [detalhesOpen, setDetalhesOpen] = useState(false)
+  const [checkInOpen, setCheckInOpen] = useState(false)
+  const opcaoCheckInRef = useRef<OpcaoCheckIn>('confirmar')
+  const gridRef = useRef<HTMLDivElement>(null)
+  const actionsBarRef = useRef<HTMLDivElement>(null)
+  const { selection, isDragging, startDrag, extendDrag, clear, getCellState } =
+    useCalendarRangeSelection({
+      regionRefs: [gridRef, actionsBarRef],
+      paused: novaReservaOpen || detalhesOpen || checkInOpen,
+    })
+  const idsVisiveis = useMemo(() => reservations.map(r => r.id), [reservations])
+  const { selecionadaId, selecionar, limpar } = useReservaSelecionada({
+    regionRefs: [gridRef, actionsBarRef],
+    paused: novaReservaOpen || detalhesOpen || checkInOpen,
+    idsVisiveis,
+  })
+  const reservaSelecionada =
+    reservations.find(r => r.id === selecionadaId) ?? null
+
+  const { realizarCheckIn, isPending: checkInPending } = useCheckInReserva({
+    onSucesso: reserva => {
+      setCheckInOpen(false)
+      if (opcaoCheckInRef.current === 'preencher_fnrh') {
+        navigate(`/reservas/${reserva.id}?fnrh=pendente`)
+      }
+    },
+    onNaoEncontrada: () => {
+      setCheckInOpen(false)
+      limpar()
+    },
+    onTransicaoInvalida: () => setCheckInOpen(false),
+  })
+
+  function handleSelectReservation(reservation: { id: string }) {
+    clear()
+    selecionar(reservation.id)
+  }
+
+  function handleRangeStart(
+    quarto: { id: string; identificacao: string },
+    dia: string
+  ) {
+    limpar()
+    startDrag(quarto, dia)
+  }
+
+  function handleConfirmarCheckIn(opcao: OpcaoCheckIn) {
+    if (!reservaSelecionada) return
+    opcaoCheckInRef.current = opcao
+    realizarCheckIn({
+      id: reservaSelecionada.id,
+      codigo: reservaSelecionada.codigo,
+    })
+  }
 
   const currentYear = today.getFullYear()
   const minYear = Math.min(currentYear - 5, selectedYear - 2)
@@ -169,6 +213,8 @@ function CalendarioContent({ rooms }: CalendarioContentProps) {
   }, [startDate])
 
   const handleSelectMonthYear = (year: number, month: number) => {
+    clear()
+    limpar()
     setSelectedYear(year)
     setSelectedMonth(month)
     if (year === today.getFullYear() && month === today.getMonth()) {
@@ -179,6 +225,8 @@ function CalendarioContent({ rooms }: CalendarioContentProps) {
   }
 
   const handlePreviousDay = () => {
+    clear()
+    limpar()
     setStartDate(prev => {
       const newDate = new Date(prev)
       newDate.setDate(prev.getDate() - 1)
@@ -187,6 +235,8 @@ function CalendarioContent({ rooms }: CalendarioContentProps) {
   }
 
   const handleNextDay = () => {
+    clear()
+    limpar()
     setStartDate(prev => {
       const newDate = new Date(prev)
       newDate.setDate(prev.getDate() + 1)
@@ -195,6 +245,8 @@ function CalendarioContent({ rooms }: CalendarioContentProps) {
   }
 
   const handlePreviousWeek = () => {
+    clear()
+    limpar()
     setStartDate(prev => {
       const newDate = new Date(prev)
       newDate.setDate(prev.getDate() - 15)
@@ -203,6 +255,8 @@ function CalendarioContent({ rooms }: CalendarioContentProps) {
   }
 
   const handleNextWeek = () => {
+    clear()
+    limpar()
     setStartDate(prev => {
       const newDate = new Date(prev)
       newDate.setDate(prev.getDate() + 15)
@@ -370,7 +424,13 @@ function CalendarioContent({ rooms }: CalendarioContentProps) {
       </div>
 
       {/* Grid de Reservas */}
-      <div className="flex-1 overflow-auto min-h-0">
+      <div
+        ref={gridRef}
+        className={cn(
+          'flex-1 overflow-auto min-h-0',
+          isDragging && 'select-none'
+        )}
+      >
         <table
           className="w-full border-collapse table-fixed"
           style={{ overflow: 'visible' }}
@@ -412,50 +472,7 @@ function CalendarioContent({ rooms }: CalendarioContentProps) {
                   )}
                 >
                   <td className="p-2 sticky left-0 bg-background z-10 w-[120px] border-r border-border">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className="flex items-center gap-2 cursor-default">
-                            <div
-                              className={cn(
-                                'size-2 rounded-full shrink-0',
-                                room.status === 'disponivel' &&
-                                  'bg-status-available',
-                                room.status === 'bloqueado' &&
-                                  'bg-status-blocked',
-                                room.status === 'manutencao' &&
-                                  'bg-status-maintenance',
-                                room.status === 'limpeza' &&
-                                  'bg-status-cleaning',
-                                room.status === 'ocupado' &&
-                                  'bg-status-occupied'
-                              )}
-                            />
-                            <div className="flex flex-col min-w-0">
-                              <span className="font-medium text-sm">
-                                {room.numero}
-                              </span>
-                              <span className="text-xs text-muted-foreground truncate">
-                                {room.tipo}
-                              </span>
-                            </div>
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>
-                            {room.status === 'disponivel'
-                              ? 'Disponível'
-                              : room.status === 'bloqueado'
-                                ? 'Bloqueado'
-                                : room.status === 'manutencao'
-                                  ? 'Manutenção'
-                                  : room.status === 'limpeza'
-                                    ? 'Limpeza'
-                                    : 'Ocupado'}
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    <SuiteStatusIndicator room={room} />
                   </td>
                   {days.map((day, dayIndex) => {
                     // Busca todas as reservas do quarto neste dia
@@ -491,46 +508,21 @@ function CalendarioContent({ rooms }: CalendarioContentProps) {
                         !isSameDay(day, new Date(r.checkOut))
                     )
 
-                    const hasReservations = allReservations.length > 0
-
                     return (
-                      <td
+                      <CalendarDayCell
                         key={dayIndex}
-                        className={cn(
-                          'p-0 text-center relative border-r border-border last:border-r-0 overflow-visible',
-                          hasReservations && 'cursor-pointer'
-                        )}
-                      >
-                        <div className="relative w-full h-8 isolate">
-                          {/* Renderiza reservas intermediárias (largura total) */}
-                          {reservationsIntermediate.map(reservation => (
-                            <ReservationCell
-                              key={reservation.id}
-                              reservation={reservation}
-                              day={day}
-                              onSelect={setSelectedReservation}
-                            />
-                          ))}
-                          {/* Renderiza reservas de check-out (metade esquerda) */}
-                          {reservationsForCheckOut.map(reservation => (
-                            <ReservationCell
-                              key={reservation.id}
-                              reservation={reservation}
-                              day={day}
-                              onSelect={setSelectedReservation}
-                            />
-                          ))}
-                          {/* Renderiza reservas de check-in (metade direita) - por último para ficar acima */}
-                          {reservationsForCheckIn.map(reservation => (
-                            <ReservationCell
-                              key={reservation.id}
-                              reservation={reservation}
-                              day={day}
-                              onSelect={setSelectedReservation}
-                            />
-                          ))}
-                        </div>
-                      </td>
+                        quarto={room}
+                        day={day}
+                        reservationsIntermediate={reservationsIntermediate}
+                        reservationsForCheckOut={reservationsForCheckOut}
+                        reservationsForCheckIn={reservationsForCheckIn}
+                        selectionState={getCellState(room.id, to_iso_day(day))}
+                        selectedReservationId={selecionadaId}
+                        isDragging={isDragging}
+                        onSelectReservation={handleSelectReservation}
+                        onRangeStart={handleRangeStart}
+                        onRangeExtend={extendDrag}
+                      />
                     )
                   })}
                 </tr>
@@ -540,145 +532,50 @@ function CalendarioContent({ rooms }: CalendarioContentProps) {
         </table>
       </div>
 
-      {/* Toolbar na parte inferior */}
-      <div className="border-t bg-background shrink-0 px-4 py-2 flex items-center gap-2 justify-start">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-                <Plus className="h-4 w-4" />
-                <span className="sr-only">Nova Reserva</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Nova Reserva</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+      <div role="status" className="sr-only">
+        {format_range_announcement(selection)}
       </div>
 
-      {/* Modal de Detalhes da Reserva */}
-      <Dialog
-        open={!!selectedReservation}
-        onOpenChange={open => !open && setSelectedReservation(null)}
-      >
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Detalhes da Reserva</DialogTitle>
-            <DialogDescription>
-              Informações completas sobre a hospedagem
-            </DialogDescription>
-          </DialogHeader>
+      <CalendarioBarraAcoes
+        containerRef={actionsBarRef}
+        reservaSelecionada={reservaSelecionada}
+        onNovaReserva={() => setNovaReservaOpen(true)}
+        onCheckIn={() => setCheckInOpen(true)}
+        onDetalhes={() => setDetalhesOpen(true)}
+      />
 
-          {selectedReservation && (
-            <div className="space-y-6 mt-4">
-              {/* Informações da Reserva */}
-              <div className="space-y-2">
-                <h3 className="font-semibold text-lg">Reserva</h3>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Check-in:</span>
-                    <p className="font-medium">
-                      {format(
-                        new Date(selectedReservation.checkIn),
-                        'dd/MM/yyyy',
-                        { locale: ptBR }
-                      )}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Check-out:</span>
-                    <p className="font-medium">
-                      {format(
-                        new Date(selectedReservation.checkOut),
-                        'dd/MM/yyyy',
-                        { locale: ptBR }
-                      )}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Status:</span>
-                    <p className="font-medium">{selectedReservation.status}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Quarto:</span>
-                    <p className="font-medium">
-                      {rooms.find(r => r.id === selectedReservation.quartoId)
-                        ?.numero || '-'}
-                    </p>
-                  </div>
-                </div>
-              </div>
+      <ModalNovaReserva
+        open={novaReservaOpen}
+        onOpenChange={setNovaReservaOpen}
+        valoresIniciais={selection ? range_to_periodo(selection) : undefined}
+        quartoPreferido={
+          selection
+            ? {
+                id: selection.quarto_id,
+                identificacao: selection.quarto_identificacao,
+              }
+            : undefined
+        }
+        onCreated={() => {
+          setNovaReservaOpen(false)
+          clear()
+        }}
+      />
 
-              {/* Informações do Hóspede */}
-              <div className="space-y-2">
-                <h3 className="font-semibold text-lg">Hóspede</h3>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Nome:</span>
-                    <p className="font-medium">
-                      {selectedReservation.hospede.nome}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Email:</span>
-                    <p className="font-medium">
-                      {selectedReservation.hospede.email}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Telefone:</span>
-                    <p className="font-medium">
-                      {selectedReservation.hospede.telefone}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Documento:</span>
-                    <p className="font-medium">
-                      {selectedReservation.hospede.documento}
-                    </p>
-                  </div>
-                </div>
-              </div>
+      <ModalCheckInReserva
+        open={checkInOpen}
+        reservation={reservaSelecionada}
+        hoje={today}
+        isPending={checkInPending}
+        onOpenChange={setCheckInOpen}
+        onConfirmar={handleConfirmarCheckIn}
+      />
 
-              {/* Informações de Pagamento */}
-              <div className="space-y-2">
-                <h3 className="font-semibold text-lg">Pagamento</h3>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Método:</span>
-                    <p className="font-medium">
-                      {selectedReservation.pagamento.metodo}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Valor:</span>
-                    <p className="font-medium">
-                      R$ {selectedReservation.pagamento.valor.toFixed(2)}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Status:</span>
-                    <p className="font-medium">
-                      {selectedReservation.pagamento.status}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Observações */}
-              {selectedReservation.observacoes && (
-                <div className="space-y-2">
-                  <h3 className="font-semibold text-lg">Observações</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedReservation.observacoes}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <ModalDetalhesReserva
+        open={detalhesOpen}
+        reservation={reservaSelecionada}
+        onOpenChange={setDetalhesOpen}
+      />
     </div>
   )
 }
@@ -696,96 +593,19 @@ export function Calendario() {
     queryFn: () => reservasService.list({ limite: 250 }),
   })
 
-  const reservations = useMemo<Reservation[]>(() => {
+  const reservations = useMemo(() => {
     if (!reservasData?.data) return []
+    const quartos = new Map((quartosData?.data ?? []).map(q => [q.id, q]))
+    return filtrar_reservas_calendario(reservasData.data).map(r =>
+      map_reserva_to_calendario(r, quartos.get(r.quarto_id))
+    )
+  }, [reservasData, quartosData])
 
-    // As únicas reservas que devem aparecer no calendário são: a confirmar, confirmada e check-in.
-    // O restante, não aparece: cancelada, check-out, no_show.
-    const allowedStatuses: ReservaStatus[] = [
-      'a_confirmar',
-      'confirmada',
-      'check_in',
-    ]
-
-    return reservasData.data
-      .filter(r => allowedStatuses.includes(r.status))
-      .map(r => {
-        const isCheckIn = r.status === 'check_in'
-        const statusLabel =
-          r.status === 'check_in'
-            ? 'Check In'
-            : r.status === 'confirmada'
-              ? 'Confirmada'
-              : 'A Confirmar'
-
-        const checkInStr = r.check_in.includes('T')
-          ? r.check_in.split('T')[0]
-          : r.check_in
-        const checkOutStr = r.check_out.includes('T')
-          ? r.check_out.split('T')[0]
-          : r.check_out
-
-        return {
-          id: r.id,
-          quartoId: r.quarto_id,
-          checkIn: `${checkInStr}T00:00:00`,
-          checkOut: `${checkOutStr}T00:00:00`,
-          hospede: {
-            nome: r.titular_nome,
-            email: r.titular_email || '-',
-            telefone: r.titular_telefone || '-',
-            documento: r.hospedes?.[0]?.numero_documento || '-',
-          },
-          pagamento: {
-            metodo: r.parceiro?.razao_social
-              ? `Parceiro: ${r.parceiro.razao_social}`
-              : 'Balcão / Reserva Direta',
-            valor: Number(r.valor_total) || 0,
-            status: isCheckIn ? 'Pago' : 'Pendente',
-          },
-          observacoes: r.observacoes || undefined,
-          status: statusLabel,
-          status_code:
-            r.status === 'check_in' ? 1 : r.status === 'confirmada' ? 0 : 2,
-        }
-      })
-  }, [reservasData])
-
-  const rooms = useMemo<Room[]>(() => {
-    if (!quartosData?.data) return []
-
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-
-    return quartosData.data.map(q => {
-      let status: RoomStatus = 'disponivel'
-
-      if (q.status === 'N') {
-        status = 'bloqueado'
-      } else {
-        const hasActiveCheckInToday = reservations.some(res => {
-          if (res.quartoId !== q.id) return false
-          if (res.status_code !== 1) return false
-          const checkInDate = new Date(res.checkIn)
-          checkInDate.setHours(0, 0, 0, 0)
-          const checkOutDate = new Date(res.checkOut)
-          checkOutDate.setHours(0, 0, 0, 0)
-          return today >= checkInDate && today <= checkOutDate
-        })
-
-        if (hasActiveCheckInToday) {
-          status = 'ocupado'
-        }
-      }
-
-      return {
-        id: q.id,
-        numero: q.identificacao,
-        tipo: q.categoria?.nome || 'Padrão',
-        status,
-      }
-    })
-  }, [quartosData, reservations])
+  const rooms = useMemo<Room[]>(
+    () =>
+      (quartosData?.data ?? []).map(q => map_quarto_to_room(q, reservations)),
+    [quartosData, reservations]
+  )
 
   return (
     <ReservationsProvider reservations={reservations}>

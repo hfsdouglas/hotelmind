@@ -1,29 +1,7 @@
 import { createContext, type ReactNode, useContext } from 'react'
+import type { Reservation } from '@/types/calendario_reserva'
 
-export interface Guest {
-  nome: string
-  email: string
-  telefone: string
-  documento: string
-}
-
-export interface Payment {
-  metodo: string
-  valor: number
-  status: string
-}
-
-export interface Reservation {
-  id: string
-  quartoId: string
-  checkIn: string
-  checkOut: string
-  hospede: Guest
-  pagamento: Payment
-  observacoes?: string
-  status: string
-  status_code: number
-}
+export type { Reservation }
 
 export interface ReservationsContextType {
   reservations: Reservation[]

@@ -4,10 +4,13 @@ import { make_categoria_quarto } from '../categorias_quartos/categorias_quartos_
 
 const BASE_URL = 'http://localhost:3000'
 
+export const QUARTO_101_ID = '00000000-0000-4000-8000-000000000101'
+export const QUARTO_102_ID = '00000000-0000-4000-8000-000000000102'
+
 function make_quarto(overrides: Partial<Quarto> = {}): Quarto {
   const categoria = make_categoria_quarto()
   return {
-    id: 'quarto-1',
+    id: QUARTO_101_ID,
     hotel_id: 'hotel-1',
     categoria_id: categoria.id,
     identificacao: '101',
@@ -15,7 +18,10 @@ function make_quarto(overrides: Partial<Quarto> = {}): Quarto {
     limite_hospedes: 2,
     status: 'S',
     categoria: { id: categoria.id, nome: categoria.nome, status: 'S' },
-    camas: [{ id: 'cama-1', tipo: 'casal', quantidade: 1 }],
+    camas: [
+      { id: 'cama-1', tipo: 'casal', quantidade: 1 },
+      { id: 'cama-2', tipo: 'solteiro', quantidade: 1 },
+    ],
     created_at: '2026-01-01T00:00:00.000Z',
     updated_at: '2026-01-01T00:00:00.000Z',
     ...overrides,
@@ -24,7 +30,12 @@ function make_quarto(overrides: Partial<Quarto> = {}): Quarto {
 
 const quartos: Quarto[] = [
   make_quarto(),
-  make_quarto({ id: 'quarto-2', identificacao: '102', limite_hospedes: 3 }),
+  make_quarto({
+    id: QUARTO_102_ID,
+    identificacao: '102',
+    limite_hospedes: 3,
+    camas: [{ id: 'cama-3', tipo: 'casal', quantidade: 1 }],
+  }),
 ]
 
 export const quartos_handlers = [
