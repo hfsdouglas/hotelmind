@@ -24,6 +24,8 @@ duplicate or reinterpret them.
   caller for the missing test scope.
 - Contracts first: update `packages/.contracts` before its consumers.
 - Use shadcn MCP tools (when available) before hand-writing UI primitives.
+- Import UI primitives from `@hotelmind/ui`; create new generic ones in
+  `packages/ui` (with a story), never inside `web`/`admin`.
 - Run only the specs of the current task (`pnpm exec vitest run <path>`,
   `pnpm exec playwright test <file>`), never the whole suite, never in watch
   mode. Before finishing, run Biome once on changed files

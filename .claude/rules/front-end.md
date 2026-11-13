@@ -2,9 +2,10 @@
 paths:
   - "packages/web/**"
   - "packages/admin/**"
+  - "packages/ui/**"
 ---
 
-# Front-end Standards (web & admin)
+# Front-end Standards (web, admin & ui)
 
 Shared rules for every React front-end package. Package-specific rules live in
 each package's `CLAUDE.md`. Paths below are relative to the package root.
@@ -24,7 +25,7 @@ src/
 │   ├── app/          # Authenticated pages
 │   └── auth/         # Public auth pages
 ├── components/       # ALL reusable components
-│   ├── ui/           # shadcn/ui primitives (vendor code, NOT tested)
+│   ├── ui/           # Leftovers pending migration to @hotelmind/ui (NOT tested)
 │   ├── forms/        # CrudFormLayout, CheckboxGrid, CheckboxGroupList, save_button
 │   ├── data-table/   # List primitives (see DataTable)
 │   ├── layout/       # Sidebar, Navbar
@@ -51,8 +52,14 @@ modals, dialogs, sections and widgets go in `src/components/<domain>/`.
 
 ## UI
 
+- Primitives (Button, Input, Select, Dialog, Form, Table...) come from
+  `@hotelmind/ui` (`packages/ui`), never from a local copy. Never duplicate a
+  primitive inside `web` or `admin`; new generic primitives are created in
+  `packages/ui` with a story (see `packages/ui/CLAUDE.md`).
 - Use the shadcn MCP tools to search/scaffold primitives before hand-writing UI.
-- Multi-line fields use `components/ui/textarea.tsx`, never `Input`.
+- Multi-line fields use `Textarea` from `@hotelmind/ui`, never `Input`.
+- Tokens: shared tokens and the Tailwind preset live in `packages/ui`; an app
+  only adds its own domain tokens (e.g. web's `status-*`, `chart-*`).
 
 ## DataTable & List Pages
 
@@ -122,7 +129,9 @@ Every create/edit page uses `components/forms/crud_form_layout.tsx`:
 Stack: Vitest + React Testing Library (unit/integration) · Playwright (E2E) · MSW.
 
 **What to test** (created by the application): components, contexts, hooks and
-pages. **Never** test `components/ui/*` (shadcn/ui vendor code).
+pages. **Never** test `components/ui/*` or the primitives in `packages/ui`
+(shadcn/ui vendor code); `packages/ui` is covered by stories and the axe
+accessibility spec instead.
 
 - Unit specs: `.spec.ts(x)` next to the file under test.
 - E2E specs: `src/tests/<domain>/<name>.e2e.ts` (Playwright; `*.e2e.ts` is

@@ -5,12 +5,13 @@ Hotel management system: pnpm monorepo, one service per package.
 ```text
 packages/
   .contracts/   # Shared TypeScript types (consumed by all packages)
+  ui/           # Design system: shared UI primitives + Storybook → packages/ui/CLAUDE.md
   api/          # Fastify backend            → packages/api/CLAUDE.md
   web/          # Hotel operations front-end → packages/web/CLAUDE.md
   admin/        # Platform admin front-end   → packages/admin/CLAUDE.md
 ```
 
-Shared rules: front-end (web + admin) `.claude/rules/front-end.md`; back-end
+Shared rules: front-end (web + admin + ui) `.claude/rules/front-end.md`; back-end
 (api and future API services) `.claude/rules/back-end.md`.
 
 ## Principles
