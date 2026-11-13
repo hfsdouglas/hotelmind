@@ -38,7 +38,7 @@ export default {
       },
       backgroundImage: {
         'reservation-to-confirm':
-          'repeating-linear-gradient(45deg, color-mix(in oklch, var(--primary) 50%, transparent) 0px, color-mix(in oklch, var(--primary) 50%, transparent) 3px, color-mix(in oklch, var(--primary) 12%, transparent) 3px, color-mix(in oklch, var(--primary) 12%, transparent) 5px)',
+          'repeating-linear-gradient(45deg, color-mix(in srgb, var(--primary) 50%, transparent) 0px, color-mix(in srgb, var(--primary) 50%, transparent) 3px, color-mix(in srgb, var(--primary) 12%, transparent) 3px, color-mix(in srgb, var(--primary) 12%, transparent) 5px)',
       },
     },
   },

@@ -23,7 +23,7 @@ function used_variables(value: unknown): string[] {
 describe('withOpacity', () => {
   it('builds a color-mix expression supporting the alpha placeholder', () => {
     expect(withOpacity('--primary')).toBe(
-      'color-mix(in oklch, var(--primary) calc(100% * <alpha-value>), transparent)'
+      'color-mix(in srgb, var(--primary) calc(100% * <alpha-value>), transparent)'
     )
   })
 })
@@ -47,5 +47,24 @@ describe('tailwind preset', () => {
     expect(vars.length).toBeGreaterThan(0)
     for (const name of vars) expect(light).toContain(`${name}:`)
     for (const name of colors) expect(dark).toContain(`${name}:`)
+  })
+})
+
+describe('tokens.css colors', () => {
+  const hex = /^#(?:[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/
+  const color_declarations = [
+    ...css.matchAll(/^\s*(--(?!radius)[\w-]+):\s*([^;]+);/gm),
+  ]
+
+  it('declares tokens', () => {
+    expect(color_declarations.length).toBeGreaterThan(60)
+  })
+
+  it('writes every color as hexadecimal (#RRGGBB or #RRGGBBAA)', () => {
+    const invalid = color_declarations
+      .filter(([, , value]) => !hex.test(value.trim()))
+      .map(([, name, value]) => `${name}: ${value.trim()}`)
+
+    expect(invalid).toEqual([])
   })
 })

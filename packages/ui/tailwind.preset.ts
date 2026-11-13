@@ -1,7 +1,7 @@
 import type { Config } from 'tailwindcss'
 
 export function withOpacity(variableName: string) {
-  return `color-mix(in oklch, var(${variableName}) calc(100% * <alpha-value>), transparent)`
+  return `color-mix(in srgb, var(${variableName}) calc(100% * <alpha-value>), transparent)`
 }
 
 /**

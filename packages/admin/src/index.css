@@ -10,79 +10,79 @@
     --radius-lg: 8px;
     --radius-xl: 12px;
 
-    /* Semantic Core Tokens (Roomio / HotelMind OKLCH) */
-    --background: oklch(0.96 0.003 250);
-    --foreground: oklch(0.15 0.01 250);
-    --card: oklch(0.99 0.001 250);
-    --card-foreground: oklch(0.15 0.01 250);
-    --popover: oklch(0.99 0.001 250);
-    --popover-foreground: oklch(0.15 0.01 250);
-    --primary: oklch(0.4 0.16 255);
-    --primary-foreground: oklch(0.99 0 0);
-    --secondary: oklch(0.91 0.025 250);
-    --secondary-foreground: oklch(0.25 0.06 255);
-    --tertiary: oklch(0.55 0.12 180);
-    --tertiary-foreground: oklch(0.99 0 0);
-    --muted: oklch(0.935 0.008 250);
-    --muted-foreground: oklch(0.48 0.025 250);
-    --accent: oklch(0.93 0.02 255);
-    --accent-foreground: oklch(0.22 0.06 255);
-    --destructive: oklch(0.55 0.22 25);
-    --destructive-foreground: oklch(0.99 0 0);
-    --success: oklch(0.52 0.16 148);
-    --success-foreground: oklch(0.99 0 0);
-    --warning: oklch(0.68 0.16 65);
-    --warning-foreground: oklch(0.18 0.04 55);
-    --info: oklch(0.55 0.15 235);
-    --info-foreground: oklch(0.99 0 0);
-    --border: oklch(0.88 0.01 250);
-    --input: oklch(0.88 0.01 250);
-    --ring: oklch(0.4 0.16 255);
+    /* Semantic Core Tokens  */
+    --background: #F0F2F4;
+    --foreground: #080C0F;
+    --card: #FBFCFC;
+    --card-foreground: #080C0F;
+    --popover: #FBFCFC;
+    --popover-foreground: #080C0F;
+    --primary: #00468C;
+    --primary-foreground: #FCFCFC;
+    --secondary: #D5E3F2;
+    --secondary-foreground: #0B223E;
+    --tertiary: #008474;
+    --tertiary-foreground: #FCFCFC;
+    --muted: #E6EAEF;
+    --muted-foreground: #535F6C;
+    --accent: #DFE9F5;
+    --accent-foreground: #051A36;
+    --destructive: #D40924;
+    --destructive-foreground: #FCFCFC;
+    --success: #007F30;
+    --success-foreground: #FCFCFC;
+    --warning: #D78100;
+    --warning-foreground: #1F0C01;
+    --info: #007BAB;
+    --info-foreground: #FCFCFC;
+    --border: #D3D8DE;
+    --input: #D3D8DE;
+    --ring: #00468C;
 
     /* Extended Primary Scale (Navbar, Sidebar & Depth) */
-    --primary-deep: oklch(0.32 0.14 255);
-    --primary-deeper: oklch(0.25 0.12 255);
-    --primary-darkest: oklch(0.18 0.1 255);
-    --primary-shadow: oklch(0.12 0.08 255);
-    --primary-void: oklch(0.08 0.06 255);
+    --primary-deep: #003167;
+    --primary-deeper: #002148;
+    --primary-darkest: #00112B;
+    --primary-shadow: #000514;
+    --primary-void: #000207;
   }
 
   .dark {
-    /* Semantic Core Tokens (Roomio / HotelMind OKLCH) */
-    --background: oklch(0.18 0.03 250);
-    --foreground: oklch(0.95 0.01 240);
-    --card: oklch(0.22 0.04 250);
-    --card-foreground: oklch(0.95 0.01 240);
-    --popover: oklch(0.22 0.04 250);
-    --popover-foreground: oklch(0.95 0.01 240);
-    --primary: oklch(0.56 0.17 255);
-    --primary-foreground: oklch(0.99 0 0);
-    --secondary: oklch(0.28 0.05 250);
-    --secondary-foreground: oklch(0.93 0.015 250);
-    --tertiary: oklch(0.6 0.16 180);
-    --tertiary-foreground: oklch(0.99 0 0);
-    --muted: oklch(0.25 0.04 250);
-    --muted-foreground: oklch(0.7 0.02 240);
-    --accent: oklch(0.28 0.06 255);
-    --accent-foreground: oklch(0.93 0.02 255);
-    --destructive: oklch(0.58 0.2 25);
-    --destructive-foreground: oklch(0.99 0 0);
-    --success: oklch(0.65 0.17 148);
-    --success-foreground: oklch(0.14 0.03 148);
-    --warning: oklch(0.72 0.15 68);
-    --warning-foreground: oklch(0.16 0.04 55);
-    --info: oklch(0.64 0.15 235);
-    --info-foreground: oklch(0.14 0.03 235);
-    --border: oklch(0.32 0.06 250);
-    --input: oklch(0.35 0.07 250);
-    --ring: oklch(0.56 0.17 255);
+    /* Semantic Core Tokens  */
+    --background: #07121E;
+    --foreground: #E9F0F5;
+    --card: #0B1C2C;
+    --card-foreground: #E9F0F5;
+    --popover: #0B1C2C;
+    --popover-foreground: #E9F0F5;
+    --primary: #1A73D5;
+    --primary-foreground: #FCFCFC;
+    --secondary: #142A41;
+    --secondary-foreground: #E1E9F2;
+    --tertiary: #009583;
+    --tertiary-foreground: #FCFCFC;
+    --muted: #122334;
+    --muted-foreground: #94A0AA;
+    --accent: #132946;
+    --accent-foreground: #DFE9F5;
+    --destructive: #D73337;
+    --destructive-foreground: #FCFCFC;
+    --success: #2CAA4E;
+    --success-foreground: #020C04;
+    --warning: #E1901F;
+    --warning-foreground: #1A0800;
+    --info: #0097D2;
+    --info-foreground: #000B14;
+    --border: #193550;
+    --input: #1B3C5D;
+    --ring: #1A73D5;
 
     /* Extended Primary Scale (Navbar, Sidebar & Depth) */
-    --primary-deep: oklch(0.28 0.1 255);
-    --primary-deeper: oklch(0.22 0.08 255);
-    --primary-darkest: oklch(0.18 0.06 255);
-    --primary-shadow: oklch(0.15 0.05 255);
-    --primary-void: oklch(0.12 0.04 255);
+    --primary-deep: #002855;
+    --primary-deeper: #001A3B;
+    --primary-darkest: #00112B;
+    --primary-shadow: #000B1F;
+    --primary-void: #000514;
   }
 }
 
