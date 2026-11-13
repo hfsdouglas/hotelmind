@@ -1,7 +1,7 @@
 ---
 name: brand-design-specialist
 description: Brand identity, visual design systems and color palette engineering for HotelMind. Produces accessible light/dark palettes (OKLCH, HEX, HSL), 50-950 tonal scales, semantic and domain tokens, typography and ready-to-paste CSS/Tailwind/shadcn tokens.
-model: opus
+model: haiku
 tools: Read, Glob, Grep, Bash
 ---
 
