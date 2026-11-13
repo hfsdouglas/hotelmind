@@ -21,10 +21,12 @@ const Popover = ({
   const [uncontrolled_open, setUncontrolledOpen] = React.useState(false)
   const container_ref = React.useRef<HTMLDivElement>(null)
   const open = controlled_open ?? uncontrolled_open
-  const setOpen = (next: boolean) => {
+  const on_open_change_ref = React.useRef(onOpenChange)
+  on_open_change_ref.current = onOpenChange
+  const setOpen = React.useCallback((next: boolean) => {
     setUncontrolledOpen(next)
-    onOpenChange?.(next)
-  }
+    on_open_change_ref.current?.(next)
+  }, [])
 
   React.useEffect(() => {
     if (!open) return
@@ -51,7 +53,7 @@ const Popover = ({
       document.removeEventListener('pointerdown', handle_pointer_down)
       document.removeEventListener('keydown', handle_key_down)
     }
-  }, [open])
+  }, [open, setOpen])
 
   return (
     <PopoverContext.Provider value={{ open, setOpen }}>
