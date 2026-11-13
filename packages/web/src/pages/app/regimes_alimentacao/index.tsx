@@ -1,5 +1,13 @@
 import type { RegimeAlimentacao } from '@hotelmind/contracts'
-import { Button, Label } from '@hotelmind/ui'
+import {
+  Button,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@hotelmind/ui'
 import { Filter, Pencil, Plus, X } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { regimesAlimentacaoService } from '@/api/regimes_alimentacao.service'
@@ -13,13 +21,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { usePageTitle } from '@/hooks/use_document_title'
 import { usePaginacao } from '@/hooks/use_paginacao'
 

@@ -29,6 +29,18 @@ export {
   DialogTrigger,
 } from './components/dialog/dialog'
 export { Label } from './components/label/label'
+export {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectScrollDownButton,
+  SelectScrollUpButton,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from './components/select/select'
 export { Separator } from './components/separator/separator'
 export {
   Tooltip,

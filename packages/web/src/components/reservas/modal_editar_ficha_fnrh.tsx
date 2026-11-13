@@ -12,18 +12,16 @@ import {
   DialogHeader,
   DialogTitle,
   Label,
-} from '@hotelmind/ui'
-import { Compass, Copy, MapPin, Phone, User } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { toast } from 'sonner'
-import { Input } from '@/components/ui/input'
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '@hotelmind/ui'
+import { Compass, Copy, MapPin, Phone, User } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
+import { Input } from '@/components/ui/input'
 import { mask_phone } from '@/hooks/use_phone_mask'
 
 interface ModalEditarFichaFnrhProps {

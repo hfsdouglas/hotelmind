@@ -1,5 +1,14 @@
 import type { Quarto } from '@hotelmind/contracts'
-import { Button, Checkbox, Label } from '@hotelmind/ui'
+import {
+  Button,
+  Checkbox,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@hotelmind/ui'
 import { useQuery } from '@tanstack/react-query'
 import { Filter, Pencil, Plus, X } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
@@ -15,13 +24,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { usePageTitle } from '@/hooks/use_document_title'
 import { usePaginacao } from '@/hooks/use_paginacao'
 

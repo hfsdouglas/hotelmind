@@ -2,18 +2,19 @@ import type {
   ParceiroContatoItem,
   TipoContatoParceiro,
 } from '@hotelmind/contracts'
-import { Button, Label } from '@hotelmind/ui'
-import { Plus, Trash2, UserCheck } from 'lucide-react'
-import { useState } from 'react'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
 import {
+  Button,
+  Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '@hotelmind/ui'
+import { Plus, Trash2, UserCheck } from 'lucide-react'
+import { useState } from 'react'
+import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
 
 interface ContatosFormSectionProps {
   contatos: ParceiroContatoItem[]

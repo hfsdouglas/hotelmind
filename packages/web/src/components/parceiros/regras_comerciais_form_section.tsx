@@ -1,14 +1,14 @@
 import type { ModeloTarifario, PoliticaFaturamento } from '@hotelmind/contracts'
-import { Label } from '@hotelmind/ui'
-import { BadgeDollarSign } from 'lucide-react'
-import { Input } from '@/components/ui/input'
 import {
+  Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '@hotelmind/ui'
+import { BadgeDollarSign } from 'lucide-react'
+import { Input } from '@/components/ui/input'
 
 export interface RegrasComerciaisData {
   modelo_tarifario: ModeloTarifario

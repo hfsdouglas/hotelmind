@@ -1,5 +1,13 @@
 import type { Tarifario } from '@hotelmind/contracts'
-import { Button, Label } from '@hotelmind/ui'
+import {
+  Button,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@hotelmind/ui'
 import { useQuery } from '@tanstack/react-query'
 import { Filter, Pencil, Plus, X } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
@@ -16,13 +24,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { usePageTitle } from '@/hooks/use_document_title'
 import { usePaginacao } from '@/hooks/use_paginacao'
 import { format_iso_to_br } from '@/schemas/tarifarios/tarifario_schema'

@@ -1,5 +1,12 @@
 import type { QuartoDisponivel } from '@hotelmind/contracts'
-import { Label } from '@hotelmind/ui'
+import {
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@hotelmind/ui'
 import {
   BedDouble,
   Calendar,
@@ -21,13 +28,6 @@ import { ModalConflitoReserva } from '@/components/reservas/modal_conflito_reser
 import { Badge } from '@/components/ui/badge'
 import { DatePicker } from '@/components/ui/date_picker'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import type { useNovaReservaForm } from '@/hooks/use_nova_reserva_form'
 import { useNovaReservaOpcoes } from '@/hooks/use_nova_reserva_opcoes'

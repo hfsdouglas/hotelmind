@@ -1,5 +1,12 @@
 import type { PeriodoTarifarioCalendario } from '@hotelmind/contracts'
-import { Button } from '@hotelmind/ui'
+import {
+  Button,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@hotelmind/ui'
 import {
   AlertTriangle,
   Calendar as CalendarIcon,
@@ -17,13 +24,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import {
   type CalendarBulkSelectMode,

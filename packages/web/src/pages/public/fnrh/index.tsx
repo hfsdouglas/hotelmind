@@ -1,5 +1,13 @@
 import type { FichaFnrh, FnrhPublicaView } from '@hotelmind/contracts'
-import { Button, Label } from '@hotelmind/ui'
+import {
+  Button,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@hotelmind/ui'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   AlertCircle,
@@ -28,13 +36,6 @@ import { reservasService } from '@/api/reservas.service'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { usePageTitle } from '@/hooks/use_document_title'
 
 function formatarDataBR(dataIso: string | null | undefined) {

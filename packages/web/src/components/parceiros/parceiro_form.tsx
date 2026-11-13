@@ -4,18 +4,19 @@ import type {
   TipoParceiro,
   TipoPessoa,
 } from '@hotelmind/contracts'
-import { Checkbox, Label } from '@hotelmind/ui'
-import { Building2, Globe, MapPin } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { CrudFormLayout } from '@/components/forms/crud_form_layout'
-import { Input } from '@/components/ui/input'
 import {
+  Checkbox,
+  Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '@hotelmind/ui'
+import { Building2, Globe, MapPin } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { CrudFormLayout } from '@/components/forms/crud_form_layout'
+import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { ContatosFormSection } from './contatos_form_section'
 import {

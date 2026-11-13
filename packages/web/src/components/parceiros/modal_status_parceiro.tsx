@@ -8,15 +8,13 @@ import {
   DialogHeader,
   DialogTitle,
   Label,
-} from '@hotelmind/ui'
-import { useEffect, useState } from 'react'
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '@hotelmind/ui'
+import { useEffect, useState } from 'react'
 import { Textarea } from '@/components/ui/textarea'
 
 interface ModalStatusParceiroProps {

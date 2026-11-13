@@ -3,7 +3,15 @@ import type {
   PeriodoTarifarioCalendario,
   RegimeAlimentacao,
 } from '@hotelmind/contracts'
-import { Button, Label } from '@hotelmind/ui'
+import {
+  Button,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@hotelmind/ui'
 import {
   BedDouble,
   CalendarCheck2,
@@ -15,13 +23,6 @@ import {
 import { type FormEvent, useEffect, useState } from 'react'
 import { CrudFormLayout } from '@/components/forms/crud_form_layout'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { useCurrencyMask } from '@/hooks/use_currency_mask'
 import {
   find_conflicting_periods,
