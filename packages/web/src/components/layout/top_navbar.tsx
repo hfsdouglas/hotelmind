@@ -1,6 +1,6 @@
+import { Button } from '@hotelmind/ui'
 import { Menu } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { Button } from '@/components/ui/button'
 import { NotificationsDropdown } from './notifications_dropdown'
 import { SuiteSyncLogo } from './suite_sync_logo'
 

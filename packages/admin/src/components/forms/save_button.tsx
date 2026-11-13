@@ -1,6 +1,6 @@
+import { Button } from '@hotelmind/ui'
 import { Save } from 'lucide-react'
 import type { ComponentProps } from 'react'
-import { Button } from '@/components/ui/button'
 
 export interface SaveButtonProps extends ComponentProps<typeof Button> {
   isPending?: boolean

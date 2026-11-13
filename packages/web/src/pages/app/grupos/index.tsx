@@ -1,4 +1,5 @@
 import type { Grupo } from '@hotelmind/contracts'
+import { Button } from '@hotelmind/ui'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
@@ -21,7 +22,6 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import {
   Select,

@@ -1,3 +1,4 @@
+import { Button } from '@hotelmind/ui'
 import { useQuery } from '@tanstack/react-query'
 import { format, isSameDay } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
@@ -18,7 +19,6 @@ import { ModalCheckInReserva } from '@/components/reservas/modal_check_in_reserv
 import { ModalDetalhesReserva } from '@/components/reservas/modal_detalhes_reserva'
 import { ModalNovaReserva } from '@/components/reservas/modal_nova_reserva'
 import { SuiteStatusIndicator } from '@/components/reservas/suite_status_indicator'
-import { Button } from '@/components/ui/button'
 import {
   Popover,
   PopoverContent,

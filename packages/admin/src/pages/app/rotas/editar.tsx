@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Button } from '@hotelmind/ui'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
@@ -6,7 +7,6 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { rotasService } from '@/api/rotas.service'
 import { CrudFormLayout, SaveButton } from '@/components/forms/crud_form_layout'
-import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
   Form,

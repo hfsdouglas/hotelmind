@@ -1,3 +1,4 @@
+import { Button } from '@hotelmind/ui'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import type { Hotel } from '@/api/hoteis.service'
@@ -17,7 +18,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { Button } from '@/components/ui/button'
 import { usePageTitle } from '@/hooks/use_document_title'
 import { usePaginacao } from '@/hooks/use_paginacao'
 

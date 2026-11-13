@@ -1,6 +1,6 @@
+import { Button } from '@hotelmind/ui'
 import { CheckCircle2, Circle } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 
 export interface CategoryCardItem {
   id: string

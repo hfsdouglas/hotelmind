@@ -1,7 +1,7 @@
+import { Button } from '@hotelmind/ui'
 import { Copy, ExternalLink, Mail, MessageSquare } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
 
 export interface OrcamentoAcoesCompartilhamentoProps {
   token_publico: string

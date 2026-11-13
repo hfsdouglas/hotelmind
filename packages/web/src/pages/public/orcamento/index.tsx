@@ -1,3 +1,4 @@
+import { Button } from '@hotelmind/ui'
 import { useQuery } from '@tanstack/react-query'
 import {
   AlertCircle,
@@ -19,7 +20,6 @@ import { useParams } from 'react-router-dom'
 import { orcamentosService } from '@/api/orcamentos.service'
 import { ModalReservarInfo } from '@/components/orcamentos/modal_reservar_info'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { usePageTitle } from '@/hooks/use_document_title'

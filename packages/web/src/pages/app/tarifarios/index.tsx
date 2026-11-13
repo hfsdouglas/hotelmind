@@ -1,4 +1,5 @@
 import type { Tarifario } from '@hotelmind/contracts'
+import { Button } from '@hotelmind/ui'
 import { useQuery } from '@tanstack/react-query'
 import { Filter, Pencil, Plus, X } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
@@ -10,7 +11,6 @@ import { ListPageLayout } from '@/components/data-table/list_page_layout'
 import { PagedDataTable } from '@/components/data-table/paged_data_table'
 import { SearchBar } from '@/components/data-table/search_bar'
 import { TarifarioStatusBadge } from '@/components/tarifarios/tarifario_status_badge'
-import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import {
   Popover,

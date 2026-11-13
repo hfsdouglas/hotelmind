@@ -3,6 +3,7 @@ import type {
   StatusParceiro,
   TipoParceiro,
 } from '@hotelmind/contracts'
+import { Button } from '@hotelmind/ui'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Edit, Plus, ShieldAlert, Trash2 } from 'lucide-react'
 import { useState } from 'react'
@@ -15,7 +16,6 @@ import { PagedDataTable } from '@/components/data-table/paged_data_table'
 import { SearchBar } from '@/components/data-table/search_bar'
 import { ModalStatusParceiro } from '@/components/parceiros/modal_status_parceiro'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import {
   Select,
   SelectContent,

@@ -1,3 +1,4 @@
+import { Button } from '@hotelmind/ui'
 import {
   Baby,
   Bed,
@@ -12,7 +13,6 @@ import {
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { PageHeader } from '@/components/layout/page_header'
-import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import {
   Card,

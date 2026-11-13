@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Button } from '@hotelmind/ui'
 import { useForm } from 'react-hook-form'
 import { SuiteSyncLogo } from '@/components/layout/suite_sync_logo'
-import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,

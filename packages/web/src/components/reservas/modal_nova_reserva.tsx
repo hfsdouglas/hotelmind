@@ -1,7 +1,7 @@
 import type { Reserva } from '@hotelmind/contracts'
+import { Button } from '@hotelmind/ui'
 import { SaveButton } from '@/components/forms/save_button'
 import { NovaReservaFormFields } from '@/components/reservas/nova_reserva_form_fields'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,

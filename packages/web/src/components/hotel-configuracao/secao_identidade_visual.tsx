@@ -1,7 +1,7 @@
+import { Button } from '@hotelmind/ui'
 import { Eye, Palette, Upload } from 'lucide-react'
 import type React from 'react'
 import { Controller, type UseFormReturn } from 'react-hook-form'
-import { Button } from '@/components/ui/button'
 import { ColorPicker } from '@/components/ui/color_picker'
 import {
   FormField,

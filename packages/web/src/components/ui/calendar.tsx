@@ -1,3 +1,4 @@
+import { Button, buttonVariants } from '@hotelmind/ui'
 import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import * as React from 'react'
 import {
@@ -6,7 +7,6 @@ import {
   type DropdownProps,
   getDefaultClassNames,
 } from 'react-day-picker'
-import { Button, buttonVariants } from '@/components/ui/button'
 import {
   Select,
   SelectContent,

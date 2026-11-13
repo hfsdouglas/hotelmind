@@ -3,10 +3,10 @@ import type {
   ReservaHospede,
   SaveFichaPayload,
 } from '@hotelmind/contracts'
+import { Button } from '@hotelmind/ui'
 import { Compass, Copy, MapPin, Phone, User } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,

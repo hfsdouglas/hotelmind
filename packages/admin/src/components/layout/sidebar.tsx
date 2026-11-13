@@ -1,3 +1,4 @@
+import { Button } from '@hotelmind/ui'
 import {
   Building2,
   LayoutDashboard,
@@ -9,7 +10,6 @@ import {
 } from 'lucide-react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useAuth } from '@/hooks/use_auth'
 import { useLogout } from '@/hooks/use_logout'

@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Button } from '@hotelmind/ui'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -8,7 +9,6 @@ import type { RotaItem } from '@/api/grupos.service'
 import { gruposService } from '@/api/grupos.service'
 import { CheckboxGroupList } from '@/components/forms/checkbox_group_list'
 import { CrudFormLayout, SaveButton } from '@/components/forms/crud_form_layout'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {

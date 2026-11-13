@@ -1,7 +1,7 @@
+import { Button } from '@hotelmind/ui'
 import { Car, Eye, EyeOff, Wifi } from 'lucide-react'
 import { useState } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
-import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
   FormControl,

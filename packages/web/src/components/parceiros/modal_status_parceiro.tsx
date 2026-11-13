@@ -1,6 +1,6 @@
 import type { ParceiroComercial, StatusParceiro } from '@hotelmind/contracts'
+import { Button } from '@hotelmind/ui'
 import { useEffect, useState } from 'react'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,

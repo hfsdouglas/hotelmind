@@ -1,5 +1,5 @@
+import { Button } from '@hotelmind/ui'
 import { Link } from 'react-router-dom'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,

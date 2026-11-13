@@ -1,7 +1,7 @@
 import type { ReservaHospede } from '@hotelmind/contracts'
+import { Button } from '@hotelmind/ui'
 import { Edit2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,

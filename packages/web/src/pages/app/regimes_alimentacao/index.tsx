@@ -1,4 +1,5 @@
 import type { RegimeAlimentacao } from '@hotelmind/contracts'
+import { Button } from '@hotelmind/ui'
 import { Filter, Pencil, Plus, X } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { regimesAlimentacaoService } from '@/api/regimes_alimentacao.service'
@@ -7,7 +8,6 @@ import { ListPageLayout } from '@/components/data-table/list_page_layout'
 import { PagedDataTable } from '@/components/data-table/paged_data_table'
 import { SearchBar } from '@/components/data-table/search_bar'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import {
   Popover,

@@ -1,4 +1,5 @@
 import type { PeriodoTarifarioCalendario } from '@hotelmind/contracts'
+import { Button } from '@hotelmind/ui'
 import {
   AlertTriangle,
   Calendar as CalendarIcon,
@@ -11,7 +12,6 @@ import {
   X,
 } from 'lucide-react'
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
 import {
   Popover,
   PopoverContent,

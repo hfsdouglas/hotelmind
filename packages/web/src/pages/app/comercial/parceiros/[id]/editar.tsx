@@ -1,3 +1,4 @@
+import { Button } from '@hotelmind/ui'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -6,7 +7,6 @@ import {
   ParceiroForm,
   type ParceiroFormState,
 } from '@/components/parceiros/parceiro_form'
-import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { usePageTitle } from '@/hooks/use_document_title'
 

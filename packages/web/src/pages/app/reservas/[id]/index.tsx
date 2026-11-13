@@ -1,4 +1,5 @@
 import type { ReservaHospede, SaveFichaPayload } from '@hotelmind/contracts'
+import { Button } from '@hotelmind/ui'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft, Edit } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
@@ -11,7 +12,6 @@ import { ReservaContatoCard } from '@/components/reservas/reserva_contato_card'
 import { ReservaDetalhesHospedagem } from '@/components/reservas/reserva_detalhes_hospedagem'
 import { ReservaHospedesSection } from '@/components/reservas/reserva_hospedes_section'
 import { ReservaStatusBadge } from '@/components/reservas/reserva_status_badge'
-import { Button } from '@/components/ui/button'
 import { usePageTitle } from '@/hooks/use_document_title'
 import { primeira_ficha_pendente } from '@/lib/fnrh'
 

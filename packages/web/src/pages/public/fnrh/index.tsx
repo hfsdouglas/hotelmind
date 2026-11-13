@@ -1,4 +1,5 @@
 import type { FichaFnrh, FnrhPublicaView } from '@hotelmind/contracts'
+import { Button } from '@hotelmind/ui'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   AlertCircle,
@@ -25,7 +26,6 @@ import { useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { reservasService } from '@/api/reservas.service'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'

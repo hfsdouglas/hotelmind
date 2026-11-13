@@ -1,6 +1,6 @@
+import { Button } from '@hotelmind/ui'
 import { BellRing, CalendarPlus, Info } from 'lucide-react'
 import type { ReactNode, Ref } from 'react'
-import { Button } from '@/components/ui/button'
 import {
   Tooltip,
   TooltipContent,

@@ -1,4 +1,5 @@
 import type { Usuario } from '@hotelmind/contracts'
+import { Button } from '@hotelmind/ui'
 import { Pencil, Plus } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { usuariosService } from '@/api/usuarios.service'
@@ -6,7 +7,6 @@ import type { Column } from '@/components/data-table/data_table'
 import { ListPageLayout } from '@/components/data-table/list_page_layout'
 import { PagedDataTable } from '@/components/data-table/paged_data_table'
 import { SearchBar } from '@/components/data-table/search_bar'
-import { Button } from '@/components/ui/button'
 import { usePageTitle } from '@/hooks/use_document_title'
 import { usePaginacao } from '@/hooks/use_paginacao'
 

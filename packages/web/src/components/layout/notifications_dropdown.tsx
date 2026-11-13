@@ -1,6 +1,6 @@
+import { Button } from '@hotelmind/ui'
 import { Bell } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 
 export function NotificationsDropdown() {

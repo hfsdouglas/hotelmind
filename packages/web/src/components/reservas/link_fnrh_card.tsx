@@ -1,3 +1,4 @@
+import { Button } from '@hotelmind/ui'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   CheckCircle2,
@@ -11,7 +12,6 @@ import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { reservasService } from '@/api/reservas.service'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,

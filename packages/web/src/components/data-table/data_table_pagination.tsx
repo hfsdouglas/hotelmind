@@ -1,10 +1,10 @@
+import { Button } from '@hotelmind/ui'
 import {
   ChevronFirst,
   ChevronLast,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import {
   Select,
   SelectContent,

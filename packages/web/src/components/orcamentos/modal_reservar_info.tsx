@@ -1,5 +1,5 @@
+import { Button } from '@hotelmind/ui'
 import { Phone, Sparkles } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
