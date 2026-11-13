@@ -32,6 +32,9 @@ tailwind.preset.ts       # shared preset (colors, radius, dark mode)
 - **Domain text stays out.** A primitive exposes props (labels, render slots)
   and the app wraps it with its own wording (e.g. web's
   `WristbandColorPicker` over `ColorPicker`).
+- **Colors are hexadecimal** (`#RRGGBB` / `#RRGGBBAA`) everywhere: tokens,
+  Tailwind and components, never `oklch()`/`hsl()`/`rgb()` (enforced by
+  `tokens.spec.ts`).
 - **Tokens:** shared tokens live in `src/styles/tokens.css`; the preset
   (`@hotelmind/ui/tailwind.preset`) may only reference variables defined there
   in light and dark (enforced by `tokens.spec.ts`). Domain tokens stay in the
