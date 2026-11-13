@@ -10,7 +10,7 @@ preset, documented in Storybook. Consumed by `web` and `admin`
 ```text
 src/
 ├── components/<name>/   # <name>.tsx + <name>.stories.tsx (snake_case)
-├── lib/cn.ts            # clsx + tailwind-merge helper (+ cn.spec.ts)
+├── lib/                 # cn.ts (clsx + tailwind-merge), date_mask.ts (+ specs)
 ├── styles/              # tokens.css (light/dark) + globals.css (Storybook)
 ├── tests/               # setup.ts, a11y.spec.tsx (axe over every story)
 └── index.ts             # public API: every export is listed explicitly
@@ -28,7 +28,10 @@ tailwind.preset.ts       # shared preset (colors, radius, dark mode)
   from `src/index.ts`. The axe spec runs over every story, so a story that
   breaks accessibility fails `pnpm test`.
 - **No unit tests per primitive** (shadcn/ui vendor code). Test only what is
-  written here: `cn`, the preset/tokens and the a11y spec.
+  written here: `cn`, `date_mask`, the preset/tokens and the a11y spec.
+- **Domain text stays out.** A primitive exposes props (labels, render slots)
+  and the app wraps it with its own wording (e.g. web's
+  `WristbandColorPicker` over `ColorPicker`).
 - **Tokens:** shared tokens live in `src/styles/tokens.css`; the preset
   (`@hotelmind/ui/tailwind.preset`) may only reference variables defined there
   in light and dark (enforced by `tokens.spec.ts`). Domain tokens stay in the
@@ -47,8 +50,3 @@ pnpm --filter @hotelmind/ui build-storybook
 pnpm --filter @hotelmind/ui test             # cn, tokens/preset, axe over stories
 pnpm --filter @hotelmind/ui typecheck
 ```
-
-## Pending migration
-
-`calendar`, `date_picker` and `color_picker` still live in
-`packages/web/src/components/ui/` (date logic, `use_date_mask`).

@@ -25,7 +25,6 @@ src/
 │   ├── app/          # Authenticated pages
 │   └── auth/         # Public auth pages
 ├── components/       # ALL reusable components
-│   ├── ui/           # Leftovers pending migration to @hotelmind/ui (NOT tested)
 │   ├── forms/        # CrudFormLayout, CheckboxGrid, CheckboxGroupList, save_button
 │   ├── data-table/   # List primitives (see DataTable)
 │   ├── layout/       # Sidebar, Navbar
@@ -55,7 +54,9 @@ modals, dialogs, sections and widgets go in `src/components/<domain>/`.
 - Primitives (Button, Input, Select, Dialog, Form, Table...) come from
   `@hotelmind/ui` (`packages/ui`), never from a local copy. Never duplicate a
   primitive inside `web` or `admin`; new generic primitives are created in
-  `packages/ui` with a story (see `packages/ui/CLAUDE.md`).
+  `packages/ui` with a story (see `packages/ui/CLAUDE.md`). Domain wording or
+  behavior stays in an app wrapper under `components/<domain>/`, configured
+  through the primitive's props.
 - Use the shadcn MCP tools to search/scaffold primitives before hand-writing UI.
 - Multi-line fields use `Textarea` from `@hotelmind/ui`, never `Input`.
 - Tokens: shared tokens and the Tailwind preset live in `packages/ui`; an app
@@ -129,9 +130,10 @@ Every create/edit page uses `components/forms/crud_form_layout.tsx`:
 Stack: Vitest + React Testing Library (unit/integration) · Playwright (E2E) · MSW.
 
 **What to test** (created by the application): components, contexts, hooks and
-pages. **Never** test `components/ui/*` or the primitives in `packages/ui`
-(shadcn/ui vendor code); `packages/ui` is covered by stories and the axe
-accessibility spec instead.
+pages. **Never** test the primitives in `packages/ui` (shadcn/ui vendor code);
+`packages/ui` is covered by stories, the axe accessibility spec and specs for
+its pure helpers (`cn`, date mask) instead. Domain wrappers around a primitive
+(e.g. `WristbandColorPicker`) are app code and are tested.
 
 - Unit specs: `.spec.ts(x)` next to the file under test.
 - E2E specs: `src/tests/<domain>/<name>.e2e.ts` (Playwright; `*.e2e.ts` is
