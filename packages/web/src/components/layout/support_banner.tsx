@@ -10,7 +10,7 @@ export function SupportBanner() {
   return (
     <div
       role="status"
-      className="flex items-center justify-between gap-4 bg-amber-500 px-4 py-2 text-sm font-medium text-black"
+      className="flex items-center justify-between gap-4 bg-warning px-4 py-2 text-sm font-medium text-warning-foreground"
     >
       <span>
         Modo suporte — administrador {session.suporte.administrador_nome}{' '}
@@ -19,7 +19,7 @@ export function SupportBanner() {
       <button
         type="button"
         onClick={logout}
-        className="rounded-md border border-black/20 px-2 py-1 text-xs font-semibold hover:bg-black/10"
+        className="rounded-md border border-warning-foreground/20 px-2 py-1 text-xs font-semibold hover:bg-warning-foreground/10"
       >
         Encerrar
       </button>

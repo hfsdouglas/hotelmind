@@ -27,9 +27,17 @@ Port 5173; talks to `api` (`VITE_API_URL`, default `http://localhost:3000`).
 
 ## Dynamic Sidebar
 
-`components/layout/sidebar.tsx` renders navigation from `session.rotas` (saved
-at login):
+There is no top navbar: the app shell is `AppShell` from `@hotelmind/ui`
+(sidebar on desktop, drawer plus a minimal bar on mobile). `components/layout/
+sidebar.tsx` wraps it with session data and renders navigation from
+`session.rotas` (saved at login) through `components/layout/build_navigation.ts`:
 
-- Grouped by `modulo`, sorted by `ordem`.
-- Icons resolved through `ICON_MAP` using each route's `icone`.
+- Grouped by `modulo`, sorted by `ordem`. A module with a single resource is a
+  flat item labelled by the resource; otherwise it is a collapsible group.
+- Icons resolved through `ICON_MAP` using each route's `icone` (unknown icons
+  fall back to `LayoutDashboard`).
+- The footer holds the notifications bell and `SidebarUserCard` (user name,
+  hotel name, theme toggle and logout in a menu).
+- The collapsed state persists in `localStorage` under
+  `suitesync-sidebar-collapsed`.
 - Never hardcode navigation items.

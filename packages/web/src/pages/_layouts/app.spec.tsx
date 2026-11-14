@@ -61,7 +61,11 @@ describe('AppLayout', () => {
   it('renders child outlet and shell when authenticated', () => {
     renderAppLayout(true)
     expect(screen.getByText('Conteúdo do Dashboard')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Menu' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Abrir menu' })
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('banner')).not.toBeInTheDocument()
+    expect(screen.getByRole('main')).toHaveAttribute('id', 'conteudo-principal')
   })
 
   it('redirects to /login when unauthenticated', () => {

@@ -27,7 +27,7 @@ src/
 ├── components/       # ALL reusable components
 │   ├── forms/        # CrudFormLayout wrapper (binds ui layout to the router)
 │   ├── data-table/   # paged_data_table (query-bound; rest comes from ui)
-│   ├── layout/       # Sidebar, Navbar
+│   ├── layout/       # Sidebar, SidebarUserCard (top navbar removed; shell comes from ui)
 │   └── <domain>/     # Domain components
 ├── hooks/            # Custom hooks (queries, mutations, UI helpers)
 ├── api/              # Axios client and endpoints
@@ -58,7 +58,8 @@ modals, dialogs, sections and widgets go in `src/components/<domain>/`.
   behavior stays in an app wrapper under `components/<domain>/`, configured
   through the primitive's props.
 - Reusable compositions with no router/query/API dependency (`SaveButton`,
-  `CheckboxGrid`, `FilterPanel`, `ResultCount`, `SuiteSyncLogo`) live in
+  `CheckboxGrid`, `FilterPanel`, `ResultCount`, `SuiteSyncLogo`, `AppShell`,
+  `AppSidebar`, `SidebarUserCard`) live in
   `packages/ui/src/patterns/`, never duplicated in `web` and `admin`.
 - `cn` comes from `@hotelmind/ui`; do not recreate `lib/utils.ts`.
 - Use the shadcn MCP tools to search/scaffold primitives before hand-writing UI.
