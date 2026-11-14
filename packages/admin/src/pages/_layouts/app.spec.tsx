@@ -50,8 +50,12 @@ describe('Admin AppLayout', () => {
   it('renders child outlet and layout when authenticated', () => {
     renderAdminAppLayout(true)
     expect(screen.getByText('Conteúdo Admin Dashboard')).toBeInTheDocument()
-    expect(screen.getByText('Suite')).toBeInTheDocument()
-    expect(screen.getByText('Sync')).toBeInTheDocument()
+    expect(screen.getAllByText('Suite').length).toBeGreaterThan(0)
+    expect(
+      screen.getByRole('button', { name: 'Abrir menu' })
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('banner')).not.toBeInTheDocument()
+    expect(screen.getByRole('main')).toHaveAttribute('id', 'conteudo-principal')
   })
 
   it('redirects to /login when unauthenticated', () => {

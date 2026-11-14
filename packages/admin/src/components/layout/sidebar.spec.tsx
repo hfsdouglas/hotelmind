@@ -1,11 +1,14 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { act, render, screen } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AuthContext } from '@/contexts/auth_context'
 import { ThemeProvider } from '@/contexts/theme_context'
 import type { AdminSession } from '@/types/auth'
 import { Sidebar } from './sidebar'
+
+const STORAGE_KEY = 'suitesync-sidebar-collapsed'
 
 const mockAdminSession: AdminSession = {
   admin: {
@@ -15,7 +18,7 @@ const mockAdminSession: AdminSession = {
   },
 }
 
-function renderSidebar(isOpen = true, onClose = vi.fn()) {
+function renderSidebar(path = '/hoteis/novo') {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   })
@@ -30,8 +33,10 @@ function renderSidebar(isOpen = true, onClose = vi.fn()) {
             isAuthenticated: true,
           }}
         >
-          <MemoryRouter initialEntries={['/dashboard']}>
-            <Sidebar isOpen={isOpen} onClose={onClose} />
+          <MemoryRouter initialEntries={[path]}>
+            <Sidebar>
+              <p>Conteúdo Admin</p>
+            </Sidebar>
           </MemoryRouter>
         </AuthContext.Provider>
       </ThemeProvider>
@@ -39,19 +44,63 @@ function renderSidebar(isOpen = true, onClose = vi.fn()) {
   )
 }
 
-describe('Sidebar', () => {
-  it('renders theme toggle button with light/dark options', async () => {
-    localStorage.setItem('theme', 'light')
+describe('Sidebar (admin)', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    localStorage.setItem(STORAGE_KEY, 'false')
+  })
+
+  it('renders the fixed platform navigation and the active section', () => {
     renderSidebar()
 
-    const themeButton = screen.getByTitle('Modo escuro')
-    expect(themeButton).toBeInTheDocument()
+    for (const label of [
+      'Dashboard',
+      'Hotéis',
+      'Rotas',
+      'Administradores',
+      'Suporte',
+    ]) {
+      expect(screen.getByRole('link', { name: label })).toBeInTheDocument()
+    }
+    expect(screen.getByText('Plataforma')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Hotéis' })).toHaveAttribute(
+      'aria-current',
+      'page'
+    )
+    expect(screen.getByRole('link', { name: 'Dashboard' })).not.toHaveAttribute(
+      'aria-current'
+    )
+  })
 
-    await act(async () => {
-      themeButton.click()
-    })
+  it('uses the brand variant, with the ADMIN badge and the content in main', () => {
+    const { container } = renderSidebar()
 
-    expect(screen.getByTitle('Modo claro')).toBeInTheDocument()
-    expect(document.documentElement.classList.contains('dark')).toBe(true)
+    expect(
+      container.querySelector('[data-sidebar-variant="brand"]')
+    ).not.toBeNull()
+    expect(screen.getAllByText('ADMIN').length).toBeGreaterThan(0)
+    expect(screen.getByRole('main')).toHaveTextContent('Conteúdo Admin')
+    expect(screen.queryByRole('banner')).not.toBeInTheDocument()
+  })
+
+  it('shows the administrator in the footer card and moves the theme toggle to its menu', async () => {
+    const user = userEvent.setup()
+    renderSidebar()
+
+    expect(screen.getByText('Admin Teste')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /Admin Teste/ }))
+    expect(
+      await screen.findByRole('menuitem', { name: 'Modo escuro' })
+    ).toBeInTheDocument()
+    expect(screen.getByRole('menuitem', { name: 'Sair' })).toBeInTheDocument()
+  })
+
+  it('persists the collapsed preference', async () => {
+    const user = userEvent.setup()
+    renderSidebar()
+
+    await user.click(screen.getByRole('button', { name: 'Recolher menu' }))
+
+    expect(localStorage.getItem(STORAGE_KEY)).toBe('true')
   })
 })
