@@ -42,6 +42,30 @@
   --primary-darkest: #00112b;
   --primary-shadow: #000514;
   --primary-void: #000207;
+
+  /* Sidebar */
+  --sidebar: #fbfcfc;
+  --sidebar-foreground: #080c0f;
+  --sidebar-muted-foreground: #535f6c;
+  --sidebar-border: #d3d8de;
+  --sidebar-primary: #00468c;
+  --sidebar-primary-foreground: #fcfcfc;
+  --sidebar-accent: #e6eaef;
+  --sidebar-accent-foreground: #080c0f;
+
+  /* Overlays */
+  --overlay: #00051480;
+  --overlay-strong: #000514cc;
+
+  /* Brand (logo roles) */
+  --brand-mark: #003167;
+  --brand-stroke: #b9d3f5;
+  --brand-accent: #008474;
+  --brand-wordmark-accent: #00468c;
+  --brand-mark-on-primary: #85b4f0;
+  --brand-stroke-on-primary: #003167;
+  --brand-accent-on-primary: #6cccba;
+  --brand-text-on-primary: #a6ded2;
 }
 
 .dark {
@@ -80,4 +104,51 @@
   --primary-darkest: #00112b;
   --primary-shadow: #000b1f;
   --primary-void: #000514;
+
+  /* Sidebar */
+  --sidebar: #0b1c2c;
+  --sidebar-foreground: #e9f0f5;
+  --sidebar-muted-foreground: #94a0aa;
+  --sidebar-border: #193550;
+  --sidebar-primary: #1a73d5;
+  --sidebar-primary-foreground: #fcfcfc;
+  --sidebar-accent: #132946;
+  --sidebar-accent-foreground: #e9f0f5;
+
+  /* Overlays */
+  --overlay: #000514b3;
+  --overlay-strong: #000514e6;
+
+  /* Brand (logo roles) */
+  --brand-mark: #b9d3f5;
+  --brand-stroke: #1a73d5;
+  --brand-accent: #009583;
+  --brand-wordmark-accent: #6cccba;
+  --brand-mark-on-primary: #85b4f0;
+  --brand-stroke-on-primary: #003167;
+  --brand-accent-on-primary: #6cccba;
+  --brand-text-on-primary: #a6ded2;
+}
+
+/* Brand variant (admin): blue sidebar in both themes */
+[data-sidebar-variant="brand"] {
+  --sidebar: #00468c;
+  --sidebar-foreground: #fcfcfc;
+  --sidebar-muted-foreground: #b9d3f5;
+  --sidebar-border: #003167;
+  --sidebar-primary: #fcfcfc;
+  --sidebar-primary-foreground: #00468c;
+  --sidebar-accent: #003167;
+  --sidebar-accent-foreground: #fcfcfc;
+}
+
+.dark [data-sidebar-variant="brand"] {
+  --sidebar: #002855;
+  --sidebar-foreground: #fcfcfc;
+  --sidebar-muted-foreground: #b9d3f5;
+  --sidebar-border: #001a3b;
+  --sidebar-primary: #1a73d5;
+  --sidebar-primary-foreground: #fcfcfc;
+  --sidebar-accent: #001a3b;
+  --sidebar-accent-foreground: #fcfcfc;
 }

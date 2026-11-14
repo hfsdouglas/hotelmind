@@ -39,15 +39,21 @@ export function SuiteSyncLogo({
       >
         <polygon
           points="32,5 33.5,8 36.5,9.5 33.5,11 32,14 30.5,11 27.5,9.5 30.5,8"
-          className={isOnPrimary ? 'fill-[#6CCCBA]' : 'fill-tertiary'}
+          className={
+            isOnPrimary ? 'fill-brand-accent-on-primary' : 'fill-brand-accent'
+          }
         />
         <polygon
           points="20,8.5 21.1,10.9 23.5,12 21.1,13.1 20,15.5 18.9,13.1 16.5,12 18.9,10.9"
-          className={isOnPrimary ? 'fill-[#6CCCBA]' : 'fill-tertiary'}
+          className={
+            isOnPrimary ? 'fill-brand-accent-on-primary' : 'fill-brand-accent'
+          }
         />
         <polygon
           points="44,8.5 45.1,10.9 47.5,12 45.1,13.1 44,15.5 42.9,13.1 40.5,12 42.9,10.9"
-          className={isOnPrimary ? 'fill-[#6CCCBA]' : 'fill-tertiary'}
+          className={
+            isOnPrimary ? 'fill-brand-accent-on-primary' : 'fill-brand-accent'
+          }
         />
 
         <rect
@@ -56,14 +62,18 @@ export function SuiteSyncLogo({
           width="12"
           height="2.5"
           rx="1.25"
-          className={isOnPrimary ? 'fill-[#85B4F0]' : 'fill-primary-deep'}
+          className={
+            isOnPrimary ? 'fill-brand-mark-on-primary' : 'fill-brand-mark'
+          }
         />
         <rect
           x="9"
           y="29"
           width="10.5"
           height="26"
-          className={isOnPrimary ? 'fill-[#85B4F0]' : 'fill-primary-deep'}
+          className={
+            isOnPrimary ? 'fill-brand-mark-on-primary' : 'fill-brand-mark'
+          }
         />
         <rect
           x="44.5"
@@ -71,14 +81,18 @@ export function SuiteSyncLogo({
           width="12"
           height="2.5"
           rx="1.25"
-          className={isOnPrimary ? 'fill-[#85B4F0]' : 'fill-primary-deep'}
+          className={
+            isOnPrimary ? 'fill-brand-mark-on-primary' : 'fill-brand-mark'
+          }
         />
         <rect
           x="44.5"
           y="29"
           width="10.5"
           height="26"
-          className={isOnPrimary ? 'fill-[#85B4F0]' : 'fill-primary-deep'}
+          className={
+            isOnPrimary ? 'fill-brand-mark-on-primary' : 'fill-brand-mark'
+          }
         />
 
         <rect
@@ -87,7 +101,9 @@ export function SuiteSyncLogo({
           width="4.5"
           height="4"
           rx="0.8"
-          className={isOnPrimary ? 'fill-primary-deep' : 'fill-[#B9D3F5]'}
+          className={
+            isOnPrimary ? 'fill-brand-stroke-on-primary' : 'fill-brand-stroke'
+          }
         />
         <rect
           x="12"
@@ -95,7 +111,9 @@ export function SuiteSyncLogo({
           width="4.5"
           height="4"
           rx="0.8"
-          className={isOnPrimary ? 'fill-primary-deep' : 'fill-[#B9D3F5]'}
+          className={
+            isOnPrimary ? 'fill-brand-stroke-on-primary' : 'fill-brand-stroke'
+          }
         />
         <rect
           x="12"
@@ -103,7 +121,9 @@ export function SuiteSyncLogo({
           width="4.5"
           height="4"
           rx="0.8"
-          className={isOnPrimary ? 'fill-primary-deep' : 'fill-[#B9D3F5]'}
+          className={
+            isOnPrimary ? 'fill-brand-stroke-on-primary' : 'fill-brand-stroke'
+          }
         />
         <rect
           x="47.5"
@@ -111,7 +131,9 @@ export function SuiteSyncLogo({
           width="4.5"
           height="4"
           rx="0.8"
-          className={isOnPrimary ? 'fill-primary-deep' : 'fill-[#B9D3F5]'}
+          className={
+            isOnPrimary ? 'fill-brand-stroke-on-primary' : 'fill-brand-stroke'
+          }
         />
         <rect
           x="47.5"
@@ -119,7 +141,9 @@ export function SuiteSyncLogo({
           width="4.5"
           height="4"
           rx="0.8"
-          className={isOnPrimary ? 'fill-primary-deep' : 'fill-[#B9D3F5]'}
+          className={
+            isOnPrimary ? 'fill-brand-stroke-on-primary' : 'fill-brand-stroke'
+          }
         />
         <rect
           x="47.5"
@@ -127,7 +151,9 @@ export function SuiteSyncLogo({
           width="4.5"
           height="4"
           rx="0.8"
-          className={isOnPrimary ? 'fill-primary-deep' : 'fill-[#B9D3F5]'}
+          className={
+            isOnPrimary ? 'fill-brand-stroke-on-primary' : 'fill-brand-stroke'
+          }
         />
 
         <rect
@@ -197,7 +223,9 @@ export function SuiteSyncLogo({
 
         <path
           d="M 27 55 V 48 A 5 5 0 0 1 37 48 V 55 Z"
-          className={isOnPrimary ? 'fill-tertiary' : 'fill-[#6CCCBA]'}
+          className={
+            isOnPrimary ? 'fill-brand-accent' : 'fill-brand-accent-on-primary'
+          }
         />
 
         <rect
@@ -206,7 +234,9 @@ export function SuiteSyncLogo({
           width="53"
           height="3.5"
           rx="1.75"
-          className={isOnPrimary ? 'fill-[#6CCCBA]' : 'fill-primary-deep'}
+          className={
+            isOnPrimary ? 'fill-brand-accent-on-primary' : 'fill-brand-mark'
+          }
         />
       </svg>
 
@@ -223,8 +253,8 @@ export function SuiteSyncLogo({
             <span
               className={cn(
                 isOnPrimary
-                  ? 'text-[#A6DED2]'
-                  : 'text-primary dark:text-[#6CCCBA]'
+                  ? 'text-brand-text-on-primary'
+                  : 'text-brand-wordmark-accent'
               )}
             >
               Sync

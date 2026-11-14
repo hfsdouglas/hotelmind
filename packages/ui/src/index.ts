@@ -51,6 +51,23 @@ export {
   DialogTrigger,
 } from './components/dialog/dialog'
 export {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from './components/dropdown_menu/dropdown_menu'
+export {
   Form,
   FormControl,
   FormDescription,
@@ -112,6 +129,20 @@ export {
   mask_date,
 } from './lib/date_mask'
 export {
+  AppShell,
+  type AppShellProps,
+} from './patterns/app_shell/app_shell'
+export {
+  AppSidebar,
+  type AppSidebarProps,
+  type NavBadge,
+  type NavItem,
+  type NavSection,
+  type RenderLink,
+  type RenderLinkProps,
+  sidebarItemClass,
+} from './patterns/app_sidebar/app_sidebar'
+export {
   CheckboxGrid,
   type CheckboxGridItem,
 } from './patterns/checkbox_grid/checkbox_grid'
@@ -140,6 +171,11 @@ export {
   SearchResultsSkeleton,
   SearchResultsSuspense,
 } from './patterns/search_results_suspense/search_results_suspense'
+export {
+  SidebarUserCard,
+  type SidebarUserCardProps,
+  type UserMenuItem,
+} from './patterns/sidebar_user_card/sidebar_user_card'
 export {
   SuiteSyncLogo,
   type SuiteSyncLogoProps,
